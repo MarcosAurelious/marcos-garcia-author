@@ -302,6 +302,7 @@ a { color: inherit; text-decoration: none; }
 .corner-br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
 .cover-svg { width: 100%; height: auto; }
+.cover-image { width: 100%; height: auto; display: block; }
 .cover-bg { fill: var(--ink-light); }
 .cover-line { stroke: var(--gold); fill: none; }
 .cover-bust { fill: none; stroke: var(--copper); stroke-width: 1.3; }
