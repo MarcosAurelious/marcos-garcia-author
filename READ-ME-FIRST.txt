@@ -1,25 +1,27 @@
-ROOT-UPLOAD FIX — NO FOLDERS REQUIRED
+MARCOS AUTHOR SITE — LAYOUT FIX
 
-The images did not appear because GitHub could not find them at:
-images/marcus-cosmic-bust.webp
-images/universe-grand-mysteries-cover.webp
+This update fixes:
+1. The “Stoic thought meets the infinite” caption by placing it to the right of the cosmic Marcus image on desktop.
+2. The In Development section so the book cover and text sit in a balanced two-column layout.
+3. The oversized blank space and narrow, one-word-per-line title.
+4. Mobile and tablet layout.
 
-This corrected packet keeps all four files at the repository root.
+UPLOAD STEPS
+1. Unzip this packet.
+2. Open:
+   https://github.com/MarcosAurelious/marcos-garcia-author
+3. Click the existing file named:
+   marcus-additions.css
+4. Click the pencil/edit icon.
+5. Select all existing text and replace it with the contents of the new marcus-additions.css file.
 
-UPLOAD THESE FOUR FILES TO THE MAIN REPOSITORY PAGE:
-1. index.html
-2. marcus-additions.css
-3. marcus-cosmic-bust.webp
-4. universe-grand-mysteries-cover.webp
+OR:
+- Use Add file → Upload files
+- Upload the new marcus-additions.css
+- Confirm replacement
+- Commit changes
 
-Steps:
-1. Open https://github.com/MarcosAurelious/marcos-garcia-author
-2. Make sure you are on the main repository page, not inside the images folder.
-3. Click Add file → Upload files.
-4. Drag all four files into the upload window.
-5. Choose Replace when GitHub warns that index.html already exists.
-6. Commit with: Fix Marcus website images
-7. Wait 1–3 minutes.
-8. Open the website and press Ctrl+F5.
+Commit message:
+Fix author and development layouts
 
-Do not upload the ZIP itself. Unzip it first and upload the four files inside.
+Wait 1–3 minutes, then refresh the live site with Ctrl+F5.
