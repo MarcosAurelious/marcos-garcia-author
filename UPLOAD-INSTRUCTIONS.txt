@@ -1,30 +1,18 @@
-MARCOS AUTHOR SITE — IMAGE AND PLACEMENT REPAIR
+GITHUB UPLOAD — BOOK BUTTON FIX
 
-This package restores the two missing root-level images and repairs the layout.
+1. Upload book-cover-fix.css into the main/root area of your repository.
+   It should sit beside index.html, style.css, and script.js.
 
-UPLOAD THESE THREE FILES TO THE MAIN/ROOT AREA OF YOUR GITHUB REPOSITORY:
+2. Open index.html and locate:
+   <link rel="stylesheet" href="style.css">
 
-1. marcus-cosmic-bust.webp
-2. universe-grand-mysteries-cover.webp
-3. script.js
+3. Directly under it, add:
+   <link rel="stylesheet" href="book-cover-fix.css">
 
-IMPORTANT:
-- Do not place these files inside the images folder.
-- They belong beside index.html, style.css, and script.js.
-- Replace the current script.js when GitHub asks.
-- Keep the existing images folder. It already contains:
-  author-photo.jpg
-  book-cover.jpg
-  marcus-specimen.jpg
+4. Commit the changes.
 
-After uploading:
-1. Click Commit changes.
-2. Wait 1–2 minutes.
-3. Open the live website.
-4. Press Ctrl + Shift + R.
-
-The intended desktop placement will be:
-- Hero text left / Marcus portrait right
-- Featured book cover left / description right
-- Author photo left / biography center / cosmic Marcus right
-- Future-book cover left / description right
+This fix:
+- Keeps the View Back Cover button below the book.
+- Shrinks and spaces the back-cover copy so it stays inside the book.
+- Prevents the text and button from overlapping.
+- Improves the mobile layout.
