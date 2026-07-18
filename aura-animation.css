@@ -1,162 +1,65 @@
-/* ==========================================================
-   MARCUS HERO AURA GLOW
-   Adds a subtle animated glow to the circular auras inside
-   the existing hero image. No JavaScript required.
-   ========================================================== */
+# Marcos Garcia — Author Website
+Setup & publishing guide
 
-.specimen-frame {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  border-radius: 3px;
-}
+Your site has 4 files:
 
-/* Keep the original artwork visible beneath the effects */
-.specimen-frame .specimen-image {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: auto;
-  animation: marcus-image-breathe 6s ease-in-out infinite;
-  will-change: filter, transform;
-}
+- `index.html` — the page content
+- `style.css` — the design (colors, type, layout)
+- `script.js` — mobile menu + small interactions
+- `images/author-photo.jpg` — your author photo (already added)
 
-/* Pulsing concentric aura rings */
-.specimen-frame::before {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  inset: -5%;
-  pointer-events: none;
+---
 
-  background:
-    repeating-radial-gradient(
-      circle at 51% 43%,
-      transparent 0 8%,
-      rgba(103, 220, 255, 0.10) 8.8% 9.5%,
-      transparent 10.3% 15%,
-      rgba(255, 195, 95, 0.11) 15.7% 16.5%,
-      transparent 17.2% 23%,
-      rgba(161, 114, 255, 0.10) 23.8% 24.7%,
-      transparent 25.5% 33%
-    );
+## 1. Before publishing — edit these placeholders
 
-  mix-blend-mode: screen;
-  opacity: 0.35;
-  filter: blur(0.4px);
-  animation: marcus-aura-pulse 4.8s ease-in-out infinite;
-  transform-origin: 51% 43%;
-  will-change: opacity, transform, filter;
-}
+Your email, Instagram, and Spotify links are already filled in. Just one spot left — open `index.html` and update:
 
-/* Rotating celestial shimmer and center glow */
-.specimen-frame::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  inset: -18%;
-  pointer-events: none;
+| Find | Replace with | Where |
+|---|---|---|
+| `https://amazon.com/author/yourname` | your Amazon author/book page URL | Contact section |
+| `Purchase link coming soon` button `href="#"` | your real sales/store link | Featured Book section |
 
-  background:
-    radial-gradient(
-      circle at 51% 43%,
-      rgba(255, 236, 165, 0.23) 0 5%,
-      rgba(93, 213, 255, 0.12) 10%,
-      transparent 27%
-    ),
-    conic-gradient(
-      from 0deg at 51% 43%,
-      transparent 0deg,
-      rgba(85, 208, 255, 0.14) 35deg,
-      transparent 75deg,
-      rgba(255, 188, 88, 0.14) 145deg,
-      transparent 205deg,
-      rgba(163, 108, 255, 0.13) 275deg,
-      transparent 360deg
-    );
+Each spot is marked with an `<!-- EDIT ME -->` comment in the code, so you can search for "EDIT ME" to find them fast.
 
-  mix-blend-mode: screen;
-  opacity: 0.28;
-  filter: blur(9px);
-  animation: marcus-aura-rotate 18s linear infinite,
-             marcus-aura-shimmer 5.5s ease-in-out infinite;
-  transform-origin: 51% 43%;
-  will-change: transform, opacity;
-}
+Your author photo is already in place at `images/author-photo.jpg`. To swap it later, just replace that file with a new image of the same name (or update the `src` in `index.html`).
 
-/* Soft glow around the full image frame */
-.specimen-frame {
-  box-shadow:
-    0 22px 55px rgba(0, 0, 0, 0.45),
-    0 0 24px rgba(66, 172, 224, 0.10),
-    0 0 54px rgba(191, 137, 63, 0.08);
-  animation: marcus-frame-glow 5.5s ease-in-out infinite;
-}
+---
 
-@keyframes marcus-aura-pulse {
-  0%, 100% {
-    opacity: 0.24;
-    transform: scale(0.985);
-    filter: blur(0.5px) brightness(0.95);
-  }
-  50% {
-    opacity: 0.58;
-    transform: scale(1.025);
-    filter: blur(1px) brightness(1.35);
-  }
-}
+## 2. Put it on GitHub Pages
 
-@keyframes marcus-aura-rotate {
-  from { transform: rotate(0deg) scale(1.02); }
-  to   { transform: rotate(360deg) scale(1.02); }
-}
+1. **Extract/save** all 4 files (and the `images` folder) together in one folder on your computer.
+2. Go to [github.com](https://github.com) and create a **new public repository** (e.g. `marcos-garcia-author`).
+3. Click **Add file → Upload files**, and upload:
+   - `index.html`
+   - `style.css`
+   - `script.js`
+   - the whole `images` folder (with `author-photo.jpg` inside)
+4. Commit the upload.
+5. In your repository, go to **Settings → Pages**.
+6. Under **Build and deployment**, choose **Deploy from a branch**.
+7. Under **Branch**, choose **main** and **/ (root)**.
+8. Click **Save**.
 
-@keyframes marcus-aura-shimmer {
-  0%, 100% { opacity: 0.18; }
-  50%      { opacity: 0.42; }
-}
+GitHub will build your site (takes 1–2 minutes) and show your public URL at the top of the Pages settings — typically:
 
-@keyframes marcus-image-breathe {
-  0%, 100% {
-    filter: brightness(1) saturate(1);
-    transform: scale(1);
-  }
-  50% {
-    filter: brightness(1.08) saturate(1.12);
-    transform: scale(1.006);
-  }
-}
+```
+https://your-username.github.io/marcos-garcia-author/
+```
 
-@keyframes marcus-frame-glow {
-  0%, 100% {
-    box-shadow:
-      0 22px 55px rgba(0, 0, 0, 0.45),
-      0 0 20px rgba(66, 172, 224, 0.08),
-      0 0 46px rgba(191, 137, 63, 0.06);
-  }
-  50% {
-    box-shadow:
-      0 24px 60px rgba(0, 0, 0, 0.48),
-      0 0 34px rgba(66, 172, 224, 0.18),
-      0 0 72px rgba(191, 137, 63, 0.13);
-  }
-}
+---
 
-/* Respect visitors who disable motion */
-@media (prefers-reduced-motion: reduce) {
-  .specimen-frame,
-  .specimen-frame::before,
-  .specimen-frame::after,
-  .specimen-frame .specimen-image {
-    animation: none !important;
-  }
+## 3. Making future edits
 
-  .specimen-frame::before {
-    opacity: 0.34;
-  }
+Any time you want to change text, links, or the photo:
 
-  .specimen-frame::after {
-    opacity: 0.22;
-  }
-}
+1. Edit the file(s) locally, or directly on GitHub (click the pencil icon on a file).
+2. Commit the change.
+3. GitHub Pages automatically rebuilds — refresh your site in a minute or two to see it live.
+
+---
+
+## Notes
+
+- The site is fully responsive (phone, tablet, desktop) and includes a collapsible mobile menu.
+- No build tools, frameworks, or installs are required — it's plain HTML/CSS/JS.
+- Fonts (Cormorant Garamond, Literata, Space Mono) load from Google Fonts automatically; no setup needed.
