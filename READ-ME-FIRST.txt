@@ -1,0 +1,25 @@
+ROOT-UPLOAD FIX — NO FOLDERS REQUIRED
+
+The images did not appear because GitHub could not find them at:
+images/marcus-cosmic-bust.webp
+images/universe-grand-mysteries-cover.webp
+
+This corrected packet keeps all four files at the repository root.
+
+UPLOAD THESE FOUR FILES TO THE MAIN REPOSITORY PAGE:
+1. index.html
+2. marcus-additions.css
+3. marcus-cosmic-bust.webp
+4. universe-grand-mysteries-cover.webp
+
+Steps:
+1. Open https://github.com/MarcosAurelious/marcos-garcia-author
+2. Make sure you are on the main repository page, not inside the images folder.
+3. Click Add file → Upload files.
+4. Drag all four files into the upload window.
+5. Choose Replace when GitHub warns that index.html already exists.
+6. Commit with: Fix Marcus website images
+7. Wait 1–3 minutes.
+8. Open the website and press Ctrl+F5.
+
+Do not upload the ZIP itself. Unzip it first and upload the four files inside.
