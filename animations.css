@@ -1,0 +1,178 @@
+/* ============================================
+   Marcos Garcia — Author Site Animations
+   Drop this file in as /animations.css
+   ============================================ */
+
+/* Respect users who've asked for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---------- Scroll reveal ---------- */
+/* Any element with .reveal starts hidden/offset, then
+   animates in when the .in-view class is added by JS */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  will-change: opacity, transform;
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Optional variants — add these classes alongside .reveal */
+.reveal-left {
+  transform: translateX(-40px);
+}
+.reveal-left.in-view {
+  transform: translateX(0);
+}
+.reveal-right {
+  transform: translateX(40px);
+}
+.reveal-right.in-view {
+  transform: translateX(0);
+}
+.reveal-zoom {
+  transform: scale(0.92);
+}
+.reveal-zoom.in-view {
+  transform: scale(1);
+}
+
+/* Stagger children of a container that has .reveal-stagger */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal-stagger.in-view > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.in-view > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal-stagger.in-view > *:nth-child(2) { transition-delay: 0.15s; }
+.reveal-stagger.in-view > *:nth-child(3) { transition-delay: 0.25s; }
+.reveal-stagger.in-view > *:nth-child(4) { transition-delay: 0.35s; }
+.reveal-stagger.in-view > *:nth-child(5) { transition-delay: 0.45s; }
+.reveal-stagger.in-view > *:nth-child(6) { transition-delay: 0.55s; }
+
+/* ---------- Hero entrance (runs once on page load, no scroll needed) ---------- */
+.hero-animate {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: heroIn 1s ease forwards;
+}
+.hero-animate:nth-of-type(1) { animation-delay: 0.1s; }
+.hero-animate:nth-of-type(2) { animation-delay: 0.3s; }
+.hero-animate:nth-of-type(3) { animation-delay: 0.5s; }
+.hero-animate:nth-of-type(4) { animation-delay: 0.7s; }
+
+@keyframes heroIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gentle floating effect — nice on the cosmic/illustrated portrait */
+.float {
+  animation: floatY 6s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+
+/* ---------- Image hover polish (book covers, portraits) ---------- */
+.img-hover {
+  overflow: hidden;
+  display: inline-block;
+}
+.img-hover img,
+img.img-hover-target {
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.6s ease;
+}
+.img-hover:hover img,
+img.img-hover-target:hover {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+/* ---------- Buttons ---------- */
+a.button,
+.button,
+button {
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+a.button:hover,
+.button:hover,
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+a.button::after,
+.button::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+a.button:hover::after,
+.button:hover::after {
+  left: 125%;
+}
+
+/* ---------- Nav links ---------- */
+nav a,
+header a {
+  position: relative;
+}
+nav a::after,
+header nav a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 0; height: 2px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+nav a:hover::after,
+header nav a:hover::after {
+  width: 100%;
+}
+
+/* ---------- Section headings — subtle underline draw-in ---------- */
+h2.animated-heading {
+  display: inline-block;
+  position: relative;
+}
+h2.animated-heading::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 100%; height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s ease;
+}
+h2.animated-heading.in-view::after {
+  transform: scaleX(1);
+}
