@@ -1,0 +1,44 @@
+/* ============================================
+   Marcos Garcia — Cosmic Background Effect
+   Drop this file in as /cosmic-bg.css
+   ============================================ */
+
+/* The canvas holds the twinkling stars + shooting stars.
+   Fixed + behind everything, and never blocks clicks. */
+#cosmic-bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  display: block;
+}
+
+/* A slow-drifting nebula glow behind the stars, pure CSS —
+   works even before the canvas script finishes loading. */
+.cosmic-nebula {
+  position: fixed;
+  inset: -10%;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 25%, rgba(80, 120, 220, 0.16), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 80% 70%, rgba(180, 90, 220, 0.14), transparent 60%),
+    radial-gradient(ellipse 45% 40% at 60% 15%, rgba(70, 200, 210, 0.10), transparent 60%);
+  filter: blur(30px);
+  animation: nebula-drift 40s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes nebula-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-2%, 2%) scale(1.06); }
+  100% { transform: translate(2%, -1%) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-nebula {
+    animation: none;
+  }
+}
