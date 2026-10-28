@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="animations.css">
      <link rel="stylesheet" href="cosmic-bg.css?V=2">
+  <link rel="stylesheet" href="window-portal.css?v=1">
 <script src="animations.js"></script>
    <script src="cosmic-bg.js"></script>
 
@@ -747,6 +748,7 @@
     </a>
 
     <nav class="primary-nav" id="primary-nav">
+      <a href="#window">The Window</a>
       <a href="#book">The Book</a>
       <a href="#about">About</a>
       <a href="#future">Future Books</a>
@@ -778,6 +780,33 @@
       </div>
       <p class="specimen-caption">Reason meets the unexplained</p>
     </div>
+  </div>
+</section>
+
+<section class="portal-section" id="window">
+  <div class="wrap">
+    <div class="portal-head">
+      <div>
+        <p class="eyebrow eyebrow--light">Interactive · Step Inside</p>
+        <h2 class="section-title">Look Through the Window</h2>
+        <p class="portal-lede">Your screen isn't a screen here. It's a window into Marcus's study at the edge of the cosmos. Turn on head tracking, then move your head, lean in, and look around the room.</p>
+      </div>
+      <div class="portal-controls">
+        <button class="portal-btn" id="portal-track-btn" type="button" aria-pressed="false">
+          <span class="portal-dot" aria-hidden="true"></span>
+          <span class="portal-label">Turn on head tracking</span>
+        </button>
+        <p class="portal-status" id="portal-status" aria-live="polite">Uses your webcam. No camera? Your mouse or phone tilt works too.</p>
+      </div>
+    </div>
+
+    <div class="portal-frame">
+      <div class="portal-canvas-wrap" id="portal-canvas-wrap" role="img" aria-label="A 3D room with Marcos Garcia's book covers floating in front of a cosmic portrait of Marcus Aurelius. The view shifts as you move.">
+        <p class="portal-hint" id="portal-hint">Move your mouse, or tilt your phone</p>
+        <div class="portal-fallback">This 3D window needs WebGL, which your browser has turned off.</div>
+      </div>
+    </div>
+    <p class="portal-privacy">Head tracking runs entirely in your browser. Nothing is recorded or uploaded.</p>
   </div>
 </section>
 
@@ -962,6 +991,7 @@
 </footer>
 
 <script src="script.js"></script>
+<script type="module" src="window-portal.js?v=1"></script>
 
 <script>
   (() => {
