@@ -1,0 +1,390 @@
+/* =====================================================
+   Marcos Garcia — "Flash" layer
+   Extra motion + shine on top of the existing site.
+   Everything here is additive and respects reduced motion.
+   ===================================================== */
+
+/* ---------- 1. Scroll progress bar ---------- */
+.fx-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  height: 3px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--fx-progress, 0));
+  background: linear-gradient(90deg, #c9a227, #f3d36b 30%, #5fb8a3 65%, #a77bff);
+  box-shadow: 0 0 12px rgba(243, 211, 107, 0.7);
+  pointer-events: none;
+}
+
+/* ---------- 2. Glass header once you scroll ---------- */
+.site-header {
+  transition: background 400ms ease, backdrop-filter 400ms ease, box-shadow 400ms ease;
+}
+.site-header.fx-scrolled {
+  background: rgba(5, 7, 13, 0.72) !important;
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(201, 162, 39, 0.25);
+}
+
+/* spinning electron on the logo */
+.mark svg { overflow: visible; }
+.mark-electron {
+  transform-origin: 30px 30px;
+  animation: fx-orbit 4s linear infinite;
+}
+@keyframes fx-orbit {
+  from { transform: rotate(-24deg) rotate(0deg); }
+  to   { transform: rotate(-24deg) rotate(360deg); }
+}
+
+/* ---------- 3. Shimmering gradient text ---------- */
+.hero-title em,
+.fx-shimmer {
+  background: linear-gradient(100deg, #c9a227 0%, #f7e08f 18%, #5fb8a3 38%, #b28cff 55%, #f7e08f 75%, #c9a227 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: fx-shimmer 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(243, 211, 107, 0.25));
+}
+@keyframes fx-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* dark-section headings get a soft glow */
+.hero .hero-title,
+.portal-section .section-title,
+.book-section .section-title,
+.library-section .section-title,
+.future-section .section-title {
+  text-shadow: 0 0 30px rgba(243, 211, 107, 0.16), 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* gradient underline for headings (overrides the plain one) */
+h2.animated-heading::after {
+  height: 2px !important;
+  background: linear-gradient(90deg, #c9a227, #5fb8a3, transparent) !important;
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.6);
+}
+.section-title--dark.animated-heading::after {
+  background: linear-gradient(90deg, #b8703e, #c9a227, transparent) !important;
+}
+
+/* ---------- 4. Hero entrance ---------- */
+.hero-text > * {
+  opacity: 0;
+  transform: translateY(26px);
+  filter: blur(6px);
+  animation: fx-rise 1s cubic-bezier(.2,.75,.2,1) forwards;
+}
+.hero-text > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-text > *:nth-child(2) { animation-delay: 0.25s; }
+.hero-text > *:nth-child(3) { animation-delay: 0.45s; }
+.hero-text > *:nth-child(4) { animation-delay: 0.65s; }
+.hero-figure {
+  opacity: 0;
+  animation: fx-rise 1.3s cubic-bezier(.2,.75,.2,1) 0.35s forwards;
+}
+@keyframes fx-rise {
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* ---------- 5. Ticker band ---------- */
+.fx-ticker {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 0;
+  border-top: 1px solid rgba(201, 162, 39, 0.35);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+  background:
+    linear-gradient(90deg, rgba(5,7,13,1), rgba(5,7,13,0) 12%, rgba(5,7,13,0) 88%, rgba(5,7,13,1)),
+    linear-gradient(90deg, rgba(201,162,39,0.06), rgba(95,184,163,0.08), rgba(178,140,255,0.06));
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.fx-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: fx-ticker 38s linear infinite;
+}
+.fx-ticker:hover .fx-ticker-track { animation-play-state: paused; }
+.fx-ticker-group {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding-right: 34px;
+  white-space: nowrap;
+  font-family: var(--font-display, "Cormorant Garamond", serif);
+  font-size: clamp(1.25rem, 2.4vw, 1.9rem);
+  font-style: italic;
+  color: rgba(245, 240, 228, 0.88);
+}
+.fx-ticker-group .fx-star {
+  font-style: normal;
+  font-size: 0.8em;
+  color: #c9a227;
+  text-shadow: 0 0 12px rgba(243, 211, 107, 0.9);
+}
+.fx-ticker-group .fx-hl {
+  font-style: normal;
+  font-family: var(--font-mono, "Space Mono", monospace);
+  font-size: 0.5em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #5fb8a3;
+}
+@keyframes fx-ticker {
+  to { transform: translateX(-50%); }
+}
+
+/* ---------- 6. Buttons: glow, sheen, magnetic ---------- */
+.btn,
+.library-buy,
+.portal-btn,
+.book-flip-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 260ms cubic-bezier(.2,.75,.2,1), box-shadow 260ms ease, background 220ms ease, color 220ms ease, border-color 220ms ease !important;
+}
+.btn::before,
+.library-buy::before,
+.portal-btn::before,
+.book-flip-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 244, 200, 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms ease;
+}
+.btn:hover::before,
+.library-buy:hover::before,
+.portal-btn:hover::before,
+.book-flip-button:hover::before {
+  transform: translateX(120%);
+}
+.btn:hover,
+.library-buy:hover,
+.portal-btn:hover {
+  box-shadow: 0 0 0 1px rgba(243, 211, 107, 0.4), 0 10px 30px rgba(201, 162, 39, 0.35), 0 0 40px rgba(95, 184, 163, 0.18);
+}
+.btn-primary {
+  animation: fx-pulse 3.2s ease-in-out infinite;
+}
+@keyframes fx-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(211, 138, 84, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(211, 138, 84, 0.12), 0 0 26px rgba(211, 138, 84, 0.35); }
+}
+
+/* ---------- 7. Holographic 3D book covers ---------- */
+.library-cover { transform-style: preserve-3d; }
+.library-cover .fx-holo {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 500ms cubic-bezier(.2,.75,.2,1);
+  will-change: transform;
+}
+.library-cover .fx-holo.is-tilting { transition: transform 80ms linear; }
+.library-cover .fx-holo img { transform: none !important; }
+.library-cover .fx-holo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  background:
+    radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.55), transparent 42%),
+    linear-gradient(115deg, transparent 20%, rgba(95, 184, 163, 0.35) 40%, rgba(178, 140, 255, 0.35) 50%, rgba(243, 211, 107, 0.35) 60%, transparent 80%);
+  background-size: 100% 100%, 220% 220%;
+  background-position: 0 0, var(--mx, 50%) var(--my, 50%);
+  transition: opacity 300ms ease;
+}
+.library-book:hover .fx-holo::after { opacity: 0.75; }
+.library-book:hover .library-cover img,
+.library-book:focus-within .library-cover img {
+  box-shadow:
+    0 34px 60px rgba(0, 0, 0, 0.65),
+    0 0 40px rgba(243, 211, 107, 0.3),
+    0 0 80px rgba(95, 184, 163, 0.15) !important;
+}
+
+/* reflection glow under each book */
+.library-cover::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: -14px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(243, 211, 107, 0.35), transparent 70%);
+  filter: blur(6px);
+  opacity: 0.5;
+  transition: opacity 300ms ease;
+}
+.library-book:hover .library-cover::after { opacity: 1; }
+
+/* staggered reveal for the shelf */
+.library-book.fx-in {
+  opacity: 0;
+  transform: translateY(40px) scale(0.96);
+  transition: opacity 800ms ease, transform 900ms cubic-bezier(.2,.75,.2,1);
+}
+.library-book.fx-in.in-view { opacity: 1; transform: none; }
+
+/* ---------- 8. Cursor spotlight + sparkle trail ---------- */
+.fx-spotlight {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(95, 184, 163, 0.14), rgba(178, 140, 255, 0.07) 35%, transparent 65%);
+  mix-blend-mode: screen;
+  transform: translate3d(var(--sx, -999px), var(--sy, -999px), 0);
+  transition: opacity 400ms ease;
+  opacity: 0;
+}
+.fx-spotlight.on { opacity: 1; }
+.fx-spotlight.on-light { opacity: 0; }
+
+#fx-sparkles {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* ---------- 9. Parchment "About" section gets life ---------- */
+.about-section {
+  position: relative;
+  overflow: hidden;
+}
+.about-section::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(201, 162, 39, 0.14), transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(184, 112, 62, 0.12), transparent 30%);
+  animation: fx-drift 22s ease-in-out infinite alternate;
+}
+@keyframes fx-drift {
+  to { transform: translate(6%, -4%) rotate(8deg); }
+}
+.about-section > .wrap { position: relative; }
+
+.photo-frame,
+.about-cosmic-card {
+  position: relative;
+}
+.photo-frame::after,
+.about-cosmic-card::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  border-radius: 2px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--fx-angle, 0deg), #c9a227, transparent 25%, #5fb8a3 50%, transparent 75%, #c9a227);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: fx-spin-border 6s linear infinite;
+  opacity: 0.9;
+}
+@property --fx-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes fx-spin-border {
+  to { --fx-angle: 360deg; }
+}
+
+/* ---------- 10. Featured cover + future cover float ---------- */
+.future-cover-frame {
+  animation: fx-float 7s ease-in-out infinite;
+}
+@keyframes fx-float {
+  0%, 100% { transform: translateY(0) rotate(-0.4deg); }
+  50% { transform: translateY(-12px) rotate(0.4deg); }
+}
+
+/* ---------- 11. Contact: glowing socials ---------- */
+.social-list a {
+  transition: transform 260ms ease, box-shadow 260ms ease, color 220ms ease, border-color 220ms ease !important;
+}
+.social-list a:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(184, 112, 62, 0.28), 0 0 0 1px rgba(201, 162, 39, 0.45);
+}
+.social-list a:hover .social-icon {
+  animation: fx-wiggle 600ms ease;
+}
+@keyframes fx-wiggle {
+  30% { transform: rotate(-12deg) scale(1.15); }
+  60% { transform: rotate(8deg) scale(1.1); }
+}
+.contact-email {
+  background: linear-gradient(90deg, currentColor, currentColor) 0 100% / 0 2px no-repeat;
+  transition: background-size 400ms ease, color 220ms ease !important;
+}
+.contact-email:hover { background-size: 100% 2px; }
+
+/* ---------- Reduced motion & touch ---------- */
+@media (hover: none), (pointer: coarse) {
+  .fx-spotlight, #fx-sparkles { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-ticker-track,
+  .hero-title em,
+  .fx-shimmer,
+  .btn-primary,
+  .future-cover-frame,
+  .about-section::before,
+  .photo-frame::after,
+  .about-cosmic-card::after,
+  .mark-electron { animation: none !important; }
+  .hero-text > *, .hero-figure { opacity: 1; transform: none; filter: none; animation: none; }
+  .library-book.fx-in { opacity: 1; transform: none; }
+  .fx-spotlight, #fx-sparkles { display: none; }
+}
+
+/* ---------- Fixes ---------- */
+/* "Meet the Author" was dark-on-dark after the hero went cosmic */
+.hero .btn-ghost {
+  border-color: rgba(245, 240, 228, 0.55);
+  color: var(--ivory, #f5f0e4);
+}
+.hero .btn-ghost:hover {
+  border-color: #5fb8a3;
+  color: #bfeee2;
+}
+/* keep the glass header dark over the light parchment sections */
+.site-header.fx-scrolled {
+  background: rgba(5, 7, 13, 0.9) !important;
+}
+/* stop slide-in animations from making phones scroll sideways */
+html, body { overflow-x: clip; }
