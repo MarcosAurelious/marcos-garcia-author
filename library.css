@@ -1,0 +1,130 @@
+/* =====================================================
+   Marcos Garcia — "The Library" (all books on Amazon)
+   ===================================================== */
+
+.library-section {
+  padding: clamp(70px, 9vw, 120px) 0;
+  background: transparent;
+  color: var(--ivory, #f5f0e4);
+}
+
+.library-head {
+  max-width: 680px;
+  margin-bottom: clamp(36px, 5vw, 56px);
+}
+
+.library-head .section-title { margin-bottom: 14px; }
+
+.library-lede {
+  margin: 0;
+  color: var(--ivory-muted, rgba(245, 240, 228, 0.72));
+  line-height: 1.75;
+}
+
+.library-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: clamp(26px, 3vw, 40px);
+}
+
+.library-book {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.library-cover {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 270px;
+  margin-bottom: 20px;
+  perspective: 900px;
+}
+
+.library-cover img {
+  max-width: 100% !important;
+  max-height: 270px !important;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.55),
+    0 0 26px rgba(95, 184, 163, 0.06);
+  transition: transform 360ms cubic-bezier(.2,.75,.2,1), box-shadow 360ms ease;
+}
+
+.library-book:hover .library-cover img,
+.library-book:focus-within .library-cover img {
+  transform: translateY(-8px) rotateY(-6deg);
+  box-shadow:
+    0 32px 56px rgba(0, 0, 0, 0.6),
+    0 0 34px rgba(201, 162, 39, 0.22);
+}
+
+.library-format {
+  margin: 0 0 8px;
+  font-family: var(--font-mono, "Space Mono", monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--verdigris, #5fb8a3);
+}
+
+.library-title {
+  margin: 0 0 6px;
+  font-family: var(--font-display, "Cormorant Garamond", serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--ivory, #f5f0e4);
+}
+
+.library-sub {
+  margin: 0 0 18px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(245, 240, 228, 0.66);
+}
+
+.library-buy {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid rgba(201, 162, 39, 0.65);
+  color: #f3e3b5;
+  font-family: var(--font-mono, "Space Mono", monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.library-buy:hover {
+  background: #c9a227;
+  color: #10141a;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 1000px) {
+  .library-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 30px; }
+  .library-title { font-size: 1.3rem; }
+}
+
+@media (max-width: 560px) {
+  .library-head { text-align: center; margin-left: auto; margin-right: auto; }
+  .library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 18px; }
+  .library-cover { height: 210px; }
+  .library-cover img { max-height: 210px !important; }
+  .library-title { font-size: 1.2rem; }
+  .library-sub { font-size: 0.85rem; }
+  .library-buy { padding: 10px 12px; font-size: 0.6rem; }
+}
