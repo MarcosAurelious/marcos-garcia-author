@@ -5,9 +5,10 @@
    - Falls back to mouse on desktop, tilt on phones
    ===================================================== */
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+// three.js and MediaPipe are served from this site (vendor/), not a CDN, so no outside code ever runs with camera access.
+import * as THREE from "./vendor/three/three.module.js";
 
-const VISION_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+const VISION_URL = new URL("./vendor/mediapipe", import.meta.url).href;
 const FACE_MODEL =
   "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
 

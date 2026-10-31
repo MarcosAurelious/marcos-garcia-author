@@ -50,8 +50,12 @@
         const g = document.createElement("div");
         g.className = "fx-ticker-group";
         words.forEach(function (w) {
-          g.insertAdjacentHTML("beforeend",
-            '<span>' + w[0] + '</span><span class="fx-hl">' + w[1] + '</span><span class="fx-star">✦</span>');
+          [[w[0], ""], [w[1], "fx-hl"], ["✦", "fx-star"]].forEach(function (part) {
+            const s = document.createElement("span");
+            if (part[1]) s.className = part[1];
+            s.textContent = part[0];
+            g.appendChild(s);
+          });
         });
         return g;
       };

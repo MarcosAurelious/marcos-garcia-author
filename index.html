@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://storage.googleapis.com/mediapipe-models/; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Marcos Garcia — Author</title>
   <meta name="description" content="Marcos Garcia writes illustrated books exploring philosophy, curiosity, and the strange edges of science.">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Literata:opsz,wght@18..144,400;18..144,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fonts.css">
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="animations.css">
@@ -1045,48 +1045,10 @@
 </footer>
 
 <script src="script.js"></script>
-<script type="module" src="window-portal.js?v=1"></script>
-<script src="flash.js?v=1"></script>
+<script type="module" src="window-portal.js?v=2"></script>
+<script src="flash.js?v=2"></script>
 
-<script>
-  (() => {
-    const shell = document.getElementById("featured-book-card");
-    const button = document.getElementById("book-flip-button");
-    const cover = shell?.querySelector(".interactive-cover");
-
-    if (!shell || !button || !cover) return;
-
-    const toggleBook = () => {
-      const flipped = shell.classList.toggle("is-flipped");
-      button.textContent = flipped ? "View Front Cover" : "View Back Cover";
-    };
-
-    button.addEventListener("click", toggleBook);
-    shell.addEventListener("click", (event) => {
-      if (event.target.closest("button")) return;
-      toggleBook();
-    });
-
-    shell.addEventListener("mousemove", (event) => {
-      if (shell.classList.contains("is-flipped")) return;
-
-      const rect = shell.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = (event.clientY - rect.top) / rect.height;
-      const rotateY = (x - 0.5) * 10;
-      const rotateX = (0.5 - y) * 8;
-
-      cover.style.transform =
-        `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(5px)`;
-      cover.style.filter = "brightness(1.05) saturate(1.08)";
-    });
-
-    shell.addEventListener("mouseleave", () => {
-      cover.style.transform = "";
-      cover.style.filter = "";
-    });
-  })();
-</script>
+<script src="book-flip.js"></script>
 
 </body>
 </html>
