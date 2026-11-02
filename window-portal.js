@@ -44,6 +44,7 @@ function init() {
      Its height is 1 unit; its width follows the canvas aspect. */
   const SCREEN_H = 1;
   const DEPTH = 3.2;
+  const BASE_Z = 1.7;            // how far the eye sits from the glass, in screen-heights
   let screenW = 16 / 9;
 
   const room = new THREE.Group();
@@ -147,13 +148,14 @@ function init() {
   const art = new THREE.Group();
   room.add(art);
 
-  // Cosmic Marcus bust — deep in the room
-  const bustH = 0.95;
+  // Cosmic Marcus — brought forward into the room, floating well in front of the nebula back wall
+  const bustH = 1.0;
+  const BUST_Z = -0.9;
   const bust = new THREE.Mesh(
     new THREE.PlaneGeometry(bustH * (1122 / 1402), bustH),
     new THREE.MeshBasicMaterial({ map: loadTex("marcus-cosmic-bust.webp"), alphaMap: softMask, transparent: true, fog: false })
   );
-  bust.position.set(0, 0, -DEPTH + 0.35);
+  bust.position.set(0, 0.03, BUST_Z);
   art.add(bust);
 
   // Gold orbit ring around the bust (echoes the site logo)
@@ -161,7 +163,7 @@ function init() {
     new THREE.TorusGeometry(0.42, 0.004, 8, 160),
     new THREE.MeshBasicMaterial({ color: 0xd9b54a, transparent: true, opacity: 0.85 })
   );
-  orbit.position.copy(bust.position).add(new THREE.Vector3(0, 0.02, 0.25));
+  orbit.position.copy(bust.position).add(new THREE.Vector3(0, 0.02, 0.18));
   orbit.rotation.set(1.2, 0.25, -0.4);
   art.add(orbit);
   const electron = new THREE.Mesh(
@@ -169,39 +171,6 @@ function init() {
     new THREE.MeshBasicMaterial({ color: 0x8fe6d2 })
   );
   orbit.add(electron);
-
-  function framedBook(src, aspect, height, crop) {
-    const group = new THREE.Group();
-    const tex = loadTex(src);
-    if (crop) {
-      tex.repeat.set(crop.ru, crop.rv);
-      tex.offset.set(crop.u, crop.v);
-    }
-    const w = height * aspect;
-    const frame = new THREE.Mesh(
-      new THREE.PlaneGeometry(w + 0.03, height + 0.03),
-      new THREE.MeshBasicMaterial({ color: 0xc9a227 })
-    );
-    frame.position.z = -0.003;
-    const backing = new THREE.Mesh(
-      new THREE.PlaneGeometry(w + 0.07, height + 0.07),
-      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.55 })
-    );
-    backing.position.set(0.02, -0.025, -0.03);
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(w, height), new THREE.MeshBasicMaterial({ map: tex }));
-    group.add(backing, frame, face);
-    return group;
-  }
-
-  // Featured book — closest to the glass
-  const weird = framedBook("book-cover.jpg", 565 / 976, 0.56, {
-    u: 170 / 952, ru: 565 / 952, v: 1 - 1108 / 1269, rv: 976 / 1269,
-  });
-  art.add(weird);
-
-  // Book in development — mid-depth
-  const mysteries = framedBook("universe-grand-mysteries-cover.webp", 1114 / 1412, 0.5);
-  art.add(mysteries);
 
   // A line of Marcus floating just behind the glass
   const quoteCanvas = document.createElement("canvas");
@@ -283,27 +252,21 @@ function init() {
     backWall.scale.set(screenW, SCREEN_H, 1);
     placeDust();
 
+    // keep Marcus inside the window on narrow (phone) screens
+    const seen = BASE_Z / (BASE_Z - BUST_Z);          // how big something at BUST_Z looks on the glass
+    const fit = Math.min(1, (screenW * 0.9) / (bustH * (1122 / 1402) * seen));
+    bust.scale.setScalar(fit);
+    orbit.scale.setScalar(fit);
     if (portrait) {
-      weird.position.set(-screenW * 0.2, -0.17, -0.55);
-      weird.scale.setScalar(0.62);
-      mysteries.position.set(screenW * 0.22, 0.14, -1.5);
-      mysteries.scale.setScalar(0.6);
       quote.scale.setScalar(screenW * 0.92);
       quote.position.set(0, 0.4, -0.25);
     } else {
-      weird.position.set(-screenW * 0.29, -0.06, -0.7);
-      weird.scale.setScalar(1);
-      mysteries.position.set(screenW * 0.29, 0.02, -1.65);
-      mysteries.scale.setScalar(1);
       quote.scale.setScalar(Math.min(screenW * 0.62, 1.15));
       quote.position.set(0, -0.4, -0.2);
     }
-    weird.rotation.y = 0.28;
-    mysteries.rotation.y = -0.3;
   }
 
   /* ---------- the viewer's eye position (the whole trick) ---------- */
-  const BASE_Z = 1.7;            // how far the eye sits from the glass, in screen-heights
   const eye = new THREE.Vector3(0, 0, BASE_Z);
   const target = new THREE.Vector3(0, 0, BASE_Z);
   let mode = "idle";             // idle | mouse | tilt | camera
@@ -463,8 +426,7 @@ function init() {
     applyOffAxis();
 
     if (!reduceMotion) {
-      weird.position.y += Math.sin(t * 0.9) * 0.0004;
-      mysteries.position.y += Math.cos(t * 0.7) * 0.0003;
+      bust.position.y = 0.03 + Math.sin(t * 0.6) * 0.012;   // slow float
       orbit.rotation.z = t * 0.25;
       electron.position.set(Math.cos(t * 1.4) * 0.42, Math.sin(t * 1.4) * 0.42, 0);
       for (let i = 0; i < DUST; i++) {
