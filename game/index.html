@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070d">
+  <title>Critical Thinking for a Stoic Mind · A Strategy Game by Marcos Garcia</title>
+  <meta name="description" content="A 21st-century strategy war game with Marcus Aurelius as your advisor. Judge the intel, command the map, and make the hard calls like a Stoic.">
+  <link rel="stylesheet" href="../fonts.css">
+  <link rel="stylesheet" href="game.css?v=2">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+
+<main class="stage">
+
+  <!-- TITLE -->
+  <section class="screen screen-title" id="s-title">
+    <div class="title-art"><img src="img/title-marcus.webp" alt="Marcus Aurelius in cosmic armor, hand over his heart" width="623" height="756"></div>
+    <div class="title-copy">
+      <p class="eyebrow">A 21st-century strategy game by Marcos Garcia</p>
+      <h1>Critical Thinking<br><span>for a Stoic Mind</span></h1>
+      <p class="lede">You lead the Republic of Aurel against the Kessar Dominion. Drones, cyber attacks, sanctions and a flood of fake intelligence. Marcus Aurelius is your advisor. Think clearly, act justly, and hold the line for twelve seasons.</p>
+      <ol class="how">
+        <li><b>Intel.</b> Two reports arrive each season. Act on them, verify them, or dismiss them. Some are lies.</li>
+        <li><b>Orders.</b> Spend command points on the map: reinforce, advance, negotiate, defend against cyber and disinformation.</li>
+        <li><b>The rival moves.</b> Kessar attacks, annexes and hacks.</li>
+        <li><b>The hard call.</b> A Stoic dilemma. Your choice shapes morale and your alliances.</li>
+      </ol>
+      <div class="title-actions">
+        <button class="btn btn-gold" id="start" type="button">Take command</button>
+      </div>
+      <p class="best" id="best" hidden></p>
+      <p class="fine">All nations, places and events are fictional.</p>
+      <a class="back" href="../#apps">← Back to Marcos Garcia's site</a>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen screen-game" id="s-game" hidden>
+    <header class="bar">
+      <div class="bar-title"><span class="season" id="b-season"></span><span class="phase" id="b-phase"></span></div>
+      <div class="bar-stats">
+        <span class="stat" title="Command points to spend this season"><i class="ic cp"></i><b id="b-cp">0</b><small>Command</small></span>
+        <span class="stat" title="Public morale. If it hits zero, your government falls."><i class="ic mo"></i><b id="b-morale">0</b><small>Morale</small></span>
+        <span class="stat" title="Alliance trust. High trust earns an extra command point."><i class="ic al"></i><b id="b-alliance">0</b><small>Alliance</small></span>
+        <span class="stat" title="Regions you hold out of 12"><i class="ic rg"></i><b id="b-regions">0</b><small>Regions</small></span>
+      </div>
+    </header>
+
+    <div class="board">
+      <div class="map-wrap">
+        <svg class="map" id="map" viewBox="0 0 800 520" role="group" aria-label="Campaign map"></svg>
+        <div class="legend"><span><i class="sw you"></i>Aurel (you)</span><span><i class="sw neutral"></i>Neutral</span><span><i class="sw rival"></i>Kessar</span><span>★ capital · number = forces</span></div>
+      </div>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section class="screen screen-final" id="s-final" hidden>
+    <div class="final-card">
+      <img class="final-art" src="img/title-marcus.webp" alt="" width="623" height="756">
+      <div>
+        <p class="eyebrow" id="final-kicker"></p>
+        <h2 id="final-rank"></h2>
+        <p class="final-line" id="final-line"></p>
+        <ul class="final-stats" id="final-stats"></ul>
+        <blockquote class="quote">“The universe is change; our life is what our thoughts make it.”<cite>Marcus Aurelius, Meditations 4.3</cite></blockquote>
+        <div class="final-actions">
+          <button class="btn btn-gold" id="again" type="button">Play again</button>
+          <a class="btn btn-ghost" href="../#library">See the books</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="game.js?v=2"></script>
+</body>
+</html>
