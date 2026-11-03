@@ -18,7 +18,7 @@ h1 { font-size: clamp(2.4rem, 7vw, 4.4rem); margin: .1rem 0; color: var(--gold-2
 .modes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .seg { display: inline-flex; } .seg .btn + .btn { border-left: 0; }
 .step { min-height: 1.5em; margin: .9rem 0 .5rem; font-size: 1.15rem; color: var(--gold-2); }
-.roster { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.roster { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 .card { position: relative; background: linear-gradient(#2a1d12, #150e09); border: 2px solid #4a3620; padding: 6px 4px 8px; cursor: pointer; color: var(--ink); display: flex; flex-direction: column; align-items: center; transition: transform .12s, border-color .12s; }
 .card:hover { transform: translateY(-3px); border-color: var(--gold); }
 .card canvas { width: 100%; max-width: 150px; height: auto; aspect-ratio: 150 / 170; }

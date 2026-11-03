@@ -172,8 +172,11 @@
   const SPR = img(Q + 'sprites.webp'), BOSSIMG = img(Q + 'boss.webp'), ENEMYIMG = img(Q + 'enemies.webp'), ELITEIMG = img(Q + 'elites.webp'), MARCUSIMG = img(Q + 'marcus.webp');
   const LATLAS = {"fx2":{"colossus":[[635,416,63,70,31,35]],"medusa":[[700,416,54,70,27,35]],"chiron":[[756,416,74,70,37,35]],"diana":[[832,416,194,70,97,35]],"hades":[[1028,416,60,70,30,35]]},"g_colossus":{"idle":[[361,171,91,120,45,120],[0,416,70,94,32,94]],"walk":[[0,416,70,94,32,94],[1536,296,78,98,37,98]],"jump":[[1536,296,78,98,37,98]],"light":[[1365,296,79,105,39,105],[1446,296,88,101,43,101]],"heavy":[[1446,296,88,101,43,101],[1854,296,92,97,43,97]],"special":[[140,416,91,92,48,92]],"hurt":[[560,416,73,80,35,80]]},"g_medusa":{"idle":[[454,171,81,120,41,120],[145,296,69,117,34,117]],"walk":[[454,171,81,120,41,120],[145,296,69,117,34,117]],"jump":[[1948,296,80,97,34,97]],"light":[[1948,296,80,97,34,97],[1616,296,83,98,36,98]],"heavy":[[1616,296,83,98,36,98],[326,416,69,85,30,85]],"special":[[397,416,68,85,25,85]],"hurt":[[326,416,69,85,30,85]]},"g_minotaur":{"idle":[[537,171,120,120,50,120],[1706,0,144,124,66,124]],"walk":[[537,171,120,120,50,120],[1706,0,144,124,66,124]],"jump":[[1376,0,125,127,62,127]],"light":[[1376,0,125,127,62,127],[1201,0,173,131,94,131]],"heavy":[[1701,296,151,98,53,98]],"special":[[1007,0,192,135,95,135]],"hurt":[[1201,0,173,131,94,131]]},"g_mars":{"idle":[[659,171,105,120,34,120]],"walk":[[659,171,105,120,34,120],[530,296,127,115,46,115]],"jump":[[216,296,147,116,66,116]],"light":[[170,171,189,122,14,122]],"heavy":[[530,296,127,115,46,115],[883,296,118,110,58,110]],"special":[[883,296,118,110,58,110]],"hurt":[[216,296,147,116,66,116]]},"g_vulcan":{"idle":[[766,171,131,120,31,120],[1503,0,112,125,31,125]],"walk":[[766,171,131,120,31,120],[1503,0,112,125,31,125]],"jump":[[1503,0,112,125,31,125]],"light":[[1003,296,158,109,46,109]],"heavy":[[0,171,168,123,87,123]],"special":[[332,0,332,156,165,156]],"hurt":[[1503,0,112,125,31,125]]},"g_chiron":{"idle":[[899,171,98,120,49,120]],"walk":[[1267,296,96,106,48,106],[72,416,66,93,35,92]],"jump":[[1163,296,102,108,54,108]],"light":[[1768,171,137,118,41,118]],"heavy":[[1267,296,96,106,48,106]],"special":[[659,296,128,115,69,114]],"hurt":[[72,416,66,93,35,92]]},"g_diana":{"idle":[[1672,171,94,119,35,119]],"walk":[[1672,171,94,119,35,119],[233,416,91,91,27,91]],"jump":[[233,416,91,91,27,91]],"light":[[1672,171,94,119,35,119],[999,171,131,120,21,120]],"heavy":[[467,416,91,85,39,84]],"special":[[999,171,131,120,21,120]],"hurt":[[233,416,91,91,27,91]]},"g_cerberus":{"idle":[[1132,171,145,120,72,119],[365,296,163,116,79,115]],"walk":[[0,296,143,118,63,117],[1279,171,189,120,71,120]],"jump":[[365,296,163,116,79,115]],"light":[[1279,171,189,120,71,120]],"heavy":[[365,296,163,116,79,115]],"special":[[0,0,330,169,164,169]],"hurt":[[0,296,143,118,63,117]]},"g_hades":{"idle":[[1470,171,99,120,40,120],[789,296,92,114,26,113]],"walk":[[1852,0,104,124,31,123],[1571,171,99,120,40,119]],"jump":[[666,0,94,142,38,142]],"light":[[1571,171,99,120,40,119]],"heavy":[[1617,0,87,125,41,124],[762,0,113,137,50,137]],"special":[[877,0,128,137,63,137]],"hurt":[[1852,0,104,124,31,123]]}};
   const LEGENDIMG = img('legends.webp');
-  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, LATLAS);
-  const imgFor = (set) => (LATLAS[set] ? LEGENDIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  const PATLAS = {"p_colossus":{"idle":[[0,0,244,320,140,319]]},"p_medusa":{"idle":[[246,0,221,320,99,320]]},"p_minotaur":{"idle":[[469,0,292,320,106,319]]},"p_pegasus":{"idle":[[763,0,310,320,155,319]]},"p_helios":{"idle":[[1075,0,311,320,155,319]]},"p_mars":{"idle":[[1388,0,239,320,119,319]]},"p_neptune":{"idle":[[1629,0,307,320,143,319]]},"p_vulcan":{"idle":[[0,322,302,320,133,319]]},"p_chiron":{"idle":[[304,322,235,320,117,319]]},"p_diana":{"idle":[[541,322,200,320,102,319]]},"p_cerberus":{"idle":[[743,322,289,320,144,319]]},"p_hades":{"idle":[[1034,322,241,320,110,319]]}};
+  const NATIVE = {"colossus":1,"medusa":1,"minotaur":1,"pegasus":1,"helios":1,"mars":-1,"neptune":1,"vulcan":1,"chiron":-1,"diana":1,"cerberus":1,"hades":1};   // which way each portrait faces in the art
+  const PORTIMG = img('portraits.webp');
+  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, LATLAS, PATLAS);
+  const imgFor = (set) => (PATLAS[set] ? PORTIMG : LATLAS[set] ? LEGENDIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   const PIXEL = new Set(['knight', 'archer', 'commander', 'priestess', 'warrior', 'fx']);
   function frameOf(set, anim, i) { const fr = ALL[set] && ALL[set][anim]; if (!fr) return null; return fr[((Math.floor(i) % fr.length) + fr.length) % fr.length]; }
   function spr(g, set, anim, i, x, y, face = 1, scale = 1, alpha = 1) {
@@ -190,27 +193,34 @@
   const H = (set, a, frames) => ({ set, a, f: frames });   // frames: list of frame indexes, or omitted for all
   function std(set) { return { idle: H(set, 'idle'), walk: H(set, 'walk'), jump: H(set, 'jump'), light: H(set, 'attack', [0, 1]), heavy: H(set, 'attack'), special: H(set, 'attack'), hurt: H(set, 'hurt'), ko: H(set, 'die'), victory: H(set, 'idle') }; }
   function elite(set) { return { idle: H(set, 'idle'), walk: H(set, 'walk'), jump: H(set, 'wind'), light: H(set, 'attack'), heavy: H(set, 'wind', [0]), heavyHit: H(set, 'attack'), special: H(set, 'special'), hurt: H(set, 'recover'), ko: null, victory: H(set, 'wind') }; }
+  const PT = (id) => { const a = { portrait: id }; ['idle', 'walk', 'jump', 'light', 'heavy', 'special', 'hurt', 'victory'].forEach((k) => { a[k] = H('p_' + id, 'idle'); }); a.ko = null; return a; };
   const LG = (id) => { const s = 'g_' + id; return { idle: H(s, 'idle'), walk: H(s, 'walk'), jump: H(s, 'jump'), light: H(s, 'light'), heavy: H(s, 'heavy'), special: H(s, 'special'), hurt: H(s, 'hurt'), ko: null, victory: H(s, 'special') }; };
   const ROSTER = [
     { id: 'marcus', name: 'Marcus Aurelius', title: 'The Tesla Legate', size: 1.0, speed: 250, hp: 100, anims: { idle: H('n3', 'idle'), walk: H('n3', 'walk'), jump: H('n3', 'jump'), light: H('n3', 'attack', [1, 2]), heavy: H('n3', 'attack'), special: H('n3', 'attack', [1]), hurt: H('n3', 'hurt'), ko: null, victory: H('n3', 'special') },
       special: { kind: 'proj', name: 'Lightning Wave', set: 'bfx', a: 'orb', sc: 1.0, speed: 520, col: ['#8fe6ff', '#ffffff', '#57b6ff'] }, quote: 'You have power over your mind, not outside events.' },
-    { id: 'mars', name: 'Mars Warforge', title: 'God of the Legions', size: 1.04, speed: 255, hp: 105, anims: LG('mars'),
+    { id: 'mars', name: 'Mars Warforge', title: 'God of the Legions', size: 1.04, speed: 255, hp: 105, anims: PT('mars'),
       special: { kind: 'dash', name: 'Crimson Cleave', dist: 320, col: ['#ff4a3d', '#ffd27a', '#ffffff'] }, quote: 'War is my forge, and you are the iron.' },
-    { id: 'colossus', name: 'Augustus Colossus', title: 'The Living Statue', size: 1.15, speed: 215, hp: 120, anims: LG('colossus'),
+    { id: 'colossus', name: 'Augustus Colossus', title: 'The Living Statue', size: 1.15, speed: 215, hp: 120, anims: PT('colossus'),
       special: { kind: 'proj', name: 'Thunder Fist', set: 'fx2', a: 'colossus', sc: 1.2, speed: 500, col: ['#57b6ff', '#ffffff', '#bfe6ff'] }, quote: 'Empires crumble. Marble endures.' },
-    { id: 'medusa', name: 'Medusa Technomancer', title: 'Gaze of Stone', size: 1.0, speed: 245, hp: 95, anims: LG('medusa'),
+    { id: 'medusa', name: 'Medusa Technomancer', title: 'Gaze of Stone', size: 1.0, speed: 245, hp: 95, anims: PT('medusa'),
       special: { kind: 'proj', name: 'Hex Sigil', set: 'fx2', a: 'medusa', sc: 1.1, speed: 430, col: ['#c070ff', '#ffffff', '#7b3fa0'] }, quote: 'Look at me. I insist.' },
-    { id: 'minotaur', name: 'Minotaur Engine', title: 'Beast of the Labyrinth', size: 1.1, speed: 235, hp: 115, anims: LG('minotaur'),
+    { id: 'minotaur', name: 'Minotaur Engine', title: 'Beast of the Labyrinth', size: 1.1, speed: 235, hp: 115, anims: PT('minotaur'),
       special: { kind: 'dash', name: 'Gore Charge', dist: 360, col: ['#ff9a3d', '#ffd27a', '#ffffff'] }, quote: 'Every maze ends with me.' },
-    { id: 'vulcan', name: 'Vulcan Forge', title: 'Smith of the Gods', size: 1.08, speed: 225, hp: 120, anims: LG('vulcan'),
+    { id: 'vulcan', name: 'Vulcan Forge', title: 'Smith of the Gods', size: 1.08, speed: 225, hp: 120, anims: PT('vulcan'),
       special: { kind: 'wave', name: 'Magma Hammer', col: ['#ff9a3d', '#ffd27a', '#ff4a1a'] }, quote: 'I forged the thunderbolts. I can forge your defeat.' },
-    { id: 'chiron', name: 'Chiron Astronomer', title: 'Archer of the Stars', size: 1.12, speed: 265, hp: 100, anims: LG('chiron'),
+    { id: 'chiron', name: 'Chiron Astronomer', title: 'Archer of the Stars', size: 1.12, speed: 265, hp: 100, anims: PT('chiron'),
       special: { kind: 'proj', name: 'Star Chart', set: 'fx2', a: 'chiron', sc: 1.0, speed: 460, col: ['#ffd27a', '#ffffff', '#e7a227'] }, quote: 'The stars told me how this ends.' },
-    { id: 'diana', name: 'Diana Hunter', title: 'Moon of the Forest', size: 1.0, speed: 280, hp: 90, anims: LG('diana'),
+    { id: 'diana', name: 'Diana Hunter', title: 'Moon of the Forest', size: 1.0, speed: 280, hp: 90, anims: PT('diana'),
       special: { kind: 'proj', name: 'Emerald Arrow', set: 'fx2', a: 'diana', sc: 1.2, speed: 760, col: ['#b6ff4a', '#ffffff', '#4ad84a'] }, quote: 'I never miss. I only wait.' },
-    { id: 'cerberus', name: 'Cerberus Unit', title: 'Hound of the Gate', size: 1.0, speed: 270, hp: 110, anims: LG('cerberus'),
+    { id: 'cerberus', name: 'Cerberus Unit', title: 'Hound of the Gate', size: 1.0, speed: 270, hp: 110, anims: PT('cerberus'),
       special: { kind: 'dash', name: 'Hellfire Pounce', dist: 340, col: ['#ff6a1a', '#ffd27a', '#ffffff'] }, quote: 'Three heads. Zero mercy.' },
-    { id: 'hades', name: 'Hades Sentinel', title: 'Keeper of Shadows', size: 1.05, speed: 235, hp: 105, anims: LG('hades'),
+    { id: 'pegasus', name: 'Pegasus Drone', title: 'Skyfire Assault', size: 1.05, speed: 290, hp: 92, anims: PT('pegasus'),
+      special: { kind: 'dash', name: 'Heavenfall Strike', dist: 380, col: ['#56c9ff', '#ffffff', '#bfe6ff'] }, quote: 'The sky was never your side of the arena.' },
+    { id: 'helios', name: 'Helios Orb', title: 'Solar Furnace', size: 0.95, speed: 240, hp: 98, hover: 26, anims: PT('helios'),
+      special: { kind: 'beam', name: 'Supernova Beam', len: 560, col: ['#ffc24b', '#ffffff', '#ffe28a'] }, quote: 'I do not fight. I simply shine.' },
+    { id: 'neptune', name: 'Neptune Leviathan', title: 'Abyssal Tide', size: 1.12, speed: 225, hp: 116, anims: PT('neptune'),
+      special: { kind: 'wave', name: 'Tsunami Surge', col: ['#27d8ff', '#ffffff', '#1f6bd8'] }, quote: 'The tide always returns. So do I.' },
+    { id: 'hades', name: 'Hades Sentinel', title: 'Keeper of Shadows', size: 1.05, speed: 235, hp: 105, anims: PT('hades'),
       special: { kind: 'proj', name: 'Void Seal', set: 'fx2', a: 'hades', sc: 1.1, speed: 420, col: ['#a46bff', '#ffffff', '#5a2d82'] }, quote: 'Everyone comes to my kingdom eventually.' },
   ];
   const BODY_H = 190;   // every fighter is scaled so the standing pose is about this tall (times size)
@@ -455,6 +465,7 @@
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
+    if (f.ch.anims.portrait) { drawPortrait(f, h, sc); ctx.restore(); drawFx(f); return; }
     if (f.state === 'ko' && !f.ch.anims.ko) { const k = clamp(f.t / 0.5, 0, 1); ctx.translate(f.x, f.y); ctx.rotate(-f.face * k * 1.45); ctx.translate(-f.x, -f.y - k * 14); }
     if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.8)';
@@ -462,9 +473,39 @@
     spr(ctx, h.set, h.a, idx, f.x, f.y + 2, f.face, sc);
     ctx.restore();
     if (f.state === 'block') { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#8fd8ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, -1.1, 1.1); if (f.face < 0) { ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, Math.PI - 1.1, Math.PI + 1.1); } ctx.stroke(); ctx.restore(); }
+    drawFx(f);
+  }
+  function drawFx(f) {
     if (f.state === 'attack' && f.move !== 'special' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
       const reach = MOVES[f.move].reach * f.ch.size; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
       spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * 0.55, f.face, f.move === 'heavy' ? 2.3 : 1.6); ctx.restore(); }
+  }
+  // portraits are single drawings: the pose comes from leaning, lunging, squashing and recoiling them
+  function drawPortrait(f, h, sc) {
+    const nat = NATIVE[f.ch.anims.portrait] || 1, face = f.face * nat, t = f.anim, H0 = BODY_H * f.ch.size;
+    let dx = 0, dy = -(f.ch.hover || 0) + (f.ch.hover ? Math.sin(t * 3) * 6 : 0), rot = 0, sx = 1, sy = 1;
+    const ease = (x) => 1 - (1 - clamp(x, 0, 1)) ** 3;
+    if (f.state === 'idle') { sy = 1 + Math.sin(t * 3.2) * 0.012; sx = 1 - Math.sin(t * 3.2) * 0.006; }
+    else if (f.state === 'walk') { dy -= Math.abs(Math.sin(t * 9)) * 7; rot = Math.sin(t * 9) * 0.035; }
+    else if (f.state === 'jump') { rot = (f.vy < 0 ? -0.08 : 0.06); sy = f.vy < 0 ? 1.05 : 0.97; sx = 2 - sy; }
+    else if (f.state === 'attack') {
+      const m = MOVES[f.move], k = f.t;
+      if (k < m.start) { const w = ease(k / m.start); dx = -f.face * 14 * w; rot = -0.08 * w; sy = 1 - 0.03 * w; }          // wind up: lean back
+      else if (k < m.start + m.act) { const w = ease((k - m.start) / m.act); const big = f.move === 'heavy' ? 1.6 : f.move === 'special' ? 1.3 : 1;
+        dx = f.face * 34 * big * w; rot = 0.13 * big * w; sx = 1 + 0.05 * w; sy = 1 - 0.03 * w; }                               // strike: lunge forward
+      else { const w = 1 - ease((k - m.start - m.act) / m.rec); const big = f.move === 'heavy' ? 1.6 : 1.2; dx = f.face * 34 * big * w; rot = 0.13 * big * w; }
+      if (f.move === 'special' && k >= m.start) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = calm ? 12 : 30; }
+    }
+    else if (f.state === 'hurt') { const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1); dx = -f.face * 10 * w; rot = -0.16 * w; sx = 1 - 0.04 * w; }
+    else if (f.state === 'block') { rot = -0.05; sx = 0.96; }
+    else if (f.state === 'ko') { const k = clamp(f.t / 0.55, 0, 1); rot = -1.4 * k; dy = -k * 18; }
+    if (G.mode === 'over' && f === G.winner) { sy = 1 + Math.abs(Math.sin(t * 4)) * 0.04; dy -= Math.abs(Math.sin(t * 4)) * 8; }
+    if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
+    if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.9)';
+    else if (f.state === 'hurt') ctx.filter = 'sepia(0.6) saturate(2.5) hue-rotate(-25deg)';
+    else if (f.state === 'block') ctx.filter = 'brightness(1.15) saturate(0.7)';
+    ctx.translate(f.x + dx, f.y + 2 + dy); ctx.rotate(rot * f.face); ctx.scale(sx, sy);
+    spr(ctx, h.set, h.a, 0, 0, 0, face, sc);
   }
   function drawAttacks() {
     G.shots.forEach((s) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = s.col[0]; ctx.shadowBlur = 20; spr(ctx, s.set, s.a, 0, s.x, s.y, s.face, s.sc); ctx.restore(); });
