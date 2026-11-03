@@ -577,8 +577,19 @@
     ctx.translate(f.x + dx, f.y + 2 + dy); ctx.rotate(rot * f.face); ctx.scale(sx, sy);
     spr(ctx, h.set, h.a, 0, 0, 0, face, sc);
   }
+  // drawn energy shots (no sprite needed): a glowing core with a streaking tail in the fighter's colors
+  function drawBolt(s) {
+    const r = 16 * (s.sc || 1), d = s.face || Math.sign(s.vx) || 1, t = G.t * 20, arrow = s.a === 'diana';
+    const tail = ctx.createLinearGradient(s.x - d * r * (arrow ? 7 : 4.5), s.y, s.x, s.y); tail.addColorStop(0, 'rgba(0,0,0,0)'); tail.addColorStop(1, s.col[0]);
+    ctx.fillStyle = tail; ctx.beginPath(); ctx.moveTo(s.x, s.y - r * (arrow ? 0.35 : 0.8)); ctx.lineTo(s.x - d * r * (arrow ? 7 : 4.5), s.y); ctx.lineTo(s.x, s.y + r * (arrow ? 0.35 : 0.8)); ctx.fill();
+    if (arrow) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(s.x + d * r * 1.6, s.y); ctx.lineTo(s.x - d * r * 0.4, s.y - r * 0.6); ctx.lineTo(s.x - d * r * 0.4, s.y + r * 0.6); ctx.fill(); return; }
+    const g = ctx.createRadialGradient(s.x, s.y, 1, s.x, s.y, r * 1.6); g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, s.col[0]); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, r * 1.6, 0, 7); ctx.fill();
+    ctx.strokeStyle = s.col[1] || '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + t * 0.1; ctx.moveTo(s.x + Math.cos(a) * r * 0.6, s.y + Math.sin(a) * r * 0.6); ctx.lineTo(s.x + Math.cos(a + 0.4) * r * (1.3 + (calm ? 0 : Math.random() * 0.4)), s.y + Math.sin(a + 0.4) * r * 1.3); } ctx.stroke();
+  }
   function drawAttacks() {
-    G.shots.forEach((s) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = s.col[0]; ctx.shadowBlur = 20; spr(ctx, s.set, s.a, 0, s.x, s.y, s.face, s.sc); ctx.restore(); });
+    G.shots.forEach((s) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = s.col[0]; ctx.shadowBlur = 20;
+      if (frameOf(s.set, s.a, 0)) spr(ctx, s.set, s.a, 0, s.x, s.y, s.face, s.sc); else drawBolt(s); ctx.restore(); });
     G.beams.forEach((b) => { const k = 1 - b.t / b.dur; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = b.col[0]; ctx.shadowBlur = 24;
       [[22, 'rgba(87,182,255,0.45)'], [10, '#bfe6ff'], [4, '#ffffff']].forEach(([w, c]) => { ctx.strokeStyle = c; ctx.lineWidth = w * k + 1; ctx.beginPath(); ctx.moveTo(b.x, b.y); for (let i = 1; i <= 16; i++) ctx.lineTo(b.x + b.face * b.len * i / 16, b.y + (i < 16 ? rand(-7, 7) : 0)); ctx.stroke(); });
       ctx.restore(); });
