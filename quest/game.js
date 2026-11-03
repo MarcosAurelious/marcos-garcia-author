@@ -29,13 +29,15 @@
   const img = (src) => { const i = new Image(); i.src = src; return i; };
   const ART = {};
   const bgImg = (src) => ART[src] || (ART[src] = img(src));
-  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
   const ATLAS = {"warrior":{"idle":[[0,0,38,56,20,56],[40,0,42,56,21,56],[84,0,39,55,20,55]],"walk":[[125,0,38,50,19,50],[165,0,35,48,18,48],[202,0,37,48,17,48],[241,0,55,48,27,48]],"run":[[298,0,40,49,20,49],[340,0,41,48,20,48],[383,0,39,50,18,50],[424,0,37,48,17,48]],"jump":[[463,0,45,56,22,56],[510,0,38,55,18,55],[550,0,32,51,14,51],[584,0,35,49,17,49]],"attack":[[621,0,42,63,19,63],[665,0,37,64,13,64],[704,0,47,52,26,52],[753,0,46,47,17,47]],"hurt":[[801,0,37,64,18,64],[840,0,33,52,16,52],[875,0,35,51,17,51]],"die":[[912,0,42,46,22,46],[956,0,57,32,28,32],[0,66,52,29,26,29]]},"archer":{"idle":[[54,66,46,52,21,52],[102,66,38,51,15,51],[142,66,40,51,16,51]],"walk":[[184,66,43,48,19,48],[229,66,32,48,13,48],[263,66,35,50,16,50]],"run":[[300,66,46,48,20,48],[348,66,38,48,16,48],[388,66,41,48,20,48]],"jump":[[431,66,45,53,20,53],[478,66,38,49,14,49],[518,66,29,52,13,52]],"attack":[[549,66,48,50,16,50],[599,66,37,53,13,53],[638,66,44,51,14,51]],"hurt":[[684,66,48,51,21,51],[734,66,41,48,16,48],[777,66,35,52,12,52]],"die":[[814,66,48,38,26,38],[864,66,44,24,22,24],[910,66,40,27,19,27]]},"knight":{"idle":[[952,66,34,54,16,54],[988,66,34,53,15,53],[0,122,31,53,14,53]],"walk":[[33,122,34,49,15,49],[69,122,32,49,15,49],[103,122,36,48,18,48]],"run":[[141,122,39,50,17,50],[182,122,37,49,18,49],[221,122,35,50,16,50]],"jump":[[258,122,32,52,14,52],[292,122,34,50,17,50],[328,122,28,50,11,50]],"attack":[[358,122,42,64,20,64],[402,122,20,56,12,56],[424,122,36,59,12,59],[462,122,44,57,27,57]],"hurt":[[508,122,32,50,15,50],[542,122,34,48,16,48],[578,122,48,48,18,48]],"die":[[628,122,38,41,18,41],[668,122,42,29,19,29],[712,122,43,26,19,26]]},"commander":{"idle":[[757,122,72,104,37,104],[831,122,72,105,35,105],[905,122,67,100,36,100]],"walk":[[0,229,62,93,30,93],[64,229,68,93,32,93],[134,229,66,93,33,93]],"run":[[202,229,79,93,39,93],[283,229,79,91,36,91],[364,229,81,93,40,93]],"jump":[[447,229,74,100,29,100],[523,229,85,98,36,98],[610,229,70,100,34,100]],"attack":[[682,229,84,113,44,113],[768,229,86,115,37,115],[856,229,115,118,62,118]],"hurt":[[0,349,82,109,45,109],[84,349,70,88,34,88],[156,349,67,103,31,103]],"die":[[225,349,85,86,44,86],[312,349,85,79,40,79],[399,349,84,53,40,53]]},"priestess":{"idle":[[485,349,59,60,24,60],[546,349,49,59,24,59]],"walk":[[597,349,56,55,23,55],[655,349,50,54,24,54]],"run":[[707,349,54,56,25,56],[763,349,52,54,24,54]],"jump":[[817,349,55,62,24,62],[874,349,56,59,25,59]],"attack":[[932,349,40,69,23,69],[0,460,58,71,24,71]],"hurt":[[60,460,55,58,27,58],[117,460,73,61,38,61]],"die":[[192,460,67,43,32,43],[261,460,67,56,34,56]]},"companion":{"idle":[[330,460,21,30,10,30],[353,460,22,30,11,30],[377,460,22,32,11,32]],"walk":[[401,460,20,31,9,31],[423,460,20,28,10,28],[445,460,20,30,10,30],[467,460,19,29,9,29]],"run":[[488,460,29,33,11,33],[519,460,23,32,12,32],[544,460,22,32,11,32]],"jump":[[568,460,23,32,10,32],[593,460,24,35,11,35],[619,460,22,31,10,31]],"attack":[[643,460,35,37,23,37],[680,460,29,34,15,34],[711,460,32,40,18,40]],"hurt":[[745,460,27,33,14,33],[774,460,28,32,14,32],[804,460,27,33,14,33]],"die":[[833,460,22,31,9,31]]},"fx":{"slash":[[857,460,35,48,17,24]],"heal":[[894,460,73,70,36,35]],"swirl":[[0,533,79,40,39,20]],"comet":[[81,533,63,26,31,13]],"sun":[[146,533,28,34,14,17]],"star":[[176,533,27,28,13,14]],"dust":[[205,533,27,28,13,14]]},"eagle":{"fly":[[234,533,41,41,18,20],[277,533,38,39,16,19]],"dive":[[317,533,32,44,14,22],[351,533,42,44,20,22],[395,533,48,49,25,24],[445,533,43,53,21,26]],"glide":[[490,533,53,34,25,17],[545,533,41,29,20,14],[588,533,47,31,23,15]],"hurt":[[637,533,33,27,15,13],[672,533,38,34,22,17]],"die":[[712,533,46,33,20,16],[760,533,47,25,19,12]]},"coil":{"idle":[[809,533,58,91,29,91],[869,533,61,90,32,90],[932,533,63,95,30,95]],"beam":[[0,630,59,93,29,93],[61,630,57,91,28,91],[120,630,233,90,27,90]],"arc":[[355,630,64,99,34,99],[421,630,64,99,32,99],[487,630,108,99,41,99]],"hurt":[[597,630,57,98,28,98],[656,630,56,91,28,91],[714,630,46,96,25,96]],"die":[[762,630,59,90,30,90],[823,630,85,104,37,104]]},"boss":{"idle":[[0,0,122,110,63,110],[124,0,104,106,54,106],[230,0,125,108,65,108],[357,0,116,107,58,107]],"walk":[[475,0,110,96,58,96],[587,0,65,96,30,96],[654,0,74,96,35,96],[730,0,74,96,31,96]],"run":[[806,0,95,96,48,96],[903,0,75,96,31,96],[0,112,99,96,44,96]],"slam":[[101,112,178,95,51,95]],"blast":[[281,112,264,98,43,98]],"summon":[[547,112,187,98,52,98]],"thunder":[[736,112,191,108,59,108]],"shield":[[0,222,154,108,42,108]],"hurt":[[156,222,122,110,56,110]],"die":[[280,222,144,112,46,112]]},"bfx":{"spear":[[426,222,80,48,40,24]],"orb":[[508,222,33,35,16,17]],"drone":[[543,222,33,27,16,13]],"bolt":[[578,222,60,103,30,51]],"ring":[[640,222,121,107,60,53]],"burst":[[763,222,72,66,36,33]],"smoke":[[837,222,71,68,35,34]]}};
   /* ================= sprites (Marcos Garcia's character sheets) ================= */
   const SPR = img('img/sprites.webp'), BOSSIMG = img('img/boss.webp'), ENEMYIMG = img('img/enemies.webp');
   const EATLAS = {"minotaur":{"idle":[[0,0,57,70,29,70],[59,0,53,69,25,69]],"move":[[114,0,69,65,33,65],[185,0,85,67,34,67]],"gore":[[272,0,84,56,38,56],[358,0,107,64,23,64]],"slam":[[467,0,182,68,42,68]]},"medusa":{"idle":[[651,0,40,66,24,66],[693,0,40,66,24,66]],"move":[[735,0,40,64,21,64],[777,0,42,64,23,64],[821,0,37,64,21,64]],"gaze":[[860,0,84,67,40,67]],"serp":[[946,0,37,61,22,61]]},"chiron":{"idle":[[0,72,52,70,20,70],[54,72,59,69,26,69]],"move":[[115,72,43,70,22,70],[160,72,69,69,31,69],[231,72,49,68,19,68]],"shoot":[[282,72,60,66,22,66]]},"chariot":{"idle":[[344,72,123,66,68,33]],"move":[[469,72,143,74,79,37]],"beam":[[614,72,95,55,52,27]]},"leviathan":{"idle":[[711,72,166,92,83,92]],"emerge":[[0,166,186,116,93,116]],"tent":[[188,166,241,102,121,102]],"cannon":[[431,166,219,99,109,99]]},"colossus":{"idle":[[652,166,106,100,50,100],[760,166,103,100,54,100],[865,166,118,100,58,100]],"slam":[[0,284,114,108,59,108],[116,284,97,108,56,108],[215,284,174,108,47,108]],"throw":[[391,284,86,91,45,91],[479,284,200,98,63,98]]},"techno":{"idle":[[681,284,75,64,42,64],[758,284,60,64,23,64],[820,284,63,64,19,64]],"gaze":[[885,284,46,65,17,65],[0,394,96,68,33,68]],"sum":[[98,394,39,57,15,57],[139,394,115,60,21,60],[256,394,54,57,26,57]]},"engine":{"idle":[[312,394,117,104,64,104],[431,394,119,101,62,101],[552,394,112,97,64,97]],"charge":[[666,394,139,99,68,99],[807,394,124,112,62,112],[0,508,119,121,49,121]],"sweep":[[121,508,126,96,50,96],[249,508,163,112,92,112],[414,508,101,94,48,94]]},"pegasus":{"idle":[[517,508,87,52,44,26],[606,508,61,60,30,30],[669,508,53,56,26,28]],"dive":[[724,508,72,62,36,31],[798,508,68,75,34,37],[868,508,80,76,40,38]],"sonic":[[0,631,77,60,38,30],[79,631,46,61,23,30]]},"helios":{"idle":[[127,631,63,54,31,27],[192,631,76,62,38,31],[270,631,50,60,25,30]],"orbs":[[322,631,71,60,36,30],[395,631,86,69,43,34],[483,631,51,61,26,30]],"laser":[[536,631,40,47,20,23],[578,631,71,63,36,31],[651,631,100,70,50,35]]},"efx":{"serpent":[[753,631,38,17,19,8]],"star":[[793,631,89,16,44,8]],"flare":[[884,631,51,43,25,21]],"rock":[[937,631,38,32,19,16]],"ring":[[0,703,58,38,29,19]],"sunorb":[[60,703,70,32,35,16]],"water":[[132,703,98,41,49,20]],"beam":[[232,703,87,28,43,14]]}};
-  Object.assign(ATLAS, EATLAS);
-  const imgFor = (set) => (set === 'boss' || set === 'bfx' ? BOSSIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  const XATLAS = {"cerberus":{"recover":[[0,0,164,128,67,128]],"special":[[1566,0,219,110,110,110]],"attack":[[1245,242,202,98,67,98]],"idle":[[655,345,134,96,67,96]],"walk":[[1473,345,171,95,67,95]],"wind":[[0,539,144,83,67,83]]},"blackknight":{"wind":[[166,0,87,123,34,123]],"special":[[819,0,148,114,74,114]],"attack":[[967,130,128,104,34,104]],"idle":[[1906,242,68,96,34,96]],"recover":[[1936,345,78,94,34,94]],"walk":[[1074,443,87,89,34,89]]},"stormtaur":{"wind":[[255,0,113,119,62,119]],"special":[[370,0,202,116,101,116]],"attack":[[0,242,187,101,62,101]],"recover":[[1084,242,159,98,62,98]],"idle":[[0,345,125,96,62,96]],"walk":[[943,443,129,91,62,91]]},"spider":{"special":[[574,0,243,116,122,116]],"wind":[[1124,0,166,113,84,113]],"recover":[[1381,0,183,110,84,110]],"walk":[[595,242,178,99,84,99]],"idle":[[485,345,168,96,84,96]],"attack":[[424,443,215,93,84,93]]},"king":{"special":[[969,0,153,113,76,113]],"wind":[[881,130,84,105,33,105]],"idle":[[1772,242,66,96,33,96]],"recover":[[1840,242,64,96,33,96]],"walk":[[1850,345,84,94,33,94]],"attack":[[1733,443,115,85,33,85]]},"templar":{"attack":[[1292,0,87,112,33,112]],"idle":[[1703,242,67,96,33,96]],"recover":[[1160,345,75,95,33,95]],"walk":[[771,443,89,91,33,91]],"wind":[[862,443,79,91,33,91]],"special":[[1295,443,138,88,69,88]]},"pluto":{"wind":[[1787,0,121,110,47,110]],"special":[[0,130,188,110,94,110]],"recover":[[775,242,127,99,47,99]],"idle":[[791,345,94,96,47,96]],"walk":[[1646,345,112,95,47,95]],"attack":[[270,539,178,80,47,80]]},"harpy":{"wind":[[190,130,105,109,58,109]],"attack":[[1097,130,138,104,58,104]],"special":[[1626,130,198,103,99,103]],"recover":[[1449,242,128,97,58,97]],"idle":[[366,345,117,96,58,96]],"walk":[[1357,345,114,95,58,95]]},"strider":{"special":[[297,130,184,108,92,108]],"recover":[[1826,130,103,103,45,103]],"wind":[[189,242,114,101,45,101]],"attack":[[305,242,176,101,45,101]],"walk":[[1579,242,122,97,45,97]],"idle":[[962,345,90,96,45,96]]},"titan":{"attack":[[483,130,162,107,56,107]],"wind":[[647,130,118,106,56,106]],"special":[[1424,130,200,103,100,103]],"idle":[[251,345,113,96,56,96]],"walk":[[304,443,118,93,56,93]],"recover":[[1163,443,130,89,56,89]]},"charon":{"wind":[[767,130,112,106,51,106]],"special":[[1237,130,185,104,92,104]],"idle":[[1054,345,104,96,51,96]],"walk":[[1435,443,125,87,51,87]],"recover":[[146,539,122,82,51,82]],"attack":[[450,539,186,78,51,78]]},"anubis":{"wind":[[483,242,110,100,61,100]],"idle":[[127,345,122,96,61,96]],"walk":[[1237,345,118,95,61,95]],"recover":[[0,443,130,94,61,94]],"attack":[[1562,443,169,86,61,86]],"special":[[638,539,191,77,96,77]]},"galvanic":{"special":[[904,242,178,99,89,99]],"idle":[[887,345,73,96,36,96]],"recover":[[1760,345,88,95,36,95]],"attack":[[132,443,170,94,36,94]],"walk":[[641,443,128,92,36,92]],"wind":[[1850,443,100,85,36,85]]}};
+  const ELITEIMG = img('img/elites.webp');
+  Object.assign(ATLAS, EATLAS, XATLAS);
+  const imgFor = (set) => (set === 'boss' || set === 'bfx' ? BOSSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   // spr: draw one frame with its anchor (feet, or centre for effects) at screen x,y. clip limits how far right of the anchor is drawn.
   function spr(set, anim, i, sx, sy, face = 1, scale = 1, alpha = 1, clip = 0) {
     const fr = ATLAS[set] && ATLAS[set][anim]; if (!fr) return;
@@ -68,6 +70,18 @@
     ['Loss is nothing else but change, and change is nature\'s delight.', 'after Meditations 9.35'],
     ['Never confuse a confident voice with a correct one.', 'A lesson for the Stoic mind'],
     ['Dwell on the beauty of life. Watch the stars, and see yourself running with them.', 'after Meditations 7.47'],
+    ['You have power over your mind, not outside events. Realize this, and you will find strength.', 'after Meditations'],
+    ['Fear is louder than facts. Let the facts speak first.', 'A lesson for the Stoic mind'],
+    ['Waste no more time arguing about what a good man should be. Be one.', 'Meditations 10.16'],
+    ['Accept the things to which fate binds you, and love the people with whom fate brings you together.', 'after Meditations 6.39'],
+    ['Wealth and rank are borrowed. Character is the only thing you keep.', 'A lesson for the Stoic mind'],
+    ['Soon you will have forgotten all things; soon all things will have forgotten you.', 'Meditations 7.21'],
+    ['Power without discipline is only noise and sparks.', 'A lesson for the Stoic mind'],
+    ['The impediment to action advances action.', 'Meditations 5.20'],
+    ['A spark that is not grounded burns its own house.', 'A lesson for the Stoic mind'],
+    ['Think of yourself as dead. Now take what is left and live it properly.', 'after Meditations 7.56'],
+    ['Do every act of your life as though it were the very last.', 'after Meditations 2.5'],
+    ['Look within. Within is the fountain of good, and it will ever bubble up, if you will ever dig.', 'Meditations 7.59'],
   ];
 
   /* ================= level builder ================= */
@@ -178,7 +192,7 @@
       L.ent('eagle', 58, 4); L.ent('chiron', 62, 11); L.stairs(66, 3); L.coins(70, 7, 3); L.ent('colossus', 74, 11);
       L.plat(82, 10, 2);
       L.ground(85, 120);
-      L.ent('pegasus', 88, 5); L.ent('soldier', 92, 11); L.plat(95, 8, 4); L.ent('archer', 96, 7); L.plat(101, 5, 3); L.ent('scroll', 102, 4, { i: 10 });
+      L.ent('pegasus', 88, 5); L.ent('anubis', 91, 11); L.plat(95, 8, 4); L.ent('archer', 96, 7); L.plat(101, 5, 3); L.ent('scroll', 102, 4, { i: 10 });
       L.field(108, 8, 11); L.field(112, 8, 11); L.ent('minotaur', 116, 11);
       L.ground(124, 192); L.ent('check', 125, 11);
       L.ent('chiron', 132, 11); L.ent('eagle', 136, 3); L.set(139, 8, 'B'); L.box(140, 8, 'heart'); L.set(141, 8, 'B');
@@ -197,38 +211,120 @@
       L.set(45, 8, 'B'); L.box(46, 8, 'coin'); L.box(47, 8, 'heart'); L.field(50, 8, 11);
       L.plat(54, 9, 2);
       L.ground(57, 90); L.ent('check', 58, 11);
-      L.ent('helios', 64, 6); L.ent('soldier', 66, 11); L.col(70, 10, 11); L.col(71, 10, 11); L.ent('medusa', 76, 11); L.ent('chariot', 80, 3);
+      L.ent('helios', 64, 6); L.ent('titan', 65, 11); L.col(70, 10, 11); L.col(71, 10, 11); L.ent('medusa', 76, 11); L.ent('chariot', 80, 3);
       L.field(84, 8, 11); L.coins(86, 10, 3);
       L.ground(94, 130);
       L.plat(97, 8, 3); L.ent('archer', 98, 7); L.plat(101, 5, 3); L.ent('scroll', 102, 4, { i: 13 });
       L.ent('centurion', 106, 11); L.ent('helios', 112, 5); L.field(116, 8, 11); L.field(119, 8, 11); L.ent('medusa', 125, 11);
       L.ground(134, 178); L.ent('check', 135, 11);
-      L.ent('techno', 142, 11); L.ent('eagle', 146, 3); L.plat(150, 8, 3); L.ent('scroll', 151, 7, { i: 14 }); L.box(155, 8, 'laurel');
+      L.ent('spider', 142, 11); L.ent('eagle', 146, 3); L.plat(150, 8, 3); L.ent('scroll', 151, 7, { i: 14 }); L.box(155, 8, 'laurel');
       L.ent('centurion', 158, 11); L.ent('helios', 162, 5); L.ent('check', 170, 11);
       L.ent('bigboss', 180, 11, { kind: 'leviathan' });
       L.ground(183, 196);
       L.ent('flag', 192, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Edge of Eternity', theme: 2, intro: 'Rome beneath a spiral of stars, at the end of all roads. Every foe of the quest returns here, and at the summit the Roman Automaton, a forgotten machine of the empire, awakens.', art: 'img/card-bust.webp', bg: 'img/bg-eternity.webp', build() {
+    { name: 'The Storm over the Seven Hills', music: 'ch4', theme: 2, intro: 'Meteors fall over the sleeping city. Anubis stalks the terraces, the Storm Harpy circles above, and on the last hill Asterion the Storm Minotaur waits with his thunder axe.', art: 'img/bg-storm.webp', bg: 'img/bg-storm.webp', build() {
       const L = builder(212);
       L.ground(0, 16); L.ent('start', 2, 11);
       L.coins(5, 10, 3); L.ent('pegasus', 12, 5);
       L.ground(20, 44);
-      L.field(24, 8, 11); L.ent('chiron', 30, 11); L.plat(33, 8, 3); L.ent('scroll', 34, 7, { i: 15 }); L.ent('minotaur', 40, 11);
+      L.field(24, 8, 11); L.ent('chiron', 30, 11); L.plat(33, 8, 3); L.ent('scroll', 34, 7, { i: 15 }); L.ent('anubis', 41, 11);
       L.plat(46, 9, 2, 'B');
       L.ground(49, 84); L.ent('check', 50, 11);
-      L.ent('techno', 56, 11); L.ent('chariot', 60, 3); L.field(63, 7, 11); L.field(67, 7, 11); L.ent('colossus', 73, 11); L.box(77, 8, 'heart');
+      L.ent('techno', 56, 11); L.ent('harpy', 60, 4); L.field(63, 7, 11); L.field(67, 7, 11); L.ent('colossus', 73, 11); L.box(77, 8, 'heart');
       L.ent('leviathan', 86, 11);
       L.ground(89, 120);
       L.plat(92, 8, 3); L.ent('archer', 93, 7); L.plat(96, 5, 3); L.ent('scroll', 97, 4, { i: 16 });
-      L.ent('pegasus', 102, 5); L.ent('minotaur', 106, 11); L.field(112, 8, 11); L.ent('chiron', 117, 11);
+      L.ent('pegasus', 102, 5); L.ent('anubis', 107, 11); L.field(112, 8, 11); L.ent('chiron', 117, 11);
       L.ground(124, 212); L.ent('check', 125, 11);
-      L.ent('colossus', 132, 11); L.ent('chariot', 136, 3); L.field(140, 8, 11); L.field(143, 8, 11); L.field(146, 8, 11);
-      L.plat(151, 8, 3); L.ent('scroll', 152, 7, { i: 17 }); L.box(156, 8, 'laurel'); L.ent('techno', 160, 11); L.ent('helios', 165, 5); L.ent('centurion', 170, 11);
+      L.ent('minotaur', 132, 11); L.ent('chariot', 136, 3); L.field(140, 8, 11); L.field(143, 8, 11); L.field(146, 8, 11);
+      L.plat(151, 8, 3); L.ent('scroll', 152, 7, { i: 17 }); L.box(156, 8, 'laurel'); L.ent('harpy', 162, 4); L.ent('anubis', 168, 11);
       L.ent('check', 180, 11);
-      L.ent('boss', 198, 11, { minX: 186 });
+      L.ent('xboss', 198, 11, { kind: 'stormtaur', minX: 186 });
       L.ent('flag', 207, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Gates of the Underworld', music: 'ch5', theme: 1, intro: 'Beneath Rome, glowing roots split the dark earth. Fire titans and clockwork spiders guard the descent, and at the gate itself Cerberus, the three-headed hound, breathes fire.', art: 'img/bg-underworld.webp', bg: 'img/bg-underworld.webp', build() {
+      const L = builder(206);
+      L.ground(0, 18); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.set(8, 8, 'B'); L.box(9, 8, 'coin'); L.set(10, 8, 'B'); L.ent('anubis', 15, 11);
+      L.ground(22, 46);
+      L.plat(25, 9, 3); L.ent('archer', 26, 8); L.plat(29, 6, 3); L.ent('scroll', 30, 5, { i: 18 });
+      L.ent('harpy', 35, 4); L.ent('soldier', 38, 11); L.field(41, 8, 11);
+      L.plat(47, 9, 2, 'B');
+      L.ground(51, 84); L.ent('check', 52, 11);
+      L.ent('titan', 60, 11); L.field(65, 8, 11); L.coins(67, 10, 3); L.box(71, 8, 'heart'); L.ent('harpy', 72, 4); L.ent('spider', 78, 11);
+      L.ground(88, 92, 10); L.coins(89, 9, 3);
+      L.ground(96, 130);
+      L.plat(99, 8, 3); L.plat(103, 5, 3); L.ent('scroll', 104, 4, { i: 19 }); L.ent('archer', 100, 7);
+      L.ent('titan', 109, 11); L.field(114, 8, 11); L.ent('harpy', 119, 4); L.ent('anubis', 125, 11);
+      L.ground(134, 206); L.ent('check', 135, 11);
+      L.ent('spider', 142, 11); L.plat(147, 8, 3); L.ent('scroll', 148, 7, { i: 20 }); L.box(152, 8, 'laurel'); L.ent('titan', 158, 11); L.ent('harpy', 163, 4);
+      L.ent('check', 172, 11);
+      L.ent('xboss', 192, 11, { kind: 'cerberus', minX: 178 });
+      L.ent('flag', 201, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Kingdom of Pluto', music: 'ch6', theme: 2, intro: 'A river of stars above black mountains. Charon the Ferryman rows the lost souls past, and on his throne of shadow Pluto, King of the Underworld, raises the dead against you.', art: 'img/bg-pluto.webp', bg: 'img/bg-pluto.webp', build() {
+      const L = builder(208);
+      L.ground(0, 16); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.ent('charon', 13, 11);
+      L.ground(20, 22); L.ground(26, 50);
+      L.plat(29, 8, 3); L.ent('scroll', 30, 7, { i: 21 }); L.ent('harpy', 34, 4); L.field(38, 8, 11); L.ent('medusa', 44, 11);
+      L.plat(51, 9, 2, 'B');
+      L.ground(55, 90); L.ent('check', 56, 11);
+      L.ent('charon', 63, 11); L.ent('pegasus', 66, 5); L.col(70, 10, 11); L.col(71, 10, 11); L.ent('titan', 77, 11); L.box(82, 8, 'heart'); L.ent('helios', 85, 5);
+      L.ground(94, 98, 10);
+      L.ground(102, 134);
+      L.plat(105, 8, 3); L.ent('archer', 106, 7); L.plat(109, 5, 3); L.ent('scroll', 110, 4, { i: 22 });
+      L.ent('harpy', 115, 4); L.ent('charon', 119, 11); L.field(124, 8, 11); L.ent('anubis', 129, 11);
+      L.ground(138, 208); L.ent('check', 139, 11);
+      L.ent('titan', 146, 11); L.plat(151, 8, 3); L.ent('scroll', 152, 7, { i: 23 }); L.box(156, 8, 'laurel'); L.ent('charon', 161, 11); L.ent('harpy', 165, 4);
+      L.ent('check', 174, 11);
+      L.ent('xboss', 194, 11, { kind: 'pluto', minX: 180 });
+      L.ent('flag', 203, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Galvanic Forge', music: 'ch7', theme: 1, intro: 'Copper cages and crackling coils: the forge where lightning is hammered into soldiers. Tesla Striders and Galvanic Gladiators walk its halls, and in the great cage the Roman Automaton, a forgotten machine of the empire, awakens.', art: 'img/bg-forge.webp', bg: 'img/bg-forge.webp', build() {
+      const L = builder(208);
+      L.ground(0, 20); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.box(8, 8, 'coin'); L.set(9, 8, 'B'); L.box(10, 8, 'coin'); L.ent('spider', 16, 11);
+      L.ground(24, 50);
+      L.field(27, 8, 11); L.plat(30, 8, 3); L.ent('scroll', 31, 7, { i: 24 }); L.ent('strider', 37, 11); L.field(42, 8, 11); L.ent('helios', 45, 5);
+      L.plat(51, 9, 2, 'B');
+      L.ground(55, 90); L.ent('check', 56, 11);
+      L.ent('techno', 62, 11); L.field(66, 8, 11); L.field(69, 8, 11); L.ent('strider', 75, 11); L.box(80, 8, 'heart'); L.ent('harpy', 83, 4);
+      L.ground(94, 98, 10); L.coins(95, 9, 3);
+      L.ground(102, 136);
+      L.plat(105, 8, 3); L.plat(109, 5, 3); L.ent('scroll', 110, 4, { i: 25 }); L.ent('archer', 106, 7);
+      L.ent('spider', 115, 11); L.field(120, 8, 11); L.ent('galvanic', 125, 11); L.ent('helios', 128, 5); L.ent('strider', 132, 11);
+      L.ground(140, 208); L.ent('check', 141, 11);
+      L.field(146, 8, 11); L.field(149, 8, 11); L.plat(153, 8, 3); L.ent('scroll', 154, 7, { i: 26 }); L.box(158, 8, 'laurel'); L.ent('galvanic', 163, 11); L.ent('spider', 168, 11);
+      L.ent('check', 175, 11);
+      L.ent('boss', 194, 11, { minX: 181 });
+      L.ent('flag', 203, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Edge of Eternity', music: 'ch8', theme: 2, intro: 'Rome beneath a spiral of stars, at the end of all roads. Every foe of the quest returns here, and at the summit three knights hold the last road: the Templar Crusader, the Golden King and the Black Knight.', art: 'img/card-bust.webp', bg: 'img/bg-eternity.webp', build() {
+      const L = builder(224);
+      L.ground(0, 16); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.ent('pegasus', 12, 5);
+      L.ground(20, 46);
+      L.field(24, 8, 11); L.ent('charon', 30, 11); L.plat(33, 8, 3); L.ent('scroll', 34, 7, { i: 27 }); L.ent('anubis', 41, 11);
+      L.plat(47, 9, 2, 'B');
+      L.ground(51, 86); L.ent('check', 52, 11);
+      L.ent('galvanic', 58, 11); L.ent('chariot', 62, 3); L.field(65, 7, 11); L.field(69, 7, 11); L.ent('titan', 75, 11); L.box(79, 8, 'heart'); L.ent('harpy', 82, 4);
+      L.ent('leviathan', 88, 11);
+      L.ground(91, 124);
+      L.plat(94, 8, 3); L.ent('archer', 95, 7); L.plat(98, 5, 3); L.ent('scroll', 99, 4, { i: 28 });
+      L.ent('spider', 105, 11); L.ent('stormtaur', 111, 11); L.field(116, 8, 11); L.ent('chiron', 121, 11);
+      L.ground(128, 224); L.ent('check', 129, 11);
+      L.ent('colossus', 136, 11); L.ent('chariot', 140, 3); L.field(144, 8, 11); L.field(147, 8, 11); L.ent('charon', 152, 11);
+      L.plat(157, 8, 3); L.ent('scroll', 158, 7, { i: 29 }); L.box(162, 8, 'laurel'); L.ent('strider', 167, 11); L.ent('harpy', 171, 4); L.ent('anubis', 177, 11);
+      L.ent('check', 190, 11);
+      L.ent('xboss', 212, 11, { kind: 'templar', minX: 198, next: ['king', 'blackknight'] });
+      L.ent('flag', 219, 11, { hidden: true });
       return L;
     } },
   ];
@@ -289,6 +385,42 @@
         chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('C3 E3 G3'), ch('G2 B2 D3')],
         lead: [seq('E5 - A5 - C6 - B5 - A5 - - - E5 - G5 - F5 - - - E5 - C5 - A4 - C5 - - - - - G5 - C6 - E6 - D6 - C6 - - - G5 - E5 - D5 - G5 - B5 - A5 - G5 - - - - - - -'),
                seq('A5 - - - C6 - - - B5 - A5 - G5 - E5 - F5 - A5 - C6 - A5 - F5 - - - C5 - - - E5 - G5 - C6 - G5 - E6 - - - D6 - C6 - B5 - - - D6 - - - G5 - A5 - B5 - D6 -')] },
+      // Chapter VI: storm over the hills, driving G minor
+      ch4: { bpm: 144, wave: 'square', leadVol: 0.06, harm: 0.028, bass: 'octave', pad: 0.025, arp: 2, arpWave: 'triangle', arpVol: 0.03,
+        kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
+        chords: [ch('G2 Bb2 D3'), ch('Eb3 G3 Bb3'), ch('Bb2 D3 F3'), ch('F3 A3 C4')],
+        lead: [seq('G5 - Bb5 - D6 - Bb5 - G5 - - - D5 - G5 - Eb5 - G5 - Bb5 - G5 - Eb5 - - - Bb4 - Eb5 - D5 - F5 - Bb5 - A5 - G5 - F5 - D5 - F5 - C5 - F5 - A5 - C6 - A5 - - - - - - -'),
+               seq('D6 - - - C6 - Bb5 - A5 - G5 - - - D5 - Eb6 - - - D6 - C6 - Bb5 - G5 - - - Eb5 - F5 - Bb5 - D6 - F6 - D6 - Bb5 - F5 - D5 - F5 - A5 - C6 - F6 - E6 - C6 - A5 - F5 -')] },
+      // Chapter VII: the Underworld gate, dark and pounding E minor
+      ch5: { bpm: 132, wave: 'sawtooth', leadVol: 0.05, harm: 0.03, bass: 'gallop', pad: 0.035, arp: 2, arpWave: 'square', arpVol: 0.022,
+        kick: [0, 4, 6, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
+        chords: [ch('E3 G3 B3'), ch('C3 E3 G3'), ch('D3 F#3 A3'), ch('B2 D#3 F#3')],
+        lead: [seq('E5 - - - B4 - E5 - G5 - F#5 - E5 - D#5 - E5 - G5 - C6 - B5 - A5 - G5 - E5 - - - D5 - F#5 - A5 - D6 - C6 - A5 - F#5 - A5 - B4 - D#5 - F#5 - B5 - A5 - F#5 - D#5 - B4 -'),
+               seq('B5 - - - A5 - G5 - F#5 - G5 - A5 - B5 - C6 - - - B5 - A5 - G5 - E5 - G5 - C6 - D6 - - - C6 - B5 - A5 - F#5 - D5 - F#5 - D#6 - - - B5 - - - F#5 - - - D#5 - - -')] },
+      // Chapter VIII: the Kingdom of Pluto, haunting B minor with a big pad
+      ch6: { bpm: 126, wave: 'triangle', leadVol: 0.085, harm: 0.03, bass: 'octave', pad: 0.045, arp: 1, arpWave: 'sine', arpVol: 0.03,
+        kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
+        chords: [ch('B2 D3 F#3'), ch('G2 B2 D3'), ch('D3 F#3 A3'), ch('A2 C#3 E3')],
+        lead: [seq('F#5 - B5 - D6 - C#6 - B5 - - - F#5 - - - G5 - B5 - D6 - B5 - G5 - - - D5 - - - A5 - F#5 - D5 - F#5 - A5 - D6 - F#6 - D6 - E6 - C#6 - A5 - E5 - A5 - C#6 - E6 - - -'),
+               seq('D6 - - - C#6 - B5 - C#6 - D6 - F#6 - - - G6 - - - F#6 - E6 - D6 - B5 - G5 - - - F#6 - - - E6 - D6 - A5 - F#5 - A5 - D6 - E6 - - - C#6 - A5 - E5 - - - A5 - - -')] },
+      // Chapter IX: the Galvanic Forge, fast hammering F# minor
+      ch7: { bpm: 150, wave: 'square', leadVol: 0.055, harm: 0.026, bass: 'gallop', arp: 1, arpWave: 'square', arpVol: 0.024,
+        kick: [0, 4, 8, 12, 14], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
+        chords: [ch('F#3 A3 C#4'), ch('D3 F#3 A3'), ch('E3 G#3 B3'), ch('C#3 F3 G#3')],
+        lead: [seq('F#5 F#5 - F#5 A5 - C#6 - F#5 F#5 - F#5 E5 - C#5 - D5 D5 - D5 F#5 - A5 - D6 - C#6 - A5 - F#5 - E5 E5 - E5 G#5 - B5 - E6 - D6 - B5 - G#5 - C#5 - F5 - G#5 - C#6 - B5 - G#5 - F5 - C#5 -'),
+               seq('C#6 - - - B5 - A5 - G#5 - A5 - B5 - C#6 - D6 - - - C#6 - B5 - A5 - F#5 - A5 - D6 - E6 - - - D6 - C#6 - B5 - G#5 - B5 - E6 - F6 - - - C#6 - - - G#5 - - - F5 - - -')] },
+      // Chapter X: the Edge of Eternity, a heroic finale in D major
+      ch8: { bpm: 138, wave: 'square', leadVol: 0.06, harm: 0.03, bass: 'octave', pad: 0.04, arp: 2, arpWave: 'triangle', arpVol: 0.03,
+        kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
+        chords: [ch('D3 F#3 A3'), ch('A2 C#3 E3'), ch('B2 D3 F#3'), ch('G2 B2 D3')],
+        lead: [seq('D5 - F#5 - A5 - D6 - - - A5 - F#5 - A5 - C#6 - - - A5 - E5 - A5 - C#6 - E6 - - - D6 - - - B5 - F#5 - B5 - D6 - F#6 - - - G6 - F#6 - E6 - D6 - B5 - D6 - E6 - - -'),
+               seq('F#6 - - - E6 - D6 - E6 - F#6 - A6 - - - E6 - - - C#6 - A5 - C#6 - E6 - A6 - - - F#6 - - - D6 - B5 - D6 - F#6 - B6 - - - G6 - - - F#6 - E6 - D6 - E6 - F#6 - G6 -')] },
+      // The knights' gauntlet: a galloping A minor battle theme
+      knights: { bpm: 172, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0.02, arp: 2, arpWave: 'square', arpVol: 0.022,
+        kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
+        chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('G2 B2 D3'), ch('E3 G#3 B3')],
+        lead: [seq('A5 - C6 - E6 - C6 - A5 - E5 - A5 - B5 - C6 - A5 - F5 - A5 - C6 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - G6 - - - G#5 - E5 - B4 - E5 - G#5 - B5 - E6 - - -'),
+               seq('E6 - - - D6 - C6 - B5 - - - A5 - - - F6 - - - E6 - D6 - C6 - - - A5 - - - G6 - - - F6 - E6 - D6 - - - B5 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
       // Bosses: fast and furious C minor
       boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
@@ -336,7 +468,7 @@
     }
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
-      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' ? 0.36 : 0.32, ac.currentTime, 0.25); }
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' || name === 'knights' ? 0.36 : 0.32, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
@@ -345,7 +477,7 @@
       toggle() { on = !on; store.set('aq-music', on); if (on) this.resume(); else halt(0.1); return on; },
     };
   })();
-  const chapterTrack = () => ['ch1', 'ch2', 'ch3'][LEVELS[S.level].theme];
+  const chapterTrack = () => LEVELS[S.level].music || ['ch1', 'ch2', 'ch3'][LEVELS[S.level].theme];
 
   /* ================= input ================= */
   const keys = { left: false, right: false, jump: false, attack: false, throw: false };
@@ -371,12 +503,31 @@
   });
   if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touchy');
 
+  /* ================= Marcus evolution: experience and upgrades ================= */
+  const STAGES = [
+    { xp: 0, name: 'Legionary', gear: 'Leather armor, a gladius and a round shield.', perk: '' },
+    { xp: 400, name: 'Centurion', gear: 'Bronze armor and a reinforced shield.', perk: '+1 heart.' },
+    { xp: 1300, name: 'Tesla Legate', gear: 'A Tesla backpack and an electric sword.', perk: 'Your sword strikes twice as hard and reaches farther.' },
+    { xp: 2400, name: 'Powered Praetorian', gear: 'Powered armor, a plasma sword and an energy shield.', perk: 'The energy shield blocks one hit, then recharges.' },
+    { xp: 3800, name: 'Cosmic Emperor', gear: 'A gravity reactor, an orbital shield and support drones.', perk: 'Two drones fire on nearby foes, the shield recharges faster, and +1 heart.' },
+  ];
+  const START_XP = [0, 450, 900, 1350, 1900, 2500, 3100, 3700, 4300, 4900];   // when a run begins at a later chapter
+  const stageFor = (xp) => STAGES.reduce((k, st, i) => (xp >= st.xp ? i : k), 0);
+  const heartsFor = (stage) => 3 + (stage >= 1 ? 1 : 0) + (stage >= 4 ? 1 : 0);
+  function gainXP(n, x, y) {
+    if (!S || !n) return; S.xp += n;
+    if (x !== undefined && n >= 40) float(x, y, `+${n} XP`, '#8fd8ff');
+    const k = stageFor(S.xp);
+    if (k > S.stage) { const add = heartsFor(k) - heartsFor(S.stage); S.stage = k; S.maxHp += add; if (P) { P.hp = S.maxHp; P.glow = 2.2; P.shieldT = 0; } S.evoPending = k; SFX.power(); }
+  }
+
   /* ================= game state ================= */
   let S = null;   // whole run
   let L = null;   // current level
 
   function newRun(start) {
-    S = { level: start || 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false };
+    const xp0 = START_XP[start || 0] || 0, st0 = stageFor(xp0);
+    S = { level: start || 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: heartsFor(st0), mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false, xp: xp0, stage: st0, evoPending: 0 };
     $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
     window.scrollTo({ top: 0 });
     loadLevel(start || 0, true);
@@ -416,20 +567,22 @@
         if (e.kind === 'techno') b.shot = 0;
         L.boss = b; L.enemies.push(b);
       }
+      else if (XK[e.type]) L.enemies.push(makeX(e.type, e.tx, e.ty));
+      else if (e.type === 'xboss') { L.boss = makeX(e.kind, e.tx, e.ty, { minX: e.minX }); if (e.next) { L.gauntlet = e.next.slice(); L.boss.music = 'knights'; } L.enemies.push(L.boss); }
       else if (e.type === 'boss') { L.boss = { type: 'boss', big: true, title: 'THE ROMAN AUTOMATON', x, y: (e.ty + 1) * T - 100, w: 56, h: 100, vx: 0, vy: 0, hp: 14, maxHp: 14, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1.5, phase: 1, count: 0, shieldCd: 4, shield: 0, minX: (e.minX || 162) * T }; L.enemies.push(L.boss); }
     });
     L.check = { x: L.start.x, y: L.start.y };
     spawnPlayer();
     C = { x: P.x - 20, y: P.y - 30, anim: 0, cast: 0 };
     S.mode = 'play';
-    MUSIC.play(['ch1', 'ch2', 'ch3'][def.theme]);
+    MUSIC.play(chapterTrack());
     if (n > (store.get('aq-unlocked') || 0)) store.set('aq-unlocked', n);
     if (showIntro) overlay(`Chapter ${ROMAN[n]} of ${LEVELS.length}`, def.name, def.intro, 'Begin the chapter', () => {}, def.art);
   }
 
   let P = null, C = null;   // Marcus, and his Cosmic Companion
   function spawnPlayer() {
-    P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0 };
+    P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0, shieldT: 0, droneT: 1, zaps: [] };
     setZoom();
     L.cam = clamp(P.x - VWZ * 0.35, 0, L.w * T - VWZ); L.camY = camYTarget();
   }
@@ -474,7 +627,7 @@
       else { SFX.power(); L.items.push({ type: what, x: target * T + 4, y: ty * T - 28, w: 24, h: 24, rise: 0.4 }); }
     } else SFX.bump();
     // defeat enemies standing on a bumped block
-    L.enemies.forEach((en) => { if (en.type !== 'eagle' && en.type !== 'boss' && Math.abs(en.y + en.h - ty * T) < 4 && en.x + en.w > target * T && en.x < (target + 1) * T) damage(en, 9, 0); });
+    L.enemies.forEach((en) => { if (en.type !== 'eagle' && en.type !== 'boss' && !en.big && Math.abs(en.y + en.h - ty * T) < 4 && en.x + en.w > target * T && en.x < (target + 1) * T) damage(en, 9, 0); });
   }
 
   /* ================= effects ================= */
@@ -493,17 +646,24 @@
     en.hp -= amount; en.hurt = en.big ? 0.45 : 0.25;
     if (dir && !en.big) en.vx = dir * 160;
     if (en.hp <= 0) {
-      en.dead = true; S.kills += 1; L.levelKills += 1; S.killStreak += 1;
+      en.dead = true; S.kills += 1; L.levelKills += 1; S.killStreak += 1; gainXP(en.big ? 200 : XK[en.type] ? 40 : ['colossus', 'chariot', 'leviathan', 'minotaur', 'engine'].includes(en.type) ? 25 : 10, en.x, en.y - 24);
       if (S.killStreak >= 5) { S.killStreak = 0; const gy = Math.min(en.y + en.h - 30, 12 * T - 34); L.items.push({ type: 'spear', x: en.x + en.w / 2 - 14, y: Math.max(60, gy), w: 28, h: 28, rise: 0.3 }); float(en.x - 10, en.y - 24, 'A spear!', '#8fe6d2'); }
-      L.corpses.push({ set: CORPSE[en.type], x: en.x + en.w / 2, y: en.type === 'eagle' ? en.y + en.h / 2 : en.y + en.h, face: en.face, t: 0, vy: 0, eagle: en.type === 'eagle' || en.type === 'pegasus' || en.type === 'chariot' || en.type === 'helios', big: en.big, scale: en.scale || (en.type === 'centurion' ? 1.12 : 1) });
+      L.corpses.push({ set: CORPSE[en.type] || en.type, x: en.x + en.w / 2, y: en.type === 'eagle' ? en.y + en.h / 2 : en.y + en.h, face: en.face, t: 0, vy: 0, eagle: en.type === 'eagle' || en.type === 'pegasus' || en.type === 'chariot' || en.type === 'helios', big: en.big, scale: en.scale || (en.type === 'centurion' ? 1.12 : 1) });
       burst(en.x + en.w / 2, en.y + en.h / 2, ['#ffd27a', '#c9a227', '#8fe6d2', '#fff'], en.big ? 70 : 18, en.big ? 320 : 200);
-      const pts = en.type === 'boss' ? 1000 : en.big ? 500 : ['colossus', 'chariot', 'leviathan', 'minotaur'].includes(en.type) ? 150 : 50;
+      const pts = en.type === 'boss' ? 1000 : en.big ? 500 : XK[en.type] ? 200 : ['colossus', 'chariot', 'leviathan', 'minotaur'].includes(en.type) ? 150 : 50;
       float(en.x, en.y - 6, '+' + pts, '#e7c46a'); S.score += pts;
+      if (en.big && L.gauntlet && L.gauntlet.length) {   // the next knight of the gauntlet rides in
+        SFX.win(); L.shake = 0.5; L.shots = []; L.zones = []; L.waves = []; L.strikes = []; L.drones = [];
+        const nb = makeX(L.gauntlet.shift(), Math.round((en.minX || en.x) / T) + 14, 11, { minX: Math.round(en.minX / T) });
+        Object.assign(nb, { awake: true, music: 'knights', st: 1.6 }); L.boss = nb; L.enemies.push(nb);
+        toast(en.title.charAt(0) + en.title.slice(1).toLowerCase() + ' falls. ' + nb.wakeText, 'Boss');
+        return true;
+      }
       if (en.big) {
         MUSIC.pause(); setTimeout(() => { if (S && S.mode === 'play') MUSIC.play(chapterTrack()); }, 2600);
         SFX.win(); L.shake = 0.6; if (L.flag) L.flag.hidden = false;
         L.drones = []; L.waves = []; L.strikes = []; L.orbs = [];
-        toast(en.type === 'boss' ? 'The Roman Automaton falls silent. The last road home is open.' : en.type === 'engine' ? 'The Minotaur Engine grinds to a halt. The eagle standard is yours.' : en.type === 'commander' ? 'The Dark Commander yields. The eagle standard is yours.' : en.title.charAt(0) + en.title.slice(1).toLowerCase().replace(/(^|\s)(the|of)(?=\s)/g, '$1$2') + ' is defeated. The eagle standard is yours.', 'Reach the standard'); L.shots = []; L.zones = [];
+        toast(en.type === 'boss' ? 'The Roman Automaton falls silent. The road to the Edge of Eternity is open.' : en.type === 'blackknight' ? 'The Black Knight kneels at last. The last road home is open.' : en.type === 'engine' ? 'The Minotaur Engine grinds to a halt. The eagle standard is yours.' : en.type === 'commander' ? 'The Dark Commander yields. The eagle standard is yours.' : en.title.charAt(0) + en.title.slice(1).toLowerCase().replace(/(^|\s)(the|of)(?=\s)/g, '$1$2') + ' is defeated. The eagle standard is yours.', 'Reach the standard'); L.shots = []; L.zones = [];
       } else SFX.hit();
     } else { SFX.hit(); burst(en.x + en.w / 2, en.y + 10, ['#fff', '#8fe6d2'], 8, 140); }
     return true;
@@ -511,6 +671,7 @@
 
   function hurtPlayer(fromX) {
     if (P.inv > 0 || P.dead) return;
+    if (S.stage >= 3 && P.shieldT <= 0) { P.shieldT = S.stage >= 4 ? 5 : 8; P.inv = 0.9; SFX.bump(); burst(P.x + P.w / 2, P.y + 18, ['#8fd8ff', '#fff', '#57b6ff'], 16, 190); float(P.x - 24, P.y - 18, 'Shield!', '#8fd8ff'); return; }
     P.hp -= 1; P.inv = 1.3; SFX.hurt(); L.shake = 0.25;
     P.vx = (P.x + P.w / 2 < fromX ? -1 : 1) * 260; P.vy = -380;
     burst(P.x + P.w / 2, P.y + 14, ['#ff7a59', '#fff'], 10, 160);
@@ -532,6 +693,12 @@
       if (P.dead <= 0) { spawnPlayer(); float(P.x - 20, P.y - 20, 'Rise again', '#8fe6d2'); }
       return;
     }
+    if (S.evoPending) { const k = S.evoPending; S.evoPending = 0; const st = STAGES[k]; overlay(`Marcus evolves · Stage ${ROMAN[k]}`, st.name, `${st.gear} ${st.perk} (${S.xp} XP)`, 'Onward', null, `img/stage${k + 1}.webp`); return; }
+    if (P.shieldT > 0) P.shieldT -= dt;
+    P.zaps = P.zaps.filter((z) => (z.t -= dt) > 0);
+    if (S.stage >= 4) { P.droneT -= dt; if (P.droneT <= 0) { P.droneT = 1.3; const cx = P.x + P.w / 2, cy = P.y + 10; let best = null, bd = 280;
+        L.enemies.forEach((en) => { if (en.dead || en.ghost || (en.wakeText && !en.awake)) return; const d = Math.hypot(en.x + en.w / 2 - cx, en.y + en.h / 2 - cy); if (d < bd) { bd = d; best = en; } });
+        if (best) { const side = P.zaps.length % 2 ? 1 : -1; P.zaps.push({ x0: cx + side * 26, y0: P.y - 22, x1: best.x + best.w / 2, y1: best.y + best.h / 2, t: 0.14 }); SFX.zap(); damage(best, 1, 0); } } }
     if (P.stone > 0) { P.stone -= dt; jumpPressed = false; attackPressed = false; }
     const dir = P.stone > 0 ? 0 : (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     if (dir) { P.vx += dir * (P.onGround ? ACC : AIR) * dt; P.face = dir; }
@@ -558,8 +725,8 @@
 
     // sword
     if (P.atk > 0 && !(P.thrown > 0)) {
-      const hb = { x: P.face > 0 ? P.x + P.w - 4 : P.x - 42, y: P.y + 2, w: 46, h: 30 };
-      L.enemies.forEach((en) => { if (!en.dead && overlap(hb, en)) damage(en, 1, P.face); });
+      const reach = S.stage >= 2 ? 58 : 46, hb = { x: P.face > 0 ? P.x + P.w - 4 : P.x - reach + 4, y: P.y + 2, w: reach, h: 30 };
+      L.enemies.forEach((en) => { if (!en.dead && overlap(hb, en)) damage(en, S.stage >= 2 ? 2 : 1, P.face); });
       L.orbs.forEach((o) => { if (overlap(hb, { x: o.x - 10, y: o.y - 10, w: 20, h: 20 })) { o.dead = true; burst(o.x, o.y, ['#b9a6ff', '#fff'], 10, 150); } });
       L.shots.forEach((o) => { if (o.breakable && overlap(hb, { x: o.x - o.r, y: o.y - o.r, w: o.r * 2, h: o.r * 2 })) { o.dead = true; burst(o.x, o.y, ['#e7c46a', '#fff'], 8, 140); } });
       L.arrows.forEach((a) => { if (overlap(hb, { x: a.x - 12, y: a.y - 3, w: 24, h: 6 })) { a.dead = true; burst(a.x, a.y, ['#c9a227', '#fff'], 6, 120); } });
@@ -575,8 +742,8 @@
       else if (it.type === 'spear') { it.taken = true; S.spears = Math.min(9, S.spears + 3); SFX.power(); float(it.x - 30, it.y - 10, '+3 spears', '#8fe6d2');
         if (!S.spearTip) { S.spearTip = true; toast(matchMedia('(pointer: coarse)').matches ? 'You found spears. Tap the spear button to throw one. Every five foes defeated brings another.' : 'You found spears. Press K (or C) to throw one. Every five foes defeated brings another.', 'Weapon'); } }
       else if (it.type === 'heart') { it.taken = true; P.hp = Math.min(S.maxHp, P.hp + 1); SFX.power(); float(it.x, it.y, '+1 heart', '#ff9b8a'); }
-      else if (it.type === 'laurel') { it.taken = true; S.maxHp = Math.min(5, S.maxHp + 1); P.hp = S.maxHp; P.glow = 1.6; SFX.power(); float(it.x - 10, it.y, 'Laurel of Virtue: +1 max heart', '#8fe6d2'); }
-      else if (it.type === 'scroll') { it.taken = true; S.scrolls.add(it.i); S.score += 500; SFX.scroll(); burst(it.x + 12, it.y + 12, ['#e7c46a', '#fff6e0', '#8fe6d2'], 26, 200); toast(SCROLLS[it.i][0], SCROLLS[it.i][1]); C.cast = 0.8; }
+      else if (it.type === 'laurel') { it.taken = true; S.maxHp = Math.min(heartsFor(S.stage) + 2, S.maxHp + 1); P.hp = S.maxHp; P.glow = 1.6; SFX.power(); float(it.x - 10, it.y, 'Laurel of Virtue: +1 max heart', '#8fe6d2'); }
+      else if (it.type === 'scroll') { it.taken = true; S.scrolls.add(it.i); S.score += 500; gainXP(50, it.x - 10, it.y - 30); SFX.scroll(); burst(it.x + 12, it.y + 12, ['#e7c46a', '#fff6e0', '#8fe6d2'], 26, 200); toast(SCROLLS[it.i][0], SCROLLS[it.i][1]); C.cast = 0.8; }
       else if (it.type === 'check' && !it.on) { it.on = true; it.cast = 1.2; L.check = { x: it.x - 2, y: it.y + 26 }; P.hp = S.maxHp; P.healFx = 0.9; SFX.power(); float(it.x - 46, it.y - 14, 'The Sun Priestess heals you', '#e7c46a'); }
     });
     L.items = L.items.filter((it) => !it.taken || it.type === 'check');
@@ -760,8 +927,85 @@
   };
   NEW_AI.techno = NEW_AI.medusa;
 
+  /* ---------- elites and bosses of the later chapters (one animated sheet row each) ---------- */
+  const XK = {
+    stormtaur: { sc: 1.05, bsc: 1.5, spd: 55, hp: 5, bhp: 14, wide: 0.5, atk: 'front', sp: 'waves strikes', col: ['#b07cff', '#fff', '#6b2fa8'], title: 'ASTERION, THE STORM MINOTAUR', wake: 'Asterion, the Storm Minotaur. When he raises his axe high, leap: the storm strikes the ground.' },
+    anubis: { sc: 1.0, bsc: 1.45, spd: 50, hp: 4, bhp: 12, wide: 0.4, atk: 'front', sp: 'burst', col: ['#ffd27a', '#c9a227', '#fff'], title: 'ANUBIS, WEIGHER OF HEARTS', wake: 'Anubis, Weigher of Hearts. His spear reaches far; strike as he recovers.' },
+    titan: { sc: 1.05, bsc: 1.5, spd: 45, hp: 5, bhp: 14, wide: 0.5, atk: 'front', sp: 'waves', col: ['#ff9a3d', '#ffd27a', '#fff'], title: 'THE FIRE TITAN', wake: 'The Fire Titan. Jump the flames his hammer sends along the ground.' },
+    harpy: { sc: 0.9, bsc: 1.3, spd: 0, hp: 3, bhp: 10, wide: 0.45, fly: true, atk: 'dive', sp: 'feathers', col: ['#7fa8ff', '#fff', '#3d5bd8'], title: 'THE STORM HARPY', wake: 'The Storm Harpy. Dodge her dive, then strike before she climbs.' },
+    spider: { sc: 0.8, bsc: 1.2, spd: 38, hp: 4, bhp: 12, wide: 0.6, atk: 'front', sp: 'front', col: ['#8fe6ff', '#fff', '#2fb6d8'], title: 'THE CLOCKWORK SPIDER', wake: 'The Clockwork Spider. Its beam fires straight ahead: stay above it.' },
+    cerberus: { sc: 0.95, bsc: 1.4, spd: 70, hp: 6, bhp: 15, wide: 0.6, atk: 'front', sp: 'burst rocks', col: ['#ff9a3d', '#ffd27a', '#7a2a12'], title: 'CERBERUS, HOUND OF THE UNDERWORLD', wake: 'Cerberus, the three-headed hound. Its fire breath reaches far, so leap it, and strike while it recovers.' },
+    pluto: { sc: 1.0, bsc: 1.5, spd: 50, hp: 6, bhp: 16, wide: 0.4, atk: 'front shot', sp: 'burst souls', col: ['#b58cff', '#fff', '#5a2d82'], title: 'PLUTO, KING OF THE UNDERWORLD', wake: 'Pluto, King of the Underworld. Cut down the spirits he raises, and never stand before his trident.' },
+    galvanic: { sc: 1.0, bsc: 1.5, spd: 52, hp: 6, bhp: 16, wide: 0.45, atk: 'front shot', sp: 'burst waves', col: ['#8fd8ff', '#fff', '#2f6bd8'], title: 'THE GALVANIC GLADIATOR', wake: 'The Galvanic Gladiator, a giant raised by lightning. His fist hurls bolts; leap his ground dome.' },
+    strider: { sc: 1.0, bsc: 1.45, spd: 42, hp: 5, bhp: 14, wide: 0.45, atk: 'front', sp: 'burst strikes', col: ['#8fe6ff', '#fff', '#57b6ff'], title: 'THE TESLA STRIDER', wake: 'The Tesla Strider. Watch the sky: its coils call down lightning.' },
+    charon: { sc: 1.0, bsc: 1.45, spd: 48, hp: 5, bhp: 14, wide: 0.4, atk: 'front', sp: 'burst souls', col: ['#7dffb0', '#fff', '#2e8b57'], title: 'CHARON, THE FERRYMAN', wake: 'Charon, the Ferryman. His oar sweeps low, and the lost souls follow him.' },
+    templar: { sc: 1.0, bsc: 1.45, spd: 60, hp: 6, bhp: 14, wide: 0.4, atk: 'front', sp: 'front shot', col: ['#ffd27a', '#fff', '#c9a227'], title: 'THE TEMPLAR CRUSADER', wake: 'The last guardians ride out. First, the Templar Crusader: his shield blocks nothing from above, so leap and strike.' },
+    king: { sc: 1.0, bsc: 1.5, spd: 55, hp: 7, bhp: 16, wide: 0.4, atk: 'front', sp: 'burst waves strikes', col: ['#ffd27a', '#fff', '#e7a227'], title: 'THE GOLDEN KING', wake: 'The Golden King draws his blazing sword. When he raises it high, lightning will fall.' },
+    blackknight: { sc: 1.0, bsc: 1.55, spd: 62, hp: 8, bhp: 20, wide: 0.4, atk: 'front shot', sp: 'burst waves rocks', col: ['#ff4a3d', '#ffb0a0', '#5a0f0f'], title: 'THE BLACK KNIGHT', wake: 'The Black Knight, last of all. His blade splits the earth itself. Stand firm, Marcus.' },
+  };
+  const xfr = (en, a) => ATLAS[en.type][a][0];
+  function xZone(en, a, mode, t, delay = 0) {
+    const fr = xfr(en, a), sc = en.scale, feet = en.y + en.h, cx = en.x + en.w / 2;
+    if (mode === 'front') { const fwd = (fr[2] - fr[4]) * sc * 0.9, h = fr[3] * sc * 0.7; L.zones.push({ x: en.face > 0 ? cx - 8 : cx - fwd, y: feet - h, w: fwd + 8, h, t, delay }); }
+    else { const w = fr[2] * sc * 0.82, h = fr[3] * sc * 0.55; L.zones.push({ x: cx - w / 2, y: feet - h, w, h, t, delay }); }
+  }
+  function xExtras(en, list, boss, rage) {
+    const K = XK[en.type], cx = en.x + en.w / 2, feet = en.y + en.h;
+    if (list.includes('waves')) [-1, 1].forEach((d) => L.waves.push({ x: cx + d * 30, y: feet, vx: d * (rage ? 340 : 290), life: 1.3 }));
+    if (!boss && !list.includes('waves')) return;
+    if (list.includes('shot')) { const sx = cx + en.face * 60 * en.scale, sy = feet - en.h * 0.6; L.shots.push({ x: sx, y: sy, vx: en.face * 300, vy: 0, r: 11, life: 3, set: 'efx', anim: 'ring', scale: 0.6, breakable: true }); }
+    if (list.includes('strikes')) { const n = rage ? 4 : 3; for (let i = 0; i < n; i++) L.strikes.push({ x: P.x + P.w / 2 + (i - (n - 1) / 2) * 70 + rand(-15, 15), y: 12 * T, t: 0.75 + i * 0.12 }); }
+    if (list.includes('souls')) { const n = rage ? 3 : 2; for (let i = 0; i < n; i++) L.drones.push({ x: cx + rand(-50, 50), y: feet - 40, t: 0, life: 5, speed: 105 + i * 12, soul: K.col[0] }); }
+    if (list.includes('rocks')) for (let i = 0; i < (rage ? 3 : 2); i++) { const t = 0.9 + i * 0.2, tx = P.x + P.w / 2 + rand(-60, 60), sy = feet - 60;
+      L.shots.push({ x: cx, y: sy, vx: (tx - cx) / t, vy: (P.y + P.h - 10 - sy - 0.5 * 700 * t * t) / t, g: 700, r: 10, life: 3, set: 'efx', anim: 'flare', scale: 0.32, boom: K.col }); }
+  }
+  function xAI(en, dt) {
+    const K = XK[en.type], boss = !!en.big, rage = boss && en.hp <= en.maxHp / 2, dx = P.x + P.w / 2 - en.x - en.w / 2;
+    en.anim += dt; en.st -= dt;
+    if (K.fly) return xFly(en, dt, K, boss, rage, dx);
+    const reach = (xfr(en, 'attack')[2] - xfr(en, 'attack')[4]) * en.scale * 0.85;
+    if (en.state === 'walk') {
+      if (near(en, 520)) en.face = Math.sign(dx) || -1;
+      en.vx = en.hurt > 0 ? 0 : en.face * K.spd * (rage ? 1.35 : 1);
+      if (en.st <= 0 && near(en, boss ? 560 : 380)) {
+        en.n = (en.n || 0) + 1; const special = en.n % (rage ? 2 : 3) === 0;
+        if (special || Math.abs(dx) < reach || K.atk.includes('shot') && boss) { en.next = special ? 'special' : 'attack'; en.state = 'wind'; en.st = rage ? 0.42 : 0.6; en.vx = 0; }
+        else en.st = 0.3;
+      }
+    } else if (en.state === 'wind') { en.vx = 0; if (en.st <= 0) { en.state = en.next; en.st = en.next === 'special' ? 0.85 : 0.5;
+        if (en.next === 'attack') { xZone(en, 'attack', 'front', 0.35, 0.05); xExtras(en, K.atk, boss, rage); SFX.slash(); }
+        else { const sp = K.sp; xZone(en, 'special', sp.startsWith('front') ? 'front' : 'around', 0.4, 0.1); xExtras(en, sp, boss, rage); SFX.boss(); L.shake = Math.max(L.shake, boss ? 0.35 : 0.18); burst(en.x + en.w / 2, en.y + en.h, K.col, boss ? 22 : 10, 220); } } }
+    else if (en.state === 'attack' || en.state === 'special') { en.vx = 0; if (en.st <= 0) { en.state = 'recover'; en.st = rage ? 0.5 : 0.75; } }
+    else { en.vx = 0; if (en.st <= 0) { en.state = 'walk'; en.st = rand(0.7, 1.4) * (rage ? 0.7 : 1); } }
+    groundStep(en, dt);
+  }
+  function xFly(en, dt, K, boss, rage, dx) {
+    const px = P.x + P.w / 2, py = P.y + P.h / 2, cx = en.x + en.w / 2;
+    if (en.state === 'walk') {
+      en.x = en.hx + Math.sin(en.anim * 0.8) * (boss ? 160 : 100); en.y = en.hy + Math.sin(en.anim * 2) * 12; en.face = Math.sign(dx) || -1;
+      if (en.st <= 0 && !P.dead && Math.abs(dx) < (boss ? 420 : 300)) { en.n = (en.n || 0) + 1; en.next = en.n % (rage ? 2 : 3) === 0 ? 'special' : 'attack'; en.state = 'wind'; en.st = rage ? 0.4 : 0.55; }
+    } else if (en.state === 'wind') { if (en.st <= 0) {
+        if (en.next === 'attack') { en.state = 'attack'; en.st = 1.0; const ddx = px - cx, ddy = py - en.y - en.h / 2, d = Math.hypot(ddx, ddy) || 1; en.vx = ddx / d * (boss ? 360 : 300); en.vy = ddy / d * (boss ? 360 : 300); en.face = Math.sign(ddx) || -1; SFX.slash(); }
+        else { en.state = 'special'; en.st = 0.8; SFX.zap(); const n = boss ? (rage ? 7 : 5) : 3; for (let i = 0; i < n; i++) { const a = Math.PI / 2 + (i - (n - 1) / 2) * 0.28; L.shots.push({ x: cx, y: en.y + en.h * 0.6, vx: Math.cos(a) * 230, vy: Math.sin(a) * 230, r: 9, life: 3, set: 'efx', anim: 'ring', scale: 0.45, breakable: true }); }
+          if (boss) xExtras(en, 'strikes', boss, rage); } } }
+    else if (en.state === 'attack') { en.x += en.vx * dt; en.y += en.vy * dt; if (en.st <= 0 || en.y + en.h > 12 * T) { en.y = Math.min(en.y, 12 * T - en.h); en.state = 'recover'; en.st = 0.9; } }
+    else if (en.state === 'special') { if (en.st <= 0) { en.state = 'recover'; en.st = 0.6; } }
+    else { // recover: hang low for a moment (a chance to strike), then climb back to the patrol line
+      if (en.st <= 0) { en.y += (en.hy - en.y) * Math.min(1, dt * 2.4); en.x += (en.hx - en.x) * Math.min(1, dt * 1.1);
+        if (Math.abs(en.y - en.hy) < 6) { en.state = 'walk'; en.st = rand(1.0, 1.8) * (rage ? 0.7 : 1); en.anim = Math.asin(clamp((en.x - en.hx) / (boss ? 160 : 100), -1, 1)) / 0.8; } } }
+    if (en.minX) en.hx = Math.max(en.hx, en.minX + 60);
+  }
+  Object.keys(XK).forEach((k) => { NEW_AI[k] = xAI; });
+  function makeX(kind, tx, ty, bossOpts) {
+    const K = XK[kind], sc = bossOpts ? K.bsc : K.sc, fr = ATLAS[kind].idle[0], w = Math.round(fr[2] * sc * K.wide), h = Math.round(fr[3] * sc * 0.85);
+    const en = { type: kind, scale: sc, x: tx * T + T / 2 - w / 2, y: (ty + 1) * T - h, w, h, vx: 0, vy: 0, hp: bossOpts ? K.bhp : K.hp, face: -1, hurt: 0, onGround: false, anim: Math.random() * 3, state: 'walk', st: rand(0.6, 1.4), n: 0 };
+    if (K.fly) Object.assign(en, { fly: true, hx: en.x, hy: ty * T, y: ty * T });
+    if (bossOpts) Object.assign(en, { big: true, maxHp: en.hp, title: K.title, wakeText: K.wake, awake: false, st: 1.2, minX: bossOpts.minX ? bossOpts.minX * T : 0 });
+    return en;
+  }
+
   /* ---------- the Dark Commander (Chapter II) ---------- */
-  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play('boss'); toast(text, 'Boss'); return true; } return false; }
+  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play(b.music || 'boss'); toast(text, 'Boss'); return true; } return false; }
   function updateCommander(b, dt) {
     if (!wake(b, 'The Dark Commander bars the way. Watch his spear, strike when he recovers, or land on his helmet.')) return;
     b.anim += dt; b.st -= dt;
@@ -1025,11 +1269,18 @@
     else if (Math.abs(p.vx) > 150) { anim = 'run'; f = p.anim; }
     else if (Math.abs(p.vx) > 20) { anim = 'walk'; f = p.anim; }
     const blink = !p.dead && p.inv > 0 && p.inv <= 1.0 && Math.floor(p.inv * 14) % 2 ? 0.4 : 1;
-    if (p.glow > 0) { ctx.save(); ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 18; }
+    const aura = p.glow > 0 ? '#8fe6d2' : [null, null, '#57b6ff', '#8fd8ff', '#ffd27a'][S.stage];
+    if (aura) { ctx.save(); ctx.shadowColor = aura; ctx.shadowBlur = p.glow > 0 ? 18 : 7 + S.stage * 2; }
     if (p.stone > 0) { ctx.save(); ctx.filter = 'grayscale(1) brightness(0.85)'; spr('warrior', 'idle', 0, x, y + 1, p.face, 1, 1); ctx.restore(); }
     else spr('warrior', anim, f, x, y + 1, p.face, 1, blink);
-    if (p.glow > 0) ctx.restore();
-    if (p.atk > 0 && !(p.thrown > 0)) { const k = 1 - p.atk / 0.2; spr('fx', 'slash', 0, x + p.face * 34, y - 22, p.face, 0.9, 1 - k * 0.7); }
+    if (aura) ctx.restore();
+    if (p.atk > 0 && !(p.thrown > 0)) { const k = 1 - p.atk / 0.2;
+      if (S.stage >= 2) { ctx.save(); ctx.shadowColor = S.stage >= 3 ? '#c48cff' : '#57b6ff'; ctx.shadowBlur = 16; ctx.filter = S.stage >= 3 ? 'hue-rotate(220deg) saturate(2)' : 'hue-rotate(170deg) saturate(2)'; spr('fx', 'slash', 0, x + p.face * 40, y - 22, p.face, 1.15, 1 - k * 0.6); ctx.restore(); }
+      else spr('fx', 'slash', 0, x + p.face * 34, y - 22, p.face, 0.9, 1 - k * 0.7); }
+    if (S.stage >= 3 && !p.dead && p.shieldT <= 0) { ctx.save(); ctx.globalAlpha = 0.35 + Math.sin(L.t * 5) * 0.1; ctx.strokeStyle = S.stage >= 4 ? '#ffd27a' : '#8fd8ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y - 20, 22, 28, 0, 0, 7); ctx.stroke(); ctx.restore(); }
+    if (S.stage >= 4 && !p.dead) [-1, 1].forEach((side, i) => spr('bfx', 'drone', 0, x + side * 26 + Math.sin(L.t * 2 + i) * 4, y - 60 + Math.sin(L.t * 4 + i * 2) * 4, 1, 0.6));
+    p.zaps.forEach((z) => { ctx.save(); ctx.strokeStyle = '#bfe6ff'; ctx.shadowColor = '#57b6ff'; ctx.shadowBlur = 12; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(z.x0 - L.cam, z.y0);
+      for (let i = 1; i <= 6; i++) { const t = i / 6; ctx.lineTo(z.x0 + (z.x1 - z.x0) * t - L.cam + (i < 6 ? rand(-6, 6) : 0), z.y0 + (z.y1 - z.y0) * t + (i < 6 ? rand(-6, 6) : 0)); } ctx.stroke(); ctx.restore(); });
     if (p.healFx > 0) spr('fx', 'heal', 0, x, y - 22, 1, 0.9, Math.min(1, p.healFx * 2));
   }
   function drawCompanion() {
@@ -1054,7 +1305,17 @@
       const f = en.state === 'wind' || en.state === 'throw' ? 0 : en.state === 'swing' ? 1 + (en.st < 0.16 ? 1 : 0) : en.anim * 5;
       spr('commander', anim, f, x, feet + 1, en.face, 1, blink);
     } else if (en.type === 'boss') drawAutomaton(en, x, feet, blink);
+    else if (XK[en.type]) drawX(en, x, feet, blink);
     else drawNew(en, x, feet, blink);
+  }
+  function drawX(en, x, feet, blink) {
+    const st = en.state, moving = Math.abs(en.vx) > 1 || en.fly;
+    const a = st === 'wind' ? 'wind' : st === 'attack' ? 'attack' : st === 'special' ? 'special' : st === 'recover' ? (en.fly && en.st <= 0 ? 'walk' : 'recover') : (moving && Math.floor(en.anim * 4) % 2 ? 'walk' : 'idle');
+    const rage = en.big && en.hp <= en.maxHp / 2;
+    if (rage) { ctx.save(); ctx.shadowColor = XK[en.type].col[0]; ctx.shadowBlur = 14 + Math.sin(L.t * 12) * 6; }
+    if (st === 'wind' && Math.floor(L.t * 16) % 2) { ctx.save(); ctx.filter = 'brightness(1.5)'; spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink); ctx.restore(); }
+    else spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink);
+    if (rage) ctx.restore();
   }
   function flashOn(cond) { return cond && Math.floor(L.t * 16) % 2; }
   function drawNew(en, x, feet, blink) {
@@ -1126,7 +1387,9 @@
     L.arrows.forEach((a) => { const x = a.x - L.cam, d = Math.sign(a.vx); ctx.strokeStyle = '#3a2716'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - d * 12, a.y); ctx.lineTo(x + d * 10, a.y); ctx.stroke();
       ctx.fillStyle = '#c9a227'; ctx.beginPath(); ctx.moveTo(x + d * 14, a.y); ctx.lineTo(x + d * 8, a.y - 3); ctx.lineTo(x + d * 8, a.y + 3); ctx.fill(); ctx.fillStyle = '#e8e2d4'; ctx.fillRect(x - d * 13 - 2, a.y - 3, 4, 6); });
     L.orbs.forEach((o) => { if (o.swirl) spr('fx', 'swirl', 0, o.x - L.cam, o.y, o.face, 0.75); });
-    L.drones.forEach((d) => spr('bfx', 'drone', 0, d.x - L.cam, d.y + Math.sin(d.t * 8) * 2, 1, 0.85));
+    L.drones.forEach((d) => { if (!d.soul) return spr('bfx', 'drone', 0, d.x - L.cam, d.y + Math.sin(d.t * 8) * 2, 1, 0.85);
+      const x = d.x - L.cam, y = d.y + Math.sin(d.t * 6) * 3, g = ctx.createRadialGradient(x, y, 2, x, y, 16); g.addColorStop(0, '#fff'); g.addColorStop(0.35, d.soul); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 16, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(20,10,30,0.8)'; ctx.fillRect(x - 5, y - 4, 3, 3); ctx.fillRect(x + 2, y - 4, 3, 3); });
     L.waves.forEach((w) => { const x = w.x - L.cam; spr('bfx', 'burst', 0, x, w.y - 16, Math.sign(w.vx), 0.55 + 0.1 * Math.sin(L.t * 30)); });
     L.strikes.forEach((k) => {
       const x = k.x - L.cam;
@@ -1197,7 +1460,14 @@
     // a parchment strip with the gold double rule from the books
     ctx.fillStyle = '#efe6cf'; ctx.fillRect(0, 0, HW, 40); ctx.fillStyle = ctx.createPattern(grain, 'repeat'); ctx.fillRect(0, 0, HW, 40);
     ctx.fillStyle = '#a8842a'; ctx.fillRect(0, 40, HW, 1.5); ctx.fillRect(0, 43, HW, 1);
-    for (let i = 0; i < S.maxHp; i++) drawHeart(22 + i * 26, 20, 9, i < Math.max(0, P.hp) ? '#b8322d' : '#d8ccb0');
+    const hsp = S.maxHp > 5 ? 20 : 26; for (let i = 0; i < S.maxHp; i++) drawHeart(22 + i * hsp, 20, S.maxHp > 5 ? 8 : 9, i < Math.max(0, P.hp) ? '#b8322d' : '#d8ccb0');
+    { // stage and experience, on a small parchment tab under the strip
+      const k = S.stage, lo = STAGES[k].xp, hi = k < 4 ? STAGES[k + 1].xp : lo, r = k < 4 ? (S.xp - lo) / (hi - lo) : 1;
+      ctx.fillStyle = 'rgba(239,230,207,0.94)'; ctx.fillRect(8, 48, 214, 24); ctx.strokeStyle = '#a8842a'; ctx.lineWidth = 1; ctx.strokeRect(8, 48, 214, 24);
+      ctx.fillStyle = '#2b1d10'; ctx.font = '700 13px "Cormorant Garamond", Georgia, serif'; ctx.textBaseline = 'middle'; ctx.fillText(`${ROMAN[k]} · ${STAGES[k].name}`, 15, 58);
+      ctx.fillStyle = '#d8ccb0'; ctx.fillRect(15, 65, 200, 3.5); ctx.fillStyle = k >= 4 ? '#c9a227' : '#3d7bd8'; ctx.fillRect(15, 65, 200 * clamp(r, 0, 1), 3.5);
+      ctx.textAlign = 'right'; ctx.font = '600 11px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#5a4a32'; ctx.fillText(k < 4 ? `${S.xp} / ${hi} XP` : `${S.xp} XP`, 215, 57); ctx.textAlign = 'left';
+    }
     ctx.textBaseline = 'middle'; ctx.font = '700 19px "Cormorant Garamond", Georgia, serif';
     ctx.fillStyle = '#c9a227'; ctx.beginPath(); ctx.arc(172, 20, 8, 0, 7); ctx.fill(); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1.3; ctx.stroke();
     ctx.fillStyle = '#2b1d10'; ctx.fillText('× ' + S.coins, 186, 21);
@@ -1290,7 +1560,7 @@
 
   function levelComplete() {
     if (S.mode !== 'play') return;
-    SFX.win(); S.score += 300;
+    SFX.win(); S.score += 300; gainXP(100);
     const n = S.level, found = [...S.scrolls].filter((i) => Math.floor(i / 3) === n).length;
     if (n + 1 < LEVELS.length) overlay(`Chapter ${ROMAN[n]} complete`, LEVELS[n].name, `Coins: ${L.levelCoins} · Foes defeated: ${L.levelKills} · Scrolls found here: ${found} of 3${L.levelDeaths ? ' · Falls: ' + L.levelDeaths : ''}`, `On to ${LEVELS[n + 1].name}`, () => loadLevel(n + 1, true));
     else finish();
@@ -1300,14 +1570,14 @@
     MUSIC.stop();
     S.mode = 'done';
     const sc = S.scrolls.size;
-    const all = SCROLLS.length, rank = sc === all && S.deaths <= 6 ? 'Philosopher-King' : sc >= all * 0.75 ? 'Stoic Champion' : sc >= all * 0.4 ? 'Legionary of Virtue' : 'Student of the Stoa';
+    const all = SCROLLS.length, rank = sc === all && S.deaths <= 10 ? 'Philosopher-King' : sc >= all * 0.75 ? 'Stoic Champion' : sc >= all * 0.4 ? 'Legionary of Virtue' : 'Student of the Stoa';
     S.score += Math.max(0, 2000 - S.deaths * 150);
     $('#s-game').hidden = true; $('#s-final').hidden = false;
     $('#final-rank').textContent = rank;
-    $('#final-line').textContent = sc === all ? 'You recovered every scroll of the Meditations. The Roman Automaton is silenced and the empire can think clearly again.' : `The Roman Automaton is silenced, but ${all - sc} scroll${all - sc === 1 ? ' is' : 's are'} still out there. Play again to find them all.`;
+    $('#final-line').textContent = sc === all ? 'You recovered every scroll of the Meditations. The Black Knight has fallen and the empire can think clearly again.' : `The Black Knight has fallen, but ${all - sc} scroll${all - sc === 1 ? ' is' : 's are'} still out there. Play again to find them all.`;
     const st = $('#final-stats'); st.replaceChildren();
     const mins = Math.floor(S.time / 60), secs = Math.floor(S.time % 60);
-    [['Score', S.score.toLocaleString('en-US')], ['Scrolls recovered', `${sc} of ${all}`], ['Coins', String(S.coins)], ['Foes defeated', String(S.kills)], ['Falls', String(S.deaths)], ['Time', `${mins}:${String(secs).padStart(2, '0')}`]]
+    [['Score', S.score.toLocaleString('en-US')], ['Marcus reached', `Stage ${ROMAN[S.stage]} · ${STAGES[S.stage].name} (${S.xp} XP)`], ['Scrolls recovered', `${sc} of ${all}`], ['Coins', String(S.coins)], ['Foes defeated', String(S.kills)], ['Falls', String(S.deaths)], ['Time', `${mins}:${String(secs).padStart(2, '0')}`]]
       .forEach(([k, v]) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = v; li.append(k + ': ', b); st.append(li); });
     const best = store.get('aq-best');
     if (!best || S.score > best.score) store.set('aq-best', { score: S.score, rank });
