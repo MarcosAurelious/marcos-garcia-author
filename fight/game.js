@@ -32,7 +32,7 @@
       n.buffer = b; n.connect(f).connect(g).connect(ac.destination); n.start();
     }
     return {
-      ensure, get ac() { return ac; }, get on() { return on; }, toggle() { on = !on; store.set('af-sound', on); return on; },
+      tone, noise, ensure, get ac() { return ac; }, get on() { return on; }, toggle() { on = !on; store.set('af-sound', on); return on; },
       jump: () => tone(300, 620, 0.14, 'square', 0.05), coin: () => { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.12, 'square', 0.05, 0.06); },
       slash: () => noise(0.12, 0.08, 2500), hit: () => tone(220, 90, 0.15, 'sawtooth', 0.07), stomp: () => tone(500, 120, 0.12, 'square', 0.07),
       hurt: () => tone(330, 110, 0.35, 'sawtooth', 0.08), bump: () => tone(140, 90, 0.08, 'square', 0.06), zap: () => noise(0.18, 0.04, 4000),
@@ -167,6 +167,24 @@
   })();
 
 
+  /* ================= fighter sounds: every legend sounds different ================= */
+  const VOICE = {
+    marcus: { hit: () => { SFX.noise(0.08, 0.07, 3500); SFX.tone(900, 400, 0.08, 'square', 0.04); }, sp: () => { SFX.tone(300, 1400, 0.3, 'sawtooth', 0.05); SFX.noise(0.35, 0.05, 2500); } },
+    mars: { hit: () => { SFX.tone(1400, 1300, 0.12, 'square', 0.05); SFX.noise(0.06, 0.06, 4000); }, sp: () => { SFX.noise(0.3, 0.08, 900); SFX.tone(200, 90, 0.3, 'sawtooth', 0.07); } },
+    colossus: { hit: () => { SFX.noise(0.25, 0.09, 200); SFX.tone(110, 45, 0.3, 'sawtooth', 0.08); }, sp: () => { SFX.noise(0.7, 0.12, 120); SFX.tone(80, 30, 0.8, 'sawtooth', 0.1); SFX.noise(0.12, 0.08, 5000); } },
+    medusa: { hit: () => SFX.noise(0.22, 0.07, 6000), sp: () => { SFX.noise(0.5, 0.06, 7000); SFX.tone(600, 300, 0.5, 'triangle', 0.05); SFX.tone(640, 280, 0.5, 'triangle', 0.04); } },
+    minotaur: { hit: () => SFX.tone(140, 60, 0.22, 'sawtooth', 0.09), sp: () => { SFX.tone(160, 50, 0.5, 'sawtooth', 0.1); SFX.noise(0.5, 0.08, 150); } },
+    vulcan: { hit: () => { SFX.tone(1250, 1200, 0.25, 'triangle', 0.08); SFX.tone(1870, 1850, 0.2, 'triangle', 0.05); }, sp: () => { SFX.noise(0.6, 0.11, 100); SFX.tone(70, 35, 0.6, 'sawtooth', 0.1); } },
+    chiron: { hit: () => SFX.tone(700, 260, 0.12, 'triangle', 0.08), sp: () => [880, 1100, 1320, 1760].forEach((f, i) => SFX.tone(f, f, 0.12, 'triangle', 0.06, i * 0.06)) },
+    diana: { hit: () => { SFX.tone(820, 300, 0.1, 'triangle', 0.08); SFX.noise(0.05, 0.05, 5000); }, sp: () => { SFX.tone(400, 2200, 0.18, 'sine', 0.07); SFX.noise(0.2, 0.05, 6000); } },
+    cerberus: { hit: () => { SFX.tone(95, 70, 0.25, 'sawtooth', 0.09); SFX.noise(0.18, 0.06, 300); }, sp: () => { SFX.tone(120, 60, 0.7, 'sawtooth', 0.11); SFX.tone(180, 90, 0.7, 'sawtooth', 0.07); SFX.noise(0.6, 0.08, 400); } },
+    pegasus: { hit: () => SFX.tone(900, 1400, 0.1, 'square', 0.05), sp: () => { SFX.tone(700, 1500, 0.15, 'square', 0.05); SFX.tone(1500, 600, 0.25, 'square', 0.05, 0.15); SFX.noise(0.4, 0.05, 1500); } },
+    helios: { hit: () => SFX.tone(1200, 1700, 0.12, 'sine', 0.07), sp: () => { SFX.tone(200, 1200, 0.5, 'sawtooth', 0.07); SFX.tone(1600, 1600, 0.4, 'sine', 0.04); } },
+    neptune: { hit: () => SFX.noise(0.18, 0.09, 600), sp: () => { SFX.noise(0.9, 0.12, 300); SFX.tone(90, 60, 0.8, 'sine', 0.08); } },
+    hades: { hit: () => SFX.tone(320, 140, 0.25, 'sine', 0.09), sp: () => { SFX.tone(60, 30, 0.9, 'sawtooth', 0.11); [220, 207, 196].forEach((f, i) => SFX.tone(f, f * 0.7, 0.5, 'sine', 0.05, i * 0.12)); } },
+  };
+  const voice = (f, k) => { const v = VOICE[f.ch.id]; if (v) v[k](); else (k === 'hit' ? SFX.hit() : SFX.zap()); };
+
   /* ================= art ================= */
   const Q = '../quest/img/';
   const SPR = img(Q + 'sprites.webp'), BOSSIMG = img(Q + 'boss.webp'), ENEMYIMG = img(Q + 'enemies.webp'), ELITEIMG = img(Q + 'elites.webp'), MARCUSIMG = img(Q + 'marcus.webp');
@@ -233,7 +251,9 @@
     marcus: ['Stoic Will', 'super meter fills 25% faster'],
   };
   const BODY_H = 190;   // every fighter is scaled so the standing pose is about this tall (times size)
-  ROSTER.forEach((c) => { c.hp = Math.round(c.hp * 1.6); const f = frameOf(c.anims.idle.set, c.anims.idle.a, 0); c.scale = BODY_H * c.size / f[3]; });
+  // health tuned from ~12,000 computer-vs-computer matches so every fighter wins about half the time
+  const BALANCE = {"marcus":1.07,"mars":1.1,"colossus":0.76,"medusa":0.91,"minotaur":0.98,"vulcan":0.81,"chiron":0.97,"diana":1.09,"cerberus":1.11,"pegasus":1.38,"helios":0.91,"neptune":1.08,"hades":0.86};
+  ROSTER.forEach((c) => { c.hp = Math.round(c.hp * 1.6 * (BALANCE[c.id] || 1)); const f = frameOf(c.anims.idle.set, c.anims.idle.a, 0); c.scale = BODY_H * c.size / f[3]; });
 
   /* ================= canvas ================= */
   const VW = 960, VH = 540, FLOOR = 488;
@@ -298,7 +318,7 @@
     MUSIC.play('riot');
   }
   function startRound() {
-    G.p.forEach((f, i) => Object.assign(f, { x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, onGround: true, cool: 0, combo: 0 }));
+    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -309,7 +329,7 @@
 
   function startMove(f, kind, isSuper) {
     const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper;
-    if (kind === 'special') { f.cool = isSuper ? 0.6 : 1.5; if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
+    if (kind === 'special') { f.cool = isSuper ? 0.6 : 1.5; voice(f, 'sp'); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else SFX.slash();
     if (f.onGround) f.vx = 0;
     return m;
@@ -340,18 +360,22 @@
     } else {
       target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
       dmg = Math.max(1, dmg + passive(attacker, target, attacker.state === 'attack' ? attacker.move : 'special', dmg));
-      SFX.hit(); spark(hitX, target.y - BODY_H * target.ch.size * 0.55, attacker.ch.special.col.concat(['#ffffff']), 18);
+      voice(attacker, 'hit'); const hy = target.y - BODY_H * target.ch.size * 0.55; spark(hitX, hy, attacker.ch.special.col.concat(['#ffffff']), dmg >= 10 ? 34 : 22);
+      (G.rings = G.rings || []).push({ x: hitX, y: hy, t: 0, max: dmg >= 10 ? 0.32 : 0.22, r: dmg >= 10 ? 90 : 55, col: attacker.ch.special.col[0] });
       attacker.combo = (attacker.comboT > 0 ? attacker.combo : 0) + 1; attacker.comboT = 0.9;
       if (attacker.combo >= 2) G.comboMsg = { side: attacker.side, n: attacker.combo, t: 1 };
       target.meter = Math.min(100, target.meter + dmg * 0.8); attacker.meter = Math.min(100, attacker.meter + dmg * 1.1 * (attacker.ch.id === 'marcus' ? 1.25 : 1));
       G.stop = Math.max(G.stop, dmg >= 10 ? 0.09 : 0.05); G.shake = Math.max(G.shake, dmg >= 10 ? 0.25 : 0.12);
     }
-    target.hp = Math.max(0, target.hp - dmg); target.flash = 0.12;
+    target.hp = Math.max(0, target.hp - dmg); target.flash = 0.12; target.took = (target.took || 0) + dmg;
+    if (G.training && attacker.side === 0) { G.tc = G.tc && G.t - G.tc.last < 1.2 ? G.tc : { hits: 0, dmg: 0 }; G.tc.hits += 1; G.tc.dmg += dmg; G.tc.last = G.t; target.lastHit = G.t; }
     if (target.hp <= 0) knockout(attacker, target);
   }
   function knockout(winner, loser) {
+    if (G.training) { loser.hp = loser.maxHp; return; }
     loser.state = 'ko'; loser.t = 0; loser.vx = -loser.face * 380; loser.vy = -520; loser.onGround = false;
-    G.mode = 'ko'; G.t = 0; G.slow = 1.2; G.shake = 0.5; G.banner = { text: 'K.O.', sub: '', t: 0, big: true }; SFX.boss();
+    G.mode = 'ko'; G.t = 0; G.stop = 0.22; G.slow = 1.6; G.shake = 0.5; G.flash = 0.25; G.banner = { text: 'K.O.', sub: winner.took ? '' : 'PERFECT!', t: 0, big: true }; SFX.boss();
+    (G.rings = G.rings || []).push({ x: loser.x, y: loser.y - BODY_H * loser.ch.size * 0.5, t: 0, max: 0.6, r: 220, col: winner.ch.special.col[0] });
     winner.wins += 1;
   }
   function spark(x, y, cols, n) { const k = reduceMotion ? Math.ceil(n / 3) : n; for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, v = rand(120, 420); G.fx.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.25, 0.55), c: cols[i % cols.length], r: rand(2, 5) }); } }
@@ -431,6 +455,7 @@
     G.waves.forEach((w) => { if (w.delay > 0) { w.delay -= dt; return; } w.x += w.vx * dt; w.life -= dt; const t = G.p[1 - w.owner];
       if (!w.hit && t.state !== 'ko' && t.onGround && overlap({ x: w.x - 26, y: FLOOR - 70, w: 52, h: 70 }, hurtbox(t))) { w.hit = true; damage(G.p[w.owner], t, w.dmg, 0.5, 320, w.x); } });
     G.waves = G.waves.filter((w) => w.life > 0 && !w.hit && w.x > -40 && w.x < VW + 40);
+    (G.rings || []).forEach((r) => { r.t += dt; }); G.rings = (G.rings || []).filter((r) => r.t < r.max);
     (G.texts || []).forEach((t) => { t.t -= dt; t.y -= 40 * dt; }); G.texts = (G.texts || []).filter((t) => t.t > 0);
     G.fx.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.life -= dt; }); G.fx = G.fx.filter((p) => p.life > 0);
   }
@@ -479,9 +504,10 @@
     if (G.stop > 0) { G.stop -= dt; return; }   // hit-stop: freeze on impact
     if (G.slow > 0) { G.slow -= dt; dt *= 0.3; }
     if (G.mode === 'intro') { if (G.t > 1.7) { G.mode = 'play'; G.banner = null; } }
-    if (G.mode === 'play') { G.timer -= dt; if (G.timer <= 0) { G.timer = 0; const [a, b] = G.p; const w = a.hp / a.maxHp >= b.hp / b.maxHp ? a : b; knockout(w, opp(w)); G.banner = { text: 'TIME', sub: '', t: 0, big: true }; } }
+    if (G.training) { G.timer = 60; const [me, dm] = G.p; me.meter = 100; if (dm.state !== 'hurt' && G.t - (dm.lastHit || -9) > 1.6) { dm.hp = dm.maxHp; dm.poison = dm.burn = 0; } }
+    else if (G.mode === 'play') { G.timer -= dt; if (G.timer <= 0) { G.timer = 0; const [a, b] = G.p; const w = a.hp / a.maxHp >= b.hp / b.maxHp ? a : b; knockout(w, opp(w)); G.banner = { text: 'TIME', sub: '', t: 0, big: true }; } }
     const none = { left: false, right: false, up: false, down: false, light: false, heavy: false, lkick: false, hkick: false, special: false, super: false, breaker: false };
-    G.p.forEach((f) => { const inp = G.mode === 'play' ? (f.cpu ? cpuInput(f, dt) : humanInput(f.side ? 'p2' : 'p1')) : none; fighterUpdate(f, inp, dt); });
+    G.p.forEach((f) => { const inp = G.mode === 'play' && !f.dummy ? (f.cpu ? cpuInput(f, dt) : humanInput(f.side ? 'p2' : 'p1')) : none; fighterUpdate(f, inp, dt); });
     separate(); updateAttacks(dt);
     if (G.mode === 'ko' && G.t > 2.6) {
       const champ = G.p.find((f) => f.wins >= 2);
@@ -492,10 +518,21 @@
   }
 
   /* ================= drawing ================= */
+  const BUSY = ['bg-sketch', 'bg-tesla', 'bg-orbs', 'bg-chamber'];
+  const bgCache = new Map();
+  function bakedBg(im) {   // a softened, darker copy so the fighters stand out (works on every browser: shrink-and-grow blur)
+    if (bgCache.has(im)) return bgCache.get(im);
+    const busy = BUSY.some((n) => im.src.includes(n)), W = Math.round(VW * 1.08), Hh = VH, s = Math.max(W / im.naturalWidth, Hh / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s;
+    const small = document.createElement('canvas'), k = busy ? 0.28 : 0.45; small.width = Math.round(W * k); small.height = Math.round(Hh * k);
+    const sg = small.getContext('2d'); sg.imageSmoothingQuality = 'high'; sg.drawImage(im, (W - w) / 2 * k, (Hh - h) / 2 * k, w * k, h * k);
+    const c = document.createElement('canvas'); c.width = Math.round(W * 1.5); c.height = Math.round(Hh * 1.5); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+    g.drawImage(small, 0, 0, c.width, c.height); g.fillStyle = busy ? 'rgba(12,8,5,0.5)' : 'rgba(12,8,5,0.3)'; g.fillRect(0, 0, c.width, c.height);
+    const v = g.createRadialGradient(c.width / 2, c.height * 0.62, c.height * 0.15, c.width / 2, c.height * 0.62, c.width * 0.6); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = v; g.fillRect(0, 0, c.width, c.height);
+    bgCache.set(im, c); return c;
+  }
   function drawBg() {
     const im = G.bg; ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, VW, VH);
-    if (im.complete && im.naturalWidth) { const s = Math.max(VW / im.naturalWidth, VH / im.naturalHeight) * 1.04, w = im.naturalWidth * s, h = im.naturalHeight * s; const par = (G.p[0].x + G.p[1].x) / 2 - VW / 2;
-      ctx.drawImage(im, (VW - w) / 2 - par * 0.04, (VH - h) / 2, w, h); }
+    if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2; ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); }
     const g = ctx.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
     ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(0, FLOOR, VW, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(0, FLOOR, VW, 2);
   }
@@ -594,6 +631,7 @@
       [[22, 'rgba(87,182,255,0.45)'], [10, '#bfe6ff'], [4, '#ffffff']].forEach(([w, c]) => { ctx.strokeStyle = c; ctx.lineWidth = w * k + 1; ctx.beginPath(); ctx.moveTo(b.x, b.y); for (let i = 1; i <= 16; i++) ctx.lineTo(b.x + b.face * b.len * i / 16, b.y + (i < 16 ? rand(-7, 7) : 0)); ctx.stroke(); });
       ctx.restore(); });
     G.waves.forEach((w) => { if (w.delay > 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = w.col[0]; ctx.shadowBlur = 18; spr(ctx, 'bfx', 'burst', 0, w.x, FLOOR - 30, Math.sign(w.vx), 0.9 + 0.12 * Math.sin(G.t * 30)); ctx.restore(); });
+    (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
     (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '800 20px Georgia, serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
   }
@@ -613,7 +651,15 @@
     // timer
     ctx.textAlign = 'center'; ctx.font = '700 40px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), VW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), VW / 2, 38);
     if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '800 30px Georgia, serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? VW - 30 : 30;
-      ctx.lineWidth = 6; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, 130); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, 130); ctx.restore(); }
+      ctx.lineWidth = 6; const cy = G.training && !G.comboMsg.side ? 372 : 130; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.restore(); }
+    if (G.training) { ctx.save(); ctx.fillStyle = 'rgba(12,8,5,0.78)'; ctx.fillRect(18, 96, 300, 250); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, 250);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '700 15px "Space Mono", monospace'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
+      ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
+      const me = G.p[0], pas = PASSIVE[me.ch.id];
+      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'L / S  special: ' + me.ch.special.name, 'Q / ★  super (meter is always full here)', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → special', 'Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')]
+        .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
+      if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '700 17px Georgia, serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
+      ctx.restore(); }
     if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = 'italic 600 24px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), VW / 2, 150); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), VW / 2, 150); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
@@ -651,12 +697,13 @@
   function syncSelect() {
     document.querySelectorAll('#roster .card').forEach((b) => { const i = +b.dataset.i; b.classList.toggle('p1', chosen[0] === i); b.classList.toggle('p2', chosen[1] === i); });
     if (mode === 'arcade' && chosen[1] !== null) chosen[1] = null;
+    if (mode === 'training' && chosen[0] !== null && chosen[1] === null) $('#sel-step').dataset.t = '1';
     const best = store.get('af-arcade-best');
-    const step = chosen[0] === null ? (mode === 'arcade' ? 'Arcade: choose your champion and defeat six challengers' + (best ? ` (best score ${best.toLocaleString('en-US')})` : '') : 'Player 1: choose your fighter') : mode === 'arcade' ? 'Ready! Six stages, ending at the Throne of Hades.' : mode === 'cpu' ? (chosen[1] === null ? 'Choose your opponent, or press Fight for a random one' : 'Ready!') : chosen[1] === null ? 'Player 2: choose your fighter' : 'Ready!';
+    const step = mode === 'training' ? (chosen[0] === null ? 'Training: choose the fighter you want to practice' : chosen[1] === null ? 'Pick a sparring dummy, or press Fight for a random one' : 'Ready to train!') : chosen[0] === null ? (mode === 'arcade' ? 'Arcade: choose your champion and defeat six challengers' + (best ? ` (best score ${best.toLocaleString('en-US')})` : '') : 'Player 1: choose your fighter') : mode === 'arcade' ? 'Ready! Six stages, ending at the Throne of Hades.' : mode === 'cpu' ? (chosen[1] === null ? 'Choose your opponent, or press Fight for a random one' : 'Ready!') : chosen[1] === null ? 'Player 2: choose your fighter' : 'Ready!';
     $('#sel-step').textContent = step; $('#fight').disabled = chosen[0] === null || (mode === '2p' && chosen[1] === null);
     document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
-    $('#levels').hidden = mode === '2p';
+    $('#levels').hidden = mode === '2p' || mode === 'training';
   }
   function choose(i) { SFX.ensure(); SFX.coin(); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
@@ -666,6 +713,7 @@
     SFX.ensure(); let p2 = chosen[1]; if (p2 === null) { do { p2 = Math.floor(Math.random() * ROSTER.length); } while (p2 === chosen[0]); }
     $('#s-select').hidden = true; $('#s-fight').hidden = false; $('#result').hidden = true; fit();
     ARC = null;
+    if (mode === 'training') { newMatch(ROSTER[chosen[0]], ROSTER[p2], 0); G.training = true; G.p[1].dummy = true; G.p[1].cpu = null; G.stageName = 'Training'; window.scrollTo({ top: 0 }); return; }
     if (mode === 'arcade') {
       const me = ROSTER[chosen[0]], hades = ROSTER.find((c) => c.id === 'hades'), boss = me === hades ? ROSTER.find((c) => c.id === 'colossus') : hades;
       const pool = ROSTER.filter((c) => c !== me && c !== boss).sort(() => Math.random() - 0.5).slice(0, 5);
