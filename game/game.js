@@ -1,803 +1,585 @@
-/* Critical Thinking for a Stoic Mind — a Marcus Aurelius side-scroller by Marcos Garcia.
-   Original game: all art is drawn in code, plus Marcos Garcia's own illustrations.
-   Runs entirely in the browser. No network calls, no tracking; the best result stays in this browser. */
+/* Critical Thinking for a Stoic Mind — a 21st-century strategy game by Marcos Garcia.
+   Everything runs in the browser. No network calls, no tracking; the best result is kept in this browser only. */
 (() => {
   'use strict';
 
-  /* ================= basics ================= */
+  /* ---------------- helpers ---------------- */
   const $ = (s) => document.querySelector(s);
-  const T = 32, ROWS = 15, VW = 960, VH = 480;
-  const cv = $('#cv'), ctx = cv.getContext('2d');
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const sv = (tag, attrs, text) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const pick = (a) => a[rnd(a.length)];
+  const d6 = () => 1 + rnd(6);
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  const rand = (a, b) => a + Math.random() * (b - a);
-  const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const btn = (label, cls, onClick, disabled) => { const b = el('button', 'btn ' + (cls || ''), label); b.type = 'button'; b.disabled = !!disabled; b.addEventListener('click', onClick); return b; };
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const img = (src) => { const i = new Image(); i.src = src; return i; };
-  const ART = { cosmic: img('img/trial-impression.webp') };
-  let cosmicSoft = null;   // the cosmic art with soft, faded edges (built once it loads)
-  ART.cosmic.addEventListener('load', () => {
-    const c = document.createElement('canvas'); c.width = c.height = 420; const x = c.getContext('2d');
-    x.drawImage(ART.cosmic, 0, 0, 420, 420);
-    x.globalCompositeOperation = 'destination-in';
-    const g = x.createRadialGradient(210, 210, 90, 210, 210, 210); g.addColorStop(0, '#000'); g.addColorStop(1, 'rgba(0,0,0,0)');
-    x.fillStyle = g; x.fillRect(0, 0, 420, 420); cosmicSoft = c;
-  });
 
-  /* ================= lessons on the scrolls ================= */
-  const SCROLLS = [
-    ['Some things are up to us, and some are not. Spend your strength on the first.', 'Epictetus, Enchiridion 1'],
-    ['Do not say more to yourself than what the first impression reports.', 'after Meditations 8.49'],
-    ['If anyone can show me I am wrong, I will gladly change.', 'after Meditations 6.21'],
-    ['If it is not right, do not do it. If it is not true, do not say it.', 'Meditations 12.17'],
-    ['What stands in the way becomes the way.', 'after Meditations 5.20'],
-    ['Ask of every claim: who says so, and how would they know?', 'A lesson for the Stoic mind'],
-    ['Three echoes of one rumor are still one rumor.', 'A lesson for the Stoic mind'],
-    ['The best revenge is not to be like your enemy.', 'after Meditations 6.6'],
-    ['Waste no more time arguing about what a good person should be. Be one.', 'after Meditations 10.16'],
+  /* ---------------- the map ---------------- */
+  // 4 columns x 3 rows. Column 0 is yours, column 3 is Kessar's, the middle starts neutral.
+  const REG = [
+    'Port Vela', 'Nova Roma', 'Ironridge',
+    'Sable Coast', 'Midmarch', 'Glass Hills',
+    'Varn Delta', 'Cinder Pass', 'Steppe Gate',
+    'Black Harbor', 'Kessar City', 'Frost Reach',
+  ];
+  const YOU_CAP = 1, RIVAL_CAP = 10, MAX_STR = 12, TURNS = 12, WIN_REGIONS = 9;
+  const col = (i) => Math.floor(i / 3), row = (i) => i % 3;
+  const adj = (i) => { const c = col(i), r = row(i), o = []; if (c > 0) o.push(i - 3); if (c < 3) o.push(i + 3); if (r > 0) o.push(i - 1); if (r < 2) o.push(i + 1); return o; };
+  const isAdj = (a, b) => adj(a).includes(b);
+  const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
+  const OWNER_NAME = { you: 'Aurel', rival: 'Kessar', neutral: 'Neutral' };
+
+  /* ---------------- Marcus's lines ---------------- */
+  const ADVICE = {
+    intel: ['Before you act on a report, ask: who says so, and how would they know?', 'Independent sources that agree are hard to fake. One loud voice is easy to fake.',
+      'Do not say more to yourself than what the first impression reports.', 'Fear is the enemy\'s favorite weapon. Check the claim before you obey the feeling.'],
+    orders: ['Spend your strength on what is up to you.', 'Strike where the evidence says the enemy is weak, not where anger points.', 'A secure capital is worth more than a glorious advance.',
+      'Invading the neutral costs you friends. Persuasion lasts longer than force.'],
+    rival: ['You did not choose their move. You choose your next one.', 'What stands in the way becomes the way.', 'Receive news without panic. Then decide.'],
+    dilemma: ['Here the battle is inside you.', 'Ask what a just person would do, and do that.', 'Your character is the one territory no enemy can take.'],
+  };
+
+  /* ---------------- intelligence reports ---------------- */
+  // Each report has a quality. Strong reports are usually true, weak ones usually false. Mixed ones are a coin flip: verify them.
+  const TRUTH = { strong: 0.9, mixed: 0.5, weak: 0.12 };
+  const LESSON = {
+    strong: 'Independent sources that agree are hard to fake. That is strong evidence.',
+    mixed: 'One credible but unconfirmed source. When it is a coin flip, verifying is the wise spend.',
+    weak: 'No real source, emotional language, or the enemy\'s own propaganda. Weak evidence built to make you react.',
+  };
+  const INTEL = {
+    threat: { label: 'Threat', act: 'Reinforce {R}', text: {
+      strong: ['Satellite images from two independent commercial providers, plus allied radar, show armor and drone launchers massing opposite {R}.',
+        'An allied intelligence service and your own signals team, working separately, both report assault orders against {R} this season.'],
+      mixed: ['A field officer near {R} reports more drone traffic overhead. No other confirmation yet.', 'An informant who has been right before says {R} may be hit, but admits it is secondhand.'],
+      weak: ['A viral post with no source says "everyone in the capital knows" Kessar will hit {R} next. The account is two days old.',
+        'Kessar state TV boasts that {R} will fall "within days" and that resistance is pointless.'] } },
+    cyber: { label: 'Cyber', act: 'Harden the grid', text: {
+      strong: ['Your cyber command and a private security firm independently found the same malware hidden inside your power grid.'],
+      mixed: ['An analyst flags unusual traffic on government servers. It could be an attack or a botched software update.'],
+      weak: ['An anonymous hacker forum claims your whole grid will go dark tomorrow and "the government is hiding it."'] } },
+    strike: { label: 'Opportunity', act: 'Strike the gap', text: {
+      strong: ['Drone footage, confirmed by two scout teams, shows Kessar pulling units out of {R} to reinforce elsewhere.'],
+      mixed: ['Intercepted radio chatter suggests {R} is short on fuel. The intercept is fragmentary.'],
+      weak: ['A Kessar deserter, paid per tip, swears {R} is "basically empty" and you must strike now before it is too late.'] } },
+    envoy: { label: 'Diplomacy', act: 'Welcome them', text: {
+      strong: ['{R}\'s elected council sent a signed request, confirmed by your embassy, to join your coalition.'],
+      mixed: ['A {R} official hints privately that joining you is "on the table." Nothing is in writing.'],
+      weak: ['A trending hashtag says {R} "already voted" to join you. No official record exists.'] } },
+    home: { label: 'Home front', act: 'Issue a public alert', text: {
+      strong: ['Two independent labs and your health ministry confirm contaminated water in {R}. Residents need guidance now.'],
+      mixed: ['A local reporter in {R} says hospitals are seeing more stomach illness. Officials have not commented.'],
+      weak: ['A viral video claims Kessar poisoned the water in {R}. The footage shows a river in another country, posted by an account with no history.'] } },
+  };
+
+  /* ---------------- Stoic dilemmas ---------------- */
+  const DILEMMAS = [
+    { text: 'A Kessar general mocks you on global television, calling you a coward who hides behind your allies.', art: 'trial-impression',
+      choices: [{ t: 'Fire back with insults on social media.', fx: { morale: 3, alliance: -6 }, wise: false, r: 'The crowd cheered for a day. Your allies winced, and Kessar got the reaction it wanted.' },
+        { t: 'Ignore it and keep working the plan.', fx: { alliance: 4 }, wise: true, r: 'Nothing changed on the map, and your allies saw a steady hand.' }],
+      q: 'His words are not up to you. Your response is.', cite: 'after Meditations 8.47' },
+    { text: 'A storm grounds every drone you own for the season. Your plans are ruined.', art: 'trial-control',
+      choices: [{ t: 'Blame the weather officers and demand answers.', fx: { morale: -4 }, wise: false, r: 'The storm did not care. Your staff now hides bad news from you.' },
+        { t: 'Accept it and send the drone crews to repair the power grid.', fx: { next: 1 }, wise: true, r: 'The grid is stronger. +1 command next season.' }],
+      q: 'The obstacle to action advances action. What stands in the way becomes the way.', cite: 'after Meditations 5.20' },
+    { text: 'An ally offers extra aid if you exaggerate Kessar\'s losses in your next press release.', art: 'trial-fallacy',
+      choices: [{ t: 'Publish the inflated numbers.', fx: { next: 2, lie: true }, wise: false, r: '+2 command next season. But lies have a way of surfacing.' },
+        { t: 'Publish only the verified numbers.', fx: { alliance: 5 }, wise: true, r: 'Less aid today, more trust tomorrow. +5 alliance.' }],
+      q: 'If it is not right, do not do it. If it is not true, do not say it.', cite: 'Meditations 12.17' },
+    { text: 'Your staff wants to cut power to a border city to slow Kessar\'s advance. Civilians would lose heat in winter.', art: 'trial-control',
+      choices: [{ t: 'Cut the power.', fx: { rivalHit: 2, alliance: -12, morale: -6 }, wise: false, r: 'Kessar slowed a little. The world saw families freezing, and your allies pulled back.' },
+        { t: 'Find another way, even if it costs you.', fx: { next: -1, alliance: 4 }, wise: true, r: '−1 command next season. Your allies trust your judgment more.' }],
+      q: 'What is not good for the hive is not good for the bee.', cite: 'Meditations 6.54' },
+    { text: 'After a setback, your command staff is panicking and blaming each other in front of the press.', art: 'trial-impression',
+      choices: [{ t: 'Fire the general everyone is blaming.', fx: { morale: -5 }, wise: false, r: 'A scapegoat calmed nobody. Morale fell.' },
+        { t: 'Hold a calm briefing on what is still in your control.', fx: { morale: 6 }, wise: true, r: 'Focus returned. +6 morale.' }],
+      q: 'Some things are up to us and some are not.', cite: 'Epictetus, Enchiridion 1' },
+    { text: 'Your intelligence chief wants to secretly spy on your own journalists to find a leak.', art: 'trial-fallacy',
+      choices: [{ t: 'Approve the surveillance.', fx: { next: 1, morale: -8 }, wise: false, r: 'You found the leak. Then the surveillance leaked too. −8 morale.' },
+        { t: 'Refuse, and tighten your own security instead.', fx: { alliance: 3 }, wise: true, r: 'A free press, a cleaner conscience, and allies who notice. +3 alliance.' }],
+      q: 'Waste no more time arguing about what a good person should be. Be one.', cite: 'after Meditations 10.16' },
+    { text: 'A Kessar envoy offers a secret ceasefire, but only if you quietly abandon an ally\'s border region.', art: 'trial-evidence',
+      choices: [{ t: 'Take the deal.', fx: { morale: 4, alliance: -15 }, wise: false, r: 'A quiet season, and an ally who will never trust you again. −15 alliance.' },
+        { t: 'Decline, and tell your ally about the offer.', fx: { alliance: 8 }, wise: true, r: 'Your word held. +8 alliance.' }],
+      q: 'Never value anything as profitable that makes you break your word or lose your self-respect.', cite: 'after Meditations 3.7' },
+    { text: 'A tech firm says its AI predicts every Kessar move. It will not show its methods or its track record.', art: 'trial-evidence',
+      choices: [{ t: 'Buy it and follow it blindly.', fx: { next: -1, morale: -2 }, wise: false, r: 'It confidently predicted the wrong things. −1 command next season.' },
+        { t: 'Test it against last year\'s data before trusting it.', fx: { next: 1 }, wise: true, r: 'It was right sometimes, so you use it as one source among many. +1 command next season.' }],
+      q: 'If anyone can show me that I am wrong, I will gladly change.', cite: 'after Meditations 6.21' },
+    { text: 'After a good month, your advisors want a giant victory parade and a speech declaring the war nearly won.', art: 'trial-control',
+      choices: [{ t: 'Throw the parade. The people deserve it.', fx: { morale: 6, rivalAll: 1 }, wise: false, r: 'The party was great. Kessar used the distraction to dig in everywhere.' },
+        { t: 'Thank the troops quietly and stay focused.', fx: { morale: 2, alliance: 2 }, wise: true, r: 'Steady work, steady trust.' }],
+      q: 'Receive without arrogance. Let go without struggle.', cite: 'after Meditations 8.33' },
+    { text: 'Your sanctions on Kessar are hurting your own families too. Protesters fill the capital.', art: 'trial-impression',
+      choices: [{ t: 'Crack down on the protests.', fx: { morale: -10 }, wise: false, r: 'The streets went quiet, and so did your support. −10 morale.' },
+        { t: 'Explain the costs honestly and fund relief for families.', fx: { next: -1, morale: 5 }, wise: true, r: '−1 command next season, +5 morale.' }],
+      q: 'Look within. Within is the fountain of good.', cite: 'after Meditations 7.59' },
+    { text: 'A captured Kessar drone pilot could give you useful intel. Some officers want to threaten his family.', art: 'trial-fallacy',
+      choices: [{ t: 'Allow the threats.', fx: { next: 1, alliance: -12 }, wise: false, r: 'He talked, and then the world heard how. −12 alliance.' },
+        { t: 'Treat him by the law and offer asylum instead.', fx: { alliance: 5, morale: 2 }, wise: true, r: 'He defected willingly, and his story became your best propaganda. +5 alliance.' }],
+      q: 'The best revenge is not to be like your enemy.', cite: 'after Meditations 6.6' },
+    { text: 'Kessar hacked your defense minister\'s email and is leaking embarrassing but true messages.', art: 'trial-evidence',
+      choices: [{ t: 'Call them all fakes.', fx: { morale: -6, alliance: -4 }, wise: false, r: 'Journalists verified them in hours. Now you look dishonest as well as embarrassed.' },
+        { t: 'Admit what is true, apologize, and move on.', fx: { morale: 3, alliance: 3 }, wise: true, r: 'The story died in two days.' }],
+      q: 'If it is not true, do not say it.', cite: 'Meditations 12.17' },
   ];
 
-  /* ================= level builder ================= */
-  function builder(w) {
-    const g = Array.from({ length: ROWS }, () => Array(w).fill('.'));
-    const L = {
-      w, g, ents: [], q: {}, fields: [],
-      set(x, y, c) { if (x >= 0 && x < w && y >= 0 && y < ROWS) g[y][x] = c; },
-      ground(x0, x1, top = 12) { for (let x = x0; x <= x1; x++) for (let y = top; y < ROWS; y++) L.set(x, y, '#'); },
-      plat(x, y, n, c = '=') { for (let i = 0; i < n; i++) L.set(x + i, y, c); },
-      col(x, y0, y1, c = 'B') { for (let y = y0; y <= y1; y++) L.set(x, y, c); },
-      stairs(x, n, base = 11) { for (let i = 0; i < n; i++) L.col(x + i, base - i, base); },
-      box(x, y, content) { L.set(x, y, 'Q'); L.q[x + ',' + y] = content; },
-      coins(x, y, n, dx = 1) { for (let i = 0; i < n; i++) L.ent('coin', x + i * dx, y); },
-      ent(type, x, y, extra) { L.ents.push(Object.assign({ type, tx: x, ty: y }, extra || {})); },
-      field(x, y0, y1) { L.set(x, y0 - 1, 'P'); L.fields.push({ x, y0, y1, period: 2.9, on: 1.5, phase: (x * 0.61) % 2.9 }); },
+  /* ---------------- state ---------------- */
+  let S = null;
+
+  function newGame() {
+    S = {
+      turn: 1, owner: [], str: [], bonus: Array(12).fill(0), talks: Array(12).fill(0),
+      cp: 0, morale: 65, alliance: 60, next: 0, shield: false, cyberHit: false, countered: false, lie: false,
+      planned: null, cyberPlanned: false, reports: [], log: [], orderLog: [], usedDilemmas: [], dilemma: null, choice: null,
+      intel: { right: 0, total: 0, verified: 0 }, stoic: { wise: 0, total: 0 }, taken: 0, lost: 0,
+      sel: null, target: null, phase: 'intel', advice: '',
     };
-    return L;
-  }
-
-  const LEVELS = [
-    { name: 'The Danube Frontier', theme: 0, intro: 'The northern frontier. The Shadow Legion is on the march, and the first scrolls are scattered in the forest.', build() {
-      const L = builder(150);
-      L.ground(0, 24); L.ent('start', 2, 11);
-      L.coins(6, 10, 3); L.box(9, 8, 'coin'); L.set(10, 8, 'B'); L.box(11, 8, 'heart'); L.set(12, 8, 'B'); L.coins(10, 6, 2);
-      L.ent('soldier', 19, 11);
-      L.ground(28, 50);
-      L.plat(31, 9, 4); L.coins(31, 8, 4);
-      L.ent('soldier', 36, 11); L.plat(38, 6, 3); L.ent('scroll', 39, 5, { i: 0 }); L.ent('soldier', 43, 11);
-      L.stairs(46, 4); L.col(50, 8, 11);
-      L.ground(55, 82); L.ent('check', 57, 11);
-      L.ent('eagle', 63, 5); L.coins(60, 10, 3);
-      L.field(68, 8, 11); L.coins(70, 10, 3);
-      L.ent('soldier', 75, 11); L.box(78, 8, 'laurel'); L.set(77, 8, 'B'); L.set(79, 8, 'B');
-      L.ground(86, 150);
-      L.plat(90, 9, 3); L.plat(94, 6, 3); L.ent('scroll', 95, 5, { i: 1 }); L.coins(90, 8, 3);
-      L.ent('soldier', 93, 11); L.ent('eagle', 101, 4); L.ent('soldier', 104, 11);
-      L.field(108, 8, 11); L.coins(110, 10, 2); L.field(113, 8, 11);
-      L.ent('soldier', 118, 11); L.col(121, 10, 11); L.col(122, 10, 11); L.ent('scroll', 122, 8, { i: 2 });
-      L.ent('eagle', 127, 4); L.ent('soldier', 129, 11);
-      L.stairs(133, 5); L.col(138, 7, 11);
-      L.ent('flag', 144, 11);
-      return L;
-    } },
-    { name: 'Rome at Dusk', theme: 1, intro: 'The Legion has reached the city. Centurions take two strikes. Watch the rooftops and the sky.', build() {
-      const L = builder(170);
-      L.ground(0, 20); L.ent('start', 2, 11);
-      L.coins(5, 10, 4); L.box(8, 8, 'coin'); L.set(9, 8, 'B'); L.box(10, 8, 'coin');
-      L.ent('centurion', 16, 11);
-      L.ground(25, 40);
-      L.plat(27, 9, 3); L.plat(31, 6, 3); L.ent('scroll', 32, 5, { i: 3 });
-      L.ent('eagle', 35, 3); L.ent('soldier', 38, 11);
-      L.plat(42, 9, 2, 'B');
-      L.ground(46, 70); L.ent('check', 47, 11);
-      L.field(52, 8, 11); L.coins(53, 10, 2); L.field(56, 8, 11);
-      L.ent('centurion', 62, 11); L.ent('eagle', 65, 4); L.box(68, 8, 'heart');
-      L.ground(75, 79);
-      L.ground(84, 110);
-      L.plat(86, 8, 4); L.plat(92, 5, 3); L.ent('scroll', 93, 4, { i: 4 }); L.coins(86, 7, 4);
-      L.ent('soldier', 89, 11); L.ent('centurion', 98, 11); L.ent('eagle', 102, 3);
-      L.field(105, 8, 11); L.ent('eagle', 108, 5);
-      L.ground(115, 170); L.ent('check', 116, 11);
-      L.col(122, 9, 11); L.col(123, 9, 11);
-      L.field(128, 8, 11); L.ent('centurion', 132, 11); L.field(136, 8, 11);
-      L.plat(140, 8, 3); L.ent('scroll', 141, 7, { i: 5 }); L.box(144, 8, 'laurel');
-      L.ent('eagle', 147, 3); L.ent('soldier', 150, 11); L.ent('centurion', 154, 11);
-      L.stairs(158, 4);
-      L.ent('flag', 165, 11);
-      return L;
-    } },
-    { name: 'The Cosmic Forum', theme: 2, intro: 'At the edge of the cosmos waits Chaos, the Storm Legate. Recover the last scrolls and face him.', build() {
-      const L = builder(196);
-      L.ground(0, 14); L.ent('start', 2, 11);
-      L.ground(18, 22); L.ground(26, 45);
-      L.field(30, 8, 11); L.ent('eagle', 34, 4); L.coins(32, 10, 3); L.field(37, 8, 11);
-      L.plat(40, 8, 3); L.ent('scroll', 41, 7, { i: 6 });
-      L.plat(47, 9, 2, 'B');
-      L.ground(51, 75); L.ent('check', 52, 11);
-      L.ent('centurion', 57, 11); L.ent('eagle', 60, 3); L.ent('centurion', 63, 11);
-      L.field(66, 7, 11); L.field(70, 7, 11); L.box(73, 8, 'heart');
-      L.ground(79, 84, 10); L.coins(80, 9, 3);
-      L.ground(89, 93, 11);
-      L.ground(98, 126);
-      L.plat(101, 8, 3); L.plat(105, 5, 3); L.ent('scroll', 106, 4, { i: 7 });
-      L.ent('eagle', 110, 3); L.ent('soldier', 113, 11); L.ent('eagle', 117, 5); L.ent('centurion', 120, 11);
-      L.field(124, 8, 11);
-      L.ground(131, 196); L.ent('check', 132, 11);
-      L.field(137, 8, 11); L.field(140, 8, 11); L.field(143, 8, 11);
-      L.plat(148, 8, 3); L.ent('scroll', 149, 7, { i: 8 }); L.box(153, 8, 'laurel');
-      L.col(160, 11, 11);
-      L.ent('boss', 178, 9);
-      L.ent('flag', 190, 11, { hidden: true });
-      return L;
-    } },
-  ];
-
-  /* ================= sound (tiny synth, no files) ================= */
-  const SFX = (() => {
-    let ac = null, on = store.get('ctsm-sound') !== false;
-    const ensure = () => { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { ac = null; } } if (ac && ac.state === 'suspended') ac.resume(); };
-    function tone(f1, f2, dur, type = 'square', vol = 0.08, when = 0) {
-      if (!on || !ac) return;
-      const t0 = ac.currentTime + when, o = ac.createOscillator(), g = ac.createGain();
-      o.type = type; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(Math.max(30, f2), t0 + dur);
-      g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+    for (let i = 0; i < 12; i++) {
+      const c = col(i);
+      S.owner[i] = c === 0 ? 'you' : c === 3 ? 'rival' : 'neutral';
+      S.str[i] = S.owner[i] === 'neutral' ? 2 : (i === YOU_CAP || i === RIVAL_CAP ? 6 : 4);
     }
-    function noise(dur, vol = 0.06, hp = 1200) {
-      if (!on || !ac) return;
-      const n = ac.createBufferSource(), b = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate), d = b.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
-      const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; const g = ac.createGain(); g.gain.value = vol;
-      n.buffer = b; n.connect(f).connect(g).connect(ac.destination); n.start();
-    }
-    return {
-      ensure, get on() { return on; }, toggle() { on = !on; store.set('ctsm-sound', on); return on; },
-      jump: () => tone(300, 620, 0.14, 'square', 0.05), coin: () => { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.12, 'square', 0.05, 0.06); },
-      slash: () => noise(0.12, 0.08, 2500), hit: () => tone(220, 90, 0.15, 'sawtooth', 0.07), stomp: () => tone(500, 120, 0.12, 'square', 0.07),
-      hurt: () => tone(330, 110, 0.35, 'sawtooth', 0.08), bump: () => tone(140, 90, 0.08, 'square', 0.06), zap: () => noise(0.18, 0.04, 4000),
-      scroll: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.12, 'triangle', 0.07, i * 0.08)),
-      power: () => [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.1, 'square', 0.05, i * 0.06)),
-      win: () => [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.08, i * 0.13)),
-      boss: () => tone(90, 60, 0.6, 'sawtooth', 0.09),
-    };
-  })();
-
-  /* ================= input ================= */
-  const keys = { left: false, right: false, jump: false, attack: false };
-  let jumpPressed = false, attackPressed = false;
-  const KEYMAP = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'jump', KeyW: 'jump', Space: 'jump', KeyX: 'attack', KeyJ: 'attack', KeyK: 'attack', KeyZ: 'jump' };
-  function press(k, down) {
-    if (k === 'jump' && down && !keys.jump) jumpPressed = true;
-    if (k === 'attack' && down && !keys.attack) attackPressed = true;
-    keys[k] = down;
-  }
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'KeyP' || e.code === 'Escape') { if (S && S.mode === 'play') togglePause(); return; }
-    const k = KEYMAP[e.code]; if (!k || !S || S.mode !== 'play') return;
-    e.preventDefault(); SFX.ensure(); press(k, true);
-  });
-  window.addEventListener('keyup', (e) => { const k = KEYMAP[e.code]; if (k) press(k, false); });
-  document.querySelectorAll('#touch button').forEach((b) => {
-    const k = b.dataset.k;
-    const down = (e) => { e.preventDefault(); SFX.ensure(); b.setPointerCapture && b.setPointerCapture(e.pointerId); b.classList.add('on'); press(k, true); };
-    const up = (e) => { e.preventDefault(); b.classList.remove('on'); press(k, false); };
-    b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
-  });
-  if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touchy');
-
-  /* ================= game state ================= */
-  let S = null;   // whole run
-  let L = null;   // current level
-
-  function newRun() {
-    S = { level: 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0 };
     $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
+    startTurn();
     window.scrollTo({ top: 0 });
-    loadLevel(0, true);
   }
 
-  function loadLevel(n, showIntro) {
-    S.level = n;
-    const def = LEVELS[n], B = def.build();
-    L = { def, w: B.w, g: B.g.map((r) => r.slice()), q: Object.assign({}, B.q), fields: B.fields, items: [], enemies: [], parts: [], texts: [], orbs: [], bumps: [],
-      start: null, check: null, flag: null, boss: null, toast: null, t: 0, cam: 0, shake: 0, levelCoins: 0, levelKills: 0, levelDeaths: 0, bossOn: false };
-    B.ents.forEach((e) => {
-      const x = e.tx * T, y = e.ty * T;
-      if (e.type === 'start') L.start = { x: x + 5, y: y - 6 };
-      else if (e.type === 'coin') L.items.push({ type: 'coin', x: x + 8, y: y + 6, w: 16, h: 20 });
-      else if (e.type === 'scroll') { if (!S.scrolls.has(e.i)) L.items.push({ type: 'scroll', i: e.i, x: x + 4, y: y + 2, w: 24, h: 26 }); }
-      else if (e.type === 'check') L.items.push({ type: 'check', x: x + 8, y: y - 32, w: 16, h: 64, on: false });
-      else if (e.type === 'flag') L.flag = { x: x, y: y - 128, w: 28, h: 160, hidden: !!e.hidden };
-      else if (e.type === 'soldier' || e.type === 'centurion') L.enemies.push({ type: e.type, x: x + 4, y: y - 6, w: 24, h: 38, vx: -55, vy: 0, hp: e.type === 'centurion' ? 2 : 1, face: -1, hurt: 0, onGround: false, anim: Math.random() * 6 });
-      else if (e.type === 'eagle') L.enemies.push({ type: 'eagle', x, y, w: 34, h: 22, hx: x, hy: y, vx: 0, vy: 0, hp: 1, face: -1, state: 'patrol', st: 0, anim: Math.random() * 6, hurt: 0 });
-      else if (e.type === 'boss') { L.boss = { type: 'boss', x, y, w: 48, h: 72, vx: 0, vy: 0, hp: 8, maxHp: 8, face: -1, hurt: 0, onGround: false, jumpT: 2.2, orbT: 1.6, anim: 0, awake: false }; L.enemies.push(L.boss); }
+  const mine = () => S.owner.map((o, i) => (o === 'you' ? i : -1)).filter((i) => i >= 0);
+  const theirs = () => S.owner.map((o, i) => (o === 'rival' ? i : -1)).filter((i) => i >= 0);
+  const frontier = (i, foe) => adj(i).some((j) => S.owner[j] === foe);
+
+  function commandPoints() {
+    return Math.max(1, 4 + Math.floor(mine().length / 4) + (S.alliance >= 70 ? 1 : 0) + S.next - (S.cyberHit ? 1 : 0));
+  }
+
+  function planAttack() {
+    let best = null, score = -99;
+    mine().forEach((t) => {
+      const atk = adj(t).filter((j) => S.owner[j] === 'rival');
+      if (!atk.length) return;
+      const strongest = Math.max(...atk.map((j) => S.str[j]));
+      const s = strongest - S.str[t] + (t === YOU_CAP ? 1 : 0) + Math.random();
+      if (s > score) { score = s; best = t; }
     });
-    L.check = { x: L.start.x, y: L.start.y };
-    spawnPlayer();
-    S.mode = 'play';
-    if (showIntro) overlay(`Level ${n + 1} of ${LEVELS.length}`, def.name, def.intro, 'Go', () => {});
+    return best;
   }
 
-  let P = null;
-  function spawnPlayer() {
-    P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0 };
-    L.cam = clamp(P.x - VW * 0.35, 0, L.w * T - VW);
+  function startTurn() {
+    S.bonus.fill(0); S.countered = false; S.sel = null; S.target = null; S.orderLog = []; S.log = [];
+    S.cp = commandPoints(); S.next = 0; S.cyberHit = false;
+    S.planned = planAttack();
+    S.cyberPlanned = Math.random() < 0.35;
+    S.reports = makeReports();
+    setPhase('intel');
   }
 
-  /* ================= tiles & collision ================= */
-  const SOLID = '#BQUP';
-  const tileAt = (tx, ty) => (ty < 0 || ty >= ROWS ? '.' : tx < 0 || tx >= L.w ? '#' : L.g[ty][tx]);
-  const solid = (tx, ty) => SOLID.includes(tileAt(tx, ty));
+  function setPhase(p) { S.phase = p; S.advice = pick(ADVICE[p] || ADVICE.orders); render(); }
 
-  function moveX(e, dx) {
-    e.x += dx; e.hitWall = false;
-    const top = Math.floor(e.y / T), bot = Math.floor((e.y + e.h - 0.01) / T);
-    if (dx > 0) { const tx = Math.floor((e.x + e.w - 0.01) / T); for (let ty = top; ty <= bot; ty++) if (solid(tx, ty)) { e.x = tx * T - e.w; e.vx = 0; e.hitWall = true; break; } }
-    else if (dx < 0) { const tx = Math.floor(e.x / T); for (let ty = top; ty <= bot; ty++) if (solid(tx, ty)) { e.x = (tx + 1) * T; e.vx = 0; e.hitWall = true; break; } }
-  }
-  function moveY(e, dy, onHead) {
-    const prevBottom = e.y + e.h;
-    e.y += dy; e.onGround = false;
-    const l = Math.floor(e.x / T), r = Math.floor((e.x + e.w - 0.01) / T);
-    if (dy > 0) {
-      const ty = Math.floor((e.y + e.h - 0.01) / T);
-      for (let tx = l; tx <= r; tx++) {
-        const c = tileAt(tx, ty);
-        if (SOLID.includes(c) || (c === '=' && prevBottom <= ty * T + 0.5)) { e.y = ty * T - e.h; e.vy = 0; e.onGround = true; break; }
-      }
-    } else if (dy < 0) {
-      const ty = Math.floor(e.y / T);
-      for (let tx = l; tx <= r; tx++) if (solid(tx, ty)) { e.y = (ty + 1) * T; e.vy = 0; if (onHead) onHead(Math.floor((e.x + e.w / 2) / T) === tx ? tx : tx, ty); break; }
-    }
-  }
+  /* ---------------- intel ---------------- */
+  function quality() { const x = Math.random(); return x < 0.35 ? 'strong' : x < 0.65 ? 'mixed' : 'weak'; }
 
-  function headHit(tx, ty) {
-    // choose the block nearest Marcus's center
-    const cx = Math.floor((P.x + P.w / 2) / T);
-    const target = solid(cx, ty) ? cx : tx;
-    const c = tileAt(target, ty);
-    L.bumps.push({ tx: target, ty, t: 0.15 });
-    if (c === 'Q') {
-      L.g[ty][target] = 'U';
-      const what = L.q[target + ',' + ty] || 'coin';
-      if (what === 'coin') { S.coins += 1; L.levelCoins += 1; SFX.coin(); L.parts.push({ coinPop: true, x: target * T + 8, y: ty * T - 10, vy: -320, life: 0.55 }); }
-      else { SFX.power(); L.items.push({ type: what, x: target * T + 4, y: ty * T - 28, w: 24, h: 24, rise: 0.4 }); }
-    } else SFX.bump();
-    // defeat enemies standing on a bumped block
-    L.enemies.forEach((en) => { if (en.type !== 'eagle' && en.type !== 'boss' && Math.abs(en.y + en.h - ty * T) < 4 && en.x + en.w > target * T && en.x < (target + 1) * T) damage(en, 9, 0); });
-  }
+  function makeReports() {
+    const types = [];
+    const strikeTargets = theirs().filter((i) => frontier(i, 'you'));
+    const envoyTargets = S.owner.map((o, i) => (o === 'neutral' && frontier(i, 'you') ? i : -1)).filter((i) => i >= 0);
+    if (S.planned != null && Math.random() < 0.75) types.push('threat');
+    const pool = shuffle(['cyber', 'home', ...(strikeTargets.length ? ['strike', 'strike'] : []), ...(envoyTargets.length ? ['envoy', 'envoy'] : []), ...(S.planned != null ? ['threat'] : [])]);
+    for (const t of pool) { if (types.length >= 2) break; if (!types.includes(t)) types.push(t); }
 
-  /* ================= effects ================= */
-  function burst(x, y, colors, n = 18, sp = 200) {
-    const k = reduceMotion ? Math.ceil(n / 3) : n;
-    for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, v = rand(0.3, 1) * sp; L.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, life: rand(0.4, 0.9), c: colors[i % colors.length], r: rand(1.5, 3.5) }); }
-  }
-  function float(x, y, s, c) { L.texts.push({ x, y, s, c, life: 1 }); }
-  function toast(text, cite) { L.toast = { text, cite, life: 5 }; }
-
-  /* ================= combat ================= */
-  function damage(en, amount, dir) {
-    if (en.hurt > 0 || en.dead) return false;
-    en.hp -= amount; en.hurt = en.type === 'boss' ? 0.5 : 0.25;
-    if (dir) en.vx = dir * (en.type === 'boss' ? 120 : 160);
-    if (en.hp <= 0) {
-      en.dead = true; S.kills += 1; L.levelKills += 1;
-      burst(en.x + en.w / 2, en.y + en.h / 2, en.type === 'eagle' ? ['#ffd27a', '#8a6a4a', '#fff'] : ['#ffd27a', '#c9a227', '#8fe6d2', '#fff'], en.type === 'boss' ? 70 : 22, en.type === 'boss' ? 320 : 200);
-      float(en.x, en.y - 6, en.type === 'boss' ? '+1000' : '+50', '#e7c46a');
-      S.score += en.type === 'boss' ? 1000 : 50;
-      if (en.type === 'boss') {
-        SFX.win(); L.shake = 0.6; if (L.flag) L.flag.hidden = false;
-        toast('Chaos is defeated. The last road home is open.', 'Reach the standard');
-      } else SFX.hit();
-    } else { SFX.hit(); burst(en.x + en.w / 2, en.y + 10, ['#fff', '#8fe6d2'], 8, 140); }
-    return true;
-  }
-
-  function hurtPlayer(fromX) {
-    if (P.inv > 0 || P.dead) return;
-    P.hp -= 1; P.inv = 1.3; SFX.hurt(); L.shake = 0.25;
-    P.vx = (P.x + P.w / 2 < fromX ? -1 : 1) * 260; P.vy = -380;
-    burst(P.x + P.w / 2, P.y + 14, ['#ff7a59', '#fff'], 10, 160);
-    if (P.hp <= 0) killPlayer();
-  }
-
-  function killPlayer() {
-    if (P.dead) return;
-    P.dead = 1.2; S.deaths += 1; L.levelDeaths += 1; SFX.hurt();
-    burst(P.x + P.w / 2, P.y + P.h / 2, ['#e7c46a', '#7b3fa0', '#fff'], 30, 240);
-  }
-
-  /* ================= update ================= */
-  const GRAV = 1900, RUN = 235, ACC = 1900, AIR = 1300, FRICT = 2400, JUMP = 730, MAXFALL = 920;
-
-  function updatePlayer(dt) {
-    if (P.dead) {
-      P.dead -= dt;
-      if (P.dead <= 0) { spawnPlayer(); float(P.x - 20, P.y - 20, 'Rise again', '#8fe6d2'); }
-      return;
-    }
-    const dir = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
-    if (dir) { P.vx += dir * (P.onGround ? ACC : AIR) * dt; P.face = dir; }
-    else if (P.onGround) { const f = FRICT * dt; P.vx = Math.abs(P.vx) <= f ? 0 : P.vx - Math.sign(P.vx) * f; }
-    P.vx = clamp(P.vx, -RUN, RUN);
-
-    P.coyote = P.onGround ? 0.1 : P.coyote - dt;
-    if (jumpPressed) { P.buffer = 0.13; jumpPressed = false; }
-    else P.buffer -= dt;
-    if (P.buffer > 0 && P.coyote > 0) { P.vy = -JUMP; P.buffer = 0; P.coyote = 0; SFX.jump(); burst(P.x + P.w / 2, P.y + P.h, ['#c9c2b0'], 5, 60); }
-    if (!keys.jump && P.vy < -300) P.vy = -300;  // short hop when the button is released early
-
-    if (attackPressed) { attackPressed = false; if (P.atkCd <= 0) { P.atk = 0.2; P.atkCd = 0.34; SFX.slash(); } }
-    P.atk -= dt; P.atkCd -= dt; P.inv -= dt; P.glow -= dt; P.anim += dt * (Math.abs(P.vx) > 20 ? Math.abs(P.vx) / 26 : 2);
-
-    P.vy = Math.min(MAXFALL, P.vy + GRAV * dt);
-    moveX(P, P.vx * dt);
-    moveY(P, P.vy * dt, headHit);
-    if (P.x < 0) P.x = 0;
-    if (P.y > ROWS * T + 60) { P.hp = 0; killPlayer(); return; }
-
-    // sword
-    if (P.atk > 0) {
-      const hb = { x: P.face > 0 ? P.x + P.w - 4 : P.x - 42, y: P.y + 2, w: 46, h: 30 };
-      L.enemies.forEach((en) => { if (!en.dead && overlap(hb, en)) damage(en, 1, P.face); });
-      L.orbs.forEach((o) => { if (overlap(hb, o)) { o.dead = true; burst(o.x, o.y, ['#b9a6ff', '#fff'], 10, 150); } });
-    }
-
-    // items
-    L.items.forEach((it) => {
-      if (it.taken || it.rise > 0) return;
-      if (!overlap(P, it)) return;
-      if (it.type === 'coin') { it.taken = true; S.coins += 1; L.levelCoins += 1; S.score += 10; SFX.coin(); burst(it.x + 8, it.y + 10, ['#e7c46a', '#fff'], 6, 90); }
-      else if (it.type === 'heart') { it.taken = true; P.hp = Math.min(S.maxHp, P.hp + 1); SFX.power(); float(it.x, it.y, '+1 heart', '#ff9b8a'); }
-      else if (it.type === 'laurel') { it.taken = true; S.maxHp = Math.min(5, S.maxHp + 1); P.hp = S.maxHp; P.glow = 1.6; SFX.power(); float(it.x - 10, it.y, 'Laurel of Virtue: +1 max heart', '#8fe6d2'); }
-      else if (it.type === 'scroll') { it.taken = true; S.scrolls.add(it.i); S.score += 500; SFX.scroll(); burst(it.x + 12, it.y + 12, ['#e7c46a', '#fff6e0', '#8fe6d2'], 26, 200); toast(SCROLLS[it.i][0], SCROLLS[it.i][1]); }
-      else if (it.type === 'check' && !it.on) { it.on = true; L.check = { x: it.x - 2, y: it.y + 26 }; SFX.coin(); float(it.x - 30, it.y - 10, 'Checkpoint', '#8fe6d2'); }
-    });
-    L.items = L.items.filter((it) => !it.taken || it.type === 'check');
-
-    // electric fields
-    L.fields.forEach((f) => {
-      if (!fieldOn(f)) return;
-      const r = { x: f.x * T + 9, y: f.y0 * T, w: 14, h: (f.y1 - f.y0 + 1) * T };
-      if (overlap(P, r)) { hurtPlayer(f.x * T + 16); SFX.zap(); }
-    });
-
-    // finish
-    if (L.flag && !L.flag.hidden && overlap(P, L.flag)) levelComplete();
-  }
-
-  const fieldOn = (f) => ((L.t + f.phase) % f.period) < f.on;
-  const fieldWarn = (f) => { const c = (L.t + f.phase) % f.period; return c > f.period - 0.45; };
-
-  function updateEnemies(dt) {
-    L.enemies.forEach((en) => {
-      if (en.dead) return;
-      en.hurt -= dt; en.anim += dt;
-      if (en.type === 'soldier' || en.type === 'centurion') {
-        const speed = en.type === 'centurion' ? 70 : 55;
-        if (en.hurt <= 0) en.vx = en.face * speed;
-        en.vy = Math.min(MAXFALL, en.vy + GRAV * dt);
-        moveX(en, en.vx * dt); moveY(en, en.vy * dt);
-        if (en.hitWall) en.face *= -1;
-        if (en.onGround) { const ax = Math.floor((en.face > 0 ? en.x + en.w + 2 : en.x - 2) / T), ay = Math.floor((en.y + en.h + 4) / T); const c = tileAt(ax, ay); if (!SOLID.includes(c) && c !== '=') en.face *= -1; }
-        if (en.y > ROWS * T + 60) en.dead = true;
-      } else if (en.type === 'eagle') {
-        const px = P.x + P.w / 2, py = P.y + P.h / 2;
-        if (en.state === 'patrol') {
-          en.x = en.hx + Math.sin(en.anim * 0.9) * 90; en.y = en.hy + Math.sin(en.anim * 2.2) * 14;
-          en.face = Math.cos(en.anim * 0.9) > 0 ? 1 : -1;
-          if (!P.dead && Math.abs(px - en.x) < 230 && py > en.y + 30 && en.st <= 0) { en.state = 'swoop'; en.st = 1.1; const dx = px - en.x, dy = py - en.y, d = Math.hypot(dx, dy) || 1; en.vx = (dx / d) * 280; en.vy = (dy / d) * 280; en.face = Math.sign(dx) || -1; }
-          en.st -= dt;
-        } else if (en.state === 'swoop') {
-          en.x += en.vx * dt; en.y += en.vy * dt; en.st -= dt;
-          if (en.st <= 0 || en.y > 11 * T) { en.state = 'rise'; }
-        } else {
-          en.y += (en.hy - en.y) * Math.min(1, dt * 2.2); en.x += (en.hx - en.x) * Math.min(1, dt * 1.2);
-          if (Math.abs(en.y - en.hy) < 6) { en.state = 'patrol'; en.st = 1.4; en.anim = Math.asin(clamp((en.x - en.hx) / 90, -1, 1)) / 0.9; }
-        }
-      } else if (en.type === 'boss') updateBoss(en, dt);
-
-      // contact with Marcus
-      if (!P.dead && !en.dead && overlap(P, en)) {
-        const stomp = P.vy > 60 && P.y + P.h - en.y < (en.type === 'boss' ? 22 : 16);
-        if (stomp) { if (damage(en, 1, 0)) { P.vy = -520; SFX.stomp(); S.score += 0; } else P.vy = -420; }
-        else hurtPlayer(en.x + en.w / 2);
-      }
-    });
-    L.enemies = L.enemies.filter((en) => !en.dead || en === L.boss);
-
-    // boss orbs
-    L.orbs.forEach((o) => { o.x += o.vx * dt; o.life -= dt; if (!P.dead && overlap(P, { x: o.x - 9, y: o.y - 9, w: 18, h: 18 })) { o.dead = true; hurtPlayer(o.x); } if (solid(Math.floor(o.x / T), Math.floor(o.y / T))) o.dead = true; });
-    L.orbs = L.orbs.filter((o) => !o.dead && o.life > 0);
-  }
-
-  function updateBoss(b, dt) {
-    if (b.dead) return;
-    if (!b.awake) { if (P.x > b.x - 520) { b.awake = true; L.bossOn = true; SFX.boss(); toast('Chaos, the Storm Legate, blocks the road. Strike him, or land on his helmet.', 'Boss'); } else return; }
-    b.anim += dt;
-    const dir = Math.sign(P.x - b.x) || -1; b.face = dir;
-    if (b.hurt <= 0) b.vx = dir * 75;
-    b.jumpT -= dt; b.orbT -= dt;
-    if (b.jumpT <= 0 && b.onGround) { b.vy = -760; b.jumpT = rand(2, 3); }
-    if (b.orbT <= 0) { b.orbT = b.hp <= 4 ? 1.1 : 1.7; L.orbs.push({ x: b.x + b.w / 2 + dir * 30, y: b.y + 28, vx: dir * 250, life: 4 }); SFX.zap(); }
-    b.vy = Math.min(MAXFALL, b.vy + GRAV * dt);
-    moveX(b, b.vx * dt);
-    const wasAir = !b.onGround;
-    moveY(b, b.vy * dt);
-    if (wasAir && b.onGround) { L.shake = 0.3; burst(b.x + b.w / 2, b.y + b.h, ['#b9a6ff', '#fff'], 12, 180); }
-    if (b.x < 162 * T) b.x = 162 * T;
-  }
-
-  function update(dt) {
-    L.t += dt; S.time += dt;
-    updatePlayer(dt); updateEnemies(dt);
-    L.items.forEach((it) => { if (it.rise > 0) { it.rise -= dt; it.y -= 24 * dt; } });
-    L.parts.forEach((p) => { p.life -= dt; if (p.coinPop) { p.y += p.vy * dt; p.vy += 1200 * dt; } else { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 500 * dt; p.vx *= 0.98; } });
-    L.parts = L.parts.filter((p) => p.life > 0);
-    L.texts.forEach((x) => { x.life -= dt; x.y -= 30 * dt; }); L.texts = L.texts.filter((x) => x.life > 0);
-    L.bumps.forEach((b) => { b.t -= dt; }); L.bumps = L.bumps.filter((b) => b.t > 0);
-    if (L.toast) { L.toast.life -= dt; if (L.toast.life <= 0) L.toast = null; }
-    L.shake = Math.max(0, L.shake - dt);
-    const target = clamp(P.x - VW * 0.38, 0, L.w * T - VW);
-    L.cam += (target - L.cam) * Math.min(1, dt * 8);
-  }
-
-  /* ================= drawing ================= */
-  const THEMES = [
-    { sky: ['#5fa8d8', '#bfe0ef', '#f6dcae'], far: '#7d9bb5', near: '#3f6b4a', ground: '#6b4a2e', top: '#5aa34a', dirt: '#5a3d26', brick: '#9a8a74', plat: '#c9b48c' },
-    { sky: ['#2b1e4a', '#a3456b', '#f2a65a'], far: '#4a2f55', near: '#26182e', ground: '#5d5246', top: '#b8a98e', dirt: '#4a4037', brick: '#a8957a', plat: '#d9cbb0' },
-    { sky: ['#030512', '#120a2a', '#251040'], far: '#2a1a4a', near: '#160d2c', ground: '#1f1838', top: '#8fe6d2', dirt: '#17112b', brick: '#3a2f62', plat: '#b9a6ff' },
-  ];
-  let stars = Array.from({ length: 120 }, () => ({ x: Math.random() * VW * 2, y: Math.random() * VH * 0.7, s: Math.random() < 0.15 ? 2 : 1 }));
-
-  function drawBackground(th) {
-    const t = THEMES[th], cam = L.cam;
-    const g = ctx.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, t.sky[0]); g.addColorStop(0.6, t.sky[1]); g.addColorStop(1, t.sky[2]);
-    ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
-    if (th === 0) {
-      ctx.fillStyle = 'rgba(255,240,200,0.9)'; ctx.beginPath(); ctx.arc(760 - cam * 0.02, 90, 38, 0, 7); ctx.fill();
-      for (let i = 0; i < 4; i++) { const cx = ((i * 330 - cam * 0.08) % 1400 + 1400) % 1400 - 200; ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.beginPath(); ctx.ellipse(cx, 70 + i * 22, 60, 16, 0, 0, 7); ctx.ellipse(cx + 40, 62 + i * 22, 40, 14, 0, 0, 7); ctx.fill(); }
-    }
-    if (th === 1) { ctx.fillStyle = 'rgba(255,210,140,0.85)'; ctx.beginPath(); ctx.arc(700 - cam * 0.02, 300, 60, 0, 7); ctx.fill(); }
-    if (th === 2) {
-      stars.forEach((s) => { const x = ((s.x - cam * 0.05) % (VW * 2) + VW * 2) % (VW * 2); ctx.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(L.t + s.x)); ctx.fillStyle = '#fff6e0'; ctx.fillRect(x, s.y, s.s, s.s); });
-      ctx.globalAlpha = 1;
-      if (cosmicSoft) { ctx.globalAlpha = 0.5; const s = 420, x = 540 - cam * 0.03; ctx.drawImage(cosmicSoft, x, 10, s, s); ctx.globalAlpha = 1; }
-      const neb = ctx.createRadialGradient(200 - cam * 0.04, 140, 10, 200 - cam * 0.04, 140, 260); neb.addColorStop(0, 'rgba(120,80,220,0.35)'); neb.addColorStop(1, 'transparent'); ctx.fillStyle = neb; ctx.fillRect(0, 0, VW, VH);
-    }
-    // far layer
-    ctx.fillStyle = t.far; ctx.beginPath(); ctx.moveTo(0, VH);
-    for (let x = 0; x <= VW; x += 20) { const wx = x + cam * 0.25; const h = th === 1 ? 300 - (Math.floor(wx / 80) % 3) * 30 - (Math.floor(wx / 80) % 2 ? 40 : 0) : th === 2 ? 330 + Math.sin(wx * 0.01) * 30 : 260 + Math.sin(wx * 0.006) * 50 + Math.sin(wx * 0.017) * 20; ctx.lineTo(x, h); }
-    ctx.lineTo(VW, VH); ctx.fill();
-    // near layer
-    ctx.fillStyle = t.near;
-    if (th === 1) {
-      // Roman skyline: columns, domes, aqueduct arches
-      for (let i = -1; i < 9; i++) {
-        const base = ((i * 160 - cam * 0.5) % 1440 + 1440) % 1440 - 160;
-        const kind = (Math.floor((i * 160 + cam * 0.5) / 160) % 3 + 3) % 3;
-        if (kind === 0) { ctx.fillRect(base, 300, 120, 180); for (let c = 0; c < 5; c++) ctx.fillRect(base + 6 + c * 24, 250, 10, 60); ctx.beginPath(); ctx.moveTo(base - 6, 252); ctx.lineTo(base + 60, 214); ctx.lineTo(base + 126, 252); ctx.fill(); }
-        else if (kind === 1) { ctx.fillRect(base + 10, 290, 100, 190); ctx.beginPath(); ctx.arc(base + 60, 292, 46, Math.PI, 0); ctx.fill(); }
-        else { ctx.fillRect(base, 280, 150, 24); for (let a = 0; a < 3; a++) { ctx.fillRect(base + a * 52, 280, 12, 200); } }
-      }
-    } else {
-      ctx.beginPath(); ctx.moveTo(0, VH);
-      for (let x = 0; x <= VW; x += 16) { const wx = x + cam * 0.5; ctx.lineTo(x, (th === 2 ? 380 : 330) + Math.sin(wx * 0.013) * 26 + Math.sin(wx * 0.031) * 12); }
-      ctx.lineTo(VW, VH); ctx.fill();
-      if (th === 0) for (let i = 0; i < 14; i++) { const x = ((i * 90 - cam * 0.5) % 1260 + 1260) % 1260 - 60; const y = 330 + Math.sin((x + cam * 0.5) * 0.013) * 26; ctx.beginPath(); ctx.moveTo(x - 16, y + 6); ctx.lineTo(x, y - 46); ctx.lineTo(x + 16, y + 6); ctx.fill(); }
-    }
-  }
-
-  function drawTiles(th) {
-    const t = THEMES[th], x0 = Math.floor(L.cam / T), x1 = Math.min(L.w - 1, x0 + Math.ceil(VW / T) + 1);
-    for (let ty = 0; ty < ROWS; ty++) for (let tx = x0; tx <= x1; tx++) {
-      const c = L.g[ty][tx]; if (c === '.') continue;
-      let x = tx * T - L.cam, y = ty * T;
-      const bump = L.bumps.find((b) => b.tx === tx && b.ty === ty); if (bump) y -= Math.sin((bump.t / 0.15) * Math.PI) * 8;
-      if (c === '#') {
-        ctx.fillStyle = t.ground; ctx.fillRect(x, y, T, T);
-        ctx.fillStyle = t.dirt; for (let k = 0; k < 3; k++) ctx.fillRect(x + ((tx * 7 + k * 11 + ty * 3) % 26), y + ((tx * 5 + k * 9) % 24) + 6, 4, 3);
-        if (tileAt(tx, ty - 1) !== '#') { ctx.fillStyle = t.top; ctx.fillRect(x, y, T, th === 2 ? 4 : 8); if (th === 0) { ctx.fillRect(x + 4, y + 8, 3, 3); ctx.fillRect(x + 19, y + 8, 3, 2); } if (th === 2) { ctx.fillStyle = 'rgba(143,230,210,0.25)'; ctx.fillRect(x, y + 4, T, 4); } }
-      } else if (c === 'B') {
-        ctx.fillStyle = t.brick; ctx.fillRect(x, y, T, T);
-        ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(x, y + 15, T, 2); ctx.fillRect(x + 15, y, 2, 15); ctx.fillRect(x + 7, y + 17, 2, 15); ctx.fillRect(x + 23, y + 17, 2, 15);
-        ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(x, y, T, 2);
-      } else if (c === 'Q') {
-        const pulse = 0.75 + 0.25 * Math.sin(L.t * 4 + tx);
-        ctx.fillStyle = '#b8901f'; ctx.fillRect(x, y, T, T); ctx.fillStyle = `rgba(240,208,122,${pulse})`; ctx.fillRect(x + 3, y + 3, T - 6, T - 6);
-        ctx.fillStyle = '#5a3f0a'; ctx.font = '700 9px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.fillText('SPQR', x + 16, y + 20); ctx.textAlign = 'left';
-        ctx.fillStyle = '#fff6d0'; ctx.fillRect(x + 3, y + 3, 4, 4);
-      } else if (c === 'U') {
-        ctx.fillStyle = '#6a5631'; ctx.fillRect(x, y, T, T); ctx.fillStyle = '#4e3f22'; ctx.fillRect(x + 4, y + 4, T - 8, T - 8);
-      } else if (c === 'P') {
-        ctx.fillStyle = '#3d4458'; ctx.fillRect(x + 4, y, T - 8, T); ctx.fillStyle = '#8fe6d2'; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(L.t * 8 + tx); ctx.fillRect(x + 8, y + T - 8, T - 16, 6); ctx.globalAlpha = 1;
-        ctx.fillStyle = '#c9a227'; ctx.fillRect(x + 2, y, T - 4, 5);
-      } else if (c === '=') {
-        ctx.fillStyle = t.plat; ctx.fillRect(x, y, T, 12); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x, y + 10, T, 2); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(x, y, T, 2);
-      }
-    }
-  }
-
-  function drawFields() {
-    L.fields.forEach((f) => {
-      const x = f.x * T - L.cam + 16; if (x < -40 || x > VW + 40) return;
-      const top = f.y0 * T, bot = (f.y1 + 1) * T;
-      if (fieldOn(f)) {
-        ctx.save(); ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 16;
-        for (let k = 0; k < 3; k++) {
-          ctx.strokeStyle = k === 0 ? '#ffffff' : k === 1 ? '#8fe6d2' : '#b9a6ff'; ctx.lineWidth = k === 0 ? 2 : 3; ctx.globalAlpha = k === 0 ? 1 : 0.7;
-          ctx.beginPath(); ctx.moveTo(x, top);
-          for (let y = top + 8; y <= bot; y += 8) ctx.lineTo(x + rand(-7, 7), y);
-          ctx.stroke();
-        }
-        ctx.restore(); ctx.globalAlpha = 1;
-        ctx.fillStyle = 'rgba(143,230,210,0.12)'; ctx.fillRect(x - 14, top, 28, bot - top);
+    return types.map((type) => {
+      let q = quality(), truth = Math.random() < TRUTH[q], region = null, src = null;
+      if (type === 'threat') {
+        const decoys = mine().filter((i) => i !== S.planned);
+        if (!truth && !decoys.length) truth = true;
+        region = truth ? S.planned : pick(decoys);
+      } else if (type === 'cyber') {
+        S.cyberPlanned = truth;
+      } else if (type === 'strike') {
+        region = pick(strikeTargets);
+        src = adj(region).filter((j) => S.owner[j] === 'you').sort((a, b) => S.str[b] - S.str[a])[0];
+      } else if (type === 'envoy') {
+        region = pick(envoyTargets);
       } else {
-        ctx.strokeStyle = fieldWarn(f) ? 'rgba(255,240,180,0.8)' : 'rgba(143,230,210,0.25)'; ctx.setLineDash([3, 7]); ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke(); ctx.setLineDash([]);
-        if (fieldWarn(f)) { ctx.fillStyle = '#fff2b0'; for (let i = 0; i < 3; i++) ctx.fillRect(x + rand(-6, 6), rand(top, bot), 2, 2); }
+        region = pick(mine());
       }
+      const name = region != null ? REG[region] : '';
+      const text = pick(INTEL[type].text[q]).replace(/\{R\}/g, name);
+      return { type, q, truth, region, src, text, actLabel: INTEL[type].act.replace('{R}', name), state: 'open', result: null, good: null };
     });
   }
 
-  function drawMarcus(x, y, face, p) {
-    if (p.inv > 0 && !p.dead && Math.floor(p.inv * 14) % 2) return;
-    const run = Math.abs(p.vx) > 20 && p.onGround, ph = Math.sin(p.anim);
-    ctx.save(); ctx.translate(Math.round(x + p.w / 2), Math.round(y + p.h)); ctx.scale(face, 1);
-    if (p.glow > 0) { ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 20; }
-    // cape
-    const sway = run ? ph * 3 : Math.sin(L.t * 3) * 1.5, flare = Math.min(10, Math.abs(p.vx) / 25) + (p.onGround ? 0 : 6);
-    ctx.fillStyle = '#6b2f8f'; ctx.beginPath(); ctx.moveTo(-6, -32); ctx.lineTo(-12 - flare, -4 + sway); ctx.lineTo(-2, -6); ctx.lineTo(4, -30); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#7f3aa8'; ctx.beginPath(); ctx.moveTo(-5, -32); ctx.lineTo(-9 - flare * 0.7, -8 + sway); ctx.lineTo(-2, -10); ctx.closePath(); ctx.fill();
-    // legs
-    const l1 = run ? ph * 5 : 0, l2 = -l1;
-    ctx.fillStyle = '#d9a77c'; ctx.fillRect(-6 + l1 * 0.3, -12, 4, 9); ctx.fillRect(2 + l2 * 0.3, -12, 4, 9);
-    ctx.fillStyle = '#5a3a1e'; ctx.fillRect(-7 + l1 * 0.3, -3, 6, 3); ctx.fillRect(1 + l2 * 0.3, -3, 6, 3);
-    if (!p.onGround) { ctx.fillStyle = '#d9a77c'; ctx.fillRect(-6, -10, 4, 4); }
-    // skirt (pteruges)
-    ctx.fillStyle = '#a8322d'; ctx.fillRect(-8, -17, 16, 6);
-    ctx.fillStyle = '#c9a227'; for (let i = 0; i < 4; i++) ctx.fillRect(-7 + i * 4, -13, 2, 3);
-    // cuirass
-    ctx.fillStyle = '#c9a227'; ctx.fillRect(-8, -31, 16, 15);
-    ctx.fillStyle = '#e7c46a'; ctx.fillRect(-6, -29, 5, 5); ctx.fillStyle = '#8a6b14'; ctx.fillRect(-8, -21, 16, 2); ctx.fillRect(-1, -31, 2, 10);
-    // arm + sword
-    if (p.atk > 0) {
-      const k = 1 - p.atk / 0.2, a = -1.4 + k * 2.6;
-      ctx.save(); ctx.translate(6, -26); ctx.rotate(a);
-      ctx.fillStyle = '#d9a77c'; ctx.fillRect(0, -2, 9, 4);
-      ctx.fillStyle = '#7a5a2a'; ctx.fillRect(8, -3, 3, 6);
-      ctx.fillStyle = '#e8eef5'; ctx.fillRect(11, -2, 24, 4); ctx.fillStyle = '#ffffff'; ctx.fillRect(11, -2, 24, 1);
-      ctx.restore();
-      ctx.strokeStyle = `rgba(232,238,245,${0.8 * (1 - k)})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(6, -24, 34, -1.3, -1.3 + k * 2.5); ctx.stroke();
-      ctx.strokeStyle = `rgba(143,230,210,${0.5 * (1 - k)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(6, -24, 40, -1.2, -1.2 + k * 2.4); ctx.stroke();
+  function verify(rep) {
+    if (S.cp < 1 || rep.state !== 'open') return;
+    S.cp -= 1; S.intel.verified += 1; rep.state = 'verified';
+    render();
+  }
+
+  function resolve(rep, choice) {
+    if (rep.state === 'done') return;
+    const act = choice === 'act', T = rep.truth, R = rep.region != null ? REG[rep.region] : '';
+    const right = (T && act) || (!T && !act);
+    S.intel.total += 1; if (right) S.intel.right += 1;
+    let msg = '';
+    switch (rep.type) {
+      case 'threat':
+        if (act && T) { S.bonus[rep.region] += 3; msg = `Defenses dug in at ${R}: +3 against any attack this season.`; }
+        else if (act) { S.cp = Math.max(0, S.cp - 1); bump('morale', -3); msg = `You rushed forces to ${R} for an attack that never existed. −1 command, −3 morale.`; }
+        else if (T) msg = `You let it go. The attack on ${R} is real, and your troops there are not ready.`;
+        else msg = `Good call. It was a decoy meant to pull your forces out of position.`;
+        break;
+      case 'cyber':
+        if (act && T) { S.shield = true; msg = 'Grid hardened. The attack will bounce off.'; }
+        else if (act) { S.cp = Math.max(0, S.cp - 1); msg = 'You spent a command point chasing a phantom.'; }
+        else if (T) msg = 'The malware stays in your grid. Expect trouble.';
+        else msg = 'Good call. The rumor was noise.';
+        break;
+      case 'strike':
+        if (act && T) { S.str[rep.region] = Math.max(1, S.str[rep.region] - 3); msg = `Kessar's garrison in ${R} is thinned (−3). Advance while the gap is open.`; }
+        else if (act) { S.str[rep.src] = Math.max(1, S.str[rep.src] - 2); msg = `Ambush! It was bait. You lost 2 forces in ${REG[rep.src]}.`; }
+        else if (T) msg = `The gap in ${R} closes before anyone acts.`;
+        else msg = 'Good call. It was bait for an ambush.';
+        break;
+      case 'envoy':
+        if (act && T) { S.owner[rep.region] = 'you'; S.str[rep.region] = Math.max(2, S.str[rep.region]); S.taken += 1; flash(rep.region); msg = `${R} joins your coalition!`; }
+        else if (act) { bump('alliance', -6); msg = 'It was a hoax, and you announced it to the world. −6 alliance.'; }
+        else if (T) { bump('alliance', -2); msg = `${R}'s council felt ignored. −2 alliance.`; }
+        else msg = 'Good call. There was never any vote.';
+        break;
+      default:
+        if (act && T) { bump('morale', 5); msg = 'You got ahead of a real problem. +5 morale.'; }
+        else if (act) { bump('morale', -8); msg = 'You spread panic about a hoax. −8 morale.'; }
+        else if (T) { bump('morale', -10); msg = 'People got sick while you waited. −10 morale.'; }
+        else msg = 'Good call. No harm done.';
+    }
+    rep.state = 'done'; rep.good = right;
+    rep.result = { msg, verdict: T ? 'The report was TRUE.' : 'The report was FALSE.' };
+    if (checkEnd()) return;
+    render();
+  }
+
+  /* ---------------- orders ---------------- */
+  function winChance(atk, def) {
+    let w = 0; for (let a = 1; a <= 6; a++) for (let d = 1; d <= 6; d++) if (atk + a > def + d) w++;
+    return Math.round((w / 36) * 100);
+  }
+  const defense = (i) => S.str[i] + S.bonus[i] + (i === RIVAL_CAP || i === YOU_CAP ? 3 : 0);
+
+  function clickRegion(i) {
+    if (S.phase !== 'orders') return;
+    if (S.owner[i] === 'you') { S.sel = S.sel === i ? null : i; S.target = null; }
+    else if (S.sel != null && isAdj(S.sel, i)) { S.target = S.target === i ? null : i; }
+    else {
+      const from = adj(i).filter((j) => S.owner[j] === 'you').sort((a, b) => S.str[b] - S.str[a])[0];
+      S.sel = from ?? null; S.target = i;
+    }
+    render();
+  }
+
+  function reinforce(i) {
+    if (S.cp < 1) return;
+    S.cp -= 1; S.str[i] = Math.min(MAX_STR, S.str[i] + 2);
+    S.orderLog.push({ good: true, html: [`Reinforced `, b(REG[i]), ` (+2).`] });
+    render();
+  }
+
+  function advance(from, to) {
+    if (S.cp < 2 || S.str[from] < 2) return;
+    S.cp -= 2;
+    const wasNeutral = S.owner[to] === 'neutral';
+    const ra = d6(), rd = d6(), atk = S.str[from] + ra, def = defense(to) + rd;
+    if (wasNeutral) bump('alliance', -8);
+    if (atk > def) {
+      const move = Math.floor(S.str[from] / 2);
+      S.owner[to] = 'you'; S.str[to] = Math.max(1, move); S.str[from] = Math.max(1, S.str[from] - move);
+      S.taken += 1; bump('morale', 4); flash(to);
+      S.orderLog.push({ good: true, html: [`Took `, b(REG[to]), ` from ${wasNeutral ? 'neutral forces' : 'Kessar'}. +4 morale`, wasNeutral ? ', −8 alliance for invading a neutral.' : '.', dice(atk, def)] });
+      if (to === RIVAL_CAP) return endGame('victory-capital');
     } else {
-      ctx.fillStyle = '#d9a77c'; ctx.fillRect(5, -29, 4, 11);
-      ctx.fillStyle = '#7a5a2a'; ctx.fillRect(5, -18, 4, 3);
-      ctx.fillStyle = '#cfd6de'; ctx.fillRect(6, -15, 2, 12);
+      S.str[from] = Math.max(1, S.str[from] - 2); S.str[to] = Math.max(1, S.str[to] - 1);
+      S.orderLog.push({ good: false, html: [`The advance on `, b(REG[to]), ` stalled. You lost 2 forces${wasNeutral ? ' and 8 alliance' : ''}.`, dice(atk, def)] });
     }
-    // head: face, curls, beard, laurel
-    ctx.fillStyle = '#e0b48a'; ctx.fillRect(-5, -42, 11, 11);
-    ctx.fillStyle = '#3b2716'; ctx.fillRect(-6, -45, 13, 4); ctx.fillRect(-7, -43, 4, 7); ctx.fillRect(-5, -34, 11, 4); ctx.fillRect(2, -36, 4, 2);
-    ctx.fillStyle = '#2a1b0e'; ctx.fillRect(3, -39, 2, 2);
-    ctx.fillStyle = '#4f9a3c'; for (let i = 0; i < 5; i++) ctx.fillRect(-6 + i * 3, -46 + (i % 2), 3, 2);
-    ctx.restore();
+    S.target = null;
+    if (checkEnd()) return;
+    render();
   }
 
-  function drawSoldier(en) {
-    const x = Math.round(en.x - L.cam), y = Math.round(en.y), c = en.type === 'centurion';
-    if (en.hurt > 0 && Math.floor(en.hurt * 20) % 2) return;
-    ctx.save(); ctx.translate(x + en.w / 2, y + en.h); ctx.scale(en.face, 1);
-    const ph = Math.sin(en.anim * 9);
-    ctx.fillStyle = '#20232e'; ctx.fillRect(-6 + ph * 2, -12, 4, 11); ctx.fillRect(2 - ph * 2, -12, 4, 11);
-    ctx.fillStyle = '#3a2216'; ctx.fillRect(-7 + ph * 2, -2, 6, 2); ctx.fillRect(1 - ph * 2, -2, 6, 2);
-    ctx.fillStyle = '#4a1e1e'; ctx.fillRect(-8, -17, 16, 6);
-    ctx.fillStyle = c ? '#3d3020' : '#2e3242'; ctx.fillRect(-8, -31, 16, 15);
-    ctx.fillStyle = c ? '#c9a227' : '#5a6078'; ctx.fillRect(-8, -26, 16, 2); ctx.fillRect(-8, -21, 16, 2);
-    // shield in front
-    ctx.fillStyle = '#7a1f1a'; ctx.fillRect(5, -32, 7, 22); ctx.fillStyle = '#c9a227'; ctx.fillRect(7, -23, 3, 4);
-    // spear
-    ctx.fillStyle = '#6b4a2a'; ctx.fillRect(-10, -44, 2, 40); ctx.fillStyle = '#cfd6de'; ctx.fillRect(-11, -48, 4, 6);
-    // head + helmet + plume
-    ctx.fillStyle = '#c9946a'; ctx.fillRect(-4, -41, 9, 9);
-    ctx.fillStyle = '#1b1e28'; ctx.fillRect(-5, -44, 11, 5); ctx.fillRect(-5, -41, 3, 6);
-    ctx.fillStyle = '#ff5a4f'; ctx.fillRect(2, -38, 2, 2);
-    ctx.fillStyle = '#a8322d'; if (c) ctx.fillRect(-9, -48, 18, 4); else ctx.fillRect(-2, -50, 4, 7);
-    ctx.restore();
+  function negotiate(i) {
+    if (S.cp < 1) return;
+    S.cp -= 1;
+    const p = clamp(0.25 + (S.alliance - 50) / 150 + (S.morale - 50) / 300 + S.talks[i], 0.1, 0.85);
+    if (Math.random() < p) {
+      S.owner[i] = 'you'; S.str[i] = Math.max(2, S.str[i]); S.taken += 1; flash(i);
+      S.orderLog.push({ good: true, html: [b(REG[i]), ` agreed to join your coalition.`] });
+      S.target = null;
+    } else {
+      S.talks[i] += 0.15;
+      S.orderLog.push({ good: false, html: [`Talks with `, b(REG[i]), ` continue. They will listen more next time.`] });
+    }
+    if (checkEnd()) return;
+    render();
   }
 
-  function drawEagle(en) {
-    const x = Math.round(en.x - L.cam), y = Math.round(en.y);
-    if (x < -60 || x > VW + 60) return;
-    if (en.hurt > 0 && Math.floor(en.hurt * 20) % 2) return;
-    const flap = en.state === 'swoop' ? -0.6 : Math.sin(en.anim * 12);
-    ctx.save(); ctx.translate(x + en.w / 2, y + en.h / 2); ctx.scale(en.face, 1);
-    ctx.fillStyle = '#2a1f1a';
-    ctx.beginPath(); ctx.moveTo(-4, -2); ctx.lineTo(-22, -4 - flap * 14); ctx.lineTo(-10, 4); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(4, -2); ctx.lineTo(18, -6 - flap * 14); ctx.lineTo(8, 4); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#3d2c22'; ctx.beginPath(); ctx.ellipse(0, 2, 13, 6, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#e8e2d4'; ctx.fillRect(9, -4, 7, 6);
-    ctx.fillStyle = '#e7c46a'; ctx.fillRect(16, -2, 5, 3);
-    ctx.fillStyle = '#ff5a4f'; ctx.fillRect(12, -3, 2, 2);
-    ctx.fillStyle = '#2a1f1a'; ctx.fillRect(-16, 2, 6, 3);
-    ctx.restore();
-  }
+  function counterDisinfo() { if (S.cp < 1 || S.countered) return; S.cp -= 1; S.countered = true; bump('morale', 3); S.orderLog.push({ good: true, html: ['Fact-checkers deployed. +3 morale, and Kessar\'s troll farms are blunted this season.'] }); render(); }
+  function cyberShield() { if (S.cp < 1 || S.shield) return; S.cp -= 1; S.shield = true; S.orderLog.push({ good: true, html: ['Cyber shield up. The next attack on your networks will fail.'] }); render(); }
 
-  function drawBoss(b) {
-    if (b.dead) return;
-    const x = Math.round(b.x - L.cam), y = Math.round(b.y);
-    ctx.save();
-    ctx.shadowColor = '#b9a6ff'; ctx.shadowBlur = 24 + Math.sin(L.t * 8) * 8;
-    ctx.translate(x + b.w / 2, y + b.h); ctx.scale(b.face, 1);
-    if (b.hurt > 0 && Math.floor(b.hurt * 20) % 2) ctx.globalAlpha = 0.4;
-    const ph = Math.sin(b.anim * 6);
-    ctx.fillStyle = '#3b1f5a'; ctx.beginPath(); ctx.moveTo(-14, -60); ctx.lineTo(-34, -4 + ph * 4); ctx.lineTo(-4, -8); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#16131f'; ctx.fillRect(-14 + ph * 3, -24, 9, 22); ctx.fillRect(5 - ph * 3, -24, 9, 22);
-    ctx.fillStyle = '#2a1840'; ctx.fillRect(-18, -34, 36, 12);
-    ctx.fillStyle = '#1e1a2c'; ctx.fillRect(-18, -62, 36, 30);
-    ctx.fillStyle = '#b9a6ff'; ctx.fillRect(-14, -54, 28, 3); ctx.fillRect(-2, -62, 4, 26);
-    ctx.fillStyle = '#c9946a'; ctx.fillRect(-8, -80, 18, 16);
-    ctx.fillStyle = '#0e0c16'; ctx.fillRect(-10, -86, 22, 9); ctx.fillRect(-10, -80, 5, 12);
-    ctx.fillStyle = '#b9a6ff'; ctx.fillRect(5, -76, 4, 3);
-    ctx.fillStyle = '#6b2fa8'; ctx.fillRect(-14, -94, 28, 6);
-    ctx.fillStyle = '#5a4a3a'; ctx.fillRect(18, -92, 4, 88);
-    ctx.fillStyle = '#e8eef5'; ctx.fillRect(16, -100, 8, 10);
-    ctx.strokeStyle = '#8fe6d2'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(20, -100); for (let i = 0; i < 5; i++) ctx.lineTo(20 + rand(-8, 8), -104 - i * 6); ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawItems() {
-    L.items.forEach((it) => {
-      const x = it.x - L.cam, y = it.y; if (x < -40 || x > VW + 40) return;
-      if (it.type === 'coin') {
-        const s = Math.abs(Math.sin(L.t * 4 + it.x)); ctx.fillStyle = '#c9a227'; ctx.beginPath(); ctx.ellipse(x + 8, y + 10, 8 * s + 1, 10, 0, 0, 7); ctx.fill();
-        ctx.fillStyle = '#f0d07a'; ctx.beginPath(); ctx.ellipse(x + 8, y + 10, 5 * s, 7, 0, 0, 7); ctx.fill();
-      } else if (it.type === 'scroll') {
-        const bob = Math.sin(L.t * 3 + it.x) * 4;
-        ctx.save(); ctx.shadowColor = '#e7c46a'; ctx.shadowBlur = 18;
-        ctx.fillStyle = '#efe2c0'; ctx.fillRect(x + 2, y + 6 + bob, 20, 16); ctx.fillStyle = '#8a6b3a'; ctx.fillRect(x, y + 3 + bob, 24, 5); ctx.fillRect(x, y + 20 + bob, 24, 5);
-        ctx.fillStyle = '#6b4a2a'; for (let i = 0; i < 3; i++) ctx.fillRect(x + 6, y + 10 + i * 4 + bob, 12, 1);
-        ctx.restore();
-      } else if (it.type === 'heart') drawHeart(x + 12, y + 12, 10, '#ff5a6a');
-      else if (it.type === 'laurel') {
-        ctx.save(); ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 16; ctx.strokeStyle = '#5bbf4a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x + 12, y + 14, 10, 0.4, Math.PI * 2 - 0.4 + Math.PI - Math.PI); ctx.stroke();
-        ctx.fillStyle = '#7fe066'; for (let i = 0; i < 7; i++) { const a = 0.6 + i * 0.75; ctx.beginPath(); ctx.ellipse(x + 12 + Math.cos(a) * 10, y + 14 + Math.sin(a) * 10, 4, 2, a, 0, 7); ctx.fill(); }
-        ctx.restore();
-      } else if (it.type === 'check') {
-        ctx.fillStyle = '#6b5a3a'; ctx.fillRect(x + 6, y, 4, it.h);
-        ctx.fillStyle = it.on ? '#c9a227' : '#5a5a6a'; ctx.beginPath(); ctx.moveTo(x + 10, y + 2); ctx.lineTo(x + 34, y + 10); ctx.lineTo(x + 10, y + 20); ctx.closePath(); ctx.fill();
-        if (it.on) { ctx.fillStyle = 'rgba(143,230,210,0.25)'; ctx.beginPath(); ctx.arc(x + 8, y + it.h, 20, Math.PI, 0); ctx.fill(); }
-      }
-    });
-    // finish: the golden eagle standard (aquila)
-    if (L.flag && !L.flag.hidden) {
-      const f = L.flag, x = f.x - L.cam; if (x > -60 && x < VW + 60) {
-        ctx.fillStyle = '#8a6b3a'; ctx.fillRect(x + 12, f.y + 20, 5, f.h - 20);
-        ctx.save(); ctx.shadowColor = '#e7c46a'; ctx.shadowBlur = 20 + Math.sin(L.t * 4) * 6;
-        ctx.fillStyle = '#e7c46a'; ctx.beginPath(); ctx.moveTo(x + 14, f.y + 4); ctx.lineTo(x - 6, f.y - 6); ctx.lineTo(x + 6, f.y + 14); ctx.lineTo(x + 14, f.y + 20); ctx.lineTo(x + 22, f.y + 14); ctx.lineTo(x + 34, f.y - 6); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#a8322d'; ctx.fillRect(x + 2, f.y + 30, 26, 30); ctx.fillStyle = '#e7c46a'; ctx.font = '700 8px "Space Mono", monospace'; ctx.fillText('SPQR', x + 5, f.y + 49);
-        ctx.restore();
+  /* ---------------- Kessar's turn ---------------- */
+  function rivalTurn() {
+    const log = [];
+    S.sel = null; S.target = null;
+    // grow
+    theirs().forEach((i) => { const front = adj(i).some((j) => S.owner[j] !== 'rival'); S.str[i] = Math.min(MAX_STR, S.str[i] + 1 + (front && S.turn % 2 === 0 ? 1 : 0) + (front && S.turn >= 9 ? 1 : 0)); });
+    // annex a neutral by pressure
+    const neutrals = S.owner.map((o, i) => (o === 'neutral' && frontier(i, 'rival') ? i : -1)).filter((i) => i >= 0);
+    if (neutrals.length && Math.random() < 0.45) {
+      const n = neutrals.sort((a, b) => S.str[a] - S.str[b])[0];
+      const push = Math.max(...adj(n).filter((j) => S.owner[j] === 'rival').map((j) => S.str[j]));
+      if (push > S.str[n] + 1) { S.owner[n] = 'rival'; S.str[n] += 1; flash(n); log.push({ good: false, html: ['Kessar annexed ', b(REG[n]), ' through pressure and bribes.'] }); }
+    }
+    // attack
+    let t = S.planned != null && S.owner[S.planned] === 'you' ? S.planned : (Math.random() < 0.5 ? planAttack() : null);
+    if (t != null) {
+      const from = adj(t).filter((j) => S.owner[j] === 'rival').sort((a, b) => S.str[b] - S.str[a])[0];
+      if (from != null && S.str[from] >= 3) {
+        const ra = d6(), rd = d6(), atk = S.str[from] + ra, def = defense(t) + rd;
+        if (atk > def) {
+          const move = Math.ceil(S.str[from] / 2);
+          S.owner[t] = 'rival'; S.str[t] = move; S.str[from] = Math.max(1, S.str[from] - move);
+          S.lost += 1; bump('morale', -8); flash(t);
+          log.push({ good: false, html: ['Kessar drones and armor took ', b(REG[t]), '. −8 morale.', dice(atk, def, true)] });
+          if (t === YOU_CAP) { S.log = log; return endGame('defeat-capital'); }
+        } else {
+          S.str[from] = Math.max(1, S.str[from] - 2); S.str[t] = Math.max(1, S.str[t] - 1); bump('morale', 3);
+          log.push({ good: true, html: ['Your forces held ', b(REG[t]), ' against a Kessar assault. +3 morale.', S.bonus[t] ? ' The early warning paid off.' : '', dice(atk, def, true)] });
+        }
       }
     }
-  }
-
-  function drawHeart(x, y, s, c) {
-    ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x, y + s * 0.9);
-    ctx.bezierCurveTo(x - s * 1.4, y - s * 0.2, x - s * 0.6, y - s * 1.2, x, y - s * 0.4);
-    ctx.bezierCurveTo(x + s * 0.6, y - s * 1.2, x + s * 1.4, y - s * 0.2, x, y + s * 0.9); ctx.fill();
-  }
-
-  function drawHud() {
-    ctx.fillStyle = 'rgba(5,7,13,0.55)'; ctx.fillRect(0, 0, VW, 40);
-    for (let i = 0; i < S.maxHp; i++) drawHeart(22 + i * 26, 20, 9, i < Math.max(0, P.hp) ? '#ff5a6a' : '#3a3344');
-    ctx.font = '700 15px "Space Mono", monospace'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#e7c46a'; ctx.beginPath(); ctx.arc(170, 20, 8, 0, 7); ctx.fill(); ctx.fillStyle = '#f4efe2'; ctx.fillText('× ' + S.coins, 184, 21);
-    ctx.fillStyle = '#efe2c0'; ctx.fillRect(262, 13, 14, 14); ctx.fillStyle = '#f4efe2'; ctx.fillText(`${S.scrolls.size} / 9 scrolls`, 284, 21);
-    ctx.textAlign = 'right'; ctx.fillStyle = '#8fe6d2'; ctx.fillText(`${S.level + 1}. ${L.def.name}`, VW - 14, 21); ctx.textAlign = 'left';
-    if (L.boss && L.bossOn && !L.boss.dead) {
-      ctx.fillStyle = 'rgba(5,7,13,0.7)'; ctx.fillRect(VW / 2 - 160, 50, 320, 26);
-      ctx.fillStyle = '#b9a6ff'; ctx.fillRect(VW / 2 - 154, 64, 308 * (L.boss.hp / L.boss.maxHp), 7);
-      ctx.fillStyle = '#f4efe2'; ctx.font = '700 11px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.fillText('CHAOS, THE STORM LEGATE', VW / 2, 57); ctx.textAlign = 'left';
+    // cyber
+    if (S.cyberPlanned) {
+      if (S.shield) { S.shield = false; log.push({ good: true, html: ['A Kessar cyber attack hit your shield and failed.'] }); }
+      else { S.cyberHit = true; log.push({ good: false, html: ['A Kessar cyber attack knocked out power in two cities. −1 command next season.'] }); }
     }
-    if (L.toast) {
-      const a = Math.min(1, L.toast.life * 2, (5 - L.toast.life) * 4);
-      ctx.globalAlpha = a; ctx.fillStyle = 'rgba(8,10,20,0.9)'; ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 1.5;
-      const w = 640, x = (VW - w) / 2, y = 86; ctx.fillRect(x, y, w, 70); ctx.strokeRect(x, y, w, 70);
-      ctx.fillStyle = '#f4efe2'; ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif'; ctx.textAlign = 'center';
-      wrap('“' + L.toast.text + '”', VW / 2, y + 26, w - 40, 22);
-      ctx.fillStyle = '#e7c46a'; ctx.font = '700 10px "Space Mono", monospace'; ctx.fillText(L.toast.cite.toUpperCase(), VW / 2, y + 60);
-      ctx.textAlign = 'left'; ctx.globalAlpha = 1;
-    }
-    ctx.textBaseline = 'alphabetic';
-  }
-  function wrap(text, x, y, maxW, lh) {
-    const words = text.split(' '); let line = '', lines = [];
-    words.forEach((w) => { const test = line ? line + ' ' + w : w; if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; });
-    lines.push(line); if (lines.length > 1) y -= lh * 0.4;
-    lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+    // disinformation
+    if (S.countered) log.push({ good: true, html: ['Your fact-checkers blunted Kessar\'s disinformation campaign.'] });
+    else { bump('morale', -4); log.push({ good: false, html: ['Kessar troll farms flooded your feeds with lies. −4 morale.'] }); }
+    // old lies come back
+    if (S.lie && Math.random() < 0.45) { S.lie = false; bump('alliance', -20); log.push({ good: false, html: ['Journalists exposed the inflated loss numbers you published. −20 alliance.'] }); }
+    S.log = log;
+    if (checkEnd()) return;
+    setPhase('rival');
   }
 
-  function render() {
-    ctx.save();
-    if (L.shake && !reduceMotion) ctx.translate(rand(-6, 6) * L.shake * 2, rand(-6, 6) * L.shake * 2);
-    drawBackground(L.def.theme);
-    drawTiles(L.def.theme);
-    drawFields();
-    drawItems();
-    L.enemies.forEach((en) => { if (en.dead) return; const sx = en.x - L.cam; if (sx < -120 || sx > VW + 120) return; if (en.type === 'eagle') drawEagle(en); else if (en.type === 'boss') drawBoss(en); else drawSoldier(en); });
-    L.orbs.forEach((o) => { const x = o.x - L.cam; ctx.save(); ctx.shadowColor = '#b9a6ff'; ctx.shadowBlur = 16; ctx.fillStyle = '#d9ccff'; ctx.beginPath(); ctx.arc(x, o.y, 8 + Math.sin(L.t * 20) * 2, 0, 7); ctx.fill(); ctx.restore(); });
-    if (!P.dead) drawMarcus(P.x - L.cam, P.y, P.face, P);
-    L.parts.forEach((p) => {
-      if (p.coinPop) { ctx.fillStyle = '#f0d07a'; ctx.beginPath(); ctx.ellipse(p.x - L.cam + 8, p.y, 6 * Math.abs(Math.sin(p.life * 20)) + 1, 9, 0, 0, 7); ctx.fill(); return; }
-      ctx.globalAlpha = clamp(p.life * 2, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x - L.cam, p.y, p.r, p.r);
-    });
-    ctx.globalAlpha = 1;
-    ctx.font = '700 14px "Space Mono", monospace';
-    L.texts.forEach((x) => { ctx.globalAlpha = clamp(x.life * 1.5, 0, 1); ctx.fillStyle = '#05070d'; ctx.fillText(x.s, x.x - L.cam + 1, x.y + 1); ctx.fillStyle = x.c; ctx.fillText(x.s, x.x - L.cam, x.y); });
-    ctx.globalAlpha = 1;
-    if (P.dead) { ctx.fillStyle = `rgba(5,7,13,${clamp(1.2 - P.dead, 0, 0.6)})`; ctx.fillRect(0, 0, VW, VH); }
-    ctx.restore();
-    drawHud();
+  /* ---------------- dilemmas ---------------- */
+  function startDilemma() {
+    let options = DILEMMAS.map((d, i) => i).filter((i) => !S.usedDilemmas.includes(i));
+    if (!options.length) { S.usedDilemmas = []; options = DILEMMAS.map((d, i) => i); }
+    const i = pick(options); S.usedDilemmas.push(i);
+    S.dilemma = { ...DILEMMAS[i], order: shuffle(DILEMMAS[i].choices) }; S.choice = null;
+    setPhase('dilemma');
   }
 
-  /* ================= flow ================= */
-  const ov = { box: $('#overlay'), kicker: $('#ov-kicker'), title: $('#ov-title'), text: $('#ov-text'), go: $('#ov-go') };
-  let ovNext = null;
-  function overlay(kicker, title, text, label, next) {
-    S.mode = 'overlay'; ovNext = next;
-    ov.kicker.textContent = kicker; ov.title.textContent = title; ov.text.textContent = text; ov.go.textContent = label;
-    ov.box.hidden = false; setTimeout(() => ov.go.focus({ preventScroll: true }), 30);
-    Object.keys(keys).forEach((k) => { keys[k] = false; });
-  }
-  ov.go.addEventListener('click', () => { SFX.ensure(); ov.box.hidden = true; S.mode = 'play'; const n = ovNext; ovNext = null; if (n) n(); last = performance.now(); });
-
-  function togglePause() {
-    if (S.mode === 'play') overlay('Paused', 'Breathe', '“Receive without arrogance; let go without struggle.” Take a moment, then continue.', 'Resume', null);
-    else if (S.mode === 'overlay' && ov.title.textContent === 'Breathe') ov.go.click();
-  }
-  $('#pause').addEventListener('click', () => { if (S) togglePause(); });
-  const soundBtn = $('#sound'); const syncSound = () => { soundBtn.textContent = 'Sound: ' + (SFX.on ? 'on' : 'off'); };
-  soundBtn.addEventListener('click', () => { SFX.ensure(); SFX.toggle(); syncSound(); }); syncSound();
-  document.addEventListener('visibilitychange', () => { if (document.hidden && S && S.mode === 'play') togglePause(); });
-
-  function levelComplete() {
-    if (S.mode !== 'play') return;
-    SFX.win(); S.score += 300;
-    const n = S.level, found = [...S.scrolls].filter((i) => Math.floor(i / 3) === n).length;
-    if (n + 1 < LEVELS.length) overlay(`Level ${n + 1} complete`, LEVELS[n].name, `Coins: ${L.levelCoins} · Foes defeated: ${L.levelKills} · Scrolls found here: ${found} of 3${L.levelDeaths ? ' · Falls: ' + L.levelDeaths : ''}`, `On to ${LEVELS[n + 1].name}`, () => loadLevel(n + 1, true));
-    else finish();
+  function choose(c) {
+    if (S.choice) return;
+    S.choice = c; S.stoic.total += 1; if (c.wise) S.stoic.wise += 1;
+    const fx = c.fx;
+    if (fx.morale) bump('morale', fx.morale);
+    if (fx.alliance) bump('alliance', fx.alliance);
+    if (fx.next) S.next += fx.next;
+    if (fx.lie) S.lie = true;
+    if (fx.rivalAll) theirs().forEach((j) => { S.str[j] = Math.min(MAX_STR, S.str[j] + fx.rivalAll); });
+    if (fx.rivalHit) { const f = theirs().filter((j) => frontier(j, 'rival')).sort((a, b) => S.str[b] - S.str[a])[0]; if (f != null) S.str[f] = Math.max(1, S.str[f] - fx.rivalHit); }
+    if (checkEnd()) return;
+    render();
   }
 
-  function finish() {
-    S.mode = 'done';
-    const sc = S.scrolls.size;
-    const rank = sc === 9 && S.deaths <= 3 ? 'Philosopher-King' : sc >= 7 ? 'Stoic Champion' : sc >= 4 ? 'Legionary of Virtue' : 'Student of the Stoa';
-    S.score += Math.max(0, 2000 - S.deaths * 150);
+  function nextSeason() {
+    if (S.turn >= TURNS) return endGame('end');
+    S.turn += 1; startTurn(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---------------- end ---------------- */
+  function checkEnd() {
+    S.morale = clamp(S.morale, 0, 100); S.alliance = clamp(S.alliance, 0, 100);
+    if (S.owner[YOU_CAP] !== 'you') { endGame('defeat-capital'); return true; }
+    if (S.morale <= 0) { endGame('defeat-morale'); return true; }
+    if (S.owner[RIVAL_CAP] === 'you') { endGame('victory-capital'); return true; }
+    if (mine().length >= WIN_REGIONS) { endGame('victory-regions'); return true; }
+    return false;
+  }
+
+  function endGame(kind) {
+    const regions = mine().length;
+    const asked = S.intel.total + S.stoic.total, good = S.intel.right + S.stoic.wise;
+    const wisdom = asked ? Math.round((100 * good) / asked) : 0;
+    const outcomes = {
+      'victory-capital': ['Total victory', 'You took Kessar City. The war is over.'],
+      'victory-regions': ['Victory', `You hold ${regions} of 12 regions. Kessar sues for peace.`],
+      'defeat-capital': ['Defeat', 'Nova Roma has fallen. The Republic will have to rebuild.'],
+      'defeat-morale': ['Defeat', 'Public morale collapsed and your government fell.'],
+    };
+    let [label, line] = outcomes[kind] || (regions >= 7 ? ['Victory on points', `Twelve seasons survived holding ${regions} regions. Kessar agrees to a ceasefire on your terms.`]
+      : regions >= 5 ? ['You held the line', `Twelve seasons survived holding ${regions} regions. A tense ceasefire begins.`]
+        : ['Pushed back', `You survived twelve seasons, but hold only ${regions} regions.`]);
+    const rank = wisdom >= 90 ? 'Philosopher-King' : wisdom >= 72 ? 'Stoic Strategist' : wisdom >= 50 ? 'Seasoned Commander' : 'Student of the Stoa';
     $('#s-game').hidden = true; $('#s-final').hidden = false;
+    $('#final-kicker').textContent = label;
     $('#final-rank').textContent = rank;
-    $('#final-line').textContent = sc === 9 ? 'You recovered every scroll of the Meditations. Chaos is defeated and the empire can think clearly again.' : `Chaos is defeated, but ${9 - sc} scroll${9 - sc === 1 ? ' is' : 's are'} still out there. Play again to find them all.`;
-    const st = $('#final-stats'); st.replaceChildren();
-    const mins = Math.floor(S.time / 60), secs = Math.floor(S.time % 60);
-    [['Score', S.score.toLocaleString('en-US')], ['Scrolls recovered', `${sc} of 9`], ['Coins', String(S.coins)], ['Foes defeated', String(S.kills)], ['Falls', String(S.deaths)], ['Time', `${mins}:${String(secs).padStart(2, '0')}`]]
-      .forEach(([k, v]) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = v; li.append(k + ': ', b); st.append(li); });
-    const best = store.get('ctsm-best-run');
-    if (!best || S.score > best.score) store.set('ctsm-best-run', { score: S.score, rank });
-    showBest(); window.scrollTo({ top: 0 });
+    $('#final-line').textContent = line + ' ' + (wisdom >= 72 ? 'Marcus would be proud: you judged the evidence and kept your character.' : wisdom >= 50 ? 'Marcus nods. Sharper judgment would have saved you trouble.' : 'Marcus suggests reading the intel more carefully, and choosing justice when it costs you.');
+    const stats = $('#final-stats'); stats.replaceChildren();
+    [['Seasons commanded', `${S.turn} of ${TURNS}`], ['Regions held', `${regions} of 12`], ['Intel judged correctly', `${S.intel.right} of ${S.intel.total}`],
+      ['Reports verified', String(S.intel.verified)], ['Stoic choices', `${S.stoic.wise} of ${S.stoic.total}`], ['Wisdom score', `${wisdom}%`]]
+      .forEach(([k, v]) => { const li = el('li'); li.append(k + ': ', b(v)); stats.append(li); });
+    const best = store.get('ctsm-best');
+    if (!best || wisdom > best.wisdom || (wisdom === best.wisdom && regions > best.regions)) store.set('ctsm-best', { rank, label, wisdom, regions });
+    window.scrollTo({ top: 0 });
   }
 
-  function showBest() { const b = store.get('ctsm-best-run'), e = $('#best'); if (b && b.rank) { e.hidden = false; e.textContent = `Your best: ${b.score.toLocaleString('en-US')} points · ${b.rank}`; } }
+  /* ---------------- small UI bits ---------------- */
+  function b(text) { const e = el('b', '', text); return e; }
+  function dice(a, d, rivalAttacking) { return el('span', 'dice', ` [${rivalAttacking ? 'Kessar' : 'you'} ${a} vs ${rivalAttacking ? 'you' : 'them'} ${d}]`); }
+  const bumped = new Set();
+  function bump(stat, delta) { S[stat] = clamp(S[stat] + delta, 0, 100); bumped.add(stat); }
+  const flashed = new Set();
+  function flash(i) { flashed.add(i); }
 
-  /* ================= main loop ================= */
-  let last = performance.now();
-  function frame(now) {
-    const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
-    if (S && L && !$('#s-game').hidden) {
-      if (S.mode === 'play') { const steps = 2; for (let i = 0; i < steps; i++) update(dt / steps); }
-      render();
+  function renderBar() {
+    $('#b-season').textContent = `Season ${S.turn} of ${TURNS} · ${SEASONS[(S.turn - 1) % 4]} ${2031 + Math.floor((S.turn - 1) / 4)}`;
+    $('#b-phase').textContent = { intel: 'Intelligence briefing', orders: 'Orders', rival: 'Kessar moves', dilemma: 'The hard call' }[S.phase];
+    const set = (id, v, low, key) => { const e = $(id); e.textContent = String(v); e.parentElement.classList.toggle('low', !!low); if (bumped.has(key)) { e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); } };
+    set('#b-cp', S.cp, S.cp === 0, 'cp'); set('#b-morale', S.morale, S.morale < 25, 'morale'); set('#b-alliance', S.alliance, S.alliance < 25, 'alliance'); set('#b-regions', mine().length, mine().length < 3, 'regions');
+    bumped.clear();
+  }
+
+  const CW = 180, CH = 150, GX = 200, GY = 168, OX = 20, OY = 14;
+  const cx = (i) => OX + col(i) * GX, cy = (i) => OY + row(i) * GY;
+
+  function renderMap() {
+    const svg = $('#map'); svg.replaceChildren();
+    const defs = sv('defs', {});
+    [['g-you', '#2f8f7c', '#16473f'], ['g-rival', '#a8423a', '#4d1b17'], ['g-neutral', '#3a3f52', '#1b1e29']].forEach(([id, a, c]) => {
+      const g = sv('linearGradient', { id, x1: 0, y1: 0, x2: 1, y2: 1 }); g.append(sv('stop', { offset: '0%', 'stop-color': a }), sv('stop', { offset: '100%', 'stop-color': c })); defs.append(g);
+    });
+    svg.append(defs);
+    for (let i = 0; i < 12; i++) adj(i).filter((j) => j > i).forEach((j) => svg.append(sv('line', { class: 'link', x1: cx(i) + CW / 2, y1: cy(i) + CH / 2, x2: cx(j) + CW / 2, y2: cy(j) + CH / 2 })));
+    const reach = S.phase === 'orders' && S.sel != null ? adj(S.sel).filter((j) => S.owner[j] !== 'you') : [];
+    for (let i = 0; i < 12; i++) {
+      const cls = ['cell', S.owner[i]];
+      if (S.sel === i) cls.push('sel');
+      if (S.target === i) cls.push('target'); else if (reach.includes(i)) cls.push('reach');
+      if (flashed.has(i)) cls.push('flash');
+      const g = sv('g', { class: cls.join(' '), tabindex: S.phase === 'orders' ? 0 : -1, role: 'button',
+        'aria-label': `${REG[i]}, ${OWNER_NAME[S.owner[i]]}, ${S.str[i]} forces${i === YOU_CAP || i === RIVAL_CAP ? ', capital' : ''}` });
+      g.append(sv('rect', { class: 'body', x: cx(i), y: cy(i), width: CW, height: CH, rx: 6 }));
+      g.append(sv('text', { class: 'tag', x: cx(i) + 12, y: cy(i) + 22 }, OWNER_NAME[S.owner[i]]));
+      if (i === YOU_CAP || i === RIVAL_CAP) g.append(sv('text', { class: 'star', x: cx(i) + CW - 36, y: cy(i) + 28 }, '★'));
+      g.append(sv('text', { class: 'name', x: cx(i) + 12, y: cy(i) + 56 }, REG[i]));
+      g.append(sv('text', { class: 'forces', x: cx(i) + 12, y: cy(i) + CH - 20 }, String(S.str[i])));
+      if (S.bonus[i] && S.owner[i] === 'you') g.append(sv('text', { class: 'bonus', x: cx(i) + CW - 12, y: cy(i) + CH - 22, 'text-anchor': 'end' }, `+${S.bonus[i]}`));
+      g.addEventListener('click', () => clickRegion(i));
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickRegion(i); } });
+      svg.append(g);
     }
-    requestAnimationFrame(frame);
+    flashed.clear();
   }
-  requestAnimationFrame(frame);
 
-  $('#start').addEventListener('click', () => { SFX.ensure(); newRun(); });
-  $('#again').addEventListener('click', () => { SFX.ensure(); newRun(); });
-  showBest();
+  function advisor(text) {
+    const a = el('div', 'advisor'); const img = el('img'); img.src = 'img/guide.webp'; img.alt = 'Marcus Aurelius'; img.width = 64; img.height = 64;
+    a.append(img, el('p', '', '“' + text + '”')); return a;
+  }
+
+  function logList(items) {
+    const ul = el('ul', 'log');
+    items.forEach((it) => { const li = el('li', it.good === true ? 'good' : it.good === false ? 'bad' : ''); it.html.forEach((h) => li.append(h instanceof Node ? h : document.createTextNode(h))); ul.append(li); });
+    return ul;
+  }
+
+  function renderPanel() {
+    const p = $('#panel'); p.replaceChildren(advisor(S.advice));
+
+    if (S.phase === 'intel') {
+      p.append(el('h3', '', 'Intelligence briefing'), el('p', 'sub', 'Act on a report, verify it first for 1 command point, or dismiss it. Acting on a lie costs you. Ignoring the truth costs more.'));
+      S.reports.forEach((r) => {
+        const card = el('div', 'report');
+        const head = el('div', 'report-head'); head.append(el('span', '', INTEL[r.type].label));
+        const stamp = el('span', 'stamp', r.state === 'verified' || r.state === 'done' ? (r.truth ? 'Confirmed true' : 'Confirmed false') : 'Unverified');
+        if (r.state !== 'open') stamp.classList.add(r.truth ? 't' : 'f');
+        head.append(stamp); card.append(head, el('p', 'claim', r.text));
+        if (r.state !== 'done') {
+          const acts = el('div', 'acts');
+          acts.append(btn(r.actLabel, 'btn-teal', () => resolve(r, 'act')));
+          if (r.state === 'open') acts.append(btn('Verify · 1 CP', '', () => verify(r), S.cp < 1));
+          acts.append(btn('Dismiss', 'btn-red', () => resolve(r, 'dismiss')));
+          card.append(acts);
+        } else {
+          const res = el('div', 'result ' + (r.good ? 'good' : 'bad'));
+          res.append(b((r.good ? 'Well judged. ' : 'Misjudged. ') + r.result.verdict + ' '), document.createTextNode(r.result.msg));
+          res.append(el('span', 'lesson', LESSON[r.q]));
+          card.append(res);
+        }
+        p.append(card);
+      });
+      if (S.reports.every((r) => r.state === 'done')) { const row = el('div', 'next-row'); row.append(btn('Give orders →', 'btn-gold', () => setPhase('orders'))); p.append(row); }
+    }
+
+    if (S.phase === 'orders') {
+      p.append(el('h3', '', 'Orders'), el('p', 'sub', `You have ${S.cp} command point${S.cp === 1 ? '' : 's'}. Tap one of your regions, then a neighbor to advance or negotiate.`));
+      const box = el('div', 'orders-sel');
+      if (S.sel == null && S.target == null) box.append(el('p', 'meta', 'Nothing selected. Tap a region on the map.'));
+      if (S.sel != null) {
+        box.append(el('h4', '', REG[S.sel]), el('p', 'meta', `Yours · ${S.str[S.sel]} forces${S.sel === YOU_CAP ? ' · capital (+3 defense)' : ''}`));
+        const ob = el('div', 'order-btns');
+        ob.append(btn('Reinforce +2', '', () => reinforce(S.sel), S.cp < 1 || S.str[S.sel] >= MAX_STR));
+        ob.lastChild.append(el('small', '', '1 CP'));
+        if (S.target != null) {
+          const t = S.target, neutral = S.owner[t] === 'neutral', odds = winChance(S.str[S.sel], defense(t));
+          const adv = btn(`Advance into ${REG[t]}`, 'btn-red', () => advance(S.sel, t), S.cp < 2 || S.str[S.sel] < 2);
+          adv.append(el('small', '', `2 CP · ~${odds}%${neutral ? ' · −8 alliance' : ''}`)); ob.append(adv);
+          if (neutral) { const n = btn(`Negotiate with ${REG[t]}`, 'btn-teal', () => negotiate(t), S.cp < 1); n.append(el('small', '', '1 CP')); ob.append(n); }
+        }
+        box.append(ob);
+      } else if (S.target != null) {
+        box.append(el('h4', '', REG[S.target]), el('p', 'meta', `${OWNER_NAME[S.owner[S.target]]} · ${S.str[S.target]} forces · not next to any of your regions`));
+      }
+      if (S.target != null && S.sel != null) box.insertBefore(el('p', 'meta', `Target: ${REG[S.target]} · ${OWNER_NAME[S.owner[S.target]]} · ${S.str[S.target]} forces${S.target === RIVAL_CAP ? ' · capital (+3 defense)' : ''}`), box.querySelector('.order-btns'));
+      p.append(box);
+      const gb = el('div', 'global-btns');
+      const c1 = btn('Counter disinfo', '', counterDisinfo, S.cp < 1 || S.countered); c1.append(el('small', '', S.countered ? 'done' : '1 CP'));
+      const c2 = btn('Cyber shield', '', cyberShield, S.cp < 1 || S.shield); c2.append(el('small', '', S.shield ? 'active' : '1 CP'));
+      gb.append(c1, c2); p.append(gb);
+      if (S.orderLog.length) p.append(logList(S.orderLog));
+      const row = el('div', 'next-row'); row.append(btn('End season →', 'btn-gold', rivalTurn)); p.append(row);
+    }
+
+    if (S.phase === 'rival') {
+      p.append(el('h3', '', 'Kessar moves'), logList(S.log.length ? S.log : [{ good: null, html: ['A quiet season on the front.'] }]));
+      const row = el('div', 'next-row'); row.append(btn('Face the hard call →', 'btn-gold', startDilemma)); p.append(row);
+    }
+
+    if (S.phase === 'dilemma') {
+      const d = S.dilemma;
+      const art = el('img', 'dilemma-art'); art.src = `img/${d.art}.webp`; art.alt = ''; art.width = 420; art.height = 150;
+      p.append(art, el('h3', '', 'The hard call'), el('p', 'sub', d.text));
+      if (!S.choice) {
+        const ch = el('div', 'choices');
+        d.order.forEach((c) => { const bt = el('button', 'choice', c.t); bt.type = 'button'; bt.addEventListener('click', () => choose(c)); ch.append(bt); });
+        p.append(ch);
+      } else {
+        const res = el('div', 'result ' + (S.choice.wise ? 'good' : 'bad'));
+        res.append(b(S.choice.wise ? 'The Stoic choice. ' : 'Not the Stoic choice. '), document.createTextNode(S.choice.r));
+        const qt = el('blockquote', 'quote', '“' + d.q + '”'); qt.append(el('cite', '', d.cite));
+        p.append(res, qt);
+        const row = el('div', 'next-row'); row.append(btn(S.turn >= TURNS ? 'See how history judges you →' : 'Next season →', 'btn-gold', nextSeason)); p.append(row);
+      }
+    }
+  }
+
+  function render() { renderBar(); renderMap(); renderPanel(); }
+
+  /* ---------------- boot ---------------- */
+  $('#start').addEventListener('click', newGame);
+  $('#again').addEventListener('click', newGame);
+  const best = store.get('ctsm-best');
+  if (best && best.rank) { const e = $('#best'); e.hidden = false; e.textContent = `Your best: ${best.rank} · ${best.label} · wisdom ${best.wisdom}%`; }
 })();

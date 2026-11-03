@@ -1,0 +1,98 @@
+/* The Aurelious Quest — styled like the interior pages of Marcos Garcia's Stoic books: cream paper, sepia ink, gold rules */
+:root {
+  --paper: #efe6cf; --paper-2: #f6efdc; --ink: #2b1d10; --ink-soft: #5a4630; --gold: #a8842a; --gold-2: #c9a227;
+  --navy: #0b1720; --teal: #2f6f7a; --line: rgba(168, 132, 42, 0.55);
+  --serif: "Cormorant Garamond", Georgia, serif; --body: "Literata", Georgia, serif; --mono: "Space Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: #e4d8bb; color: var(--ink); }
+body { font: 400 1.04rem/1.6 var(--body); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(120vmax 80vmax at 50% 30%, #efe6cf 40%, #d9caa6 100%); }
+img { display: block; max-width: 100%; height: auto; }
+button { font: inherit; }
+[hidden] { display: none !important; }
+
+.stage { max-width: 1060px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 30px max(12px, env(safe-area-inset-left)); min-height: 100vh; display: flex; }
+.screen { width: 100%; align-self: center; animation: rise .5s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* book page */
+.page { max-width: 820px; margin: 0 auto; padding: clamp(22px, 5vw, 54px); text-align: center; background: var(--paper-2); border: 1px solid var(--line);
+  box-shadow: 0 1px 0 #fff inset, 0 24px 60px rgba(60, 40, 15, .22); outline: 1px solid var(--line); outline-offset: -10px; }
+.eyebrow { font: 700 .72rem/1.4 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--teal); margin: 0 0 1rem; }
+.pre { font: italic 500 1.35rem/1 var(--serif); color: var(--ink-soft); margin: 0 0 .2rem; }
+h1, h2 { font-family: var(--serif); font-weight: 500; line-height: 1.02; margin: 0 0 .5rem; color: var(--ink); }
+h1 { font-size: clamp(2.6rem, 7vw, 4.6rem); letter-spacing: .01em; }
+h2 { font-size: clamp(2rem, 4.5vw, 3rem); }
+.sub { font: italic 500 1.2rem/1.3 var(--serif); color: var(--ink-soft); margin: 0; }
+.rule { display: flex; align-items: center; gap: .8rem; margin: 1.1rem auto 1.3rem; max-width: 360px; color: var(--gold); }
+.rule::before, .rule::after { content: ""; flex: 1; height: 1px; background: var(--gold); box-shadow: 0 3px 0 rgba(168, 132, 42, .5); }
+.rule.small { max-width: 220px; margin: .6rem auto .9rem; }
+.plate { margin: 0 auto 1.3rem; padding: 8px; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(60, 40, 15, .2); max-width: 640px; }
+.plate.small { max-width: 220px; }
+.lede { max-width: 38rem; margin: 0 auto 1.3rem; color: var(--ink-soft); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: left; margin-bottom: 1.4rem; }
+.box { border: 1px solid var(--line); background: rgba(239, 230, 207, .6); padding: 14px 16px; outline: 1px solid var(--line); outline-offset: -5px; }
+.box-h { font: 700 .74rem var(--serif); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin: 0 0 .5rem; text-align: center; }
+.box ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem; color: var(--ink-soft); font-size: .97rem; }
+.box li::before { content: "✦ "; color: var(--gold); }
+.box b { color: var(--ink); font-weight: 600; }
+.box ul.keys li::before { content: ""; }
+kbd { display: inline-block; min-width: 1.7em; padding: .02rem .35rem; margin-right: .2rem; border: 1px solid var(--ink-soft); border-bottom-width: 2px; font: 700 .72rem var(--mono); color: var(--ink); text-align: center; background: #fff8e8; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; }
+.best { font: .8rem var(--mono); color: var(--teal); margin: 1rem 0 0; }
+.links { margin: 1.2rem 0 0; font: .8rem var(--mono); color: var(--ink-soft); }
+.links a { color: var(--ink-soft); }
+.links a:hover { color: var(--gold); }
+.quote { max-width: 34rem; margin: 1.4rem auto 0; padding: 0 1rem; font: italic 500 1.3rem/1.4 var(--serif); color: var(--ink); }
+.quote cite { display: block; margin-top: .4rem; font: 700 .7rem var(--serif); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-style: normal; }
+.final-stats { list-style: none; padding: 0; margin: 0 auto; display: inline-grid; gap: .3rem; font: .86rem var(--mono); color: var(--ink-soft); text-align: left; }
+.final-stats b { color: var(--ink); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .7rem 1.4rem; border: 1px solid var(--ink); background: transparent; color: var(--ink);
+  font: 700 .8rem/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: transform .15s, background .2s; }
+.btn:hover { transform: translateY(-1px); background: rgba(168, 132, 42, .12); }
+.btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+.btn-gold { background: linear-gradient(135deg, #a8842a, #d9b45a); color: #1e1406; border-color: #6b5214; box-shadow: 0 8px 22px rgba(120, 90, 20, .3); }
+.btn-gold:hover { background: linear-gradient(135deg, #b8922e, #e5c36a); }
+.btn-big { min-height: 58px; padding: 1rem 2rem; font-size: .9rem; }
+.btn-sm { min-height: 38px; padding: .4rem .9rem; font-size: .7rem; }
+
+/* game */
+.screen-game { align-self: flex-start; }
+.game-wrap { position: relative; width: 100%; border: 1px solid var(--gold); outline: 1px solid var(--line); outline-offset: 4px; background: var(--paper); box-shadow: 0 24px 60px rgba(60, 40, 15, .3); touch-action: none; user-select: none; -webkit-user-select: none; }
+#cv { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+.game-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .9rem; }
+.rotate { display: none; font: .72rem var(--mono); color: var(--ink-soft); }
+
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(43, 29, 16, .45); padding: 12px; }
+.ov-card { display: flex; gap: 22px; align-items: center; max-width: 700px; text-align: left; background: var(--paper-2); border: 1px solid var(--gold); outline: 1px solid var(--line); outline-offset: -7px; padding: clamp(14px, 3vw, 28px); box-shadow: 0 20px 50px rgba(30, 20, 5, .4); animation: rise .35s ease both; }
+.ov-img { width: 150px; flex: none; border: 1px solid var(--line); padding: 5px; background: #fff; }
+.ov-kicker { font: 700 .8rem var(--serif); letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin: 0 0 .3rem; }
+.ov-card h2 { font-size: clamp(1.6rem, 3.6vw, 2.4rem); }
+.ov-card .rule.small { margin-left: 0; }
+.ov-text { color: var(--ink-soft); margin: 0 0 1.1rem; font-size: .98rem; }
+
+.touch { display: none; position: absolute; inset: auto 0 0 0; padding: 8px; justify-content: space-between; pointer-events: none; }
+.touch div { display: flex; gap: 10px; pointer-events: auto; }
+.touch button { width: 62px; height: 62px; border-radius: 50%; border: 2px solid var(--gold); background: rgba(246, 239, 220, .55); color: var(--ink); font-size: 1.5rem; line-height: 1; touch-action: none; }
+.touch button.on { background: rgba(201, 162, 39, .5); }
+.touch .jmp { width: 72px; height: 72px; }
+body.touchy .touch { display: flex; }
+body.touchy .rotate { display: inline; }
+
+@media (max-width: 700px) {
+  .cols { grid-template-columns: 1fr; }
+  .ov-card { flex-direction: column; text-align: center; }
+  .ov-card .rule.small { margin-left: auto; }
+  .ov-img { width: 90px; }
+}
+@media (orientation: portrait) { body.touchy .touch { position: static; padding: 12px 6px 4px; background: var(--paper); } }
+@media (orientation: landscape) and (max-height: 520px) {
+  .stage { padding-top: 4px; padding-bottom: 4px; }
+  #cv { max-height: calc(100vh - 60px); width: auto; margin: 0 auto; }
+  body.touchy .rotate { display: none; }
+  .touch button { width: 54px; height: 54px; } .touch .jmp { width: 62px; height: 62px; }
+  .ov-img { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

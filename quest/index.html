@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#efe6cf">
+  <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
+  <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
+  <link rel="stylesheet" href="../fonts.css">
+  <link rel="stylesheet" href="game.css?v=5">
+</head>
+<body>
+<main class="stage">
+
+  <!-- TITLE PAGE -->
+  <section class="screen screen-title" id="s-title">
+    <div class="page">
+      <p class="eyebrow">A side-scrolling adventure by Marcos Garcia</p>
+      <p class="pre">Marcus Aurelius'</p>
+      <h1>The Aurelious Quest</h1>
+      <p class="sub">A Field Guide to Swords, Eagles &amp; Electric Storms</p>
+      <div class="rule"><span>✦</span></div>
+      <figure class="plate"><img src="img/title-sketch.webp" alt="Pencil drawing of Marcus Aurelius beneath a spiral galaxy, from Marcus Aurelius' Guide to the Universe's Grand Mysteries" width="1400" height="933"></figure>
+      <p class="lede">The Shadow Legion has torn the scrolls from the <i>Meditations</i> and scattered them across three chapters of the world: a graphite Rome, a laboratory of lightning, and the cosmos itself. Run, leap and fight to win them back.</p>
+      <div class="cols">
+        <div class="box">
+          <p class="box-h">Your adversaries</p>
+          <ul>
+            <li><b>Soldiers</b> of the Shadow Legion. Strike them, or stomp them.</li>
+            <li><b>Eagles</b> that swoop from the sky.</li>
+            <li><b>Electric fields</b> that crackle on and off. Time your run.</li>
+            <li><b>Chaos, the Storm Legate</b>, at the edge of the cosmos.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <p class="box-h">How to play</p>
+          <ul class="keys">
+            <li><kbd>←</kbd><kbd>→</kbd> run</li>
+            <li><kbd>Space</kbd> or <kbd>↑</kbd> jump</li>
+            <li><kbd>X</kbd> or <kbd>J</kbd> swing the sword</li>
+            <li>On phones, use the on-screen buttons.</li>
+            <li>Find all <b>nine scrolls</b> for a lesson from Marcus.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-gold btn-big" id="start" type="button">Open Chapter I</button></div>
+      <p class="best" id="best" hidden></p>
+      <p class="links"><a href="../game/">Also play: Critical Thinking for a Stoic Mind</a> · <a href="../#apps">Back to Marcos Garcia's site</a></p>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen screen-game" id="s-game" hidden>
+    <div class="game-wrap" id="game-wrap">
+      <canvas id="cv" width="960" height="480" aria-label="Game: The Aurelious Quest, a side-scrolling adventure"></canvas>
+      <div class="overlay" id="overlay" hidden>
+        <div class="ov-card">
+          <img class="ov-img" id="ov-img" src="img/bust-sketch.webp" alt="" width="435" height="520" hidden>
+          <div>
+            <p class="ov-kicker" id="ov-kicker"></p>
+            <h2 id="ov-title"></h2>
+            <div class="rule small"><span>✦</span></div>
+            <p class="ov-text" id="ov-text"></p>
+            <button class="btn btn-gold" id="ov-go" type="button">Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="touch" id="touch" aria-hidden="true">
+        <div class="pad-l"><button data-k="left" type="button">◀</button><button data-k="right" type="button">▶</button></div>
+        <div class="pad-r"><button data-k="attack" type="button" class="atk">⚔</button><button data-k="jump" type="button" class="jmp">⤒</button></div>
+      </div>
+    </div>
+    <div class="game-bar">
+      <button class="btn btn-ghost btn-sm" id="pause" type="button">Pause</button>
+      <button class="btn btn-ghost btn-sm" id="sound" type="button">Sound: on</button>
+      <span class="rotate">Turn your phone sideways for a bigger view.</span>
+    </div>
+  </section>
+
+  <!-- FINAL PAGE -->
+  <section class="screen screen-final" id="s-final" hidden>
+    <div class="page">
+      <p class="eyebrow">The quest is complete</p>
+      <h2 id="final-rank"></h2>
+      <div class="rule"><span>✦</span></div>
+      <figure class="plate small"><img src="img/title-marcus.webp" alt="" width="623" height="756"></figure>
+      <p class="lede" id="final-line"></p>
+      <ul class="final-stats" id="final-stats"></ul>
+      <blockquote class="quote">“The universe is change; our life is what our thoughts make it.”<cite>Marcus Aurelius, Meditations 4.3</cite></blockquote>
+      <div class="actions">
+        <button class="btn btn-gold" id="again" type="button">Begin again</button>
+        <a class="btn btn-ghost" href="../#library">See the books</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script src="game.js?v=5"></script>
+</body>
+</html>
