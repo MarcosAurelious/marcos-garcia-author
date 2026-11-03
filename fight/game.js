@@ -206,7 +206,9 @@
     g.translate(Math.round(x), Math.round(y)); if (face < 0) g.scale(-1, 1);
     g.drawImage(im, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); g.restore();
   }
-  const BGS = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab'].map((n) => img(Q + n + '.webp'));
+  const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield'];
+  const LOCAL_BG = ['bg-battlefield'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
+  const BGS = BGN.map((n) => img((LOCAL_BG.includes(n) ? '' : Q) + n + '.webp'));
 
   /* ================= the roster =================
      each fighter: frames for idle/walk/jump/light/heavy/special/hurt/ko, size, speed, and a special move */
@@ -310,13 +312,13 @@
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
-  const STAGES = [['The Forgotten Forum', 'bg-pantheon'], ['The Iron Labyrinth', 'bg-underworld'], ['The Sky Temple', 'bg-planets'], ['The Sun Forge', 'bg-orbs'], ['The Abyssal Gate', 'bg-pluto'], ['The Throne of Hades', 'bg-eternity']];
+  const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Iron Labyrinth', 'bg-underworld'], ['The Sky Temple', 'bg-planets'], ['The Sun Forge', 'bg-orbs'], ['The Abyssal Gate', 'bg-pluto'], ['The Throne of Hades', 'bg-eternity']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
     [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); });
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: pick(BGS), cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
-    if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab'].indexOf(STAGES[ARC.stage][1])] || G.bg; }
+    if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[BGN.indexOf(STAGES[ARC.stage][1])] || G.bg; }
     startRound();
     MUSIC.play('riot');
   }
