@@ -9,7 +9,7 @@
   <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
   <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=8">
+  <link rel="stylesheet" href="game.css?v=11">
 </head>
 <body>
 <main class="stage">
@@ -23,7 +23,7 @@
       <p class="sub">A Field Guide to Swords, Eagles &amp; Electric Storms</p>
       <div class="rule"><span>✦</span></div>
       <figure class="plate"><img src="img/title-sketch.webp" alt="Pencil drawing of Marcus Aurelius beneath a spiral galaxy, from Marcus Aurelius' Guide to the Universe's Grand Mysteries" width="1400" height="933"></figure>
-      <p class="lede">The Shadow Legion has torn the scrolls from the <i>Meditations</i> and scattered them across three chapters of the world: a graphite Rome, a laboratory of lightning, and the cosmos itself. Run, leap and fight to win them back.</p>
+      <p class="lede">The Shadow Legion has torn the scrolls from the <i>Meditations</i> and scattered them across six chapters of the world: graphite Rome, laboratories of lightning, and the cosmos itself. Run, leap and fight to win them back.</p>
       <div class="cast" aria-label="The cast">
         <figure><img src="img/cast-warrior.webp" alt="" width="157" height="240"><figcaption>Marcus<small>the Roman Warrior</small></figcaption></figure>
         <figure><img src="img/cast-priestess.webp" alt="" width="162" height="240"><figcaption>Sun Priestess<small>heals you at checkpoints</small></figcaption></figure>
@@ -34,11 +34,14 @@
       </div>
       <div class="cols">
         <div class="box">
-          <p class="box-h">Your adversaries</p>
+          <p class="box-h">Six chapters, six bosses</p>
           <ul>
-            <li><b>Chapter I:</b> Shadow Knights and Archers, Pegasus drones, the charging Automaton Minotaur, and the <b>Minotaur Engine</b>.</li>
-            <li><b>Chapter II:</b> Medusa the Artificer, whose gaze turns you to stone, Helios orbs, Tesla coils, and the <b>Dark Commander</b>.</li>
-            <li><b>Chapter III:</b> Chiron's star arrows, the Solar Chariot, Augustus Colossus, the Neptune Leviathan, Medusa the Technomancer, and the <b>Roman Automaton</b>.</li>
+            <li><b>I.</b> The Sketchbook Frontier · <b>the Minotaur Engine</b></li>
+            <li><b>II.</b> The Weird Science Laboratory · <b>the Dark Commander</b></li>
+            <li><b>III.</b> The Cosmic Forum · <b>Augustus Colossus</b></li>
+            <li><b>IV.</b> The Sundial at Dawn · <b>Medusa the Technomancer</b></li>
+            <li><b>V.</b> The Hall of Synchronicity · <b>the Neptune Leviathan</b></li>
+            <li><b>VI.</b> The Edge of Eternity · <b>the Roman Automaton</b></li>
           </ul>
         </div>
         <div class="box">
@@ -49,11 +52,12 @@
             <li><kbd>X</kbd> or <kbd>J</kbd> swing the sword</li>
             <li><kbd>K</kbd> or <kbd>C</kbd> throw a spear. Every <b>5 foes</b> you defeat drops 3 spears.</li>
             <li>On phones, use the on-screen buttons.</li>
-            <li>Find all <b>nine scrolls</b> for a lesson from Marcus.</li>
+            <li>Find all <b>eighteen scrolls</b> for a lesson from Marcus.</li>
           </ul>
         </div>
       </div>
       <div class="actions"><button class="btn btn-gold btn-big" id="start" type="button">Open Chapter I</button></div>
+      <div class="chapters" id="chapters" hidden></div>
       <p class="best" id="best" hidden></p>
       <p class="links"><a href="../game/">Also play: Critical Thinking for a Stoic Mind</a> · <a href="../#apps">Back to Marcos Garcia's site</a></p>
     </div>
@@ -106,6 +110,6 @@
   </section>
 
 </main>
-<script src="game.js?v=10"></script>
+<script src="game.js?v=11"></script>
 </body>
 </html>

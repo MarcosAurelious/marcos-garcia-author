@@ -105,3 +105,7 @@ body.touchy .rotate { display: inline; }
 .touch .thr { width: 52px; height: 52px; font-size: 1.3rem; align-self: flex-end; }
 #cv.tall { aspect-ratio: 4 / 3; }
 @media (orientation: portrait) { body.touchy .touch { gap: 6px; } body.touchy .touch div { gap: 8px; } body.touchy .touch button { width: 64px; height: 64px; } body.touchy .touch .jmp { width: 72px; height: 72px; } body.touchy .touch .thr { width: 52px; height: 52px; } }
+.chapters { margin: 1rem auto 0; max-width: 420px; }
+.chap-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.chap-row .btn { min-width: 52px; font-family: var(--serif); font-size: 1rem; letter-spacing: .05em; }
+.chap-row .btn:disabled { opacity: .35; cursor: not-allowed; }

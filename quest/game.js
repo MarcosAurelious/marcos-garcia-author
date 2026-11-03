@@ -27,7 +27,9 @@
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const img = (src) => { const i = new Image(); i.src = src; return i; };
-  const ART = { sketch: img('img/bg-sketch.webp'), lab: img('img/bg-lab.webp'), cosmos: img('img/bg-cosmos.webp') };
+  const ART = {};
+  const bgImg = (src) => ART[src] || (ART[src] = img(src));
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
   const ATLAS = {"warrior":{"idle":[[0,0,38,56,20,56],[40,0,42,56,21,56],[84,0,39,55,20,55]],"walk":[[125,0,38,50,19,50],[165,0,35,48,18,48],[202,0,37,48,17,48],[241,0,55,48,27,48]],"run":[[298,0,40,49,20,49],[340,0,41,48,20,48],[383,0,39,50,18,50],[424,0,37,48,17,48]],"jump":[[463,0,45,56,22,56],[510,0,38,55,18,55],[550,0,32,51,14,51],[584,0,35,49,17,49]],"attack":[[621,0,42,63,19,63],[665,0,37,64,13,64],[704,0,47,52,26,52],[753,0,46,47,17,47]],"hurt":[[801,0,37,64,18,64],[840,0,33,52,16,52],[875,0,35,51,17,51]],"die":[[912,0,42,46,22,46],[956,0,57,32,28,32],[0,66,52,29,26,29]]},"archer":{"idle":[[54,66,46,52,21,52],[102,66,38,51,15,51],[142,66,40,51,16,51]],"walk":[[184,66,43,48,19,48],[229,66,32,48,13,48],[263,66,35,50,16,50]],"run":[[300,66,46,48,20,48],[348,66,38,48,16,48],[388,66,41,48,20,48]],"jump":[[431,66,45,53,20,53],[478,66,38,49,14,49],[518,66,29,52,13,52]],"attack":[[549,66,48,50,16,50],[599,66,37,53,13,53],[638,66,44,51,14,51]],"hurt":[[684,66,48,51,21,51],[734,66,41,48,16,48],[777,66,35,52,12,52]],"die":[[814,66,48,38,26,38],[864,66,44,24,22,24],[910,66,40,27,19,27]]},"knight":{"idle":[[952,66,34,54,16,54],[988,66,34,53,15,53],[0,122,31,53,14,53]],"walk":[[33,122,34,49,15,49],[69,122,32,49,15,49],[103,122,36,48,18,48]],"run":[[141,122,39,50,17,50],[182,122,37,49,18,49],[221,122,35,50,16,50]],"jump":[[258,122,32,52,14,52],[292,122,34,50,17,50],[328,122,28,50,11,50]],"attack":[[358,122,42,64,20,64],[402,122,20,56,12,56],[424,122,36,59,12,59],[462,122,44,57,27,57]],"hurt":[[508,122,32,50,15,50],[542,122,34,48,16,48],[578,122,48,48,18,48]],"die":[[628,122,38,41,18,41],[668,122,42,29,19,29],[712,122,43,26,19,26]]},"commander":{"idle":[[757,122,72,104,37,104],[831,122,72,105,35,105],[905,122,67,100,36,100]],"walk":[[0,229,62,93,30,93],[64,229,68,93,32,93],[134,229,66,93,33,93]],"run":[[202,229,79,93,39,93],[283,229,79,91,36,91],[364,229,81,93,40,93]],"jump":[[447,229,74,100,29,100],[523,229,85,98,36,98],[610,229,70,100,34,100]],"attack":[[682,229,84,113,44,113],[768,229,86,115,37,115],[856,229,115,118,62,118]],"hurt":[[0,349,82,109,45,109],[84,349,70,88,34,88],[156,349,67,103,31,103]],"die":[[225,349,85,86,44,86],[312,349,85,79,40,79],[399,349,84,53,40,53]]},"priestess":{"idle":[[485,349,59,60,24,60],[546,349,49,59,24,59]],"walk":[[597,349,56,55,23,55],[655,349,50,54,24,54]],"run":[[707,349,54,56,25,56],[763,349,52,54,24,54]],"jump":[[817,349,55,62,24,62],[874,349,56,59,25,59]],"attack":[[932,349,40,69,23,69],[0,460,58,71,24,71]],"hurt":[[60,460,55,58,27,58],[117,460,73,61,38,61]],"die":[[192,460,67,43,32,43],[261,460,67,56,34,56]]},"companion":{"idle":[[330,460,21,30,10,30],[353,460,22,30,11,30],[377,460,22,32,11,32]],"walk":[[401,460,20,31,9,31],[423,460,20,28,10,28],[445,460,20,30,10,30],[467,460,19,29,9,29]],"run":[[488,460,29,33,11,33],[519,460,23,32,12,32],[544,460,22,32,11,32]],"jump":[[568,460,23,32,10,32],[593,460,24,35,11,35],[619,460,22,31,10,31]],"attack":[[643,460,35,37,23,37],[680,460,29,34,15,34],[711,460,32,40,18,40]],"hurt":[[745,460,27,33,14,33],[774,460,28,32,14,32],[804,460,27,33,14,33]],"die":[[833,460,22,31,9,31]]},"fx":{"slash":[[857,460,35,48,17,24]],"heal":[[894,460,73,70,36,35]],"swirl":[[0,533,79,40,39,20]],"comet":[[81,533,63,26,31,13]],"sun":[[146,533,28,34,14,17]],"star":[[176,533,27,28,13,14]],"dust":[[205,533,27,28,13,14]]},"eagle":{"fly":[[234,533,41,41,18,20],[277,533,38,39,16,19]],"dive":[[317,533,32,44,14,22],[351,533,42,44,20,22],[395,533,48,49,25,24],[445,533,43,53,21,26]],"glide":[[490,533,53,34,25,17],[545,533,41,29,20,14],[588,533,47,31,23,15]],"hurt":[[637,533,33,27,15,13],[672,533,38,34,22,17]],"die":[[712,533,46,33,20,16],[760,533,47,25,19,12]]},"coil":{"idle":[[809,533,58,91,29,91],[869,533,61,90,32,90],[932,533,63,95,30,95]],"beam":[[0,630,59,93,29,93],[61,630,57,91,28,91],[120,630,233,90,27,90]],"arc":[[355,630,64,99,34,99],[421,630,64,99,32,99],[487,630,108,99,41,99]],"hurt":[[597,630,57,98,28,98],[656,630,56,91,28,91],[714,630,46,96,25,96]],"die":[[762,630,59,90,30,90],[823,630,85,104,37,104]]},"boss":{"idle":[[0,0,122,110,63,110],[124,0,104,106,54,106],[230,0,125,108,65,108],[357,0,116,107,58,107]],"walk":[[475,0,110,96,58,96],[587,0,65,96,30,96],[654,0,74,96,35,96],[730,0,74,96,31,96]],"run":[[806,0,95,96,48,96],[903,0,75,96,31,96],[0,112,99,96,44,96]],"slam":[[101,112,178,95,51,95]],"blast":[[281,112,264,98,43,98]],"summon":[[547,112,187,98,52,98]],"thunder":[[736,112,191,108,59,108]],"shield":[[0,222,154,108,42,108]],"hurt":[[156,222,122,110,56,110]],"die":[[280,222,144,112,46,112]]},"bfx":{"spear":[[426,222,80,48,40,24]],"orb":[[508,222,33,35,16,17]],"drone":[[543,222,33,27,16,13]],"bolt":[[578,222,60,103,30,51]],"ring":[[640,222,121,107,60,53]],"burst":[[763,222,72,66,36,33]],"smoke":[[837,222,71,68,35,34]]}};
   /* ================= sprites (Marcos Garcia's character sheets) ================= */
   const SPR = img('img/sprites.webp'), BOSSIMG = img('img/boss.webp'), ENEMYIMG = img('img/enemies.webp');
@@ -57,6 +59,15 @@
     ['Three echoes of one rumor are still one rumor.', 'A lesson for the Stoic mind'],
     ['The best revenge is not to be like your enemy.', 'after Meditations 6.6'],
     ['Waste no more time arguing about what a good person should be. Be one.', 'after Meditations 10.16'],
+    ['Confine yourself to the present.', 'after Meditations 7.29'],
+    ['How much time he gains who does not look to see what his neighbor says or does.', 'after Meditations 4.18'],
+    ['The happiness of your life depends upon the quality of your thoughts.', 'after Meditations 5.16'],
+    ['A strong opinion is not evidence. Ask what would change your mind.', 'A lesson for the Stoic mind'],
+    ['When you are offended, your judgment is what offends you.', 'after Meditations 11.18'],
+    ['Look back over the past, with its changing empires, and you can foresee the future too.', 'after Meditations 7.49'],
+    ['Loss is nothing else but change, and change is nature\'s delight.', 'after Meditations 9.35'],
+    ['Never confuse a confident voice with a correct one.', 'A lesson for the Stoic mind'],
+    ['Dwell on the beauty of life. Watch the stars, and see yourself running with them.', 'after Meditations 7.47'],
   ];
 
   /* ================= level builder ================= */
@@ -79,7 +90,7 @@
   }
 
   const LEVELS = [
-    { name: 'The Sketchbook Frontier', theme: 0, intro: 'Rome, drawn in graphite beneath a spiral galaxy. The Shadow Legion has torn the first scrolls from the Meditations, and the Minotaur Engine guards the end of the road.', art: 'img/bust-sketch.webp', build() {
+    { name: 'The Sketchbook Frontier', theme: 0, intro: 'Rome, drawn in graphite beneath a spiral galaxy. The Shadow Legion has torn the first scrolls from the Meditations, and the Minotaur Engine guards the end of the road.', art: 'img/bust-sketch.webp', bg: 'img/bg-sketch.webp', build() {
       const L = builder(150);
       L.ground(0, 24); L.ent('start', 2, 11);
       L.note(4.2, 4.2, 'Golden SPQR block:\nstrike it from below', 9.5, 8.2); L.note(14.5, 6.5, 'Soldier of the Shadow Legion:\nthe sword, or a firm stomp', 19.6, 10.4);
@@ -106,7 +117,7 @@
       L.ent('flag', 146, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Weird Science Laboratory', theme: 1, intro: 'Ball lightning, copper coils and Faraday cages. Shadow archers guard the ledges, and at the far end the Dark Commander waits with his spear.', art: 'img/plate-lightning.webp', build() {
+    { name: 'The Weird Science Laboratory', theme: 1, intro: 'Ball lightning, copper coils and Faraday cages. Shadow archers guard the ledges, and at the far end the Dark Commander waits with his spear.', art: 'img/plate-lightning.webp', bg: 'img/bg-lab.webp', build() {
       const L = builder(170);
       L.ground(0, 20); L.ent('start', 2, 11);
       L.coins(5, 10, 4); L.box(8, 8, 'coin'); L.set(9, 8, 'B'); L.box(10, 8, 'coin');
@@ -132,7 +143,7 @@
       L.ent('flag', 166, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Cosmic Forum', theme: 2, intro: 'At the edge of the cosmos stands the Roman Automaton, a forgotten machine of the empire awakened by forbidden power. Recover the last scrolls and face it with a steady mind.', art: 'img/bg-cosmos.webp', build() {
+    { name: 'The Cosmic Forum', theme: 2, intro: 'Among the stars stands Augustus Colossus, a giant statue animated by lightning. Recover the scrolls and bring it down.', art: 'img/bg-cosmos.webp', bg: 'img/bg-cosmos.webp', build() {
       const L = builder(196);
       L.ground(0, 14); L.ent('start', 2, 11);
       L.ground(18, 22); L.ground(26, 45);
@@ -152,8 +163,72 @@
       L.field(137, 8, 11); L.field(140, 8, 11); L.field(143, 8, 11);
       L.plat(148, 8, 3); L.ent('scroll', 149, 7, { i: 8 }); L.box(153, 8, 'laurel'); L.ent('chariot', 150, 3); L.ent('chiron', 156, 11);
       L.col(160, 11, 11);
-      L.ent('boss', 180, 11);
+      L.ent('bigboss', 180, 11, { kind: 'colossus', minX: 162 });
       L.ent('flag', 190, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Sundial at Dawn', theme: 0, intro: 'Morning over the seven hills. Minotaurs and Pegasus drones patrol the old observatory, and Medusa the Technomancer waits beside the great sundial.', art: 'img/card-globe.webp', bg: 'img/bg-dawn.webp', build() {
+      const L = builder(192);
+      L.ground(0, 20); L.ent('start', 2, 11);
+      L.coins(5, 10, 4); L.set(9, 8, 'B'); L.box(10, 8, 'coin'); L.set(11, 8, 'B'); L.ent('soldier', 15, 11); L.ent('pegasus', 18, 5);
+      L.ground(24, 48);
+      L.plat(27, 9, 3); L.ent('archer', 28, 8); L.plat(31, 6, 3); L.ent('scroll', 32, 5, { i: 9 });
+      L.ent('minotaur', 38, 11); L.field(43, 8, 11); L.coins(45, 10, 3);
+      L.ground(52, 80); L.ent('check', 53, 11);
+      L.ent('eagle', 58, 4); L.ent('chiron', 62, 11); L.stairs(66, 3); L.coins(70, 7, 3); L.ent('colossus', 74, 11);
+      L.plat(82, 10, 2);
+      L.ground(85, 120);
+      L.ent('pegasus', 88, 5); L.ent('soldier', 92, 11); L.plat(95, 8, 4); L.ent('archer', 96, 7); L.plat(101, 5, 3); L.ent('scroll', 102, 4, { i: 10 });
+      L.field(108, 8, 11); L.field(112, 8, 11); L.ent('minotaur', 116, 11);
+      L.ground(124, 192); L.ent('check', 125, 11);
+      L.ent('chiron', 132, 11); L.ent('eagle', 136, 3); L.set(139, 8, 'B'); L.box(140, 8, 'heart'); L.set(141, 8, 'B');
+      L.ent('colossus', 146, 11); L.plat(150, 8, 3); L.ent('scroll', 151, 7, { i: 11 }); L.ent('pegasus', 156, 5); L.ent('archer', 160, 11);
+      L.ent('check', 166, 11);
+      L.ent('bigboss', 178, 11, { kind: 'techno', minX: 168 });
+      L.ent('flag', 187, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Hall of Synchronicity', theme: 1, intro: 'A hall of clocks, cards and coincidence. Helios orbs hum overhead, and beneath the flooded far end sleeps the Neptune Leviathan.', art: 'img/card-power.webp', bg: 'img/bg-hall.webp', build() {
+      const L = builder(196);
+      L.ground(0, 22); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.ent('helios', 10, 6); L.ent('centurion', 16, 11); L.field(20, 8, 11);
+      L.ground(26, 52);
+      L.plat(29, 8, 3); L.ent('scroll', 30, 7, { i: 12 }); L.ent('medusa', 36, 11); L.ent('archer', 42, 11);
+      L.set(45, 8, 'B'); L.box(46, 8, 'coin'); L.box(47, 8, 'heart'); L.field(50, 8, 11);
+      L.plat(54, 9, 2);
+      L.ground(57, 90); L.ent('check', 58, 11);
+      L.ent('helios', 64, 6); L.ent('soldier', 66, 11); L.col(70, 10, 11); L.col(71, 10, 11); L.ent('medusa', 76, 11); L.ent('chariot', 80, 3);
+      L.field(84, 8, 11); L.coins(86, 10, 3);
+      L.ground(94, 130);
+      L.plat(97, 8, 3); L.ent('archer', 98, 7); L.plat(101, 5, 3); L.ent('scroll', 102, 4, { i: 13 });
+      L.ent('centurion', 106, 11); L.ent('helios', 112, 5); L.field(116, 8, 11); L.field(119, 8, 11); L.ent('medusa', 125, 11);
+      L.ground(134, 178); L.ent('check', 135, 11);
+      L.ent('techno', 142, 11); L.ent('eagle', 146, 3); L.plat(150, 8, 3); L.ent('scroll', 151, 7, { i: 14 }); L.box(155, 8, 'laurel');
+      L.ent('centurion', 158, 11); L.ent('helios', 162, 5); L.ent('check', 170, 11);
+      L.ent('bigboss', 180, 11, { kind: 'leviathan' });
+      L.ground(183, 196);
+      L.ent('flag', 192, 11, { hidden: true });
+      return L;
+    } },
+    { name: 'The Edge of Eternity', theme: 2, intro: 'Rome beneath a spiral of stars, at the end of all roads. Every foe of the quest returns here, and at the summit the Roman Automaton, a forgotten machine of the empire, awakens.', art: 'img/card-bust.webp', bg: 'img/bg-eternity.webp', build() {
+      const L = builder(212);
+      L.ground(0, 16); L.ent('start', 2, 11);
+      L.coins(5, 10, 3); L.ent('pegasus', 12, 5);
+      L.ground(20, 44);
+      L.field(24, 8, 11); L.ent('chiron', 30, 11); L.plat(33, 8, 3); L.ent('scroll', 34, 7, { i: 15 }); L.ent('minotaur', 40, 11);
+      L.plat(46, 9, 2, 'B');
+      L.ground(49, 84); L.ent('check', 50, 11);
+      L.ent('techno', 56, 11); L.ent('chariot', 60, 3); L.field(63, 7, 11); L.field(67, 7, 11); L.ent('colossus', 73, 11); L.box(77, 8, 'heart');
+      L.ent('leviathan', 86, 11);
+      L.ground(89, 120);
+      L.plat(92, 8, 3); L.ent('archer', 93, 7); L.plat(96, 5, 3); L.ent('scroll', 97, 4, { i: 16 });
+      L.ent('pegasus', 102, 5); L.ent('minotaur', 106, 11); L.field(112, 8, 11); L.ent('chiron', 117, 11);
+      L.ground(124, 212); L.ent('check', 125, 11);
+      L.ent('colossus', 132, 11); L.ent('chariot', 136, 3); L.field(140, 8, 11); L.field(143, 8, 11); L.field(146, 8, 11);
+      L.plat(151, 8, 3); L.ent('scroll', 152, 7, { i: 17 }); L.box(156, 8, 'laurel'); L.ent('techno', 160, 11); L.ent('helios', 165, 5); L.ent('centurion', 170, 11);
+      L.ent('check', 180, 11);
+      L.ent('boss', 198, 11, { minX: 186 });
+      L.ent('flag', 207, 11, { hidden: true });
       return L;
     } },
   ];
@@ -270,7 +345,7 @@
       toggle() { on = !on; store.set('aq-music', on); if (on) this.resume(); else halt(0.1); return on; },
     };
   })();
-  const chapterTrack = () => ['ch1', 'ch2', 'ch3'][S.level];
+  const chapterTrack = () => ['ch1', 'ch2', 'ch3'][LEVELS[S.level].theme];
 
   /* ================= input ================= */
   const keys = { left: false, right: false, jump: false, attack: false, throw: false };
@@ -300,11 +375,11 @@
   let S = null;   // whole run
   let L = null;   // current level
 
-  function newRun() {
-    S = { level: 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false };
+  function newRun(start) {
+    S = { level: start || 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false };
     $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
     window.scrollTo({ top: 0 });
-    loadLevel(0, true);
+    loadLevel(start || 0, true);
   }
 
   function loadLevel(n, showIntro) {
@@ -332,14 +407,24 @@
       else if (e.type === 'engine') { L.boss = { type: 'engine', big: true, title: 'THE MINOTAUR ENGINE', x, y: (e.ty + 1) * T - 90, w: 60, h: 90, vx: 0, vy: 0, hp: 7, maxHp: 7, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1.2, minX: 133 * T }; L.enemies.push(L.boss); }
       else if (e.type === 'archer') L.enemies.push({ type: 'archer', x: x + 4, y: (e.ty + 1) * T - 38, w: 24, h: 38, vx: 0, vy: 0, hp: 1, face: -1, hurt: 0, onGround: false, anim: Math.random() * 6, shot: rand(1, 2.4), draw: 0 });
       else if (e.type === 'commander') { L.boss = { type: 'commander', big: true, title: 'THE DARK COMMANDER', x, y: (e.ty + 1) * T - 86, w: 40, h: 86, vx: 0, vy: 0, hp: 6, maxHp: 6, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1, cd: 1.4, minX: 151 * T }; L.enemies.push(L.boss); }
-      else if (e.type === 'boss') { L.boss = { type: 'boss', big: true, title: 'THE ROMAN AUTOMATON', x, y: (e.ty + 1) * T - 100, w: 56, h: 100, vx: 0, vy: 0, hp: 14, maxHp: 14, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1.5, phase: 1, count: 0, shieldCd: 4, shield: 0, minX: 162 * T }; L.enemies.push(L.boss); }
+      else if (e.type === 'bigboss') {
+        const C = { colossus: { w: 72, h: 126, hp: 10, title: 'AUGUSTUS COLOSSUS', wake: 'Augustus Colossus, a giant statue animated by lightning. Dodge the boulders, and strike when it slams.', state: 'walk' },
+          techno: { w: 40, h: 78, hp: 9, title: 'MEDUSA THE TECHNOMANCER', wake: 'Medusa the Technomancer. Her gaze turns you to stone, so never linger in front of her eyes.', state: 'idle' },
+          leviathan: { w: 130, h: 96, hp: 9, title: 'THE NEPTUNE LEVIATHAN', wake: 'The Neptune Leviathan rises from the deep. Strike only while it is above the water.', state: 'sub' } }[e.kind];
+        const b = { type: e.kind, big: true, scale: 1.5, title: C.title, wakeText: C.wake, x, y: (e.ty + 1) * T - C.h, w: C.w, h: C.h, vx: 0, vy: 0, hp: C.hp, maxHp: C.hp, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: C.state, st: 1.2, n: 0, minX: e.minX ? e.minX * T : 0 };
+        if (e.kind === 'leviathan') Object.assign(b, { x: e.tx * T + T - C.w / 2, y: 12 * T - C.h, ghost: true, fly: true, pit: [e.tx - 1, e.tx + 2] });
+        if (e.kind === 'techno') b.shot = 0;
+        L.boss = b; L.enemies.push(b);
+      }
+      else if (e.type === 'boss') { L.boss = { type: 'boss', big: true, title: 'THE ROMAN AUTOMATON', x, y: (e.ty + 1) * T - 100, w: 56, h: 100, vx: 0, vy: 0, hp: 14, maxHp: 14, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1.5, phase: 1, count: 0, shieldCd: 4, shield: 0, minX: (e.minX || 162) * T }; L.enemies.push(L.boss); }
     });
     L.check = { x: L.start.x, y: L.start.y };
     spawnPlayer();
     C = { x: P.x - 20, y: P.y - 30, anim: 0, cast: 0 };
     S.mode = 'play';
-    MUSIC.play(['ch1', 'ch2', 'ch3'][n]);
-    if (showIntro) overlay(`Chapter ${['I', 'II', 'III'][n]}`, def.name, def.intro, 'Begin the chapter', () => {}, def.art);
+    MUSIC.play(['ch1', 'ch2', 'ch3'][def.theme]);
+    if (n > (store.get('aq-unlocked') || 0)) store.set('aq-unlocked', n);
+    if (showIntro) overlay(`Chapter ${ROMAN[n]} of ${LEVELS.length}`, def.name, def.intro, 'Begin the chapter', () => {}, def.art);
   }
 
   let P = null, C = null;   // Marcus, and his Cosmic Companion
@@ -410,7 +495,7 @@
     if (en.hp <= 0) {
       en.dead = true; S.kills += 1; L.levelKills += 1; S.killStreak += 1;
       if (S.killStreak >= 5) { S.killStreak = 0; const gy = Math.min(en.y + en.h - 30, 12 * T - 34); L.items.push({ type: 'spear', x: en.x + en.w / 2 - 14, y: Math.max(60, gy), w: 28, h: 28, rise: 0.3 }); float(en.x - 10, en.y - 24, 'A spear!', '#8fe6d2'); }
-      L.corpses.push({ set: CORPSE[en.type], x: en.x + en.w / 2, y: en.type === 'eagle' ? en.y + en.h / 2 : en.y + en.h, face: en.face, t: 0, vy: 0, eagle: en.type === 'eagle' || en.type === 'pegasus' || en.type === 'chariot' || en.type === 'helios', big: en.big, scale: en.type === 'centurion' ? 1.12 : 1 });
+      L.corpses.push({ set: CORPSE[en.type], x: en.x + en.w / 2, y: en.type === 'eagle' ? en.y + en.h / 2 : en.y + en.h, face: en.face, t: 0, vy: 0, eagle: en.type === 'eagle' || en.type === 'pegasus' || en.type === 'chariot' || en.type === 'helios', big: en.big, scale: en.scale || (en.type === 'centurion' ? 1.12 : 1) });
       burst(en.x + en.w / 2, en.y + en.h / 2, ['#ffd27a', '#c9a227', '#8fe6d2', '#fff'], en.big ? 70 : 18, en.big ? 320 : 200);
       const pts = en.type === 'boss' ? 1000 : en.big ? 500 : ['colossus', 'chariot', 'leviathan', 'minotaur'].includes(en.type) ? 150 : 50;
       float(en.x, en.y - 6, '+' + pts, '#e7c46a'); S.score += pts;
@@ -418,7 +503,7 @@
         MUSIC.pause(); setTimeout(() => { if (S && S.mode === 'play') MUSIC.play(chapterTrack()); }, 2600);
         SFX.win(); L.shake = 0.6; if (L.flag) L.flag.hidden = false;
         L.drones = []; L.waves = []; L.strikes = []; L.orbs = [];
-        toast(en.type === 'boss' ? 'The Roman Automaton falls silent. The last road home is open.' : en.type === 'engine' ? 'The Minotaur Engine grinds to a halt. The eagle standard is yours.' : 'The Dark Commander yields. The eagle standard is yours.', 'Reach the standard'); L.shots = []; L.zones = [];
+        toast(en.type === 'boss' ? 'The Roman Automaton falls silent. The last road home is open.' : en.type === 'engine' ? 'The Minotaur Engine grinds to a halt. The eagle standard is yours.' : en.type === 'commander' ? 'The Dark Commander yields. The eagle standard is yours.' : en.title.charAt(0) + en.title.slice(1).toLowerCase().replace(/(^|\s)(the|of)(?=\s)/g, '$1$2') + ' is defeated. The eagle standard is yours.', 'Reach the standard'); L.shots = []; L.zones = [];
       } else SFX.hit();
     } else { SFX.hit(); burst(en.x + en.w / 2, en.y + 10, ['#fff', '#8fe6d2'], 8, 140); }
     return true;
@@ -522,7 +607,10 @@
           if (en.shot <= 0) { en.shot = rand(2.1, 2.9); SFX.slash(); L.arrows.push({ x: en.x + en.w / 2 + en.face * 18, y: en.y + 17, vx: en.face * 330, life: 3 }); }
         } else en.draw = 0;
       } else if (en.type === 'commander') updateCommander(en, dt);
-      else if (NEW_AI[en.type]) NEW_AI[en.type](en, dt);
+      else if (NEW_AI[en.type]) {
+        if (en.wakeText && !wake(en, en.wakeText)) { /* sleeping */ }
+        else { NEW_AI[en.type](en, en.wakeText ? dt * 1.25 : dt); if (en.wakeText && en.minX) en.x = clamp(en.x, en.minX, (L.w - 4) * T); }
+      }
       else if (en.type === 'soldier' || en.type === 'centurion') {
         const speed = en.type === 'centurion' ? 70 : 55;
         if (en.hurt <= 0) en.vx = en.face * speed;
@@ -620,7 +708,7 @@
       if (en.state === 'idle') { if (near(en, 420)) en.face = Math.sign(dx) || -1;
         if (en.st <= 0 && near(en, 380)) { en.n++; if (en.n % 2) { en.state = 'gazeWind'; en.st = 0.7; } else { en.state = 'serp'; en.st = 0.9; en.spawned = 0; } } }
       else if (en.state === 'gazeWind') { if (en.st <= 0) { en.state = 'gaze'; en.st = 0.7; SFX.zap();
-          const len = en.type === 'techno' ? 170 : 140, feet = en.y + en.h; L.zones.push({ x: en.face > 0 ? en.x + en.w : en.x - len, y: feet - 56, w: len, h: 46, t: 0.7, stone: true }); } }
+          const len = (en.type === 'techno' ? 170 : 140) * (en.scale || 1), feet = en.y + en.h; L.zones.push({ x: en.face > 0 ? en.x + en.w : en.x - len, y: feet - 56, w: len, h: 46, t: 0.7, stone: true }); } }
       else if (en.state === 'gaze') { if (en.st <= 0) { en.state = 'idle'; en.st = rand(1.6, 2.4); } }
       else if (en.state === 'serp') { const want = 3 - Math.ceil(en.st / 0.3); while (en.spawned < want && en.spawned < 3) { en.spawned++; L.shots.push({ x: en.x + en.w / 2 + en.face * 20, y: en.y + en.h - 12, vx: en.face * 190, vy: 0, r: 9, life: 3.5, set: en.type === 'techno' ? 'efx' : 'efx', anim: 'serpent', scale: 0.9, breakable: true, face: en.face }); }
         if (en.st <= 0) { en.state = 'idle'; en.st = rand(1.6, 2.4); } }
@@ -800,8 +888,8 @@
   // Each chapter's scenery (paper + book illustration + mirrored copy) is painted once into a strip, then scrolled with parallax.
   const strips = {};
   function strip(th) {
-    if (strips[th]) return strips[th];
-    const im = [ART.sketch, ART.lab, ART.cosmos][th]; if (!im.complete || !im.naturalWidth) return null;
+    const key = L.def.bg; if (strips[key]) return strips[key];
+    const im = bgImg(key); if (!im.complete || !im.naturalWidth) return null;
     const t = THEMES[th], h = 600, w = Math.round(im.naturalWidth * (h / im.naturalHeight));
     const c = document.createElement('canvas'); c.width = w * 2; c.height = h; const g = c.getContext('2d');
     g.fillStyle = t.paper; g.fillRect(0, 0, c.width, h);
@@ -809,7 +897,7 @@
     g.drawImage(im, 0, 0, w, h); g.save(); g.translate(w * 2, 0); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore();
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
     if (th === 0) { g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, c.width, h); }
-    return (strips[th] = c);
+    return (strips[key] = c);
   }
   const vignette = (() => { const c = document.createElement('canvas'); c.width = VW; c.height = 480; const g = c.getContext('2d');
     const v = g.createRadialGradient(VW / 2, 240, 168, VW / 2, 240, VW * 0.65); v.addColorStop(0, 'rgba(120,90,50,0)'); v.addColorStop(1, 'rgba(120,90,50,0.35)'); g.fillStyle = v; g.fillRect(0, 0, VW, VH); return c; })();
@@ -981,8 +1069,9 @@
     if (t === 'medusa' || t === 'techno') {
       const a = st === 'gaze' ? (t === 'medusa' ? 'gaze' : 'gaze') : st === 'serp' ? (t === 'medusa' ? 'serp' : 'sum') : 'idle';
       const f = st === 'gaze' && t === 'techno' ? 1 : st === 'serp' ? (0.9 - en.st) * 3 : en.anim * 3;
-      if (flashOn(st === 'gazeWind')) { ctx.save(); ctx.shadowColor = '#e7c46a'; ctx.shadowBlur = 20; spr(t, 'idle', 0, x, feet + 1, en.face, 1, blink); ctx.restore(); }
-      else spr(t, a, f, x, feet + 1, en.face, 1, blink);
+      const sc = en.scale || 1;
+      if (flashOn(st === 'gazeWind')) { ctx.save(); ctx.shadowColor = '#e7c46a'; ctx.shadowBlur = 20; spr(t, 'idle', 0, x, feet + 1, en.face, sc, blink); ctx.restore(); }
+      else spr(t, a, f, x, feet + 1, en.face, sc, blink);
       if (st === 'gaze' && t === 'medusa') { ctx.save(); ctx.globalAlpha = 0.35; ctx.fillStyle = '#e7c46a'; const z = 140; ctx.beginPath(); ctx.moveTo(x + en.face * 12, feet - 44); ctx.lineTo(x + en.face * z, feet - 60); ctx.lineTo(x + en.face * z, feet - 8); ctx.closePath(); ctx.fill(); ctx.restore(); }
       return;
     }
@@ -992,9 +1081,9 @@
       spr('helios', st === 'orbs' ? 'orbs' : 'idle', en.anim * 4, cx, cy, 1, 1.05, blink); return; }
     if (t === 'chiron') { spr('chiron', en.hurt > 0 ? 'idle' : en.draw ? 'shoot' : 'idle', en.anim * 3, x, feet + 1, en.face, 1, blink); return; }
     if (t === 'chariot') { spr('chariot', 'move', 0, x, en.y + en.h / 2, en.face, 1, blink); return; }
-    if (t === 'colossus') { const a = st === 'throw' ? 'throw' : st === 'slam' ? 'slam' : 'idle', f = st === 'throw' ? (en.st < 0.35 ? 1 : 0) : st === 'slam' ? (0.9 - en.st) * 3.4 : en.anim * 3; spr('colossus', a, f, x, feet + 1, en.face, 1, blink); return; }
+    if (t === 'colossus') { const a = st === 'throw' ? 'throw' : st === 'slam' ? 'slam' : 'idle', f = st === 'throw' ? (en.st < 0.35 ? 1 : 0) : st === 'slam' ? (0.9 - en.st) * 3.4 : en.anim * 3; spr('colossus', a, f, x, feet + 1, en.face, en.scale || 1, blink); return; }
     if (t === 'leviathan') { const a = st === 'sub' ? 'idle' : st === 'emerge' ? 'emerge' : st === 'tent' ? 'tent' : st === 'cannon' ? 'cannon' : 'emerge';
-      const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 200, 0, 400, 12 * T + 14); ctx.clip(); spr('leviathan', a, 0, x, 12 * T + 18 + sink, en.face, 1, blink); ctx.restore(); return; }
+      const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 200, 0, 400, 12 * T + 14); ctx.clip(); spr('leviathan', a, 0, x, 12 * T + 18 * (en.scale || 1) + sink, en.face, en.scale || 1, blink); ctx.restore(); return; }
   }
   function drawSpearAt(x, y, ang, scale) {
     const fr = ATLAS.bfx && ATLAS.bfx.spear; if (!fr || !BOSSIMG.complete) return;
@@ -1103,7 +1192,6 @@
     ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1.4; ctx.stroke();
   }
 
-  const ROMAN = ['I', 'II', 'III'];
   function drawHud() {
     ctx.save(); ctx.scale(HS, HS);
     // a parchment strip with the gold double rule from the books
@@ -1113,7 +1201,7 @@
     ctx.textBaseline = 'middle'; ctx.font = '700 19px "Cormorant Garamond", Georgia, serif';
     ctx.fillStyle = '#c9a227'; ctx.beginPath(); ctx.arc(172, 20, 8, 0, 7); ctx.fill(); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1.3; ctx.stroke();
     ctx.fillStyle = '#2b1d10'; ctx.fillText('× ' + S.coins, 186, 21);
-    ctx.fillStyle = '#f6eed8'; ctx.fillRect(262, 13, 16, 14); ctx.strokeRect(262, 13, 16, 14); ctx.fillStyle = '#2b1d10'; ctx.fillText(`${S.scrolls.size} of 9 scrolls`, 286, 21);
+    ctx.fillStyle = '#f6eed8'; ctx.fillRect(262, 13, 16, 14); ctx.strokeRect(262, 13, 16, 14); ctx.fillStyle = '#2b1d10'; ctx.fillText(`${S.scrolls.size} of ${SCROLLS.length} scrolls`, 286, 21);
     drawSpearAt(424, 22, -0.75, 0.32); ctx.fillStyle = S.spears ? '#2b1d10' : '#9a8a74'; ctx.fillText(`× ${S.spears}`, 442, 21); if (!S.spears && HS === 1) { ctx.font = 'italic 500 15px "Cormorant Garamond", Georgia, serif'; ctx.fillText(`${5 - S.killStreak} more foe${5 - S.killStreak === 1 ? '' : 's'} for a spear`, 478, 21); ctx.font = '700 19px "Cormorant Garamond", Georgia, serif'; }
     ctx.textAlign = 'right'; ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif'; if (HS === 1) ctx.fillText(`Chapter ${ROMAN[S.level]} · ${L.def.name}`, HW - 14, 21); ctx.textAlign = 'left';
     if (L.boss && L.bossOn && !L.boss.dead) {
@@ -1204,7 +1292,7 @@
     if (S.mode !== 'play') return;
     SFX.win(); S.score += 300;
     const n = S.level, found = [...S.scrolls].filter((i) => Math.floor(i / 3) === n).length;
-    if (n + 1 < LEVELS.length) overlay(`Chapter ${['I', 'II', 'III'][n]} complete`, LEVELS[n].name, `Coins: ${L.levelCoins} · Foes defeated: ${L.levelKills} · Scrolls found here: ${found} of 3${L.levelDeaths ? ' · Falls: ' + L.levelDeaths : ''}`, `On to ${LEVELS[n + 1].name}`, () => loadLevel(n + 1, true));
+    if (n + 1 < LEVELS.length) overlay(`Chapter ${ROMAN[n]} complete`, LEVELS[n].name, `Coins: ${L.levelCoins} · Foes defeated: ${L.levelKills} · Scrolls found here: ${found} of 3${L.levelDeaths ? ' · Falls: ' + L.levelDeaths : ''}`, `On to ${LEVELS[n + 1].name}`, () => loadLevel(n + 1, true));
     else finish();
   }
 
@@ -1212,18 +1300,18 @@
     MUSIC.stop();
     S.mode = 'done';
     const sc = S.scrolls.size;
-    const rank = sc === 9 && S.deaths <= 3 ? 'Philosopher-King' : sc >= 7 ? 'Stoic Champion' : sc >= 4 ? 'Legionary of Virtue' : 'Student of the Stoa';
+    const all = SCROLLS.length, rank = sc === all && S.deaths <= 6 ? 'Philosopher-King' : sc >= all * 0.75 ? 'Stoic Champion' : sc >= all * 0.4 ? 'Legionary of Virtue' : 'Student of the Stoa';
     S.score += Math.max(0, 2000 - S.deaths * 150);
     $('#s-game').hidden = true; $('#s-final').hidden = false;
     $('#final-rank').textContent = rank;
-    $('#final-line').textContent = sc === 9 ? 'You recovered every scroll of the Meditations. The Roman Automaton is silenced and the empire can think clearly again.' : `The Roman Automaton is silenced, but ${9 - sc} scroll${9 - sc === 1 ? ' is' : 's are'} still out there. Play again to find them all.`;
+    $('#final-line').textContent = sc === all ? 'You recovered every scroll of the Meditations. The Roman Automaton is silenced and the empire can think clearly again.' : `The Roman Automaton is silenced, but ${all - sc} scroll${all - sc === 1 ? ' is' : 's are'} still out there. Play again to find them all.`;
     const st = $('#final-stats'); st.replaceChildren();
     const mins = Math.floor(S.time / 60), secs = Math.floor(S.time % 60);
-    [['Score', S.score.toLocaleString('en-US')], ['Scrolls recovered', `${sc} of 9`], ['Coins', String(S.coins)], ['Foes defeated', String(S.kills)], ['Falls', String(S.deaths)], ['Time', `${mins}:${String(secs).padStart(2, '0')}`]]
+    [['Score', S.score.toLocaleString('en-US')], ['Scrolls recovered', `${sc} of ${all}`], ['Coins', String(S.coins)], ['Foes defeated', String(S.kills)], ['Falls', String(S.deaths)], ['Time', `${mins}:${String(secs).padStart(2, '0')}`]]
       .forEach(([k, v]) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = v; li.append(k + ': ', b); st.append(li); });
     const best = store.get('aq-best');
     if (!best || S.score > best.score) store.set('aq-best', { score: S.score, rank });
-    showBest(); window.scrollTo({ top: 0 });
+    showBest(); showChapters(); window.scrollTo({ top: 0 });
   }
 
   function showBest() { const b = store.get('aq-best'), e = $('#best'); if (b && b.rank) { e.hidden = false; e.textContent = `Your best: ${b.score.toLocaleString('en-US')} points · ${b.rank}`; } }
@@ -1240,7 +1328,19 @@
   }
   requestAnimationFrame(frame);
 
-  $('#start').addEventListener('click', () => { SFX.ensure(); newRun(); });
-  $('#again').addEventListener('click', () => { SFX.ensure(); newRun(); });
+  $('#start').addEventListener('click', () => { SFX.ensure(); newRun(0); });
+  $('#again').addEventListener('click', () => { SFX.ensure(); newRun(0); });
+  // chapter select: every chapter you have reached can be started directly
+  function showChapters() {
+    const box = $('#chapters'), max = Math.min(LEVELS.length - 1, store.get('aq-unlocked') || 0); box.replaceChildren();
+    if (max < 1) { box.hidden = true; return; }
+    box.hidden = false; const lab = document.createElement('p'); lab.className = 'box-h'; lab.textContent = 'Continue from a chapter'; box.append(lab);
+    const row = document.createElement('div'); row.className = 'chap-row';
+    LEVELS.forEach((lv, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost btn-sm'; b.disabled = i > max;
+      b.textContent = ROMAN[i]; b.title = lv.name + (i > max ? ' (locked)' : ''); b.setAttribute('aria-label', `Chapter ${ROMAN[i]}: ${lv.name}${i > max ? ', locked' : ''}`);
+      b.addEventListener('click', () => { SFX.ensure(); newRun(i); }); row.append(b); });
+    box.append(row);
+  }
+  showChapters();
   showBest();
 })();
