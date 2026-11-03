@@ -96,3 +96,9 @@ body.touchy .rotate { display: inline; }
   .ov-img { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.cast { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 0 0 1.4rem; align-items: end; }
+.cast figure { margin: 0; text-align: center; }
+.cast img { height: 96px; width: auto; margin: 0 auto .3rem; image-rendering: auto; filter: drop-shadow(0 4px 6px rgba(60,40,15,.25)); }
+.cast figcaption { font: 600 .95rem/1.1 var(--serif); color: var(--ink); }
+.cast small { display: block; font: italic 400 .78rem var(--serif); color: var(--ink-soft); margin-top: .1rem; }
+@media (max-width: 700px) { .cast { grid-template-columns: repeat(3, 1fr); row-gap: 14px; } }
