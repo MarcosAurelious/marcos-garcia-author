@@ -241,8 +241,8 @@
 
   /* ================= input ================= */
   const KEYS = {
-    p1: { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], light: ['KeyJ', 'KeyF'], heavy: ['KeyK', 'KeyG'], special: ['KeyL', 'KeyH'], super: ['KeyU', 'KeyR'] },
-    p2: { left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], light: ['Numpad1', 'Comma'], heavy: ['Numpad2', 'Period'], special: ['Numpad3', 'Slash'], super: ['Numpad0', 'Semicolon'] },
+    p1: { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'], light: ['KeyJ'], heavy: ['KeyK'], lkick: ['KeyU'], hkick: ['KeyI'], special: ['KeyL'], super: ['KeyQ'], breaker: ['Space'] },
+    p2: { left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'], light: ['Numpad1', 'Comma'], heavy: ['Numpad2', 'Period'], lkick: ['Numpad4', 'KeyM'], hkick: ['Numpad5', 'KeyN'], special: ['Numpad3', 'Slash'], super: ['Numpad0', 'Semicolon'], breaker: ['Numpad6', 'Quote'] },
   };
   const held = new Set(), pressed = new Set();
   addEventListener('keydown', (e) => {
@@ -262,15 +262,18 @@
   });
   function humanInput(slot) {
     const K = KEYS[slot], h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), p = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
-    return { left: h('left'), right: h('right'), up: p('up') || (h('up') && false), upHeld: h('up'), light: p('light'), heavy: p('heavy'), special: p('special'), super: p('super') };
+    return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), special: p('special'), super: p('super'), breaker: p('breaker') };
   }
 
   /* ================= fighters ================= */
   const MOVES = {   // seconds: startup, active, recovery; reach in px; damage
     light: { start: 0.07, act: 0.09, rec: 0.13, reach: 112, dmg: 5, stun: 0.24, push: 140, meter: 6 },
     heavy: { start: 0.2, act: 0.11, rec: 0.3, reach: 140, dmg: 11, stun: 0.42, push: 330, meter: 10 },
+    lkick: { start: 0.09, act: 0.1, rec: 0.16, reach: 132, dmg: 6, stun: 0.26, push: 170, meter: 7, low: true },
+    hkick: { start: 0.22, act: 0.12, rec: 0.32, reach: 160, dmg: 12, stun: 0.45, push: 360, meter: 11, low: true },
     special: { start: 0.24, act: 0.12, rec: 0.36, reach: 0, dmg: 12, stun: 0.5, push: 360, meter: 0 },
   };
+  const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
     return { ch, side, x: side === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: side === 0 ? 1 : -1, hp: ch.hp, maxHp: ch.hp, meter: 0, wins: 0,
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
@@ -289,7 +292,7 @@
     SFX.boss();
   }
   const opp = (f) => G.p[1 - f.side];
-  function hurtbox(f) { const w = 62 * f.ch.size, h = BODY_H * f.ch.size * 0.92; return { x: f.x - w / 2, y: f.y - h, w, h }; }
+  function hurtbox(f) { const w = 62 * f.ch.size, h = BODY_H * f.ch.size * (f.crouch ? 0.52 : 0.92); return { x: f.x - w / 2, y: f.y - h, w, h }; }
   const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
   function startMove(f, kind, isSuper) {
@@ -300,7 +303,9 @@
     return m;
   }
   function damage(attacker, target, dmg, stun, push, hitX) {
-    const blocking = target.onGround && target.state !== 'attack' && target.state !== 'hurt' && target.state !== 'ko' && target.holdBack;
+    if (target.inv > 0) return;
+    const low = attacker.move && MOVES[attacker.move] && MOVES[attacker.move].low;
+    const blocking = target.onGround && target.state !== 'attack' && target.state !== 'hurt' && target.state !== 'ko' && target.holdBack && (!low || target.crouch || Math.random() < 0.5);
     if (blocking) {
       dmg = Math.max(1, Math.round(dmg * 0.15)); target.block = 0.2; target.state = 'block'; target.t = 0; target.vx = -target.face * push * 0.7; SFX.bump();
       spark(hitX, target.y - BODY_H * target.ch.size * 0.55, ['#8fd8ff', '#ffffff'], 10); target.meter = Math.min(100, target.meter + 4);
@@ -326,6 +331,15 @@
     const o = opp(f); f.anim += dt; f.t += dt; f.flash -= dt; f.cool -= dt; f.comboT -= dt;
     const toward = Math.sign(o.x - f.x) || f.face;
     f.holdBack = (toward > 0 && inp.left && !inp.right) || (toward < 0 && inp.right && !inp.left);
+    // combo breaker: spend 40% meter to burst out of a combo
+    if (inp.breaker && f.state === 'hurt' && f.meter >= 40 && G.mode === 'play') { f.meter -= 40; f.state = 'idle'; f.stun = 0; f.inv = 0.5; o.vx = o.face * -0; o.state = o.state === 'ko' ? 'ko' : 'hurt'; o.t = 0; o.stun = 0.35; o.vx = toward * 520; spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#8fe6ff', '#ffffff', '#ffd27a'], 30); G.shake = 0.3; G.banner = { text: 'COMBO BREAKER!', sub: '', t: 0, small: true }; SFX.power(); }
+    f.inv = (f.inv || 0) - dt;
+    // chain: a landed hit can be cancelled into the next attack in the chain
+    if (f.state === 'attack' && f.hit && f.move !== 'special' && G.mode === 'play') {
+      const want = inp.special && f.cool <= 0 ? 'special' : inp.hkick ? 'hkick' : inp.heavy ? 'heavy' : inp.lkick ? 'lkick' : inp.light ? 'light' : null;
+      if (want && CHAIN[f.move] && CHAIN[f.move].includes(want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * 0.5) startMove(f, want);
+    }
+    f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
     if (f.state === 'ko') { /* fall */ }
     else if (f.state === 'hurt') { if (f.t >= f.stun && f.onGround) f.state = 'idle'; }
@@ -338,7 +352,7 @@
         if (sp.kind === 'dash' && f.t >= m.start && f.t < m.start + 0.22) { f.vx = f.face * sp.dist / 0.22 * (f.superOn ? 1.3 : 1); dashHit(f); }
         else if (sp.kind === 'dash') f.vx *= 0.8;
       } else if (inAct && !f.hit) {
-        const reach = m.reach * f.ch.size, hb = { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
+        const reach = m.reach * f.ch.size, hb = m.low ? { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.55, w: reach, h: BODY_H * f.ch.size * 0.55 } : { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
         if (overlap(hb, hurtbox(o)) && o.state !== 'ko') { f.hit = true; damage(f, o, Math.round(m.dmg * (f.ch.id === 'automaton' ? 1.15 : 1)), m.stun, m.push, f.x + f.face * reach * 0.75); }
       }
       if (f.t >= total && (f.onGround || f.move !== 'special')) { f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
@@ -347,10 +361,13 @@
       if (f.onGround) f.face = toward;
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
       else if (inp.special && f.cool <= 0 && f.onGround) startMove(f, 'special');
+      else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
+      else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
         if (inp.up) { f.vy = -860; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.1; SFX.jump(); }
+        else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
         else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * (f.holdBack ? 0.7 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
@@ -389,14 +406,16 @@
   /* ================= the computer opponent ================= */
   function cpuInput(f, dt) {
     const o = opp(f), c = f.cpu, lvl = c.level, dx = o.x - f.x, dist = Math.abs(dx), fwd = Math.sign(dx) || f.face;
-    const inp = { left: false, right: false, up: false, light: false, heavy: false, special: false, super: false };
+    const inp = { left: false, right: false, up: false, down: false, light: false, heavy: false, lkick: false, hkick: false, special: false, super: false, breaker: false };
+    if (f.state === 'hurt' && f.meter >= 40 && f.combo !== -1 && opp(f).combo >= 2 && Math.random() < 0.05 * lvl) inp.breaker = true;
+    if (f.state === 'attack' && f.hit && Math.random() < 0.25 * lvl) inp[pick(['heavy', 'hkick', 'lkick'])] = true;
     const go = (d) => { if (d > 0) inp.right = true; else if (d < 0) inp.left = true; };
     const react = [0, 0.35, 0.6, 0.82][lvl];
     // incoming danger: block or jump
     const threat = (o.state === 'attack' && dist < 190 && o.t < 0.25) || G.shots.some((s) => s.owner !== f.side && Math.sign(f.x - s.x) === Math.sign(s.vx) && Math.abs(f.x - s.x) < 260) || G.waves.some((w) => w.owner !== f.side && Math.abs(f.x - w.x) < 230) || G.beams.some((b) => b.owner !== f.side);
-    if (threat && c.reacted !== G.t) { c.reacted = G.t; c.def = Math.random() < react ? (Math.random() < 0.7 ? 'block' : 'jump') : null; c.defT = 0.35; }
+    if (threat && c.reacted !== G.t) { c.reacted = G.t; c.def = Math.random() < react ? pick(['block', 'block', 'crouch', 'jump']) : null; c.defT = 0.35; }
     c.defT -= dt;
-    if (c.def && c.defT > 0) { if (c.def === 'block') go(-fwd); else if (f.onGround && c.def === 'jump') { inp.up = true; c.def = null; } return inp; }
+    if (c.def && c.defT > 0) { if (c.def === 'crouch') { inp.down = true; go(-fwd); } else if (c.def === 'block') go(-fwd); else if (f.onGround && c.def === 'jump') { inp.up = true; c.def = null; } return inp; }
     c.think -= dt;
     if (c.think <= 0) {
       c.think = rand(0.12, 0.35) / (0.6 + lvl * 0.2);
@@ -412,7 +431,7 @@
       case 'jumpin': if (f.onGround) { inp.up = true; go(fwd); } else if (dist < 140) inp.heavy = true; else go(fwd); break;
       case 'light': inp.light = true; c.plan = Math.random() < 0.4 + lvl * 0.1 ? 'light2' : 'wait'; break;
       case 'light2': if (f.state !== 'attack') { inp.light = true; c.plan = 'wait'; } break;
-      case 'heavy': inp.heavy = true; c.plan = 'wait'; break;
+      case 'heavy': inp[pick(['heavy', 'hkick', 'lkick'])] = true; c.plan = 'wait'; break;
       case 'special': inp.special = true; c.plan = 'wait'; break;
       case 'super': inp.super = true; c.plan = 'wait'; break;
       default: break;
@@ -429,7 +448,7 @@
     if (G.slow > 0) { G.slow -= dt; dt *= 0.3; }
     if (G.mode === 'intro') { if (G.t > 1.7) { G.mode = 'play'; G.banner = null; } }
     if (G.mode === 'play') { G.timer -= dt; if (G.timer <= 0) { G.timer = 0; const [a, b] = G.p; const w = a.hp / a.maxHp >= b.hp / b.maxHp ? a : b; knockout(w, opp(w)); G.banner = { text: 'TIME', sub: '', t: 0, big: true }; } }
-    const none = { left: false, right: false, up: false, light: false, heavy: false, special: false, super: false };
+    const none = { left: false, right: false, up: false, down: false, light: false, heavy: false, lkick: false, hkick: false, special: false, super: false, breaker: false };
     G.p.forEach((f) => { const inp = G.mode === 'play' ? (f.cpu ? cpuInput(f, dt) : humanInput(f.side ? 'p2' : 'p1')) : none; fighterUpdate(f, inp, dt); });
     separate(); updateAttacks(dt);
     if (G.mode === 'ko' && G.t > 2.6) {
@@ -452,7 +471,7 @@
     const A = f.ch.anims; let k = 'idle', frame = f.anim * 5;
     if (f.state === 'walk') { k = 'walk'; frame = f.anim * 7; }
     else if (f.state === 'jump') { k = 'jump'; frame = f.vy < 0 ? 0 : 1; }
-    else if (f.state === 'attack') { const m = MOVES[f.move], prog = clamp(f.t / (m.start + m.act + m.rec), 0, 0.999); k = f.move; if (f.move === 'heavy' && A.heavyHit && f.t >= m.start) k = 'heavyHit'; if (!f.onGround && f.move !== 'special') k = A.jump ? f.move : 'jump'; frame = prog; }
+    else if (f.state === 'attack') { const m = MOVES[f.move], prog = clamp(f.t / (m.start + m.act + m.rec), 0, 0.999); k = f.move === 'lkick' ? 'light' : f.move === 'hkick' ? 'heavy' : f.move; if (f.move === 'heavy' && A.heavyHit && f.t >= m.start) k = 'heavyHit'; if (!f.onGround && f.move !== 'special') k = A.jump ? f.move : 'jump'; frame = prog; }
     else if (f.state === 'hurt' || f.state === 'block') { k = 'hurt'; frame = 0; }
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
@@ -478,22 +497,23 @@
   function drawFx(f) {
     if (f.state === 'attack' && f.move !== 'special' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
       const reach = MOVES[f.move].reach * f.ch.size; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
-      spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * 0.55, f.face, f.move === 'heavy' ? 2.3 : 1.6); ctx.restore(); }
+      const kick = f.move === 'lkick' || f.move === 'hkick'; spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * (kick ? 0.3 : 0.55), f.face, f.move === 'heavy' || f.move === 'hkick' ? 2.3 : 1.6); ctx.restore(); }
   }
   // portraits are single drawings: the pose comes from leaning, lunging, squashing and recoiling them
   function drawPortrait(f, h, sc) {
     const nat = NATIVE[f.ch.anims.portrait] || 1, face = f.face * nat, t = f.anim, H0 = BODY_H * f.ch.size;
     let dx = 0, dy = -(f.ch.hover || 0) + (f.ch.hover ? Math.sin(t * 3) * 6 : 0), rot = 0, sx = 1, sy = 1;
     const ease = (x) => 1 - (1 - clamp(x, 0, 1)) ** 3;
-    if (f.state === 'idle') { sy = 1 + Math.sin(t * 3.2) * 0.012; sx = 1 - Math.sin(t * 3.2) * 0.006; }
+    if (f.crouch) { sy = 0.78; sx = 1.06; rot = 0.05; }
+    else if (f.state === 'idle') { sy = 1 + Math.sin(t * 3.2) * 0.012; sx = 1 - Math.sin(t * 3.2) * 0.006; }
     else if (f.state === 'walk') { dy -= Math.abs(Math.sin(t * 9)) * 7; rot = Math.sin(t * 9) * 0.035; }
     else if (f.state === 'jump') { rot = (f.vy < 0 ? -0.08 : 0.06); sy = f.vy < 0 ? 1.05 : 0.97; sx = 2 - sy; }
     else if (f.state === 'attack') {
       const m = MOVES[f.move], k = f.t;
       if (k < m.start) { const w = ease(k / m.start); dx = -f.face * 14 * w; rot = -0.08 * w; sy = 1 - 0.03 * w; }          // wind up: lean back
-      else if (k < m.start + m.act) { const w = ease((k - m.start) / m.act); const big = f.move === 'heavy' ? 1.6 : f.move === 'special' ? 1.3 : 1;
-        dx = f.face * 34 * big * w; rot = 0.13 * big * w; sx = 1 + 0.05 * w; sy = 1 - 0.03 * w; }                               // strike: lunge forward
-      else { const w = 1 - ease((k - m.start - m.act) / m.rec); const big = f.move === 'heavy' ? 1.6 : 1.2; dx = f.face * 34 * big * w; rot = 0.13 * big * w; }
+      else if (k < m.start + m.act) { const w = ease((k - m.start) / m.act); const big = f.move === 'heavy' || f.move === 'hkick' ? 1.6 : f.move === 'special' ? 1.3 : 1, kick = f.move === 'lkick' || f.move === 'hkick';
+        dx = f.face * 34 * big * w; rot = (kick ? -0.12 : 0.13) * big * w; if (kick) dy -= 10 * w; sx = 1 + 0.05 * w; sy = 1 - 0.03 * w; }                               // strike: lunge forward
+      else { const w = 1 - ease((k - m.start - m.act) / m.rec); const kick = f.move === 'lkick' || f.move === 'hkick', big = f.move === 'heavy' || f.move === 'hkick' ? 1.6 : 1.2; dx = f.face * 34 * big * w; rot = (kick ? -0.12 : 0.13) * big * w; }
       if (f.move === 'special' && k >= m.start) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = calm ? 12 : 30; }
     }
     else if (f.state === 'hurt') { const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1); dx = -f.face * 10 * w; rot = -0.16 * w; sx = 1 - 0.04 * w; }

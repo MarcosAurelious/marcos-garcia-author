@@ -54,3 +54,16 @@ body.touchy .touch { display: flex; }
 @media (orientation: landscape) and (max-height: 520px) { body.touchy .touch { position: fixed; left: 0; right: 0; bottom: 6px; pointer-events: none; padding: 0 10px; } body.touchy .touch .pad { pointer-events: auto; } body.touchy .touch button { background: rgba(40,28,16,.55); } .stage { padding-top: 4px; } }
 @media (max-width: 760px) { .roster { grid-template-columns: repeat(3, 1fr); } .howto { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.sub { margin: -.2rem 0 .3rem; font: 700 .85rem var(--mono); letter-spacing: .4em; text-transform: uppercase; color: var(--ink-soft); }
+.touch .pad-a { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; }
+.touch .col { display: flex; flex-direction: column; gap: 6px; }
+.touch .pad-d .col button { width: min(52px, 12vw); height: min(52px, 12vw); }
+.touch .brk { border-color: #ffd27a; color: #ffd27a; }
+.touch button { font-size: 1rem; }
+@media (orientation: portrait) {
+  body.touchy .touch { flex-direction: column; align-items: stretch; gap: 10px; }
+  body.touchy .touch .pad-d { justify-content: space-between; }
+  body.touchy .touch .pad-a { grid-template-columns: repeat(6, 1fr); justify-items: center; }
+  body.touchy .touch .pad-a button { width: min(56px, 14.5vw); height: min(56px, 14.5vw); }
+}

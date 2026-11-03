@@ -6,17 +6,18 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#120c08">
-  <title>Aurelious Fighters · A Roman Arena Fighter by Marcos Garcia</title>
+  <title>Roman Arena: Gods of the Machine · A Fighting Game by Marcos Garcia</title>
   <meta name="description" content="A one-on-one arena fighting game: Marcus Aurelius, the Roman Automaton, the Black Knight, Anubis and more battle with lightning, spears and fire. Free, in your browser.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="fight.css?v=2">
+  <link rel="stylesheet" href="fight.css?v=4">
 </head>
 <body>
 <main class="stage">
   <section id="s-select" class="select">
     <header class="sel-head">
       <p class="eyebrow">From the world of The Aurelious Quest</p>
-      <h1>Aurelious Fighters</h1>
+      <h1>Roman Arena</h1>
+      <p class="sub">Gods of the Machine</p>
       <p class="tag">Thirteen legends. One arena. Choose your fighter.</p>
     </header>
     <div class="modes">
@@ -27,9 +28,9 @@
     <div class="roster" id="roster"></div>
     <div class="go"><button type="button" class="btn ghost" id="sel-reset">Clear picks</button><button type="button" class="btn gold big" id="fight" disabled>Fight!</button></div>
     <div class="howto">
-      <div><b>Player 1</b><br><kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · hold <b>back</b> to block<br><kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special · <kbd>U</kbd> super</div>
-      <div><b>Player 2</b><br><kbd>←</kbd><kbd>→</kbd> move · <kbd>↑</kbd> jump · hold <b>back</b> to block<br><kbd>,</kbd> light · <kbd>.</kbd> heavy · <kbd>/</kbd> special · <kbd>;</kbd> super (or numpad 1 2 3 0)</div>
-      <div><b>The fight</b><br>Best of three rounds, 60 seconds each. Land hits to fill the blue <b>super meter</b>; when it flashes, unleash your super. Chain light attacks into combos.</div>
+      <div><b>Player 1</b><br><kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> crouch · hold <b>back</b> to block<br><kbd>J</kbd> punch · <kbd>K</kbd> heavy punch · <kbd>U</kbd> kick · <kbd>I</kbd> heavy kick<br><kbd>L</kbd> special · <kbd>Q</kbd> super · <kbd>Space</kbd> combo breaker</div>
+      <div><b>Player 2</b><br>Arrows move, jump and crouch · hold <b>back</b> to block<br>Numpad <kbd>1</kbd> <kbd>2</kbd> punches · <kbd>4</kbd> <kbd>5</kbd> kicks<br><kbd>3</kbd> special · <kbd>0</kbd> super · <kbd>6</kbd> breaker</div>
+      <div><b>The fight</b><br>Best of three rounds, 60 seconds each. Land hits to fill the blue <b>super meter</b>; when it flashes, unleash your super. Land a hit, then press a stronger attack to <b>chain</b> it: punch → kick → heavy → special. Caught in a combo? <b>Combo breaker</b> costs 40% meter. Crouch to duck projectiles; kicks hit low.</div>
     </div>
     <p class="safety"><b>Photosensitivity notice:</b> this game has flashes and screen shake. Turn on <b>Calm mode</b> in the ⚙ menu if you are sensitive to light.</p>
     <p class="links"><a href="../quest/">Play The Aurelious Quest</a> · <a href="../#apps">Back to Marcos Garcia's site</a></p>
@@ -58,11 +59,11 @@
       </div>
     </div>
     <div class="touch" id="touch" aria-hidden="true">
-      <div class="pad"><button type="button" data-k="left">◀</button><button type="button" data-k="up">▲</button><button type="button" data-k="right">▶</button></div>
-      <div class="pad"><button type="button" data-k="light">L</button><button type="button" data-k="heavy">H</button><button type="button" data-k="special">S</button><button type="button" data-k="super" class="sup">★</button></div>
+      <div class="pad pad-d"><button type="button" data-k="left" aria-label="Left">◀</button><div class="col"><button type="button" data-k="up" aria-label="Jump">▲</button><button type="button" data-k="down" aria-label="Crouch">▼</button></div><button type="button" data-k="right" aria-label="Right">▶</button><button type="button" data-k="breaker" class="brk" aria-label="Combo breaker">✦</button></div>
+      <div class="pad pad-a"><button type="button" data-k="light" aria-label="Punch">P</button><button type="button" data-k="heavy" aria-label="Heavy punch">HP</button><button type="button" data-k="special" aria-label="Special">S</button><button type="button" data-k="lkick" aria-label="Kick">K</button><button type="button" data-k="hkick" aria-label="Heavy kick">HK</button><button type="button" data-k="super" class="sup" aria-label="Super">★</button></div>
     </div>
   </section>
 </main>
-<script src="game.js?v=2"></script>
+<script src="game.js?v=3"></script>
 </body>
 </html>
