@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120c08">
+  <title>Aurelious Fighters · A Roman Arena Fighter by Marcos Garcia</title>
+  <meta name="description" content="A one-on-one arena fighting game: Marcus Aurelius, the Roman Automaton, the Black Knight, Anubis and more battle with lightning, spears and fire. Free, in your browser.">
+  <link rel="stylesheet" href="../fonts.css">
+  <link rel="stylesheet" href="fight.css?v=1">
+</head>
+<body>
+<main class="stage">
+  <section id="s-select" class="select">
+    <header class="sel-head">
+      <p class="eyebrow">From the world of The Aurelious Quest</p>
+      <h1>Aurelious Fighters</h1>
+      <p class="tag">Ten legends of Rome. One arena. Choose your fighter.</p>
+    </header>
+    <div class="modes">
+      <div class="seg" role="group" aria-label="Mode"><button type="button" class="btn" data-mode="cpu">1 Player vs CPU</button><button type="button" class="btn" data-mode="2p">2 Players</button></div>
+      <div class="seg" id="levels" role="group" aria-label="Difficulty"><button type="button" class="btn" data-level="1">Easy</button><button type="button" class="btn" data-level="2">Normal</button><button type="button" class="btn" data-level="3">Hard</button></div>
+    </div>
+    <p class="step" id="sel-step" aria-live="polite"></p>
+    <div class="roster" id="roster"></div>
+    <div class="go"><button type="button" class="btn ghost" id="sel-reset">Clear picks</button><button type="button" class="btn gold big" id="fight" disabled>Fight!</button></div>
+    <div class="howto">
+      <div><b>Player 1</b><br><kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · hold <b>back</b> to block<br><kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special · <kbd>U</kbd> super</div>
+      <div><b>Player 2</b><br><kbd>←</kbd><kbd>→</kbd> move · <kbd>↑</kbd> jump · hold <b>back</b> to block<br><kbd>,</kbd> light · <kbd>.</kbd> heavy · <kbd>/</kbd> special · <kbd>;</kbd> super (or numpad 1 2 3 0)</div>
+      <div><b>The fight</b><br>Best of three rounds, 60 seconds each. Land hits to fill the blue <b>super meter</b>; when it flashes, unleash your super. Chain light attacks into combos.</div>
+    </div>
+    <p class="safety"><b>Photosensitivity notice:</b> this game has flashes and screen shake. Turn on <b>Calm mode</b> in the ⚙ menu if you are sensitive to light.</p>
+    <p class="links"><a href="../quest/">Play The Aurelious Quest</a> · <a href="../#apps">Back to Marcos Garcia's site</a></p>
+  </section>
+
+  <section id="s-fight" class="fightscr" hidden>
+    <div class="arena" id="arena">
+      <canvas id="cv" width="960" height="540" aria-label="Aurelious Fighters arena"></canvas>
+      <button type="button" class="gear" id="gear" aria-label="Pause and settings">⚙</button>
+      <div class="menu" id="menu" role="dialog" aria-label="Paused" hidden>
+        <p class="set-h">Paused</p>
+        <button type="button" class="btn" id="m-music">Music: on</button>
+        <button type="button" class="btn" id="m-sound">Sound: on</button>
+        <button type="button" class="btn" id="m-calm" aria-pressed="false">Calm mode: off</button>
+        <button type="button" class="btn" id="m-select">Character select</button>
+        <button type="button" class="btn gold" id="m-resume">Resume</button>
+      </div>
+      <div class="result" id="result" hidden>
+        <div class="res-card">
+          <p class="res-k" id="res-k"></p>
+          <h2 id="res-name"></h2>
+          <p class="res-q" id="res-quote"></p>
+          <p class="res-s" id="res-streak"></p>
+          <div class="res-b"><button type="button" class="btn gold" id="res-again">Rematch</button><button type="button" class="btn" id="res-next">Next opponent</button><button type="button" class="btn" id="res-select">Character select</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="touch" id="touch" aria-hidden="true">
+      <div class="pad"><button type="button" data-k="left">◀</button><button type="button" data-k="up">▲</button><button type="button" data-k="right">▶</button></div>
+      <div class="pad"><button type="button" data-k="light">L</button><button type="button" data-k="heavy">H</button><button type="button" data-k="special">S</button><button type="button" data-k="super" class="sup">★</button></div>
+    </div>
+  </section>
+</main>
+<script src="game.js?v=1"></script>
+</body>
+</html>
