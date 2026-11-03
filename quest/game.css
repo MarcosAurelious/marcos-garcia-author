@@ -103,7 +103,6 @@ body.touchy .rotate { display: inline; }
 .cast small { display: block; font: italic 400 .78rem var(--serif); color: var(--ink-soft); margin-top: .1rem; }
 @media (max-width: 700px) { .cast { grid-template-columns: repeat(3, 1fr); row-gap: 14px; } }
 .touch .thr { width: 52px; height: 52px; font-size: 1.3rem; align-self: flex-end; }
-#cv.tall { aspect-ratio: 4 / 3; }
 @media (orientation: portrait) { body.touchy .touch { gap: 6px; } body.touchy .touch div { gap: 8px; } body.touchy .touch button { width: 64px; height: 64px; } body.touchy .touch .jmp { width: 72px; height: 72px; } body.touchy .touch .thr { width: 52px; height: 52px; } }
 .chapters { margin: 1rem auto 0; max-width: 420px; }
 .chap-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
@@ -114,3 +113,23 @@ body.touchy .rotate { display: inline; }
 html { touch-action: manipulation; }
 #cv, .touch, .touch button { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .safety { max-width: 760px; margin: 14px auto 0; padding: 10px 14px; border: 1px solid var(--gold); background: rgba(246, 239, 220, .7); font-size: 14px; line-height: 1.45; color: var(--ink); }
+
+/* settings: one gear button over the game instead of a row of buttons */
+.gear { position: absolute; top: 4px; right: 6px; z-index: 3; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--gold); background: rgba(246, 239, 220, .9); color: var(--ink); font-size: 1.35rem; line-height: 1; cursor: pointer; display: grid; place-items: center; padding: 0; }
+.gear:hover, .gear[aria-expanded="true"] { background: var(--gold-2); }
+.settings { position: absolute; top: 50px; right: 6px; z-index: 4; display: flex; flex-direction: column; gap: 8px; min-width: 210px; padding: 14px; background: var(--paper-2); border: 1px solid var(--gold); outline: 1px solid var(--line); outline-offset: -6px; box-shadow: 0 16px 40px rgba(30, 20, 5, .4); }
+.settings[hidden] { display: none; }
+.settings .btn { width: 100%; }
+.set-h { margin: 0 0 2px; font: 700 .8rem var(--serif); letter-spacing: .3em; text-transform: uppercase; color: var(--gold); text-align: center; }
+.set-note { margin: 0; font: .7rem var(--mono); color: var(--ink-soft); text-align: center; }
+body:not(.touchy) .set-note { display: none; }
+/* touch buttons always fit the width of the phone */
+@media (orientation: portrait) {
+  body.touchy .touch { padding: 8px 4px 4px; gap: 4px; }
+  body.touchy .touch div { gap: 6px; }
+  body.touchy .touch button { width: min(64px, 16vw); height: min(64px, 16vw); font-size: 1.35rem; }
+  body.touchy .touch .jmp { width: min(72px, 18vw); height: min(72px, 18vw); }
+  body.touchy .touch .thr { width: min(52px, 13vw); height: min(52px, 13vw); }
+  body.touchy .stage { padding-top: 6px; }
+}
+.overlay:not([hidden]) ~ .gear, .overlay:not([hidden]) ~ .settings { display: none; }

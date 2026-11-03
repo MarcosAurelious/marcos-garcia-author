@@ -9,7 +9,7 @@
   <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
   <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=19">
+  <link rel="stylesheet" href="game.css?v=21">
 </head>
 <body>
 <main class="stage">
@@ -56,7 +56,7 @@
             <li><kbd>X</kbd> or <kbd>J</kbd> swing the sword</li>
             <li><kbd>K</kbd> or <kbd>C</kbd> throw a spear. Every <b>5 foes</b> you defeat drops 3 spears.</li>
             <li>On phones, use the on-screen buttons.</li>
-            <li><b>Calm mode</b> (button under the game) turns off flashing effects and screen shake.</li>
+            <li><b>Calm mode</b> (in the ⚙ settings menu) turns off flashing effects and screen shake.</li>
             <li>Find all <b>thirty scrolls</b> for a lesson from Marcus.</li>
             <li>Earn <b>XP</b> from foes, scrolls and chapters to evolve Marcus through <b>five stages</b>. His armor changes as he grows: bronze, a Tesla pack and electric sword, an energy shield, and finally support drones.</li>
           </ul>
@@ -86,18 +86,23 @@
           </div>
         </div>
       </div>
+      <button class="gear" id="gear" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings">⚙</button>
+      <div class="settings" id="settings" role="dialog" aria-label="Settings" hidden>
+        <p class="set-h">Settings</p>
+        <button class="btn btn-ghost btn-sm" id="pause" type="button">Pause</button>
+        <button class="btn btn-ghost btn-sm" id="music" type="button">Music: on</button>
+        <button class="btn btn-ghost btn-sm" id="sound" type="button">Sound: on</button>
+        <button class="btn btn-ghost btn-sm" id="calm" type="button" aria-pressed="false" title="Fewer flashes, no screen shake">Calm mode: off</button>
+        <button class="btn btn-ghost btn-sm" id="set-quit" type="button">Chapters &amp; title page</button>
+        <p class="set-note rotate">Tip: turn your phone sideways for a wider view.</p>
+        <button class="btn btn-gold btn-sm" id="set-close" type="button">Resume</button>
+      </div>
       <div class="touch" id="touch" aria-hidden="true">
         <div class="pad-l"><button data-k="left" type="button">◀</button><button data-k="right" type="button">▶</button></div>
         <div class="pad-r"><button data-k="throw" type="button" class="thr" aria-label="Throw spear">➶</button><button data-k="attack" type="button" class="atk">⚔</button><button data-k="jump" type="button" class="jmp">⤒</button></div>
       </div>
     </div>
-    <div class="game-bar">
-      <button class="btn btn-ghost btn-sm" id="pause" type="button">Pause</button>
-      <button class="btn btn-ghost btn-sm" id="music" type="button">Music: on</button>
-      <button class="btn btn-ghost btn-sm" id="sound" type="button">Sound: on</button>
-      <button class="btn btn-ghost btn-sm" id="calm" type="button" aria-pressed="false" title="Fewer flashes, no screen shake">Calm mode: off</button>
-      <span class="rotate">Turn your phone sideways for a bigger view.</span>
-    </div>
+
   </section>
 
   <!-- FINAL PAGE -->
@@ -118,6 +123,6 @@
   </section>
 
 </main>
-<script src="game.js?v=20"></script>
+<script src="game.js?v=21"></script>
 </body>
 </html>

@@ -11,11 +11,17 @@
   let ZOOM = 1, VWZ = VW, VHZ = VH, HS = 1, HW = VW;
   function setZoom() {
     const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 760;
-    const want = portrait ? 720 : 480;   // phones held upright get a taller 4:3 view
-    if (VH !== want || cv.height !== want) { VH = want; cv.height = want; cv.classList.toggle('tall', portrait); }
     const w = cv.getBoundingClientRect().width || VW, h = window.innerHeight;
-    ZOOM = portrait ? 2.0 : w < 560 ? 1.8 : (w < 960 || h < 560) ? 1.45 : 1.12;
     HS = portrait ? 1.6 : w < 700 ? 1.3 : 1; HW = VW / HS;   // bigger score bar on small screens
+    let want = 480;
+    if (portrait) {   // phones held upright: fill the free height above the touch buttons
+      const top = cv.getBoundingClientRect().top + window.scrollY, pad = $('#touch'), padH = pad && pad.offsetHeight ? pad.offsetHeight : 96;
+      const avail = Math.max(260, h - Math.max(0, top - window.scrollY) - padH - 14);
+      want = Math.round(VW * avail / w);
+      ZOOM = clamp(want / 480, 2.0, 2.5);
+      want = Math.round(clamp(want, 720, (480 + 200) * ZOOM + 44 * HS));   // up to 200 px of open sky above the level, never below it
+    } else ZOOM = w < 560 ? 1.8 : (w < 960 || h < 560) ? 1.45 : 1.12;
+    if (VH !== want || cv.height !== want) { VH = want; cv.height = want; cv.style.aspectRatio = `${VW} / ${VH}`; }
     VWZ = VW / ZOOM; VHZ = VH / ZOOM;
   }
   const cv = $('#cv'); let ctx = cv.getContext('2d');
@@ -495,6 +501,7 @@
     keys[k] = down;
   }
   window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && S && S.mode === 'menu') { openSettings(false); return; }
     if (e.code === 'KeyP' || e.code === 'Escape') { if (S && S.mode === 'play') togglePause(); return; }
     const k = KEYMAP[e.code]; if (!k || !S || S.mode !== 'play') return;
     e.preventDefault(); SFX.ensure(); press(k, true);
@@ -1092,7 +1099,7 @@
     b.x = clamp(b.x, b.minX, (L.w - 4) * T);
   }
 
-  function camYTarget() { const top = 44 * HS / ZOOM; return clamp(P.y + P.h - VHZ * 0.74, -top, ROWS * T - VHZ); }
+  function camYTarget() { const top = 44 * HS / ZOOM, extra = Math.max(0, VHZ - ROWS * T - top), lo = -top - extra; return clamp(P.y + P.h - VHZ * 0.74, lo, Math.max(lo, ROWS * T - VHZ)); }
   function updateSpears(dt) {
     L.pspears.forEach((sp) => {
       sp.vy += 260 * dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.life -= dt;
@@ -1157,7 +1164,8 @@
   function drawBackground(th) {
     const t = THEMES[th], st = strip(th), par = [0.18, 0.15, 0.12][th], y0 = [-60, -40, -50][th];
     ctx.fillStyle = t.paper; ctx.fillRect(0, 0, VW, VH);
-    if (st) { const off = (L.cam * par) % st.width; for (let x = -off; x < VW; x += st.width) ctx.drawImage(st, Math.floor(x), y0); }
+    if (st) { const k = Math.max(1, (VH - y0) / st.height), sw = st.width * k, sh = st.height * k, off = (L.cam * par * k) % sw;   // tall phone screens: stretch the art to the full height
+      for (let x = -off; x < VW; x += sw) ctx.drawImage(st, Math.floor(x), y0, Math.ceil(sw) + 1, sh); }
     if (th === 0) ctx.drawImage(vignette, 0, 0, VW, VH);
     else ctx.drawImage(shade[th], 0, 0, VW, VH);
     if (th === 1) {
@@ -1491,7 +1499,7 @@
     ctx.fillStyle = '#2b1d10'; ctx.fillText('× ' + S.coins, 186, 21);
     ctx.fillStyle = '#f6eed8'; ctx.fillRect(262, 13, 16, 14); ctx.strokeRect(262, 13, 16, 14); ctx.fillStyle = '#2b1d10'; ctx.fillText(`${S.scrolls.size} of ${SCROLLS.length} scrolls`, 286, 21);
     drawSpearAt(424, 22, -0.75, 0.32); ctx.fillStyle = S.spears ? '#2b1d10' : '#9a8a74'; ctx.fillText(`× ${S.spears}`, 442, 21); if (!S.spears && HS === 1) { ctx.font = 'italic 500 15px "Cormorant Garamond", Georgia, serif'; ctx.fillText(`${5 - S.killStreak} more foe${5 - S.killStreak === 1 ? '' : 's'} for a spear`, 478, 21); ctx.font = '700 19px "Cormorant Garamond", Georgia, serif'; }
-    ctx.textAlign = 'right'; ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif'; if (HS === 1) ctx.fillText(`Chapter ${ROMAN[S.level]} · ${L.def.name}`, HW - 14, 21); ctx.textAlign = 'left';
+    ctx.textAlign = 'right'; ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif'; if (HS === 1) ctx.fillText(`Chapter ${ROMAN[S.level]} · ${L.def.name}`, HW - 58, 21); ctx.textAlign = 'left';
     if (L.boss && L.bossOn && !L.boss.dead) {
       ctx.fillStyle = 'rgba(239,230,207,0.95)'; ctx.fillRect(HW / 2 - 165, 52, 330, 30); ctx.strokeStyle = '#a8842a'; ctx.lineWidth = 1.5; ctx.strokeRect(HW / 2 - 165, 52, 330, 30);
       ctx.fillStyle = '#d8ccb0'; ctx.fillRect(HW / 2 - 155, 70, 310, 7); ctx.fillStyle = '#6b2fa8'; ctx.fillRect(HW / 2 - 155, 70, 310 * (L.boss.hp / L.boss.maxHp), 7); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1; ctx.strokeRect(HW / 2 - 155, 70, 310, 7);
@@ -1565,11 +1573,22 @@
   }
   ov.go.addEventListener('click', () => { SFX.ensure(); ov.box.hidden = true; S.mode = 'play'; const n = ovNext; ovNext = null; if (n) n(); if (S.mode === 'play') MUSIC.resume(); last = performance.now(); });
 
+  const gear = $('#gear'), panel = $('#settings');
+  function openSettings(open) {
+    if (!S) return;
+    if (open && S.mode === 'play') { S.mode = 'menu'; MUSIC.pause(); Object.keys(keys).forEach((k) => { keys[k] = false; }); }
+    if (!open && S.mode === 'menu') { S.mode = 'play'; MUSIC.resume(); last = performance.now(); }
+    panel.hidden = !open; gear.setAttribute('aria-expanded', String(open));
+    if (open) setTimeout(() => $('#set-close').focus({ preventScroll: true }), 30); else gear.focus({ preventScroll: true });
+  }
+  gear.addEventListener('click', () => { SFX.ensure(); openSettings(panel.hidden); });
+  $('#set-close').addEventListener('click', () => openSettings(false));
+  $('#set-quit').addEventListener('click', () => { openSettings(false); MUSIC.stop(); S.mode = 'done'; $('#s-game').hidden = true; $('#s-title').hidden = false; showChapters(); showBest(); window.scrollTo({ top: 0 }); });
   function togglePause() {
     if (S.mode === 'play') overlay('Paused', 'Breathe', '“Receive without arrogance; let go without struggle.” Take a moment, then continue.', 'Resume', null);
     else if (S.mode === 'overlay' && ov.title.textContent === 'Breathe') ov.go.click();
   }
-  $('#pause').addEventListener('click', () => { if (S) togglePause(); });
+  $('#pause').addEventListener('click', () => { if (!S) return; openSettings(false); togglePause(); });
   const musicBtn = $('#music'); const syncMusic = () => { musicBtn.textContent = 'Music: ' + (MUSIC.on ? 'on' : 'off'); };
   musicBtn.addEventListener('click', () => { SFX.ensure(); MUSIC.toggle(); syncMusic(); }); syncMusic();
   const soundBtn = $('#sound'); const syncSound = () => { soundBtn.textContent = 'Sound: ' + (SFX.on ? 'on' : 'off'); };
