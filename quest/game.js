@@ -183,7 +183,7 @@
       L.ent('flag', 190, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Sundial at Dawn', theme: 0, intro: 'Morning over the seven hills. Minotaurs and Pegasus drones patrol the old observatory, and Medusa the Technomancer waits beside the great sundial.', art: 'img/card-globe.webp', bg: 'img/bg-dawn.webp', build() {
+    { name: 'The Sundial at Dawn', theme: 0, intro: 'Morning over the seven hills. Minotaurs and Pegasus drones patrol the old observatory, and Medusa the Technomancer waits beside the great sundial.', art: 'img/card-globe.webp', bg: 'img/bg-pantheon.webp', build() {
       const L = builder(192);
       L.ground(0, 20); L.ent('start', 2, 11);
       L.coins(5, 10, 4); L.set(9, 8, 'B'); L.box(10, 8, 'coin'); L.set(11, 8, 'B'); L.ent('soldier', 15, 11); L.ent('pegasus', 18, 5);
@@ -204,7 +204,7 @@
       L.ent('flag', 187, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Hall of Synchronicity', theme: 1, intro: 'A hall of clocks, cards and coincidence. Helios orbs hum overhead, and beneath the flooded far end sleeps the Neptune Leviathan.', art: 'img/card-power.webp', bg: 'img/bg-hall.webp', build() {
+    { name: 'The Hall of Synchronicity', theme: 1, intro: 'A hall of clocks, cards and coincidence. Helios orbs hum overhead, and beneath the flooded far end sleeps the Neptune Leviathan.', art: 'img/card-power.webp', bg: 'img/bg-chamber.webp', build() {
       const L = builder(196);
       L.ground(0, 22); L.ent('start', 2, 11);
       L.coins(5, 10, 3); L.ent('helios', 10, 6); L.ent('centurion', 16, 11); L.field(20, 8, 11);
