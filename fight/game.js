@@ -224,6 +224,14 @@
     { id: 'hades', name: 'Hades Sentinel', title: 'Keeper of Shadows', size: 1.05, speed: 235, hp: 105, anims: FA('hades'),
       special: { kind: 'proj', name: 'Void Seal', set: 'fx2', a: 'hades', sc: 1.1, speed: 420, col: ['#a46bff', '#ffffff', '#5a2d82'] }, quote: 'Everyone comes to my kingdom eventually.' },
   ];
+  // a passive power for every fighter (from Roman Arena V8, plus five new ones)
+  const PASSIVE = {
+    colossus: ['Chain Lightning', 'heavy hits add 3 lightning damage'], medusa: ['Venom', 'heavy hits poison the foe'], helios: ['Solar Battery', 'every hit charges extra meter'],
+    vulcan: ['Burn', 'heavy kicks set the foe on fire'], chiron: ['Time Slow', 'heavy punches slow the foe'], cerberus: ['Double Bite', 'light punches bite twice'],
+    hades: ['Soul Siphon', 'heavy hits heal him'], mars: ['Legion Drill', 'longer, stronger combos'], minotaur: ['Iron Hide', 'takes 15% less damage'],
+    pegasus: ['Tailwind', 'fastest fighter in the arena'], diana: ['Hunter\'s Eye', '1 in 5 hits is a critical'], neptune: ['Undertow', 'heavy kicks drag the foe in'],
+    marcus: ['Stoic Will', 'super meter fills 25% faster'],
+  };
   const BODY_H = 190;   // every fighter is scaled so the standing pose is about this tall (times size)
   ROSTER.forEach((c) => { c.hp = Math.round(c.hp * 1.6); const f = frameOf(c.anims.idle.set, c.anims.idle.a, 0); c.scale = BODY_H * c.size / f[3]; });
 
@@ -280,9 +288,12 @@
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
+  const STAGES = [['The Forgotten Forum', 'bg-pantheon'], ['The Iron Labyrinth', 'bg-underworld'], ['The Sky Temple', 'bg-planets'], ['The Sun Forge', 'bg-orbs'], ['The Abyssal Gate', 'bg-pluto'], ['The Throne of Hades', 'bg-eternity']];
+  let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: pick(BGS), cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
+    if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab'].indexOf(STAGES[ARC.stage][1])] || G.bg; }
     startRound();
     MUSIC.play('riot');
   }
@@ -303,6 +314,22 @@
     if (f.onGround) f.vx = 0;
     return m;
   }
+  function say(f, text, col) { (G.texts = G.texts || []).push({ text, x: f.x, y: f.y - BODY_H * f.ch.size - 20, col, t: 1.1 }); }
+  function passive(a, d, move, dmg) {   // returns extra damage; also applies effects
+    const id = a.ch.id, heavyHit = move === 'heavy' || move === 'hkick'; let extra = 0;
+    if (id === 'colossus' && heavyHit) { extra += 3; say(d, 'CHAIN LIGHTNING', '#9cdcff'); }
+    if (id === 'medusa' && heavyHit) { d.poison = 3.5; say(d, 'VENOM', '#d77bff'); }
+    if (id === 'vulcan' && move === 'hkick') { d.burn = 2.7; say(d, 'BURN', '#ff9b49'); }
+    if (id === 'chiron' && move === 'heavy') { d.slowT = 2; say(d, 'TIME SLOW', '#c4b1ff'); }
+    if (id === 'cerberus' && move === 'light') { extra += 2; say(d, 'DOUBLE BITE', '#ffa6a6'); }
+    if (id === 'hades' && heavyHit) { a.hp = Math.min(a.maxHp, a.hp + 4); say(a, 'SOUL SIPHON', '#d5a2ff'); }
+    if (id === 'mars' && a.combo >= 2) extra += Math.round(dmg * Math.min(0.4, a.combo * 0.08));
+    if (id === 'diana' && Math.random() < 0.2) { extra += Math.round(dmg * 0.5); say(d, 'CRITICAL!', '#b6ff4a'); }
+    if (id === 'neptune' && move === 'hkick') { d.vx = a.face * -260; say(d, 'UNDERTOW', '#27d8ff'); }
+    if (id === 'helios') a.meter = Math.min(100, a.meter + 6);
+    if (d.ch.id === 'minotaur') extra -= Math.round((dmg + extra) * 0.15);
+    return extra;
+  }
   function damage(attacker, target, dmg, stun, push, hitX) {
     if (target.inv > 0) return;
     const low = attacker.move && MOVES[attacker.move] && MOVES[attacker.move].low;
@@ -312,10 +339,11 @@
       spark(hitX, target.y - BODY_H * target.ch.size * 0.55, ['#8fd8ff', '#ffffff'], 10); target.meter = Math.min(100, target.meter + 4);
     } else {
       target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
+      dmg = Math.max(1, dmg + passive(attacker, target, attacker.state === 'attack' ? attacker.move : 'special', dmg));
       SFX.hit(); spark(hitX, target.y - BODY_H * target.ch.size * 0.55, attacker.ch.special.col.concat(['#ffffff']), 18);
       attacker.combo = (attacker.comboT > 0 ? attacker.combo : 0) + 1; attacker.comboT = 0.9;
       if (attacker.combo >= 2) G.comboMsg = { side: attacker.side, n: attacker.combo, t: 1 };
-      target.meter = Math.min(100, target.meter + dmg * 0.8); attacker.meter = Math.min(100, attacker.meter + dmg * 1.1);
+      target.meter = Math.min(100, target.meter + dmg * 0.8); attacker.meter = Math.min(100, attacker.meter + dmg * 1.1 * (attacker.ch.id === 'marcus' ? 1.25 : 1));
       G.stop = Math.max(G.stop, dmg >= 10 ? 0.09 : 0.05); G.shake = Math.max(G.shake, dmg >= 10 ? 0.25 : 0.12);
     }
     target.hp = Math.max(0, target.hp - dmg); target.flash = 0.12;
@@ -335,10 +363,12 @@
     // combo breaker: spend 40% meter to burst out of a combo
     if (inp.breaker && f.state === 'hurt' && f.meter >= 40 && G.mode === 'play') { f.meter -= 40; f.state = 'idle'; f.stun = 0; f.inv = 0.5; o.vx = o.face * -0; o.state = o.state === 'ko' ? 'ko' : 'hurt'; o.t = 0; o.stun = 0.35; o.vx = toward * 520; spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#8fe6ff', '#ffffff', '#ffd27a'], 30); G.shake = 0.3; G.banner = { text: 'COMBO BREAKER!', sub: '', t: 0, small: true }; SFX.power(); }
     f.inv = (f.inv || 0) - dt;
+    if (f.poison > 0 || f.burn > 0) { f.dotT = (f.dotT || 0) + dt; if (f.dotT >= 0.5) { f.dotT = 0; if (f.state !== 'ko' && G.mode === 'play') { f.hp = Math.max(0, f.hp - (f.burn > 0 ? 2 : 1)); spark(f.x, f.y - BODY_H * f.ch.size * 0.6, f.burn > 0 ? ['#ff9b49', '#ffd27a'] : ['#d77bff', '#ffffff'], 4); if (f.hp <= 0) knockout(opp(f), f); } } }
+    f.poison = Math.max(0, (f.poison || 0) - dt); f.burn = Math.max(0, (f.burn || 0) - dt); f.slowT = Math.max(0, (f.slowT || 0) - dt);
     // chain: a landed hit can be cancelled into the next attack in the chain
     if (f.state === 'attack' && f.hit && f.move !== 'special' && G.mode === 'play') {
       const want = inp.special && f.cool <= 0 ? 'special' : inp.hkick ? 'hkick' : inp.heavy ? 'heavy' : inp.lkick ? 'lkick' : inp.light ? 'light' : null;
-      if (want && CHAIN[f.move] && CHAIN[f.move].includes(want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * 0.5) startMove(f, want);
+      if (want && CHAIN[f.move] && CHAIN[f.move].includes(want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * (f.ch.id === 'mars' ? 0.2 : 0.5)) startMove(f, want);
     }
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
@@ -369,7 +399,7 @@
       else if (f.onGround) {
         if (inp.up) { f.vy = -860; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.1; SFX.jump(); }
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
-        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * (f.holdBack ? 0.7 : 1); f.state = d ? 'walk' : 'idle'; }
+        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
     // physics
@@ -401,6 +431,7 @@
     G.waves.forEach((w) => { if (w.delay > 0) { w.delay -= dt; return; } w.x += w.vx * dt; w.life -= dt; const t = G.p[1 - w.owner];
       if (!w.hit && t.state !== 'ko' && t.onGround && overlap({ x: w.x - 26, y: FLOOR - 70, w: 52, h: 70 }, hurtbox(t))) { w.hit = true; damage(G.p[w.owner], t, w.dmg, 0.5, 320, w.x); } });
     G.waves = G.waves.filter((w) => w.life > 0 && !w.hit && w.x > -40 && w.x < VW + 40);
+    (G.texts || []).forEach((t) => { t.t -= dt; t.y -= 40 * dt; }); G.texts = (G.texts || []).filter((t) => t.t > 0);
     G.fx.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.life -= dt; }); G.fx = G.fx.filter((p) => p.life > 0);
   }
 
@@ -411,7 +442,7 @@
     if (f.state === 'hurt' && f.meter >= 40 && f.combo !== -1 && opp(f).combo >= 2 && Math.random() < 0.05 * lvl) inp.breaker = true;
     if (f.state === 'attack' && f.hit && Math.random() < 0.25 * lvl) inp[pick(['heavy', 'hkick', 'lkick'])] = true;
     const go = (d) => { if (d > 0) inp.right = true; else if (d < 0) inp.left = true; };
-    const react = [0, 0.35, 0.6, 0.82][lvl];
+    const react = clamp(0.1 + 0.25 * lvl, 0, 0.95);
     // incoming danger: block or jump
     const threat = (o.state === 'attack' && dist < 190 && o.t < 0.25) || G.shots.some((s) => s.owner !== f.side && Math.sign(f.x - s.x) === Math.sign(s.vx) && Math.abs(f.x - s.x) < 260) || G.waves.some((w) => w.owner !== f.side && Math.abs(f.x - w.x) < 230) || G.beams.some((b) => b.owner !== f.side);
     if (threat && c.reacted !== G.t) { c.reacted = G.t; c.def = Math.random() < react ? pick(['block', 'block', 'crouch', 'jump']) : null; c.defT = 0.35; }
@@ -535,6 +566,7 @@
       [[22, 'rgba(87,182,255,0.45)'], [10, '#bfe6ff'], [4, '#ffffff']].forEach(([w, c]) => { ctx.strokeStyle = c; ctx.lineWidth = w * k + 1; ctx.beginPath(); ctx.moveTo(b.x, b.y); for (let i = 1; i <= 16; i++) ctx.lineTo(b.x + b.face * b.len * i / 16, b.y + (i < 16 ? rand(-7, 7) : 0)); ctx.stroke(); });
       ctx.restore(); });
     G.waves.forEach((w) => { if (w.delay > 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = w.col[0]; ctx.shadowBlur = 18; spr(ctx, 'bfx', 'burst', 0, w.x, FLOOR - 30, Math.sign(w.vx), 0.9 + 0.12 * Math.sin(G.t * 30)); ctx.restore(); });
+    (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '800 20px Georgia, serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
@@ -554,6 +586,7 @@
     ctx.textAlign = 'center'; ctx.font = '700 40px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), VW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), VW / 2, 38);
     if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '800 30px Georgia, serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? VW - 30 : 30;
       ctx.lineWidth = 6; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, 130); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, 130); ctx.restore(); }
+    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = 'italic 600 24px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), VW / 2, 150); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), VW / 2, 150); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
       ctx.translate(VW / 2, 230); ctx.scale(sc, sc); ctx.font = '700 86px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
@@ -582,39 +615,61 @@
     const grid = $('#roster'); grid.replaceChildren();
     ROSTER.forEach((c, i) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.dataset.i = i; b.setAttribute('aria-label', `${c.name}, ${c.title}`);
-      const cap = document.createElement('span'); cap.className = 'nm'; cap.textContent = c.name; const t = document.createElement('small'); t.textContent = c.special.name; cap.append(t);
+      const cap = document.createElement('span'); cap.className = 'nm'; cap.textContent = c.name; const t = document.createElement('small'); t.textContent = c.special.name + (PASSIVE[c.id] ? ' · ' + PASSIVE[c.id][0] : ''); t.title = PASSIVE[c.id] ? PASSIVE[c.id][1] : ''; cap.append(t);
       b.append(portrait(c), cap); b.addEventListener('click', () => choose(i)); grid.append(b);
     });
     syncSelect();
   }
   function syncSelect() {
     document.querySelectorAll('#roster .card').forEach((b) => { const i = +b.dataset.i; b.classList.toggle('p1', chosen[0] === i); b.classList.toggle('p2', chosen[1] === i); });
-    const step = chosen[0] === null ? 'Player 1: choose your fighter' : mode === 'cpu' ? (chosen[1] === null ? 'Choose your opponent, or press Fight for a random one' : 'Ready!') : chosen[1] === null ? 'Player 2: choose your fighter' : 'Ready!';
+    if (mode === 'arcade' && chosen[1] !== null) chosen[1] = null;
+    const best = store.get('af-arcade-best');
+    const step = chosen[0] === null ? (mode === 'arcade' ? 'Arcade: choose your champion and defeat six challengers' + (best ? ` (best score ${best.toLocaleString('en-US')})` : '') : 'Player 1: choose your fighter') : mode === 'arcade' ? 'Ready! Six stages, ending at the Throne of Hades.' : mode === 'cpu' ? (chosen[1] === null ? 'Choose your opponent, or press Fight for a random one' : 'Ready!') : chosen[1] === null ? 'Player 2: choose your fighter' : 'Ready!';
     $('#sel-step').textContent = step; $('#fight').disabled = chosen[0] === null || (mode === '2p' && chosen[1] === null);
     document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
-    $('#levels').hidden = mode !== 'cpu';
+    $('#levels').hidden = mode === '2p';
   }
-  function choose(i) { SFX.ensure(); SFX.coin(); if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
+  function choose(i) { SFX.ensure(); SFX.coin(); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
   document.querySelectorAll('[data-level]').forEach((b) => b.addEventListener('click', () => { level = +b.dataset.level; store.set('af-level', level); syncSelect(); }));
   $('#sel-reset').addEventListener('click', () => { chosen = [null, null]; syncSelect(); });
   $('#fight').addEventListener('click', () => {
     SFX.ensure(); let p2 = chosen[1]; if (p2 === null) { do { p2 = Math.floor(Math.random() * ROSTER.length); } while (p2 === chosen[0]); }
     $('#s-select').hidden = true; $('#s-fight').hidden = false; $('#result').hidden = true; fit();
-    newMatch(ROSTER[chosen[0]], ROSTER[p2], mode === 'cpu' ? level : 0); window.scrollTo({ top: 0 });
+    ARC = null;
+    if (mode === 'arcade') {
+      const me = ROSTER[chosen[0]], hades = ROSTER.find((c) => c.id === 'hades'), boss = me === hades ? ROSTER.find((c) => c.id === 'colossus') : hades;
+      const pool = ROSTER.filter((c) => c !== me && c !== boss).sort(() => Math.random() - 0.5).slice(0, 5);
+      ARC = { ladder: pool.concat([boss]), stage: 0, score: 0, base: level };
+      newMatch(me, ARC.ladder[0], arcLevel());
+    } else newMatch(ROSTER[chosen[0]], ROSTER[p2], mode === 'cpu' ? level : 0);
+    window.scrollTo({ top: 0 });
   });
+  const arcLevel = () => Math.min(3.4, ARC.base - 0.5 + ARC.stage * 0.3);
   function showResult(champ) {
     const r = $('#result'); r.hidden = false;
     $('#res-k').textContent = champ.cpu ? 'Defeat' : (G.p[1].cpu ? 'Victory' : `Player ${champ.side + 1} wins`);
     $('#res-name').textContent = champ.ch.name; $('#res-quote').textContent = '“' + champ.ch.quote + '”';
     if (!champ.cpu && G.p[1].cpu) { const s = (store.get('af-streak') || 0) + 1; store.set('af-streak', s); $('#res-streak').textContent = `Win streak: ${s}`; } else if (G.p[1].cpu) { store.set('af-streak', 0); $('#res-streak').textContent = 'Win streak reset. Breathe, and go again.'; } else $('#res-streak').textContent = '';
+    $('#res-again').textContent = 'Rematch'; $('#res-next').hidden = false;
+    if (ARC) {
+      const won = champ.side === 0;
+      if (won) { ARC.score += 1000 + Math.round(champ.hp / champ.maxHp * 1000) + Math.ceil(G.timer) * 10; ARC.stage += 1; }
+      const done = won && ARC.stage >= 6;
+      $('#res-k').textContent = done ? 'Champion of the Arena' : won ? `Stage ${ARC.stage} cleared` : `Stage ${ARC.stage + 1} lost`;
+      if (done) { const best = Math.max(store.get('af-arcade-best') || 0, ARC.score); store.set('af-arcade-best', best); $('#res-streak').textContent = `Final score ${ARC.score.toLocaleString('en-US')} · best ${best.toLocaleString('en-US')}. The gods bow to you.`; $('#res-again').textContent = 'New campaign'; }
+      else { $('#res-streak').textContent = `Score ${ARC.score.toLocaleString('en-US')}` + (won ? ` · next: ${ARC.ladder[ARC.stage].name}` : ''); $('#res-again').textContent = won ? 'Next battle' : 'Retry stage'; }
+      $('#res-next').hidden = true; ARC.done = done;
+    }
     setTimeout(() => $('#res-again').focus({ preventScroll: true }), 50);
   }
-  $('#res-again').addEventListener('click', () => { $('#result').hidden = true; const [a, b] = G.p; newMatch(a.ch, b.ch, G.cpuLevel); });
+  $('#res-again').addEventListener('click', () => { $('#result').hidden = true; const [a, b] = G.p;
+    if (ARC) { if (ARC.done) { const me = a.ch; const boss = ARC.ladder[5]; ARC = { ladder: ROSTER.filter((c) => c !== me && c !== boss).sort(() => Math.random() - 0.5).slice(0, 5).concat([boss]), stage: 0, score: 0, base: ARC.base }; } newMatch(a.ch, ARC.ladder[ARC.stage], arcLevel()); }
+    else newMatch(a.ch, b.ch, G.cpuLevel); });
   $('#res-next').addEventListener('click', () => { $('#result').hidden = true; const a = G.p[0]; let n; do { n = pick(ROSTER); } while (n === a.ch); newMatch(a.ch, n, G.cpuLevel || level); });
   $('#res-select').addEventListener('click', backToSelect);
-  function backToSelect() { MUSIC.stop(); G = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
+  function backToSelect() { MUSIC.stop(); G = null; ARC = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
   // settings
   function togglePause(force) { if (!G || G.mode === 'over') return; G.pause = force !== undefined ? force : !G.pause; $('#menu').hidden = !G.pause; if (G.pause) MUSIC.pause(); else { MUSIC.resume(); last = performance.now(); } }
   $('#gear').addEventListener('click', () => togglePause());
