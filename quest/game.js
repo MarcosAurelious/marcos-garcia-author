@@ -177,7 +177,7 @@
       n.buffer = b; n.connect(f).connect(g).connect(ac.destination); n.start();
     }
     return {
-      ensure, get on() { return on; }, toggle() { on = !on; store.set('aq-sound', on); return on; },
+      ensure, get ac() { return ac; }, get on() { return on; }, toggle() { on = !on; store.set('aq-sound', on); return on; },
       jump: () => tone(300, 620, 0.14, 'square', 0.05), coin: () => { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.12, 'square', 0.05, 0.06); },
       slash: () => noise(0.12, 0.08, 2500), hit: () => tone(220, 90, 0.15, 'sawtooth', 0.07), stomp: () => tone(500, 120, 0.12, 'square', 0.07),
       hurt: () => tone(330, 110, 0.35, 'sawtooth', 0.08), bump: () => tone(140, 90, 0.08, 'square', 0.06), zap: () => noise(0.18, 0.04, 4000),
@@ -187,6 +187,79 @@
       boss: () => tone(90, 60, 0.6, 'sawtooth', 0.09),
     };
   })();
+
+  /* ================= music: original themes, synthesized live (no audio files) ================= */
+  const MUSIC = (() => {
+    let on = store.get('aq-music') !== false, ac = null, master = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
+    const NOTE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
+    const hz = (s) => { const m = /^([A-G][#b]?)(\d)$/.exec(s); return 440 * Math.pow(2, (NOTE[m[1]] + (+m[2] + 1) * 12 - 69) / 12); };
+    const seq = (str) => { const t = str.trim().split(/\s+/), out = new Array(t.length).fill(null); t.forEach((x, i) => { if (x === '-' || x === '.') return; let d = 1; while (t[i + d] === '-') d++; out[i] = { f: hz(x), d }; }); return out; };
+    const ch = (s) => s.split(' ').map(hz);
+    const T = {
+      // Chapter I: a Roman march in D minor (i, VI, VII, V)
+      ch1: { bpm: 104, wave: 'square', leadVol: 0.07, bass: 'march', pad: 0.035, kick: [0, 8], snare: [4, 12, 14], hat: [0, 2, 4, 6, 8, 10, 12, 14],
+        chords: [ch('D3 F3 A3'), ch('Bb2 D3 F3'), ch('C3 E3 G3'), ch('A2 C#3 E3')],
+        lead: [seq('D5 - - - A4 - - - D5 - E5 - F5 - - - G5 - F5 - E5 - D5 - F5 - - - - - - - E5 - - - C5 - - - E5 - F5 - G5 - - - A5 - G5 - F5 - E5 - C#5 - - - - - - -'),
+               seq('F5 - E5 - D5 - - - A4 - - - D5 - - - D5 - C5 - Bb4 - - - F4 - - - Bb4 - - - C5 - D5 - E5 - - - G5 - - - E5 - - - E5 - F5 - E5 - D5 - C#5 - - - A4 - - -')] },
+      // Chapter II: the laboratory, E Phrygian dominant with crackling arpeggios
+      ch2: { bpm: 112, wave: 'square', leadVol: 0.055, bass: 'pulse', arp: 1, arpWave: 'square', arpVol: 0.03, kick: [0, 6, 10], snare: [4, 12], hat: [2, 6, 10, 14],
+        chords: [ch('E3 G#3 B3'), ch('F3 A3 C4'), ch('E3 G#3 B3'), ch('D3 F3 A3')],
+        lead: [seq('E5 - - - F5 - - - G#5 - - - - - - - F5 - E5 - D5 - - - C5 - - - - - - - E5 - - - G#5 - - - B5 - - - A5 - G#5 - F5 - - - - - - - E5 - - - - - - -'),
+               seq('. . . . B4 - C5 - D5 - - - C5 - B4 - A4 - - - C5 - - - F5 - - - E5 - - - . . . . G#4 - A4 - B4 - - - D5 - C5 - B4 - - - A4 - - - G#4 - - - - - - -')] },
+      // Chapter III: the cosmos, A minor with slow pads and bell arpeggios
+      ch3: { bpm: 92, wave: 'triangle', leadVol: 0.08, bass: 'pulse', pad: 0.05, arp: 2, arpWave: 'sine', arpVol: 0.035, kick: [0], snare: [8], hat: [4, 12],
+        chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('C3 E3 G3'), ch('G2 B2 D3')],
+        lead: [seq('E5 - - - - - - - C5 - - - D5 - E5 - C5 - - - - - - - A4 - - - - - - - G4 - - - C5 - - - E5 - - - G5 - - - D5 - - - - - - - B4 - - - - - - -'),
+               seq('A5 - - - G5 - - - E5 - - - D5 - - - C5 - - - D5 - - - A4 - - - - - - - E5 - - - D5 - C5 - G5 - - - E5 - - - D5 - - - B4 - - - G4 - - - - - - -')] },
+      // Bosses: driving C minor
+      boss: { bpm: 148, wave: 'sawtooth', leadVol: 0.045, bass: 'drive', pad: 0, kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        chords: [ch('C3 Eb3 G3'), ch('Ab2 C3 Eb3'), ch('Bb2 D3 F3'), ch('G2 B2 D3')],
+        lead: [seq('C5 - Eb5 - G5 - Eb5 - C5 - G4 - C5 - D5 - Eb5 - C5 - Ab4 - C5 - Eb5 - - - F5 - G5 - F5 - D5 - Bb4 - D5 - F5 - - - Eb5 - D5 - D5 - B4 - G4 - B4 - D5 - - - - - - -'),
+               seq('G5 - - - F5 - Eb5 - D5 - - - C5 - - - Ab5 - - - G5 - F5 - Eb5 - - - C5 - - - Bb5 - - - Ab5 - G5 - F5 - - - D5 - - - B5 - - - G5 - - - D5 - - - B4 - - -')] },
+    };
+    function init() {
+      if (ac) return true; ac = SFX.ac; if (!ac) return false;
+      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      noise = ac.createBuffer(1, ac.sampleRate * 0.3, ac.sampleRate); const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      return true;
+    }
+    function env(g, t, a, peak, hold, rel) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.setValueAtTime(peak, t + a + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + rel); }
+    function voice(f, t, dur, wave, vol, cutoff, a = 0.01, rel = 0.08) {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = wave; o.frequency.setValueAtTime(f, t);
+      let out = o; if (cutoff) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff; o.connect(lp); out = lp; }
+      out.connect(g); g.connect(master); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
+    }
+    function drum(kind, t) {
+      if (kind === 'k') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18); o.connect(g).connect(master); o.start(t); o.stop(t + 0.2); return; }
+      const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = noise; f.type = 'highpass'; f.frequency.value = kind === 's' ? 1400 : 7000;
+      const len = kind === 's' ? 0.13 : 0.035; g.gain.setValueAtTime(kind === 's' ? 0.16 : 0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      n.connect(f).connect(g).connect(master); n.start(t); n.stop(t + len + 0.02);
+    }
+    function schedule(s, t) {
+      const tr = track, sd = 60 / tr.bpm / 4, len = tr.lead[0].length, i = s % len, sec = Math.floor(s / len) % tr.lead.length, bar = Math.floor(i / 16), b = i % 16, c = tr.chords[bar % tr.chords.length];
+      const n = tr.lead[sec][i]; if (n) voice(n.f, t, n.d * sd * 0.92, tr.wave, tr.leadVol, tr.wave === 'sawtooth' ? 2400 : tr.wave === 'square' ? 3200 : 0, 0.012, 0.12);
+      const root = c[0] / 2;
+      if (tr.bass === 'march' && b % 4 === 0) voice(b % 8 === 0 ? root : root * 2, t, sd * 1.8, 'sawtooth', 0.09, 700);
+      if (tr.bass === 'pulse' && b % 8 === 0) voice(root, t, sd * 7, 'triangle', 0.13, 0, 0.02, 0.2);
+      if (tr.bass === 'drive' && b % 2 === 0) voice((b / 2) % 2 ? root * 2 : root, t, sd * 0.9, 'sawtooth', 0.085, 900);
+      if (tr.pad && b === 0) c.forEach((f) => { voice(f * 2, t, sd * 15, 'sawtooth', tr.pad / 2, 1100, 0.35, 0.6); voice(f * 2 * 1.006, t, sd * 15, 'sawtooth', tr.pad / 2, 1100, 0.35, 0.6); });
+      if (tr.arp && b % tr.arp === 0) voice(c[(b / tr.arp) % 3] * 4, t, sd * tr.arp * 0.6, tr.arpWave, tr.arpVol, 0, 0.005, 0.15);
+      if (tr.kick.includes(b)) drum('k', t);
+      if (tr.snare.includes(b)) drum('s', t);
+      if (tr.hat.includes(b)) drum('h', t);
+    }
+    function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
+    function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' ? 0.2 : 0.17, ac.currentTime, 0.25); }
+    function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
+    return {
+      get on() { return on; },
+      play(n) { if (name === n && running) return; name = n; track = T[n]; step = 0; if (ac) nextT = ac.currentTime + 0.3; start(); },
+      pause() { halt(0.08); }, resume() { if (track) { if (ac) nextT = ac.currentTime + 0.1; start(); } }, stop() { halt(0.4); name = ''; },
+      toggle() { on = !on; store.set('aq-music', on); if (on) this.resume(); else halt(0.1); return on; },
+    };
+  })();
+  const chapterTrack = () => ['ch1', 'ch2', 'ch3'][S.level];
 
   /* ================= input ================= */
   const keys = { left: false, right: false, jump: false, attack: false, throw: false };
@@ -254,6 +327,7 @@
     spawnPlayer();
     C = { x: P.x - 20, y: P.y - 30, anim: 0, cast: 0 };
     S.mode = 'play';
+    MUSIC.play(['ch1', 'ch2', 'ch3'][n]);
     if (showIntro) overlay(`Chapter ${['I', 'II', 'III'][n]}`, def.name, def.intro, 'Begin the chapter', () => {}, def.art);
   }
 
@@ -330,6 +404,7 @@
       const pts = en.type === 'boss' ? 1000 : en.big ? 500 : ['colossus', 'chariot', 'leviathan', 'minotaur'].includes(en.type) ? 150 : 50;
       float(en.x, en.y - 6, '+' + pts, '#e7c46a'); S.score += pts;
       if (en.big) {
+        MUSIC.pause(); setTimeout(() => { if (S && S.mode === 'play') MUSIC.play(chapterTrack()); }, 2600);
         SFX.win(); L.shake = 0.6; if (L.flag) L.flag.hidden = false;
         L.drones = []; L.waves = []; L.strikes = []; L.orbs = [];
         toast(en.type === 'boss' ? 'The Roman Automaton falls silent. The last road home is open.' : en.type === 'engine' ? 'The Minotaur Engine grinds to a halt. The eagle standard is yours.' : 'The Dark Commander yields. The eagle standard is yours.', 'Reach the standard'); L.shots = []; L.zones = [];
@@ -587,7 +662,7 @@
   NEW_AI.techno = NEW_AI.medusa;
 
   /* ---------- the Dark Commander (Chapter II) ---------- */
-  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); toast(text, 'Boss'); return true; } return false; }
+  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play('boss'); toast(text, 'Boss'); return true; } return false; }
   function updateCommander(b, dt) {
     if (!wake(b, 'The Dark Commander bars the way. Watch his spear, strike when he recovers, or land on his helmet.')) return;
     b.anim += dt; b.st -= dt;
@@ -1094,19 +1169,22 @@
   const ov = { box: $('#overlay'), kicker: $('#ov-kicker'), title: $('#ov-title'), text: $('#ov-text'), go: $('#ov-go') };
   let ovNext = null;
   function overlay(kicker, title, text, label, next, art) {
+    MUSIC.pause();
     S.mode = 'overlay'; ovNext = next;
     const im = $('#ov-img'); if (art) { im.src = art; im.hidden = false; } else im.hidden = true;
     ov.kicker.textContent = kicker; ov.title.textContent = title; ov.text.textContent = text; ov.go.textContent = label;
     ov.box.hidden = false; setTimeout(() => ov.go.focus({ preventScroll: true }), 30);
     Object.keys(keys).forEach((k) => { keys[k] = false; });
   }
-  ov.go.addEventListener('click', () => { SFX.ensure(); ov.box.hidden = true; S.mode = 'play'; const n = ovNext; ovNext = null; if (n) n(); last = performance.now(); });
+  ov.go.addEventListener('click', () => { SFX.ensure(); ov.box.hidden = true; S.mode = 'play'; const n = ovNext; ovNext = null; if (n) n(); if (S.mode === 'play') MUSIC.resume(); last = performance.now(); });
 
   function togglePause() {
     if (S.mode === 'play') overlay('Paused', 'Breathe', '“Receive without arrogance; let go without struggle.” Take a moment, then continue.', 'Resume', null);
     else if (S.mode === 'overlay' && ov.title.textContent === 'Breathe') ov.go.click();
   }
   $('#pause').addEventListener('click', () => { if (S) togglePause(); });
+  const musicBtn = $('#music'); const syncMusic = () => { musicBtn.textContent = 'Music: ' + (MUSIC.on ? 'on' : 'off'); };
+  musicBtn.addEventListener('click', () => { SFX.ensure(); MUSIC.toggle(); syncMusic(); }); syncMusic();
   const soundBtn = $('#sound'); const syncSound = () => { soundBtn.textContent = 'Sound: ' + (SFX.on ? 'on' : 'off'); };
   soundBtn.addEventListener('click', () => { SFX.ensure(); SFX.toggle(); syncSound(); }); syncSound();
   document.addEventListener('visibilitychange', () => { if (document.hidden && S && S.mode === 'play') togglePause(); });
@@ -1120,6 +1198,7 @@
   }
 
   function finish() {
+    MUSIC.stop();
     S.mode = 'done';
     const sc = S.scrolls.size;
     const rank = sc === 9 && S.deaths <= 3 ? 'Philosopher-King' : sc >= 7 ? 'Stoic Champion' : sc >= 4 ? 'Legionary of Virtue' : 'Student of the Stoa';
