@@ -8,7 +8,7 @@
   const $ = (s) => document.querySelector(s);
   const T = 32, ROWS = 15, VW = 960; let VH = 480;
   // On small screens the camera moves in closer so the characters are bigger, and follows Marcus up and down.
-  let ZOOM = 1, VWZ = VW, VHZ = VH, HS = 1, HW = VW;
+  let ZOOM = 1, VWZ = VW, VHZ = VH, HS = 1, HW = VW, RES = 1;   // RES: real pixels per game pixel, so big screens stay sharp
   function setZoom() {
     const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 760;
     const w = cv.getBoundingClientRect().width || VW, h = window.innerHeight;
@@ -20,8 +20,15 @@
       want = Math.round(VW * avail / w);
       ZOOM = clamp(want / 480, 2.0, 2.5);
       want = Math.round(clamp(want, 720, (480 + 200) * ZOOM + 44 * HS));   // up to 200 px of open sky above the level, never below it
-    } else ZOOM = w < 560 ? 1.8 : (w < 960 || h < 560) ? 1.45 : 1.12;
-    if (VH !== want || cv.height !== want) { VH = want; cv.height = want; cv.style.aspectRatio = `${VW} / ${VH}`; }
+    } else {   // wide screens: fill the window (as large as fits), keeping the 2:1 view
+      const wrap = $('#game-wrap'), cssW = Math.floor(Math.min(window.innerWidth - 28, (h - 28) * VW / 480));
+      if (wrap) wrap.style.width = Math.max(320, cssW) + 'px';
+      const ww = Math.max(320, cssW); ZOOM = ww < 560 ? 1.8 : (ww < 960 || h < 560) ? 1.45 : 1.12;
+    }
+    VH = want;
+    const cssW2 = cv.getBoundingClientRect().width || VW, touchy = document.body.classList.contains('touchy');
+    const res = clamp(Math.ceil(cssW2 * (window.devicePixelRatio || 1) / VW * 4) / 4, 1, touchy ? 1.75 : 3);
+    if (cv.width !== Math.round(VW * res) || cv.height !== Math.round(VH * res)) { RES = res; cv.width = Math.round(VW * res); cv.height = Math.round(VH * res); cv.style.aspectRatio = `${VW} / ${VH}`; for (const k in strips) delete strips[k]; }
     VWZ = VW / ZOOM; VHZ = VH / ZOOM;
   }
   const cv = $('#cv'); let ctx = cv.getContext('2d');
@@ -1152,12 +1159,12 @@
     const key = L.def.bg; if (strips[key]) return strips[key];
     const im = bgImg(key); if (!im.complete || !im.naturalWidth) return null;
     const t = THEMES[th], h = 600, w = Math.round(im.naturalWidth * (h / im.naturalHeight));
-    const c = document.createElement('canvas'); c.width = w * 2; c.height = h; const g = c.getContext('2d');
-    g.fillStyle = t.paper; g.fillRect(0, 0, c.width, h);
+    const k = Math.min(RES, 2), c = document.createElement('canvas'); c.width = Math.round(w * 2 * k); c.height = Math.round(h * k); c.lw = w * 2; c.lh = h; const g = c.getContext('2d'); g.scale(k, k);
+    g.fillStyle = t.paper; g.fillRect(0, 0, w * 2, h);
     g.globalAlpha = th === 0 ? 0.92 : th === 1 ? 0.85 : 0.75; if (th === 0) g.globalCompositeOperation = 'multiply';
     g.drawImage(im, 0, 0, w, h); g.save(); g.translate(w * 2, 0); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore();
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
-    if (th === 0) { g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, c.width, h); }
+    if (th === 0) { g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, w * 2, h); }
     return (strips[key] = c);
   }
   const vignette = (() => { const c = document.createElement('canvas'); c.width = VW; c.height = 480; const g = c.getContext('2d');
@@ -1168,7 +1175,7 @@
   function drawBackground(th) {
     const t = THEMES[th], st = strip(th), par = [0.18, 0.15, 0.12][th], y0 = [-60, -40, -50][th];
     ctx.fillStyle = t.paper; ctx.fillRect(0, 0, VW, VH);
-    if (st) { const k = Math.max(1, (VH - y0) / st.height), sw = st.width * k, sh = st.height * k, off = (L.cam * par * k) % sw;   // tall phone screens: stretch the art to the full height
+    if (st) { const k = Math.max(1, (VH - y0) / st.lh), sw = st.lw * k, sh = st.lh * k, off = (L.cam * par * k) % sw;   // tall phone screens: stretch the art to the full height
       for (let x = -off; x < VW; x += sw) ctx.drawImage(st, Math.floor(x), y0, Math.ceil(sw) + 1, sh); }
     if (th === 0) ctx.drawImage(vignette, 0, 0, VW, VH);
     else ctx.drawImage(shade[th], 0, 0, VW, VH);
@@ -1267,13 +1274,14 @@
   const silCv = document.createElement('canvas'), silCtx = silCv.getContext('2d');
   function inked(bx, by, bw, bh, draw) {
     const pad = 4, W = Math.ceil(bw + pad * 2), H = Math.ceil(bh + pad * 2), th = THEMES[L.def.theme];
-    if (sprCv.width < W || sprCv.height < H) { sprCv.width = silCv.width = Math.max(W, sprCv.width); sprCv.height = silCv.height = Math.max(H, sprCv.height); }
+    const q = Math.min(3, Math.max(1, ctx.getTransform().a)), QW = Math.ceil(W * q), QH = Math.ceil(H * q);   // offscreen at screen resolution
+    if (sprCv.width < QW || sprCv.height < QH) { sprCv.width = silCv.width = Math.max(QW, sprCv.width); sprCv.height = silCv.height = Math.max(QH, sprCv.height); }
     sprCtx.clearRect(0, 0, sprCv.width, sprCv.height); silCtx.clearRect(0, 0, silCv.width, silCv.height);
-    const main = ctx; ctx = sprCtx; sprCtx.save(); sprCtx.translate(pad - bx, pad - by); draw(); sprCtx.restore(); ctx = main;
+    const main = ctx; ctx = sprCtx; sprCtx.save(); sprCtx.setTransform(q, 0, 0, q, 0, 0); sprCtx.translate(pad - bx, pad - by); draw(); sprCtx.restore(); ctx = main;
     silCtx.globalCompositeOperation = 'source-over'; silCtx.drawImage(sprCv, 0, 0); silCtx.globalCompositeOperation = 'source-in'; silCtx.fillStyle = th.outline; silCtx.fillRect(0, 0, silCv.width, silCv.height);
     const o = th.ow, dirs = th.sepia ? [[-o, 0], [o, 0], [0, -o], [0, o], [-o, -o], [o, -o], [-o, o], [o, o]] : [[-o, 0], [o, 0], [0, -o], [0, o]];
-    dirs.forEach(([dx, dy]) => ctx.drawImage(silCv, 0, 0, W, H, bx - pad + dx, by - pad + dy, W, H));
-    ctx.drawImage(sprCv, 0, 0, W, H, bx - pad, by - pad, W, H);
+    dirs.forEach(([dx, dy]) => ctx.drawImage(silCv, 0, 0, QW, QH, bx - pad + dx, by - pad + dy, W, H));
+    ctx.drawImage(sprCv, 0, 0, QW, QH, bx - pad, by - pad, W, H);
   }
 
   /* ---------- characters ---------- */
@@ -1533,6 +1541,7 @@
   }
 
   function render() {
+    ctx.setTransform(RES, 0, 0, RES, 0, 0);
     ctx.save();
     if (L.shake && !calm) ctx.translate(rand(-6, 6) * L.shake * 2, rand(-6, 6) * L.shake * 2);
     const th = L.def.theme;

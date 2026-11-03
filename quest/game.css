@@ -133,3 +133,10 @@ body:not(.touchy) .set-note { display: none; }
   body.touchy .stage { padding-top: 6px; }
 }
 .overlay:not([hidden]) ~ .gear, .overlay:not([hidden]) ~ .settings { display: none; }
+
+/* desktop: the game fills the window; JS sets the exact width */
+.screen-game { max-width: none; }
+body:has(#s-game:not([hidden])) .stage { max-width: none; padding-top: 12px; padding-bottom: 12px; }
+#game-wrap { margin: 0 auto; }
+@media (orientation: portrait) and (max-width: 760px) { #game-wrap { width: 100% !important; } }
+.screen-game { margin: 0 auto; }
