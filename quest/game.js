@@ -36,8 +36,10 @@
   const EATLAS = {"minotaur":{"idle":[[0,0,57,70,29,70],[59,0,53,69,25,69]],"move":[[114,0,69,65,33,65],[185,0,85,67,34,67]],"gore":[[272,0,84,56,38,56],[358,0,107,64,23,64]],"slam":[[467,0,182,68,42,68]]},"medusa":{"idle":[[651,0,40,66,24,66],[693,0,40,66,24,66]],"move":[[735,0,40,64,21,64],[777,0,42,64,23,64],[821,0,37,64,21,64]],"gaze":[[860,0,84,67,40,67]],"serp":[[946,0,37,61,22,61]]},"chiron":{"idle":[[0,72,52,70,20,70],[54,72,59,69,26,69]],"move":[[115,72,43,70,22,70],[160,72,69,69,31,69],[231,72,49,68,19,68]],"shoot":[[282,72,60,66,22,66]]},"chariot":{"idle":[[344,72,123,66,68,33]],"move":[[469,72,143,74,79,37]],"beam":[[614,72,95,55,52,27]]},"leviathan":{"idle":[[711,72,166,92,83,92]],"emerge":[[0,166,186,116,93,116]],"tent":[[188,166,241,102,121,102]],"cannon":[[431,166,219,99,109,99]]},"colossus":{"idle":[[652,166,106,100,50,100],[760,166,103,100,54,100],[865,166,118,100,58,100]],"slam":[[0,284,114,108,59,108],[116,284,97,108,56,108],[215,284,174,108,47,108]],"throw":[[391,284,86,91,45,91],[479,284,200,98,63,98]]},"techno":{"idle":[[681,284,75,64,42,64],[758,284,60,64,23,64],[820,284,63,64,19,64]],"gaze":[[885,284,46,65,17,65],[0,394,96,68,33,68]],"sum":[[98,394,39,57,15,57],[139,394,115,60,21,60],[256,394,54,57,26,57]]},"engine":{"idle":[[312,394,117,104,64,104],[431,394,119,101,62,101],[552,394,112,97,64,97]],"charge":[[666,394,139,99,68,99],[807,394,124,112,62,112],[0,508,119,121,49,121]],"sweep":[[121,508,126,96,50,96],[249,508,163,112,92,112],[414,508,101,94,48,94]]},"pegasus":{"idle":[[517,508,87,52,44,26],[606,508,61,60,30,30],[669,508,53,56,26,28]],"dive":[[724,508,72,62,36,31],[798,508,68,75,34,37],[868,508,80,76,40,38]],"sonic":[[0,631,77,60,38,30],[79,631,46,61,23,30]]},"helios":{"idle":[[127,631,63,54,31,27],[192,631,76,62,38,31],[270,631,50,60,25,30]],"orbs":[[322,631,71,60,36,30],[395,631,86,69,43,34],[483,631,51,61,26,30]],"laser":[[536,631,40,47,20,23],[578,631,71,63,36,31],[651,631,100,70,50,35]]},"efx":{"serpent":[[753,631,38,17,19,8]],"star":[[793,631,89,16,44,8]],"flare":[[884,631,51,43,25,21]],"rock":[[937,631,38,32,19,16]],"ring":[[0,703,58,38,29,19]],"sunorb":[[60,703,70,32,35,16]],"water":[[132,703,98,41,49,20]],"beam":[[232,703,87,28,43,14]]}};
   const XATLAS = {"cerberus":{"recover":[[0,0,164,128,67,128]],"special":[[1566,0,219,110,110,110]],"attack":[[1245,242,202,98,67,98]],"idle":[[655,345,134,96,67,96]],"walk":[[1473,345,171,95,67,95]],"wind":[[0,539,144,83,67,83]]},"blackknight":{"wind":[[166,0,87,123,34,123]],"special":[[819,0,148,114,74,114]],"attack":[[967,130,128,104,34,104]],"idle":[[1906,242,68,96,34,96]],"recover":[[1936,345,78,94,34,94]],"walk":[[1074,443,87,89,34,89]]},"stormtaur":{"wind":[[255,0,113,119,62,119]],"special":[[370,0,202,116,101,116]],"attack":[[0,242,187,101,62,101]],"recover":[[1084,242,159,98,62,98]],"idle":[[0,345,125,96,62,96]],"walk":[[943,443,129,91,62,91]]},"spider":{"special":[[574,0,243,116,122,116]],"wind":[[1124,0,166,113,84,113]],"recover":[[1381,0,183,110,84,110]],"walk":[[595,242,178,99,84,99]],"idle":[[485,345,168,96,84,96]],"attack":[[424,443,215,93,84,93]]},"king":{"special":[[969,0,153,113,76,113]],"wind":[[881,130,84,105,33,105]],"idle":[[1772,242,66,96,33,96]],"recover":[[1840,242,64,96,33,96]],"walk":[[1850,345,84,94,33,94]],"attack":[[1733,443,115,85,33,85]]},"templar":{"attack":[[1292,0,87,112,33,112]],"idle":[[1703,242,67,96,33,96]],"recover":[[1160,345,75,95,33,95]],"walk":[[771,443,89,91,33,91]],"wind":[[862,443,79,91,33,91]],"special":[[1295,443,138,88,69,88]]},"pluto":{"wind":[[1787,0,121,110,47,110]],"special":[[0,130,188,110,94,110]],"recover":[[775,242,127,99,47,99]],"idle":[[791,345,94,96,47,96]],"walk":[[1646,345,112,95,47,95]],"attack":[[270,539,178,80,47,80]]},"harpy":{"wind":[[190,130,105,109,58,109]],"attack":[[1097,130,138,104,58,104]],"special":[[1626,130,198,103,99,103]],"recover":[[1449,242,128,97,58,97]],"idle":[[366,345,117,96,58,96]],"walk":[[1357,345,114,95,58,95]]},"strider":{"special":[[297,130,184,108,92,108]],"recover":[[1826,130,103,103,45,103]],"wind":[[189,242,114,101,45,101]],"attack":[[305,242,176,101,45,101]],"walk":[[1579,242,122,97,45,97]],"idle":[[962,345,90,96,45,96]]},"titan":{"attack":[[483,130,162,107,56,107]],"wind":[[647,130,118,106,56,106]],"special":[[1424,130,200,103,100,103]],"idle":[[251,345,113,96,56,96]],"walk":[[304,443,118,93,56,93]],"recover":[[1163,443,130,89,56,89]]},"charon":{"wind":[[767,130,112,106,51,106]],"special":[[1237,130,185,104,92,104]],"idle":[[1054,345,104,96,51,96]],"walk":[[1435,443,125,87,51,87]],"recover":[[146,539,122,82,51,82]],"attack":[[450,539,186,78,51,78]]},"anubis":{"wind":[[483,242,110,100,61,100]],"idle":[[127,345,122,96,61,96]],"walk":[[1237,345,118,95,61,95]],"recover":[[0,443,130,94,61,94]],"attack":[[1562,443,169,86,61,86]],"special":[[638,539,191,77,96,77]]},"galvanic":{"special":[[904,242,178,99,89,99]],"idle":[[887,345,73,96,36,96]],"recover":[[1760,345,88,95,36,95]],"attack":[[132,443,170,94,36,94]],"walk":[[641,443,128,92,36,92]],"wind":[[1850,443,100,85,36,85]]}};
   const ELITEIMG = img('img/elites.webp');
-  Object.assign(ATLAS, EATLAS, XATLAS);
-  const imgFor = (set) => (set === 'boss' || set === 'bfx' ? BOSSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  const MATLAS = {"m4":{"idle":[[159,168,102,119,58,118],[1007,168,108,113,64,113]],"walk":[[1217,168,100,112,50,112],[159,168,102,119,58,118],[681,168,109,115,57,115],[159,168,102,119,58,118]],"run":[[1217,168,100,112,50,112],[681,168,109,115,57,115]],"jump":[[1457,0,116,123,44,123]],"attack":[[795,0,112,145,54,145],[1319,168,166,112,84,112],[1319,168,166,112,84,112],[1319,168,166,112,84,112]],"special":[[0,0,217,166,108,166]],"hurt":[[1007,168,108,113,64,113]]},"m5":{"idle":[[1019,0,99,130,46,130],[1120,0,108,128,52,128]],"walk":[[1575,0,104,123,56,122],[1019,0,99,130,46,130],[1344,0,111,124,62,123],[1019,0,99,130,46,130]],"run":[[1575,0,104,123,56,122],[1344,0,111,124,62,123]],"jump":[[1230,0,112,125,46,125]],"attack":[[658,0,135,147,68,147],[0,168,157,120,80,120],[0,168,157,120,80,120],[0,168,157,120,80,120]],"special":[[219,0,209,164,104,164]],"hurt":[[1120,0,108,128,52,128]]},"m3":{"idle":[[375,168,102,117,52,117],[570,168,109,116,62,116]],"walk":[[792,168,100,113,49,112],[375,168,102,117,52,117],[894,168,111,113,56,113],[375,168,102,117,52,117]],"run":[[792,168,100,113,49,112],[894,168,111,113,56,113]],"jump":[[1895,0,115,120,44,120]],"attack":[[909,0,108,132,56,132],[1826,168,160,106,48,106],[1826,168,160,106,48,106],[1826,168,160,106,48,106]],"special":[[430,0,226,147,113,147]],"hurt":[[570,168,109,116,62,116]]},"m2":{"idle":[[479,168,89,116,50,116],[263,168,110,117,66,116]],"walk":[[1117,168,98,112,50,111],[479,168,89,116,50,116],[1487,168,110,111,57,110],[479,168,89,116,50,116]],"run":[[1117,168,98,112,50,111],[1487,168,110,111,57,110]],"jump":[[1681,0,110,122,38,122]],"attack":[[1793,0,100,121,49,121],[0,290,156,103,53,102],[0,290,156,103,53,102],[0,290,156,103,53,102]],"special":[[1599,168,225,109,112,109]],"hurt":[[263,168,110,117,66,116]]}};   // Marcus in armor stages II-V (drawn at half size)
+  const MARCUSIMG = img('img/marcus.webp');
+  Object.assign(ATLAS, EATLAS, XATLAS, MATLAS);
+  const imgFor = (set) => (set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   // spr: draw one frame with its anchor (feet, or centre for effects) at screen x,y. clip limits how far right of the anchor is drawn.
   function spr(set, anim, i, sx, sy, face = 1, scale = 1, alpha = 1, clip = 0) {
     const fr = ATLAS[set] && ATLAS[set][anim]; if (!fr) return;
@@ -518,7 +520,7 @@
     if (!S || !n) return; S.xp += n;
     if (x !== undefined && n >= 40) float(x, y, `+${n} XP`, '#8fd8ff');
     const k = stageFor(S.xp);
-    if (k > S.stage) { const add = heartsFor(k) - heartsFor(S.stage); S.stage = k; S.maxHp += add; if (P) { P.hp = S.maxHp; P.glow = 2.2; P.shieldT = 0; } S.evoPending = k; SFX.power(); }
+    if (k > S.stage) { const add = heartsFor(k) - heartsFor(S.stage); S.stage = k; S.maxHp += add; if (P) { P.hp = S.maxHp; P.glow = 2.2; P.shieldT = 0; P.special = 0.9; } S.evoPending = k; SFX.power(); }
   }
 
   /* ================= game state ================= */
@@ -582,7 +584,7 @@
 
   let P = null, C = null;   // Marcus, and his Cosmic Companion
   function spawnPlayer() {
-    P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0, shieldT: 0, droneT: 1, zaps: [] };
+    P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0, special: 0, shieldT: 0, droneT: 1, zaps: [] };
     setZoom();
     L.cam = clamp(P.x - VWZ * 0.35, 0, L.w * T - VWZ); L.camY = camYTarget();
   }
@@ -671,7 +673,7 @@
 
   function hurtPlayer(fromX) {
     if (P.inv > 0 || P.dead) return;
-    if (S.stage >= 3 && P.shieldT <= 0) { P.shieldT = S.stage >= 4 ? 5 : 8; P.inv = 0.9; SFX.bump(); burst(P.x + P.w / 2, P.y + 18, ['#8fd8ff', '#fff', '#57b6ff'], 16, 190); float(P.x - 24, P.y - 18, 'Shield!', '#8fd8ff'); return; }
+    if (S.stage >= 3 && P.shieldT <= 0) { P.shieldT = S.stage >= 4 ? 5 : 8; P.inv = 0.9; SFX.bump(); burst(P.x + P.w / 2, P.y + 18, ['#8fd8ff', '#fff', '#57b6ff'], 16, 190); float(P.x - 24, P.y - 18, 'Shield!', '#8fd8ff'); P.special = 0.35; return; }
     P.hp -= 1; P.inv = 1.3; SFX.hurt(); L.shake = 0.25;
     P.vx = (P.x + P.w / 2 < fromX ? -1 : 1) * 260; P.vy = -380;
     burst(P.x + P.w / 2, P.y + 14, ['#ff7a59', '#fff'], 10, 160);
@@ -694,7 +696,7 @@
       return;
     }
     if (S.evoPending) { const k = S.evoPending; S.evoPending = 0; const st = STAGES[k]; overlay(`Marcus evolves · Stage ${ROMAN[k]}`, st.name, `${st.gear} ${st.perk} (${S.xp} XP)`, 'Onward', null, `img/stage${k + 1}.webp`); return; }
-    if (P.shieldT > 0) P.shieldT -= dt;
+    if (P.shieldT > 0) P.shieldT -= dt; if (P.special > 0) P.special -= dt;
     P.zaps = P.zaps.filter((z) => (z.t -= dt) > 0);
     if (S.stage >= 4) { P.droneT -= dt; if (P.droneT <= 0) { P.droneT = 1.3; const cx = P.x + P.w / 2, cy = P.y + 10; let best = null, bd = 280;
         L.enemies.forEach((en) => { if (en.dead || en.ghost || (en.wakeText && !en.awake)) return; const d = Math.hypot(en.x + en.w / 2 - cx, en.y + en.h / 2 - cy); if (d < bd) { bd = d; best = en; } });
@@ -1271,14 +1273,20 @@
     const blink = !p.dead && p.inv > 0 && p.inv <= 1.0 && Math.floor(p.inv * 14) % 2 ? 0.4 : 1;
     const aura = p.glow > 0 ? '#8fe6d2' : [null, null, '#57b6ff', '#8fd8ff', '#ffd27a'][S.stage];
     if (aura) { ctx.save(); ctx.shadowColor = aura; ctx.shadowBlur = p.glow > 0 ? 18 : 7 + S.stage * 2; }
-    if (p.stone > 0) { ctx.save(); ctx.filter = 'grayscale(1) brightness(0.85)'; spr('warrior', 'idle', 0, x, y + 1, p.face, 1, 1); ctx.restore(); }
-    else spr('warrior', anim, f, x, y + 1, p.face, 1, blink);
+    const set = S.stage >= 1 && MARCUSIMG.complete && MARCUSIMG.naturalWidth ? 'm' + (S.stage + 1) : 'warrior', sc = set === 'warrior' ? 1 : 0.5;
+    if (set !== 'warrior') {   // the armored sheets have no death row: fade the hurt pose instead
+      if (p.dead) { anim = 'hurt'; f = 0; } else if (p.special > 0) { anim = 'special'; f = 0; } else if (anim === 'run') f = p.anim * 0.8; else if (anim === 'walk') f = p.anim * 0.9; else if (anim === 'idle') f = L.t * 1.2;
+      if (anim === 'attack') f = Math.min(3, (1 - p.atk / 0.2) * 5);
+    }
+    if (p.stone > 0) { ctx.save(); ctx.filter = 'grayscale(1) brightness(0.85)'; spr(set, 'idle', 0, x, y + 1, p.face, sc, 1); ctx.restore(); }
+    else if (p.dead && set !== 'warrior') { ctx.save(); ctx.filter = 'grayscale(0.6)'; spr(set, 'hurt', 0, x, y + 1, p.face, sc, Math.max(0, p.dead / 1.2)); ctx.restore(); }
+    else spr(set, anim, f, x, y + 1, p.face, sc, blink);
     if (aura) ctx.restore();
-    if (p.atk > 0 && !(p.thrown > 0)) { const k = 1 - p.atk / 0.2;
+    if (p.atk > 0 && !(p.thrown > 0) && (set === 'warrior' || p.thrown > 0)) { const k = 1 - p.atk / 0.2;
       if (S.stage >= 2) { ctx.save(); ctx.shadowColor = S.stage >= 3 ? '#c48cff' : '#57b6ff'; ctx.shadowBlur = 16; ctx.filter = S.stage >= 3 ? 'hue-rotate(220deg) saturate(2)' : 'hue-rotate(170deg) saturate(2)'; spr('fx', 'slash', 0, x + p.face * 40, y - 22, p.face, 1.15, 1 - k * 0.6); ctx.restore(); }
       else spr('fx', 'slash', 0, x + p.face * 34, y - 22, p.face, 0.9, 1 - k * 0.7); }
     if (S.stage >= 3 && !p.dead && p.shieldT <= 0) { ctx.save(); ctx.globalAlpha = 0.35 + Math.sin(L.t * 5) * 0.1; ctx.strokeStyle = S.stage >= 4 ? '#ffd27a' : '#8fd8ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y - 20, 22, 28, 0, 0, 7); ctx.stroke(); ctx.restore(); }
-    if (S.stage >= 4 && !p.dead) [-1, 1].forEach((side, i) => spr('bfx', 'drone', 0, x + side * 26 + Math.sin(L.t * 2 + i) * 4, y - 60 + Math.sin(L.t * 4 + i * 2) * 4, 1, 0.6));
+    if (S.stage >= 4 && !p.dead && set === 'warrior') [-1, 1].forEach((side, i) => spr('bfx', 'drone', 0, x + side * 26 + Math.sin(L.t * 2 + i) * 4, y - 60 + Math.sin(L.t * 4 + i * 2) * 4, 1, 0.6));
     p.zaps.forEach((z) => { ctx.save(); ctx.strokeStyle = '#bfe6ff'; ctx.shadowColor = '#57b6ff'; ctx.shadowBlur = 12; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(z.x0 - L.cam, z.y0);
       for (let i = 1; i <= 6; i++) { const t = i / 6; ctx.lineTo(z.x0 + (z.x1 - z.x0) * t - L.cam + (i < 6 ? rand(-6, 6) : 0), z.y0 + (z.y1 - z.y0) * t + (i < 6 ? rand(-6, 6) : 0)); } ctx.stroke(); ctx.restore(); });
     if (p.healFx > 0) spr('fx', 'heal', 0, x, y - 22, 1, 0.9, Math.min(1, p.healFx * 2));
