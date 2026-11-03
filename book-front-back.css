@@ -1,0 +1,158 @@
+.enhanced-book-cover {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 430px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+.book-flip-shell {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 430px !important;
+  aspect-ratio: .78 !important;
+  margin: 0 auto !important;
+  perspective: 1400px !important;
+  overflow: visible !important;
+}
+
+.book-flip-inner,
+#featured-book-card {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform-style: preserve-3d !important;
+  transition: transform .8s cubic-bezier(.2,.75,.2,1) !important;
+}
+
+.book-flip-inner.is-flipped,
+#featured-book-card.is-flipped {
+  transform: rotateY(180deg) !important;
+}
+
+.book-face,
+.cover-front,
+.book-back-panel,
+.cover-back {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+.book-back-panel,
+.cover-back {
+  transform: rotateY(180deg) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: clamp(18px, 4vw, 34px) !important;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+
+.book-back-panel h4,
+.cover-back h4 {
+  margin: 8px 0 10px !important;
+  font-size: clamp(1.32rem, 3vw, 2rem) !important;
+  line-height: 1.02 !important;
+}
+
+.book-back-panel p:not(.book-back-kicker):not(.book-back-author),
+.cover-back p:not(.book-back-kicker):not(.book-back-author) {
+  width: 100% !important;
+  max-width: 300px !important;
+  margin: 0 auto !important;
+  font-size: clamp(.7rem, 1.45vw, .88rem) !important;
+  line-height: 1.38 !important;
+}
+
+.book-back-kicker,
+.book-back-author {
+  margin: 0 !important;
+  font-size: clamp(.54rem, 1.1vw, .66rem) !important;
+  line-height: 1.2 !important;
+}
+
+.book-back-mark {
+  margin: 8px 0 7px !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+}
+
+#book-flip-button,
+.book-flip-button {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  float: none !important;
+  clear: both !important;
+  z-index: 50 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  max-width: calc(100% - 20px) !important;
+  min-height: 44px !important;
+  margin: 20px auto 0 !important;
+  padding: 11px 18px !important;
+  white-space: normal !important;
+  line-height: 1.25 !important;
+}
+
+@media (max-width: 700px) {
+  .enhanced-book-cover,
+  .book-flip-shell {
+    max-width: 330px !important;
+  }
+
+  .book-back-panel,
+  .cover-back {
+    padding: 16px !important;
+  }
+
+  .book-back-panel h4,
+  .cover-back h4 {
+    margin: 6px 0 8px !important;
+    font-size: 1.28rem !important;
+  }
+
+  .book-back-panel p:not(.book-back-kicker):not(.book-back-author),
+  .cover-back p:not(.book-back-kicker):not(.book-back-author) {
+    font-size: .68rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .book-back-mark {
+    margin: 5px 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .book-back-panel h4,
+  .cover-back h4 {
+    font-size: 1.12rem !important;
+  }
+
+  .book-back-panel p:not(.book-back-kicker):not(.book-back-author),
+  .cover-back p:not(.book-back-kicker):not(.book-back-author) {
+    font-size: .62rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .book-back-mark {
+    display: none !important;
+  }
+}

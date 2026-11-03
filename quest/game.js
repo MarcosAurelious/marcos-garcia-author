@@ -26,6 +26,9 @@
   const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Calm mode (photosensitivity safety): no strobing flashes, no screen shake, steady hit blinks. On by default for reduced-motion users.
+  let calm = store.get('aq-calm'); if (calm === null) calm = reduceMotion;
+  const strobe = (hz) => !calm && Math.floor(L.t * hz) % 2;
   const img = (src) => { const i = new Image(); i.src = src; return i; };
   const ART = {};
   const bgImg = (src) => ART[src] || (ART[src] = img(src));
@@ -1103,6 +1106,7 @@
   }
   function update(dt) {
     L.t += dt; S.time += dt;
+    if (S.time >= (S.nextBreak || 2400)) { S.nextBreak = S.time + 2400; toast(`You have been questing for ${Math.round(S.time / 60)} minutes. Even Marcus rested: stretch, drink some water, rest your eyes.`, 'Time for a break'); }
     updatePlayer(dt); updateEnemies(dt); updateSpears(dt);
     if (C) { const tx = P.x + P.w / 2 - P.face * 30, ty = P.y - 14 + Math.sin(L.t * 3) * 5; C.vx = tx - C.x; C.x += (tx - C.x) * Math.min(1, dt * 4); C.y += (ty - C.y) * Math.min(1, dt * 4); C.anim += dt; C.cast -= dt; }
     if (P.healFx > 0) P.healFx -= dt;
@@ -1270,7 +1274,7 @@
     else if (!p.onGround) { anim = 'jump'; f = p.vy < -250 ? 0 : p.vy < 0 ? 1 : p.vy < 300 ? 2 : 3; }
     else if (Math.abs(p.vx) > 150) { anim = 'run'; f = p.anim; }
     else if (Math.abs(p.vx) > 20) { anim = 'walk'; f = p.anim; }
-    const blink = !p.dead && p.inv > 0 && p.inv <= 1.0 && Math.floor(p.inv * 14) % 2 ? 0.4 : 1;
+    const blink = !p.dead && p.inv > 0 && p.inv <= 1.0 ? (calm ? 0.6 : Math.floor(p.inv * 6) % 2 ? 0.45 : 1) : 1;
     const aura = p.glow > 0 ? '#8fe6d2' : [null, null, '#57b6ff', '#8fd8ff', '#ffd27a'][S.stage];
     if (aura) { ctx.save(); ctx.shadowColor = aura; ctx.shadowBlur = p.glow > 0 ? 18 : 7 + S.stage * 2; }
     const set = S.stage >= 1 && MARCUSIMG.complete && MARCUSIMG.naturalWidth ? 'm' + (S.stage + 1) : 'warrior', sc = set === 'warrior' ? 1 : 0.5;
@@ -1296,7 +1300,7 @@
     spr('companion', anim, C.anim * 6, C.x - L.cam, C.y + 15, (C.vx || 0) < -2 ? -1 : 1);
   }
   function drawEnemy(en) {
-    const x = en.x + en.w / 2 - L.cam, feet = en.y + en.h, blink = en.hurt > 0 && Math.floor(en.hurt * 20) % 2 ? 0.55 : 1;
+    const x = en.x + en.w / 2 - L.cam, feet = en.y + en.h, blink = en.hurt > 0 ? (calm ? 0.7 : Math.floor(en.hurt * 6) % 2 ? 0.55 : 1) : 1;
     if (en.type === 'soldier' || en.type === 'centurion') {
       const sc = en.type === 'centurion' ? 1.12 : 1;
       if (en.type === 'centurion') { ctx.save(); ctx.shadowColor = '#c9a227'; ctx.shadowBlur = 8; }
@@ -1320,11 +1324,11 @@
     const a = st === 'wind' ? 'wind' : st === 'attack' ? 'attack' : st === 'special' ? 'special' : st === 'recover' ? (en.fly && en.st <= 0 ? 'walk' : 'recover') : (moving && Math.floor(en.anim * 4) % 2 ? 'walk' : 'idle');
     const rage = en.big && en.hp <= en.maxHp / 2;
     if (rage) { ctx.save(); ctx.shadowColor = XK[en.type].col[0]; ctx.shadowBlur = 14 + Math.sin(L.t * 12) * 6; }
-    if (st === 'wind' && Math.floor(L.t * 16) % 2) { ctx.save(); ctx.filter = 'brightness(1.5)'; spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink); ctx.restore(); }
+    if (st === 'wind' && strobe(5)) { ctx.save(); ctx.filter = 'brightness(1.5)'; spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink); ctx.restore(); }
     else spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink);
     if (rage) ctx.restore();
   }
-  function flashOn(cond) { return cond && Math.floor(L.t * 16) % 2; }
+  function flashOn(cond) { return cond && strobe(5); }
   function drawNew(en, x, feet, blink) {
     const t = en.type, st = en.state;
     if (t === 'pegasus') { spr('pegasus', en.state === 'swoop' ? 'dive' : en.cast > 0 ? 'sonic' : 'idle', en.anim * 7, x, en.y + en.h / 2, en.face, 1.05, blink); return; }
@@ -1344,7 +1348,7 @@
       return;
     }
     if (t === 'helios') { const cx = x, cy = en.y + en.h / 2;
-      if (st === 'laserWind' && Math.floor(L.t * 16) % 2) { ctx.save(); ctx.strokeStyle = 'rgba(255,200,90,0.7)'; ctx.setLineDash([4, 6]); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, 12 * T); ctx.stroke(); ctx.restore(); }
+      if (st === 'laserWind' && (calm || strobe(5))) { ctx.save(); ctx.strokeStyle = 'rgba(255,200,90,0.7)'; ctx.setLineDash([4, 6]); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, 12 * T); ctx.stroke(); ctx.restore(); }
       if (st === 'laser') { ctx.save(); ctx.shadowColor = '#ffb347'; ctx.shadowBlur = 20; ctx.fillStyle = 'rgba(255,220,140,0.9)'; ctx.fillRect(cx - 7, cy, 14, 12 * T - cy); ctx.fillStyle = '#fff'; ctx.fillRect(cx - 2, cy, 4, 12 * T - cy); ctx.restore(); spr('helios', 'laser', 2, cx, 12 * T - 20, 1, 0.9); }
       spr('helios', st === 'orbs' ? 'orbs' : 'idle', en.anim * 4, cx, cy, 1, 1.05, blink); return; }
     if (t === 'chiron') { spr('chiron', en.hurt > 0 ? 'idle' : en.draw ? 'shoot' : 'idle', en.anim * 3, x, feet + 1, en.face, 1, blink); return; }
@@ -1378,7 +1382,7 @@
     else if (st === 'shield') anim = 'shield';
     if (b.hurt > 0.25 && st !== 'shield') { anim = 'hurt'; clip = 0; }
     if (b.phase >= 2) { ctx.save(); ctx.shadowColor = b.phase === 3 ? '#ff6a5a' : '#57b6ff'; ctx.shadowBlur = 14 + Math.sin(L.t * 12) * 6; }
-    if ((st === 'slamWind' || st === 'thrustWind' || st === 'blastWind') && Math.floor(L.t * 16) % 2) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr('boss', anim, f, x, feet + 1, b.face, 1, blink, clip); ctx.restore(); }
+    if ((st === 'slamWind' || st === 'thrustWind' || st === 'blastWind') && strobe(5)) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr('boss', anim, f, x, feet + 1, b.face, 1, blink, clip); ctx.restore(); }
     else spr('boss', anim, f, x, feet + 1, b.face, 1, blink, clip);
     if (b.phase >= 2) ctx.restore();
     if (st === 'blastWind') { const k = 1 - b.st * 1.1; spr('bfx', 'orb', 0, x + b.face * 34, feet - 62, 1, 0.4 + Math.max(0, k) * 0.6); }
@@ -1511,7 +1515,7 @@
 
   function render() {
     ctx.save();
-    if (L.shake && !reduceMotion) ctx.translate(rand(-6, 6) * L.shake * 2, rand(-6, 6) * L.shake * 2);
+    if (L.shake && !calm) ctx.translate(rand(-6, 6) * L.shake * 2, rand(-6, 6) * L.shake * 2);
     const th = L.def.theme;
     drawBackground(th);
     ctx.save(); ctx.scale(ZOOM, ZOOM); ctx.translate(0, -(L.camY || 0));
@@ -1563,6 +1567,8 @@
   musicBtn.addEventListener('click', () => { SFX.ensure(); MUSIC.toggle(); syncMusic(); }); syncMusic();
   const soundBtn = $('#sound'); const syncSound = () => { soundBtn.textContent = 'Sound: ' + (SFX.on ? 'on' : 'off'); };
   soundBtn.addEventListener('click', () => { SFX.ensure(); SFX.toggle(); syncSound(); }); syncSound();
+  const calmBtn = $('#calm'); const syncCalm = () => { calmBtn.textContent = 'Calm mode: ' + (calm ? 'on' : 'off'); calmBtn.setAttribute('aria-pressed', String(calm)); };
+  calmBtn.addEventListener('click', () => { calm = !calm; store.set('aq-calm', calm); syncCalm(); }); syncCalm();
   document.addEventListener('visibilitychange', () => { if (document.hidden && S && S.mode === 'play') togglePause(); });
 
   function levelComplete() {

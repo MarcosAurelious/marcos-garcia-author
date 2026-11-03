@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#efe6cf">
   <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
   <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=13">
+  <link rel="stylesheet" href="game.css?v=19">
 </head>
 <body>
 <main class="stage">
@@ -56,11 +56,13 @@
             <li><kbd>X</kbd> or <kbd>J</kbd> swing the sword</li>
             <li><kbd>K</kbd> or <kbd>C</kbd> throw a spear. Every <b>5 foes</b> you defeat drops 3 spears.</li>
             <li>On phones, use the on-screen buttons.</li>
+            <li><b>Calm mode</b> (button under the game) turns off flashing effects and screen shake.</li>
             <li>Find all <b>thirty scrolls</b> for a lesson from Marcus.</li>
             <li>Earn <b>XP</b> from foes, scrolls and chapters to evolve Marcus through <b>five stages</b>. His armor changes as he grows: bronze, a Tesla pack and electric sword, an energy shield, and finally support drones.</li>
           </ul>
         </div>
       </div>
+      <p class="safety"><b>Photosensitivity notice:</b> this game has flashing lights and screen shake. If you or your child are sensitive to light or have epilepsy, turn on <b>Calm mode</b>, play in a well-lit room, and stop if you feel dizzy or unwell. Take a break every 30 to 45 minutes; the game will remind you.</p>
       <div class="actions"><button class="btn btn-gold btn-big" id="start" type="button">Open Chapter I</button></div>
       <div class="chapters" id="chapters" hidden></div>
       <p class="best" id="best" hidden></p>
@@ -93,6 +95,7 @@
       <button class="btn btn-ghost btn-sm" id="pause" type="button">Pause</button>
       <button class="btn btn-ghost btn-sm" id="music" type="button">Music: on</button>
       <button class="btn btn-ghost btn-sm" id="sound" type="button">Sound: on</button>
+      <button class="btn btn-ghost btn-sm" id="calm" type="button" aria-pressed="false" title="Fewer flashes, no screen shake">Calm mode: off</button>
       <span class="rotate">Turn your phone sideways for a bigger view.</span>
     </div>
   </section>
@@ -115,6 +118,6 @@
   </section>
 
 </main>
-<script src="game.js?v=18"></script>
+<script src="game.js?v=19"></script>
 </body>
 </html>

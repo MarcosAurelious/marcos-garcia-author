@@ -1,0 +1,241 @@
+/* HERO: text left, Marcus image right */
+.hero .hero-inner {
+  width: min(1180px, calc(100% - 64px)) !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr) !important;
+  align-items: center !important;
+  gap: clamp(50px, 7vw, 100px) !important;
+}
+
+.hero .hero-text {
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.hero .hero-figure {
+  width: 100% !important;
+  max-width: 430px !important;
+  margin: 0 0 0 auto !important;
+  justify-self: end !important;
+}
+
+.hero .specimen-frame,
+.hero .specimen-image {
+  width: 100% !important;
+  max-width: 430px !important;
+}
+
+.hero .specimen-image {
+  display: block !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+/* FEATURED BOOK: cover left, information right */
+#book .book-card {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: clamp(58px, 7vw, 110px) !important;
+}
+
+#book .book-cover {
+  width: 100% !important;
+  max-width: 430px !important;
+  margin: 0 !important;
+  justify-self: start !important;
+}
+
+#book .book-details {
+  width: 100% !important;
+  max-width: 680px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+#book .cover-image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+/* ABOUT: author photo left, biography center, cosmic Marcus right */
+#about .about-balanced {
+  width: min(1220px, calc(100% - 64px)) !important;
+  max-width: 1220px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns:
+    minmax(250px, 310px)
+    minmax(380px, 1fr)
+    minmax(230px, 285px) !important;
+  align-items: center !important;
+  gap: clamp(40px, 5vw, 70px) !important;
+}
+
+#about .about-author-photo {
+  grid-column: 1 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  justify-self: start !important;
+}
+
+#about .about-author-photo .photo-frame {
+  width: 100% !important;
+  max-width: 310px !important;
+  margin: 0 !important;
+}
+
+#about .about-author-photo img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 5 !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+#about .about-text {
+  grid-column: 2 !important;
+  width: 100% !important;
+  max-width: 650px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+#about .about-cosmic-card {
+  grid-column: 3 !important;
+  width: 100% !important;
+  max-width: 285px !important;
+  margin: 0 !important;
+  justify-self: end !important;
+}
+
+#about .about-cosmic-image {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 5 !important;
+  object-fit: cover !important;
+  object-position: center 24% !important;
+}
+
+/* FUTURE BOOK: cover left, description right */
+#future .future-inner.future-book-layout {
+  width: min(1160px, calc(100% - 64px)) !important;
+  max-width: 1160px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: clamp(55px, 7vw, 100px) !important;
+  text-align: left !important;
+}
+
+#future .future-book-image {
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  margin: 0 !important;
+  justify-self: start !important;
+}
+
+#future .future-cover-frame img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+#future .future-book-copy {
+  grid-column: 2 !important;
+  width: 100% !important;
+  max-width: 700px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+#future .future-book-copy .eyebrow,
+#future .future-book-copy .section-title,
+#future .future-copy {
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .hero .hero-inner,
+  #book .book-card,
+  #future .future-inner.future-book-layout {
+    grid-template-columns: minmax(230px, 320px) minmax(0, 1fr) !important;
+    gap: 38px !important;
+  }
+
+  #about .about-balanced {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) !important;
+    grid-template-areas:
+      "photo text"
+      "cosmic text" !important;
+  }
+
+  #about .about-author-photo {
+    grid-area: photo !important;
+  }
+
+  #about .about-text {
+    grid-area: text !important;
+  }
+
+  #about .about-cosmic-card {
+    grid-area: cosmic !important;
+    justify-self: center !important;
+    max-width: 250px !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .hero .hero-inner,
+  #book .book-card,
+  #about .about-balanced,
+  #future .future-inner.future-book-layout {
+    width: min(100% - 32px, 560px) !important;
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+
+  .hero .hero-text,
+  #book .book-details,
+  #about .about-text,
+  #future .future-book-copy,
+  #future .future-book-copy .eyebrow,
+  #future .future-book-copy .section-title,
+  #future .future-copy {
+    text-align: center !important;
+  }
+
+  .hero .hero-figure,
+  #book .book-cover,
+  #about .about-author-photo,
+  #about .about-cosmic-card,
+  #future .future-book-image {
+    grid-column: 1 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-self: center !important;
+  }
+
+  #about .about-balanced {
+    grid-template-areas:
+      "photo"
+      "text"
+      "cosmic" !important;
+  }
+
+  #future .future-book-copy {
+    grid-column: 1 !important;
+  }
+}

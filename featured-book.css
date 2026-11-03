@@ -1,0 +1,254 @@
+/* ==========================================================
+   FEATURED BOOK — PREMIUM INTERACTIVE PRESENTATION
+   ========================================================== */
+
+.enhanced-book-cover {
+  position: relative !important;
+  perspective: 1500px !important;
+  isolation: isolate !important;
+}
+
+.book-glow {
+  position: absolute;
+  z-index: 0;
+  top: 12%;
+  left: 50%;
+  width: 78%;
+  height: 72%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle,
+      rgba(69, 210, 255, 0.34) 0,
+      rgba(62, 145, 218, 0.18) 34%,
+      rgba(188, 126, 255, 0.10) 54%,
+      transparent 72%);
+  filter: blur(26px);
+  opacity: 0.58;
+  animation: featured-book-glow 4.5s ease-in-out infinite;
+}
+
+.book-flip-shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 430px;
+  aspect-ratio: 0.78;
+  margin: 0 auto;
+  perspective: 1500px;
+  cursor: pointer;
+  outline: none;
+}
+
+.book-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 850ms cubic-bezier(.2,.75,.2,1);
+  will-change: transform;
+}
+
+.book-flip-shell.is-flipped .book-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.book-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.book-face--front {
+  transform: rotateY(0);
+}
+
+.book-face--back {
+  transform: rotateY(180deg);
+}
+
+.interactive-cover {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  transition: filter 300ms ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  box-shadow:
+    0 30px 65px rgba(0,0,0,.44),
+    0 0 28px rgba(57,190,255,.13);
+}
+
+.interactive-cover .cover-art,
+.interactive-cover .cover-image {
+  width: 100%;
+  height: 100%;
+}
+
+.interactive-cover .cover-image {
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+.Out-Now-ribbon {
+  position: absolute;
+  z-index: 10;
+  top: 24px;
+  right: -12px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #c49a4f, #8e6225);
+  color: #10151b;
+  font-family: "Space Mono", monospace;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+}
+
+.Out-Now-ribbon::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -10px;
+  border-top: 10px solid #5b3a13;
+  border-right: 12px solid transparent;
+}
+
+.book-back-panel {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: clamp(34px, 6vw, 60px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  color: #ebe2ce;
+  border: 1px solid rgba(211, 171, 96, .58);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(55,174,225,.15), transparent 34%),
+    linear-gradient(160deg, #111a23, #090e14 65%, #12100d);
+  box-shadow:
+    inset 0 0 0 8px rgba(196,154,79,.05),
+    0 30px 65px rgba(0,0,0,.44),
+    0 0 34px rgba(57,190,255,.12);
+}
+
+.book-back-kicker,
+.book-back-author {
+  font-family: "Space Mono", monospace;
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #c49a4f;
+}
+
+.book-back-panel h4 {
+  margin: 20px 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1.04;
+  font-weight: 500;
+}
+
+.book-back-panel p:not(.book-back-kicker):not(.book-back-author) {
+  max-width: 330px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.75;
+  opacity: .84;
+}
+
+.book-back-mark {
+  margin: 28px 0 20px;
+  font-size: 2rem;
+  color: #62cce9;
+  text-shadow: 0 0 18px rgba(98,204,233,.72);
+  animation: book-back-star 2.4s ease-in-out infinite;
+}
+
+.book-flip-button {
+  position: relative;
+  z-index: 4;
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(196,154,79,.52);
+  background: transparent;
+  color: inherit;
+  font-family: "Space Mono", monospace;
+  font-size: .67rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.book-flip-button:hover {
+  background: #c49a4f;
+  color: #11151a;
+  transform: translateY(-2px);
+}
+
+.premium-book-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.launch-button {
+  cursor: default;
+  opacity: .72;
+  font-size: .72rem;
+  white-space: nowrap;
+}
+
+@keyframes featured-book-glow {
+  0%, 100% {
+    opacity: .38;
+    transform: translateX(-50%) scale(.96);
+    filter: blur(25px);
+  }
+  50% {
+    opacity: .78;
+    transform: translateX(-50%) scale(1.07);
+    filter: blur(33px);
+  }
+}
+
+@keyframes book-back-star {
+  0%, 100% {
+    transform: scale(.9) rotate(0);
+    opacity: .65;
+  }
+  50% {
+    transform: scale(1.18) rotate(20deg);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 700px) {
+  .book-flip-shell {
+    max-width: 340px;
+  }
+
+  .premium-book-actions {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-glow,
+  .book-back-mark {
+    animation: none !important;
+  }
+
+  .book-flip-inner,
+  .interactive-cover {
+    transition: none !important;
+  }
+}
