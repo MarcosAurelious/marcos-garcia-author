@@ -439,6 +439,11 @@
         chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('G2 B2 D3'), ch('E3 G#3 B3')],
         lead: [seq('A5 - C6 - E6 - C6 - A5 - E5 - A5 - B5 - C6 - A5 - F5 - A5 - C6 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - G6 - - - G#5 - E5 - B4 - E5 - G#5 - B5 - E6 - - -'),
                seq('E6 - - - D6 - C6 - B5 - - - A5 - - - F6 - - - E6 - D6 - C6 - - - A5 - - - G6 - - - F6 - E6 - D6 - - - B5 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
+      // Riot: the punk track from the music-video teaser (E, E, A, G power chords at 168 BPM), now the boss-battle theme
+      riot: { bpm: 168, wave: 'square', leadVol: 0, harm: 0, bass: 'octave', pad: 0, arp: 0, power: 0.05,
+        kick: [0, 4, 8, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('E2 B2 E3'), ch('E2 B2 E3'), ch('A2 E3 A3'), ch('G2 D3 G3')],
+        lead: [seq('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')] },
       // Bosses: fast and furious C minor
       boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
@@ -472,6 +477,7 @@
       const n = tr.lead[sec][i];
       if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
       const root = c[0] / 2;
+      if (tr.power && b % 2 === 0) [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05));
       if (tr.bass === 'octave' && b % 2 === 0) voice((b / 2) % 2 ? root * 2 : root, t, sd * 0.85, 'sawtooth', 0.085, 900, 0.005, 0.05);
       if (tr.bass === 'gallop' && (b % 4 !== 1)) voice(b % 4 === 0 ? root : root * 2, t, sd * 0.8, 'sawtooth', 0.085, 1000, 0.004, 0.04);
       if (tr.pad && b === 0) c.forEach((f) => { voice(f * 2, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); voice(f * 2 * 1.007, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); });
@@ -486,7 +492,7 @@
     }
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
-      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' || name === 'knights' ? 0.36 : 0.32, ac.currentTime, 0.25); }
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' || name === 'knights' || name === 'riot' ? 0.36 : 0.32, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
@@ -1027,7 +1033,7 @@
   }
 
   /* ---------- the Dark Commander (Chapter II) ---------- */
-  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play(b.music || 'boss'); toast(text, 'Boss'); return true; } return false; }
+  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play(b.music || 'riot'); toast(text, 'Boss'); return true; } return false; }
   function updateCommander(b, dt) {
     if (!wake(b, 'The Dark Commander bars the way. Watch his spear, strike when he recovers, or land on his helmet.')) return;
     b.anim += dt; b.st -= dt;
