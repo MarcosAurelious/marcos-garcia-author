@@ -226,7 +226,7 @@
       L.ent('flag', 192, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Storm over the Seven Hills', music: 'ch4', theme: 2, intro: 'Meteors fall over the sleeping city. Anubis stalks the terraces, the Storm Harpy circles above, and on the last hill Asterion the Storm Minotaur waits with his thunder axe.', art: 'img/bg-storm.webp', bg: 'img/bg-storm.webp', build() {
+    { name: 'The Storm over the Seven Hills', music: 'ch4', theme: 2, intro: 'Jupiter and Saturn hang over the sleeping Forum. Anubis stalks the terraces, the Storm Harpy circles above, and on the last hill Asterion the Storm Minotaur waits with his thunder axe.', art: 'img/bg-planets.webp', bg: 'img/bg-planets.webp', build() {
       const L = builder(212);
       L.ground(0, 16); L.ent('start', 2, 11);
       L.coins(5, 10, 3); L.ent('pegasus', 12, 5);
@@ -288,7 +288,7 @@
       L.ent('flag', 203, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Galvanic Forge', music: 'ch7', theme: 1, intro: 'Copper cages and crackling coils: the forge where lightning is hammered into soldiers. Tesla Striders and Galvanic Gladiators walk its halls, and in the great cage the Roman Automaton, a forgotten machine of the empire, awakens.', art: 'img/bg-forge.webp', bg: 'img/bg-forge.webp', build() {
+    { name: 'The Galvanic Forge', music: 'ch7', theme: 1, intro: 'Ball lightning rolls across the storm fields of the forge, where lightning is hammered into soldiers. Tesla Striders and Galvanic Gladiators walk its halls, and in the great cage the Roman Automaton, a forgotten machine of the empire, awakens.', art: 'img/bg-orbs.webp', bg: 'img/bg-orbs.webp', build() {
       const L = builder(208);
       L.ground(0, 20); L.ent('start', 2, 11);
       L.coins(5, 10, 3); L.box(8, 8, 'coin'); L.set(9, 8, 'B'); L.box(10, 8, 'coin'); L.ent('spider', 16, 11);
