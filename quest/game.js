@@ -159,7 +159,7 @@
       L.ent('flag', 166, 11, { hidden: true });
       return L;
     } },
-    { name: 'The Cosmic Forum', theme: 2, intro: 'Among the stars stands Augustus Colossus, a giant statue animated by lightning. Recover the scrolls and bring it down.', art: 'img/bg-cosmos.webp', bg: 'img/bg-cosmos.webp', build() {
+    { name: 'The Cosmic Forum', theme: 2, intro: 'Beneath the great Tesla coils of the Forum stands Augustus Colossus, a giant statue animated by lightning. Recover the scrolls and bring it down.', art: 'img/bg-tesla.webp', bg: 'img/bg-tesla.webp', build() {
       const L = builder(196);
       L.ground(0, 14); L.ent('start', 2, 11);
       L.ground(18, 22); L.ground(26, 45);
