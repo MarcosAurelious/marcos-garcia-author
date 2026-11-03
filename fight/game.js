@@ -43,7 +43,7 @@
     };
   })();
   const MUSIC = (() => {
-    let on = store.get('af-music') !== false, ac = null, master = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
+    let on = store.get('af-music') !== false, ac = null, master = null, crunch = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
     const NOTE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
     const hz = (s) => { const m = /^([A-G][#b]?)(\d)$/.exec(s); return 440 * Math.pow(2, (NOTE[m[1]] + (+m[2] + 1) * 12 - 69) / 12); };
     const seq = (str) => { const t = str.trim().split(/\s+/), out = new Array(t.length).fill(null); t.forEach((x, i) => { if (x === '-' || x === '.') return; let d = 1; while (t[i + d] === '-') d++; out[i] = { f: hz(x), d }; }); return out; };
@@ -108,6 +108,30 @@
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('E2 B2 E3'), ch('E2 B2 E3'), ch('A2 E3 A3'), ch('G2 D3 G3')],
         lead: [seq('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')] },
+      // Legion Riot: fast E punk, distorted power chords and a shout-along hook
+      legion: { bpm: 180, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true,
+        kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('E2 B2 E3'), ch('C3 G3 C4'), ch('G2 D3 G3'), ch('D3 A3 D4')],
+        lead: [seq('E5 - - - E5 - G5 - - - E5 - D5 - B4 - C5 - - - C5 - E5 - - - G5 - E5 - C5 - D5 - - - B4 - D5 - G5 - - - F#5 - G5 - A5 - - - - - F#5 - D5 - - - - - - -'),
+               seq('B5 - B5 - B5 - A5 - G5 - - - E5 - - - G5 - G5 - G5 - E5 - C5 - - - E5 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - C6 - - - B5 - - - A5 - - - F#5 - - -')] },
+      // Colosseum Crash: A punk, the crowd's chant on top
+      arena: { bpm: 176, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('A2 E3 A3'), ch('F2 C3 F3'), ch('C3 G3 C4'), ch('G2 D3 G3')],
+        lead: [seq('A5 - A5 - C6 - A5 - E5 - - - A5 - C6 - C6 - - - A5 - F5 - - - A5 - C6 - A5 - G5 - - - E5 - G5 - C6 - - - E6 - D6 - D6 - - - B5 - - - G5 - - - - - - -'),
+               seq('E6 - - - E6 - D6 - C6 - - - A5 - - - F6 - - - E6 - C6 - A5 - - - F5 - - - E6 - D6 - C6 - G5 - E6 - D6 - C6 - G5 - B5 - - - D6 - - - G6 - - - - - - -')] },
+      // Gladiator Stomp: heavy D minor rock with a swinging kick
+      stomp: { bpm: 150, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('D2 A2 D3'), ch('Bb2 F3 Bb3'), ch('C3 G3 C4'), ch('A2 E3 A3')],
+        lead: [seq('D5 - - - F5 - - - A5 - G5 - F5 - E5 - D5 - - - - - - - Bb4 - D5 - F5 - - - E5 - - - G5 - - - C6 - Bb5 - G5 - E5 - C#5 - - - E5 - - - A5 - - - - - - -'),
+               seq('A5 - - - A5 - G5 - F5 - - - D5 - F5 - Bb5 - - - A5 - F5 - D5 - - - - - - - C6 - - - Bb5 - G5 - E5 - G5 - C6 - E6 - E6 - - - C#6 - - - A5 - - - E5 - - -')] },
+      // Hellfire Thrash: the Hades finale, E minor at full gallop
+      hellfire: { bpm: 192, wave: 'sawtooth', leadVol: 0.042, harm: 0.02, bass: 'gallop', pad: 0, arp: 0, power: 0.045, dist: true,
+        kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('E2 B2 E3'), ch('G2 D3 G3'), ch('A2 E3 A3'), ch('B2 F#3 B3')],
+        lead: [seq('E5 - G5 - B5 - E6 - D6 - B5 - G5 - B5 - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - E6 - - - C#6 - A5 - E5 - A5 - C#6 - E6 - D#6 - - - B5 - - - F#5 - - - D#5 - - -'),
+               seq('B5 - - - - - G5 - E5 - - - - - - - G5 - - - B5 - - - D6 - - - G6 - - - A5 - - - C#6 - - - E6 - - - A6 - - - F#6 - - - D#6 - - - B5 - - - F#5 - - -')] },
       // Bosses: fast and furious C minor
       boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
@@ -119,14 +143,17 @@
     function init() {
       if (ac) return true; ac = SFX.ac; if (!ac) return false;
       master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      // guitar crunch: power chords run through a soft-clip waveshaper, then a cabinet-style lowpass
+      crunch = ac.createWaveShaper(); const cv = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; cv[i] = Math.tanh(x * 6) * 0.6; } crunch.curve = cv; crunch.oversample = '2x';
+      const cab = ac.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = 3200; const cg = ac.createGain(); cg.gain.value = 0.55; crunch.connect(cab).connect(cg).connect(master);
       noise = ac.createBuffer(1, ac.sampleRate * 0.3, ac.sampleRate); const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       return true;
     }
     function env(g, t, a, peak, hold, rel) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.setValueAtTime(peak, t + a + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + rel); }
-    function voice(f, t, dur, wave, vol, cutoff, a = 0.01, rel = 0.08) {
+    function voice(f, t, dur, wave, vol, cutoff, a = 0.01, rel = 0.08, dest = master) {
       const o = ac.createOscillator(), g = ac.createGain(); o.type = wave; o.frequency.setValueAtTime(f, t);
       let out = o; if (cutoff) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff; o.connect(lp); out = lp; }
-      out.connect(g); g.connect(master); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
+      out.connect(g); g.connect(dest); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
     }
     function drum(kind, t, v = 1) {
       if (kind === 'k') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12); g.gain.setValueAtTime(0.55, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16); o.connect(g).connect(master); o.start(t); o.stop(t + 0.18); return; }
@@ -141,7 +168,7 @@
       const n = tr.lead[sec][i];
       if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
       const root = c[0] / 2;
-      if (tr.power && b % 2 === 0) [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05));
+      if (tr.power && b % 2 === 0) { if (tr.dist) [1, 1.5, 2, 1.006, 0.996].forEach((r) => voice(c[0] * r, t, sd * 1.8, 'sawtooth', tr.power * 2.2, 0, 0.003, 0.04, crunch)); else [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05)); }
       if (tr.bass === 'octave' && b % 2 === 0) voice((b / 2) % 2 ? root * 2 : root, t, sd * 0.85, 'sawtooth', 0.085, 900, 0.005, 0.05);
       if (tr.bass === 'gallop' && (b % 4 !== 1)) voice(b % 4 === 0 ? root : root * 2, t, sd * 0.8, 'sawtooth', 0.085, 1000, 0.004, 0.04);
       if (tr.pad && b === 0) c.forEach((f) => { voice(f * 2, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); voice(f * 2 * 1.007, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); });
@@ -156,7 +183,7 @@
     }
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
-      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' || name === 'knights' || name === 'riot' ? 0.36 : 0.32, ac.currentTime, 0.25); }
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(['boss', 'knights', 'riot', 'legion', 'arena', 'stomp', 'hellfire'].includes(name) ? 0.36 : 0.32, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
@@ -206,8 +233,8 @@
     g.translate(Math.round(x), Math.round(y)); if (face < 0) g.scale(-1, 1);
     g.drawImage(im, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); g.restore();
   }
-  const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon'];
-  const LOCAL_BG = ['bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
+  const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge'];
+  const LOCAL_BG = ['bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
   const BGS = BGN.map((n) => img((LOCAL_BG.includes(n) ? '' : Q) + n + '.webp'));
 
   /* ================= the roster =================
@@ -312,15 +339,17 @@
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
+  const PUNK = ['legion', 'arena', 'stomp', 'riot', 'hellfire'];
+  const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'legion', 'hellfire'];
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
     [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); });
-    G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: pick(BGS), cpuLevel, banner: null, pause: false };
+    G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
     if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[BGN.indexOf(STAGES[ARC.stage][1])] || G.bg; }
     startRound();
-    MUSIC.play('riot');
+    MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : pick(PUNK));
   }
   function startRound() {
     G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, onGround: true, cool: 0, combo: 0 }));
