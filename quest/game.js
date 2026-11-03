@@ -6,8 +6,20 @@
 
   /* ================= basics ================= */
   const $ = (s) => document.querySelector(s);
-  const T = 32, ROWS = 15, VW = 960, VH = 480;
+  const T = 32, ROWS = 15, VW = 960; let VH = 480;
+  // On small screens the camera moves in closer so the characters are bigger, and follows Marcus up and down.
+  let ZOOM = 1, VWZ = VW, VHZ = VH, HS = 1, HW = VW;
+  function setZoom() {
+    const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 760;
+    const want = portrait ? 720 : 480;   // phones held upright get a taller 4:3 view
+    if (VH !== want || cv.height !== want) { VH = want; cv.height = want; cv.classList.toggle('tall', portrait); }
+    const w = cv.getBoundingClientRect().width || VW, h = window.innerHeight;
+    ZOOM = portrait ? 2.0 : w < 560 ? 1.8 : (w < 960 || h < 560) ? 1.45 : 1.12;
+    HS = portrait ? 1.6 : w < 700 ? 1.3 : 1; HW = VW / HS;   // bigger score bar on small screens
+    VWZ = VW / ZOOM; VHZ = VH / ZOOM;
+  }
   const cv = $('#cv'); let ctx = cv.getContext('2d');
+  window.addEventListener('resize', () => setZoom()); window.addEventListener('orientationchange', () => setTimeout(setZoom, 300));
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const rand = (a, b) => a + Math.random() * (b - a);
   const rnd = (n) => Math.floor(Math.random() * n);
@@ -177,12 +189,13 @@
   })();
 
   /* ================= input ================= */
-  const keys = { left: false, right: false, jump: false, attack: false };
-  let jumpPressed = false, attackPressed = false;
-  const KEYMAP = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'jump', KeyW: 'jump', Space: 'jump', KeyX: 'attack', KeyJ: 'attack', KeyK: 'attack', KeyZ: 'jump' };
+  const keys = { left: false, right: false, jump: false, attack: false, throw: false };
+  let jumpPressed = false, attackPressed = false, throwPressed = false;
+  const KEYMAP = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'jump', KeyW: 'jump', Space: 'jump', KeyX: 'attack', KeyJ: 'attack', KeyK: 'throw', KeyC: 'throw', KeyL: 'throw', KeyZ: 'jump' };
   function press(k, down) {
     if (k === 'jump' && down && !keys.jump) jumpPressed = true;
     if (k === 'attack' && down && !keys.attack) attackPressed = true;
+    if (k === 'throw' && down && !keys.throw) throwPressed = true;
     keys[k] = down;
   }
   window.addEventListener('keydown', (e) => {
@@ -204,7 +217,7 @@
   let L = null;   // current level
 
   function newRun() {
-    S = { level: 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0 };
+    S = { level: 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: 3, mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false };
     $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
     window.scrollTo({ top: 0 });
     loadLevel(0, true);
@@ -213,7 +226,7 @@
   function loadLevel(n, showIntro) {
     S.level = n;
     const def = LEVELS[n], B = def.build();
-    L = { def, w: B.w, g: B.g.map((r) => r.slice()), q: Object.assign({}, B.q), fields: B.fields, notes: B.notes, items: [], enemies: [], parts: [], texts: [], orbs: [], bumps: [], corpses: [], arrows: [], drones: [], waves: [], strikes: [], shots: [], zones: [],
+    L = { def, w: B.w, g: B.g.map((r) => r.slice()), q: Object.assign({}, B.q), fields: B.fields, notes: B.notes, items: [], enemies: [], parts: [], texts: [], orbs: [], bumps: [], corpses: [], arrows: [], drones: [], waves: [], strikes: [], shots: [], zones: [], pspears: [], camY: 0,
       start: null, check: null, flag: null, boss: null, toast: null, t: 0, cam: 0, shake: 0, levelCoins: 0, levelKills: 0, levelDeaths: 0, bossOn: false };
     B.ents.forEach((e) => {
       const x = e.tx * T, y = e.ty * T;
@@ -247,7 +260,8 @@
   let P = null, C = null;   // Marcus, and his Cosmic Companion
   function spawnPlayer() {
     P = { x: L.check.x, y: L.check.y, w: 22, h: 38, vx: 0, vy: 0, face: 1, onGround: false, coyote: 0, buffer: 0, atk: 0, atkCd: 0, hp: S.maxHp, inv: 1.2, anim: 0, glow: 0, dead: 0 };
-    L.cam = clamp(P.x - VW * 0.35, 0, L.w * T - VW);
+    setZoom();
+    L.cam = clamp(P.x - VWZ * 0.35, 0, L.w * T - VWZ); L.camY = camYTarget();
   }
 
   /* ================= tiles & collision ================= */
@@ -309,7 +323,8 @@
     en.hp -= amount; en.hurt = en.big ? 0.45 : 0.25;
     if (dir && !en.big) en.vx = dir * 160;
     if (en.hp <= 0) {
-      en.dead = true; S.kills += 1; L.levelKills += 1;
+      en.dead = true; S.kills += 1; L.levelKills += 1; S.killStreak += 1;
+      if (S.killStreak >= 5) { S.killStreak = 0; const gy = Math.min(en.y + en.h - 30, 12 * T - 34); L.items.push({ type: 'spear', x: en.x + en.w / 2 - 14, y: Math.max(60, gy), w: 28, h: 28, rise: 0.3 }); float(en.x - 10, en.y - 24, 'A spear!', '#8fe6d2'); }
       L.corpses.push({ set: CORPSE[en.type], x: en.x + en.w / 2, y: en.type === 'eagle' ? en.y + en.h / 2 : en.y + en.h, face: en.face, t: 0, vy: 0, eagle: en.type === 'eagle' || en.type === 'pegasus' || en.type === 'chariot' || en.type === 'helios', big: en.big, scale: en.type === 'centurion' ? 1.12 : 1 });
       burst(en.x + en.w / 2, en.y + en.h / 2, ['#ffd27a', '#c9a227', '#8fe6d2', '#fff'], en.big ? 70 : 18, en.big ? 320 : 200);
       const pts = en.type === 'boss' ? 1000 : en.big ? 500 : ['colossus', 'chariot', 'leviathan', 'minotaur'].includes(en.type) ? 150 : 50;
@@ -359,7 +374,10 @@
     if (!keys.jump && P.vy < -300) P.vy = -300;  // short hop when the button is released early
 
     if (attackPressed) { attackPressed = false; if (P.atkCd <= 0) { P.atk = 0.2; P.atkCd = 0.34; SFX.slash(); } }
-    P.atk -= dt; P.atkCd -= dt; P.inv -= dt; P.glow -= dt; P.anim += dt * (Math.abs(P.vx) > 20 ? Math.abs(P.vx) / 26 : 2);
+    if (throwPressed) { throwPressed = false;
+      if (S.spears > 0 && P.atkCd <= 0) { S.spears -= 1; P.atk = 0.18; P.atkCd = 0.32; P.thrown = 0.18; SFX.slash(); L.pspears.push({ x: P.x + P.w / 2 + P.face * 14, y: P.y + 14, vx: P.face * 640, vy: -40, life: 1.6, face: P.face, hit: new Set() }); }
+      else if (S.spears <= 0) float(P.x - 30, P.y - 18, 'No spears yet', '#c9c2b0'); }
+    P.atk -= dt; P.atkCd -= dt; if (P.thrown > 0) P.thrown -= dt; P.inv -= dt; P.glow -= dt; P.anim += dt * (Math.abs(P.vx) > 20 ? Math.abs(P.vx) / 26 : 2);
 
     P.vy = Math.min(MAXFALL, P.vy + GRAV * dt);
     moveX(P, P.vx * dt);
@@ -368,7 +386,7 @@
     if (P.y > ROWS * T + 60) { P.hp = 0; killPlayer(); return; }
 
     // sword
-    if (P.atk > 0) {
+    if (P.atk > 0 && !(P.thrown > 0)) {
       const hb = { x: P.face > 0 ? P.x + P.w - 4 : P.x - 42, y: P.y + 2, w: 46, h: 30 };
       L.enemies.forEach((en) => { if (!en.dead && overlap(hb, en)) damage(en, 1, P.face); });
       L.orbs.forEach((o) => { if (overlap(hb, { x: o.x - 10, y: o.y - 10, w: 20, h: 20 })) { o.dead = true; burst(o.x, o.y, ['#b9a6ff', '#fff'], 10, 150); } });
@@ -383,6 +401,8 @@
       if (it.type === 'coin' && !P.dead) { const dx = P.x + P.w / 2 - (it.x + 8), dy = P.y + 16 - (it.y + 10), d = Math.hypot(dx, dy); if (d < 120) { const v = Math.min(d, 460 * dt); it.x += dx / (d || 1) * v; it.y += dy / (d || 1) * v; C.cast = Math.max(C.cast, 0.25); } }
       if (!overlap(P, it)) return;
       if (it.type === 'coin') { it.taken = true; S.coins += 1; L.levelCoins += 1; S.score += 10; SFX.coin(); burst(it.x + 8, it.y + 10, ['#e7c46a', '#fff'], 6, 90); }
+      else if (it.type === 'spear') { it.taken = true; S.spears = Math.min(9, S.spears + 3); SFX.power(); float(it.x - 30, it.y - 10, '+3 spears', '#8fe6d2');
+        if (!S.spearTip) { S.spearTip = true; toast(matchMedia('(pointer: coarse)').matches ? 'You found spears. Tap the spear button to throw one. Every five foes defeated brings another.' : 'You found spears. Press K (or C) to throw one. Every five foes defeated brings another.', 'Weapon'); } }
       else if (it.type === 'heart') { it.taken = true; P.hp = Math.min(S.maxHp, P.hp + 1); SFX.power(); float(it.x, it.y, '+1 heart', '#ff9b8a'); }
       else if (it.type === 'laurel') { it.taken = true; S.maxHp = Math.min(5, S.maxHp + 1); P.hp = S.maxHp; P.glow = 1.6; SFX.power(); float(it.x - 10, it.y, 'Laurel of Virtue: +1 max heart', '#8fe6d2'); }
       else if (it.type === 'scroll') { it.taken = true; S.scrolls.add(it.i); S.score += 500; SFX.scroll(); burst(it.x + 12, it.y + 12, ['#e7c46a', '#fff6e0', '#8fe6d2'], 26, 200); toast(SCROLLS[it.i][0], SCROLLS[it.i][1]); C.cast = 0.8; }
@@ -649,9 +669,21 @@
     b.x = clamp(b.x, b.minX, (L.w - 4) * T);
   }
 
+  function camYTarget() { const top = 44 * HS / ZOOM; return clamp(P.y + P.h - VHZ * 0.74, -top, ROWS * T - VHZ); }
+  function updateSpears(dt) {
+    L.pspears.forEach((sp) => {
+      sp.vy += 260 * dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.life -= dt;
+      const hb = { x: sp.x - 16, y: sp.y - 5, w: 32, h: 10 };
+      L.enemies.forEach((en) => { if (!en.dead && !sp.hit.has(en) && overlap(hb, en)) { sp.hit.add(en); if (damage(en, 2, sp.face) || en.shield > 0) { if (en.big || en.shield > 0) sp.life = 0; burst(sp.x, sp.y, ['#8fe6d2', '#fff', '#57b6ff'], 10, 160); } } });
+      L.shots.forEach((o) => { if (o.breakable && overlap(hb, { x: o.x - o.r, y: o.y - o.r, w: o.r * 2, h: o.r * 2 })) o.dead = true; });
+      L.drones.forEach((d) => { if (!d.dead && overlap(hb, { x: d.x - 13, y: d.y - 13, w: 26, h: 26 })) { d.dead = true; burst(d.x, d.y, ['#57b6ff', '#fff'], 10, 150); } });
+      if (solid(Math.floor((sp.x + sp.face * 14) / T), Math.floor(sp.y / T))) { sp.life = 0; burst(sp.x, sp.y, ['#c9a227', '#fff'], 6, 120); }
+    });
+    L.pspears = L.pspears.filter((sp) => sp.life > 0);
+  }
   function update(dt) {
     L.t += dt; S.time += dt;
-    updatePlayer(dt); updateEnemies(dt);
+    updatePlayer(dt); updateEnemies(dt); updateSpears(dt);
     if (C) { const tx = P.x + P.w / 2 - P.face * 30, ty = P.y - 14 + Math.sin(L.t * 3) * 5; C.vx = tx - C.x; C.x += (tx - C.x) * Math.min(1, dt * 4); C.y += (ty - C.y) * Math.min(1, dt * 4); C.anim += dt; C.cast -= dt; }
     if (P.healFx > 0) P.healFx -= dt;
     L.items.forEach((it) => { if (it.cast > 0) it.cast -= dt; });
@@ -662,8 +694,9 @@
     L.bumps.forEach((b) => { b.t -= dt; }); L.bumps = L.bumps.filter((b) => b.t > 0);
     if (L.toast) { L.toast.life -= dt; if (L.toast.life <= 0) L.toast = null; }
     L.shake = Math.max(0, L.shake - dt);
-    const target = clamp(P.x - VW * 0.38, 0, L.w * T - VW);
+    const target = clamp(P.x - VWZ * 0.38, 0, L.w * T - VWZ);
     L.cam += (target - L.cam) * Math.min(1, dt * 8);
+    L.camY += (camYTarget() - L.camY) * Math.min(1, dt * 5);
   }
 
   /* ================= drawing ================= */
@@ -692,8 +725,8 @@
     if (th === 0) { g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, c.width, h); }
     return (strips[th] = c);
   }
-  const vignette = (() => { const c = document.createElement('canvas'); c.width = VW; c.height = VH; const g = c.getContext('2d');
-    const v = g.createRadialGradient(VW / 2, VH / 2, VH * 0.35, VW / 2, VH / 2, VW * 0.65); v.addColorStop(0, 'rgba(120,90,50,0)'); v.addColorStop(1, 'rgba(120,90,50,0.35)'); g.fillStyle = v; g.fillRect(0, 0, VW, VH); return c; })();
+  const vignette = (() => { const c = document.createElement('canvas'); c.width = VW; c.height = 480; const g = c.getContext('2d');
+    const v = g.createRadialGradient(VW / 2, 240, 168, VW / 2, 240, VW * 0.65); v.addColorStop(0, 'rgba(120,90,50,0)'); v.addColorStop(1, 'rgba(120,90,50,0.35)'); g.fillStyle = v; g.fillRect(0, 0, VW, VH); return c; })();
   const shade = [null, [0.15, 0.65, '7,16,25'], [0, 0.6, '5,6,15']].map((x) => { if (!x) return null; const c = document.createElement('canvas'); c.width = 4; c.height = VH; const g = c.getContext('2d');
     const f = g.createLinearGradient(0, 0, 0, VH); f.addColorStop(0, `rgba(${x[2]},${x[0]})`); f.addColorStop(1, `rgba(${x[2]},${x[1]})`); g.fillStyle = f; g.fillRect(0, 0, 4, VH); return c; });
 
@@ -701,7 +734,7 @@
     const t = THEMES[th], st = strip(th), par = [0.18, 0.15, 0.12][th], y0 = [-60, -40, -50][th];
     ctx.fillStyle = t.paper; ctx.fillRect(0, 0, VW, VH);
     if (st) { const off = (L.cam * par) % st.width; for (let x = -off; x < VW; x += st.width) ctx.drawImage(st, Math.floor(x), y0); }
-    if (th === 0) ctx.drawImage(vignette, 0, 0);
+    if (th === 0) ctx.drawImage(vignette, 0, 0, VW, VH);
     else ctx.drawImage(shade[th], 0, 0, VW, VH);
     if (th === 1) {
       if (Math.sin(L.t * 1.7) > 0.97) { ctx.strokeStyle = 'rgba(143,230,210,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); let x = rand(100, VW - 100), y = 50; ctx.moveTo(x, y); while (y < 260) { x += rand(-18, 18); y += rand(10, 24); ctx.lineTo(x, y); } ctx.stroke(); }
@@ -719,7 +752,7 @@
   }
 
   function drawTiles(th) {
-    const t = THEMES[th], x0 = Math.floor(L.cam / T), x1 = Math.min(L.w - 1, x0 + Math.ceil(VW / T) + 1);
+    const t = THEMES[th], x0 = Math.floor(L.cam / T), x1 = Math.min(L.w - 1, x0 + Math.ceil(VWZ / T) + 1);
     for (let ty = 0; ty < ROWS; ty++) for (let tx = x0; tx <= x1; tx++) {
       const c = L.g[ty][tx]; if (c === '.') continue;
       const x = tx * T - L.cam; let y = ty * T;
@@ -822,7 +855,7 @@
     if (p.stone > 0) { ctx.save(); ctx.filter = 'grayscale(1) brightness(0.85)'; spr('warrior', 'idle', 0, x, y + 1, p.face, 1, 1); ctx.restore(); }
     else spr('warrior', anim, f, x, y + 1, p.face, 1, blink);
     if (p.glow > 0) ctx.restore();
-    if (p.atk > 0) { const k = 1 - p.atk / 0.2; spr('fx', 'slash', 0, x + p.face * 34, y - 22, p.face, 0.9, 1 - k * 0.7); }
+    if (p.atk > 0 && !(p.thrown > 0)) { const k = 1 - p.atk / 0.2; spr('fx', 'slash', 0, x + p.face * 34, y - 22, p.face, 0.9, 1 - k * 0.7); }
     if (p.healFx > 0) spr('fx', 'heal', 0, x, y - 22, 1, 0.9, Math.min(1, p.healFx * 2));
   }
   function drawCompanion() {
@@ -877,10 +910,17 @@
     if (t === 'leviathan') { const a = st === 'sub' ? 'idle' : st === 'emerge' ? 'emerge' : st === 'tent' ? 'tent' : st === 'cannon' ? 'cannon' : 'emerge';
       const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 200, 0, 400, 12 * T + 14); ctx.clip(); spr('leviathan', a, 0, x, 12 * T + 18 + sink, en.face, 1, blink); ctx.restore(); return; }
   }
+  function drawSpearAt(x, y, ang, scale) {
+    const fr = ATLAS.bfx && ATLAS.bfx.spear; if (!fr || !BOSSIMG.complete) return;
+    const [sx, sy, w, h, ax, ay] = fr[0]; ctx.save(); ctx.translate(x, y); ctx.rotate(ang + 0.38); ctx.drawImage(BOSSIMG, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); ctx.restore();
+  }
+  function drawPlayerSpears() {
+    L.pspears.forEach((sp) => { const ang = Math.atan2(sp.vy, sp.vx); drawSpearAt(sp.x - L.cam, sp.y, sp.face > 0 ? ang : ang, 0.75); });
+  }
   function drawWater() {
     L.enemies.forEach((en) => { if (en.type !== 'leviathan' || !en.pit) return;
       const x0 = en.pit[0] * T - L.cam, w = (en.pit[1] - en.pit[0] + 1) * T, y = 12 * T + 8;
-      ctx.fillStyle = 'rgba(40,110,160,0.85)'; ctx.fillRect(x0, y, w, VH - y); ctx.fillStyle = 'rgba(143,216,255,0.9)';
+      ctx.fillStyle = 'rgba(40,110,160,0.85)'; ctx.fillRect(x0, y, w, ROWS * T + 40 - y); ctx.fillStyle = 'rgba(143,216,255,0.9)';
       for (let i = 0; i < w; i += 8) ctx.fillRect(x0 + i, y + Math.sin(L.t * 3 + i * 0.3) * 2, 6, 2); });
   }
   function drawAutomaton(b, x, feet, blink) {
@@ -940,6 +980,8 @@
         ctx.fillStyle = '#efe2c0'; ctx.fillRect(x + 2, y + 6 + bob, 20, 16); ctx.fillStyle = '#8a6b3a'; ctx.fillRect(x, y + 3 + bob, 24, 5); ctx.fillRect(x, y + 20 + bob, 24, 5);
         ctx.fillStyle = '#6b4a2a'; for (let i = 0; i < 3; i++) ctx.fillRect(x + 6, y + 10 + i * 4 + bob, 12, 1);
         ctx.restore();
+      } else if (it.type === 'spear') {
+        const bob = Math.sin(L.t * 3 + it.x) * 4; ctx.save(); ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 16; drawSpearAt(x + 14, y + 14 + bob, -0.9, 0.62); ctx.restore();
       } else if (it.type === 'heart') drawHeart(x + 12, y + 12, 10, '#ff5a6a');
       else if (it.type === 'laurel') {
         ctx.save(); ctx.shadowColor = '#8fe6d2'; ctx.shadowBlur = 16; ctx.strokeStyle = '#5bbf4a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x + 12, y + 14, 10, 0.4, Math.PI * 2 - 0.4 + Math.PI - Math.PI); ctx.stroke();
@@ -977,34 +1019,37 @@
 
   const ROMAN = ['I', 'II', 'III'];
   function drawHud() {
+    ctx.save(); ctx.scale(HS, HS);
     // a parchment strip with the gold double rule from the books
-    ctx.fillStyle = '#efe6cf'; ctx.fillRect(0, 0, VW, 40); ctx.fillStyle = ctx.createPattern(grain, 'repeat'); ctx.fillRect(0, 0, VW, 40);
-    ctx.fillStyle = '#a8842a'; ctx.fillRect(0, 40, VW, 1.5); ctx.fillRect(0, 43, VW, 1);
+    ctx.fillStyle = '#efe6cf'; ctx.fillRect(0, 0, HW, 40); ctx.fillStyle = ctx.createPattern(grain, 'repeat'); ctx.fillRect(0, 0, HW, 40);
+    ctx.fillStyle = '#a8842a'; ctx.fillRect(0, 40, HW, 1.5); ctx.fillRect(0, 43, HW, 1);
     for (let i = 0; i < S.maxHp; i++) drawHeart(22 + i * 26, 20, 9, i < Math.max(0, P.hp) ? '#b8322d' : '#d8ccb0');
     ctx.textBaseline = 'middle'; ctx.font = '700 19px "Cormorant Garamond", Georgia, serif';
     ctx.fillStyle = '#c9a227'; ctx.beginPath(); ctx.arc(172, 20, 8, 0, 7); ctx.fill(); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1.3; ctx.stroke();
     ctx.fillStyle = '#2b1d10'; ctx.fillText('× ' + S.coins, 186, 21);
     ctx.fillStyle = '#f6eed8'; ctx.fillRect(262, 13, 16, 14); ctx.strokeRect(262, 13, 16, 14); ctx.fillStyle = '#2b1d10'; ctx.fillText(`${S.scrolls.size} of 9 scrolls`, 286, 21);
-    ctx.textAlign = 'right'; ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif'; ctx.fillText(`Chapter ${ROMAN[S.level]} · ${L.def.name}`, VW - 14, 21); ctx.textAlign = 'left';
+    drawSpearAt(424, 22, -0.75, 0.32); ctx.fillStyle = S.spears ? '#2b1d10' : '#9a8a74'; ctx.fillText(`× ${S.spears}`, 442, 21); if (!S.spears && HS === 1) { ctx.font = 'italic 500 15px "Cormorant Garamond", Georgia, serif'; ctx.fillText(`${5 - S.killStreak} more foe${5 - S.killStreak === 1 ? '' : 's'} for a spear`, 478, 21); ctx.font = '700 19px "Cormorant Garamond", Georgia, serif'; }
+    ctx.textAlign = 'right'; ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif'; if (HS === 1) ctx.fillText(`Chapter ${ROMAN[S.level]} · ${L.def.name}`, HW - 14, 21); ctx.textAlign = 'left';
     if (L.boss && L.bossOn && !L.boss.dead) {
-      ctx.fillStyle = 'rgba(239,230,207,0.95)'; ctx.fillRect(VW / 2 - 165, 52, 330, 30); ctx.strokeStyle = '#a8842a'; ctx.lineWidth = 1.5; ctx.strokeRect(VW / 2 - 165, 52, 330, 30);
-      ctx.fillStyle = '#d8ccb0'; ctx.fillRect(VW / 2 - 155, 70, 310, 7); ctx.fillStyle = '#6b2fa8'; ctx.fillRect(VW / 2 - 155, 70, 310 * (L.boss.hp / L.boss.maxHp), 7); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1; ctx.strokeRect(VW / 2 - 155, 70, 310, 7);
-      ctx.fillStyle = '#2b1d10'; ctx.font = '700 13px "Cormorant Garamond", Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText(L.boss.title, VW / 2, 61); if (L.boss.type === 'boss') { ctx.fillStyle = '#2b1d10'; [0.5, 0.2].forEach((r) => ctx.fillRect(VW / 2 - 155 + 310 * r - 1, 68, 2, 11)); } ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(239,230,207,0.95)'; ctx.fillRect(HW / 2 - 165, 52, 330, 30); ctx.strokeStyle = '#a8842a'; ctx.lineWidth = 1.5; ctx.strokeRect(HW / 2 - 165, 52, 330, 30);
+      ctx.fillStyle = '#d8ccb0'; ctx.fillRect(HW / 2 - 155, 70, 310, 7); ctx.fillStyle = '#6b2fa8'; ctx.fillRect(HW / 2 - 155, 70, 310 * (L.boss.hp / L.boss.maxHp), 7); ctx.strokeStyle = '#2b1d10'; ctx.lineWidth = 1; ctx.strokeRect(HW / 2 - 155, 70, 310, 7);
+      ctx.fillStyle = '#2b1d10'; ctx.font = '700 13px "Cormorant Garamond", Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText(L.boss.title, HW / 2, 61); if (L.boss.type === 'boss') { ctx.fillStyle = '#2b1d10'; [0.5, 0.2].forEach((r) => ctx.fillRect(HW / 2 - 155 + 310 * r - 1, 68, 2, 11)); } ctx.textAlign = 'left';
     }
     if (L.toast) {
       // styled like the "Philosophical Reflection" boxes in the books
       const a = Math.min(1, L.toast.life * 2, (5 - L.toast.life) * 4);
-      ctx.globalAlpha = a; const w = 660, x = (VW - w) / 2, y = 92, h = 84;
+      ctx.globalAlpha = a; const w = Math.min(660, HW - 24), x = (HW - w) / 2, y = 92, h = 84;
       ctx.fillStyle = '#f3ead2'; ctx.fillRect(x, y, w, h); ctx.fillStyle = ctx.createPattern(grain, 'repeat'); ctx.fillRect(x, y, w, h);
       ctx.strokeStyle = '#a8842a'; ctx.lineWidth = 1.5; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); ctx.lineWidth = 1; ctx.strokeRect(x + 5, y + 5, w - 10, h - 10);
       ctx.textAlign = 'center'; ctx.fillStyle = '#8a6a1e'; ctx.font = '700 11px "Cormorant Garamond", Georgia, serif';
-      ctx.fillText(L.toast.cite === 'Boss' || L.toast.cite === 'Reach the standard' ? '✦  ' + L.toast.cite.toUpperCase() + '  ✦' : '✦  PHILOSOPHICAL REFLECTION  ✦', VW / 2, y + 18);
+      ctx.fillText(L.toast.cite === 'Boss' || L.toast.cite === 'Reach the standard' ? '✦  ' + L.toast.cite.toUpperCase() + '  ✦' : '✦  PHILOSOPHICAL REFLECTION  ✦', HW / 2, y + 18);
       ctx.fillStyle = '#2b1d10'; ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
-      wrap('“' + L.toast.text + '”', VW / 2, y + 44, w - 50, 22);
-      if (L.toast.cite !== 'Boss' && L.toast.cite !== 'Reach the standard') { ctx.fillStyle = '#8a6a1e'; ctx.font = '600 12px "Cormorant Garamond", Georgia, serif'; ctx.fillText('— ' + L.toast.cite, VW / 2, y + h - 12); }
+      wrap('“' + L.toast.text + '”', HW / 2, y + 44, w - 50, 22);
+      if (L.toast.cite !== 'Boss' && L.toast.cite !== 'Reach the standard') { ctx.fillStyle = '#8a6a1e'; ctx.font = '600 12px "Cormorant Garamond", Georgia, serif'; ctx.fillText('— ' + L.toast.cite, HW / 2, y + h - 12); }
       ctx.textAlign = 'left'; ctx.globalAlpha = 1;
     }
     ctx.textBaseline = 'alphabetic';
+    ctx.restore();
   }
   function wrap(text, x, y, maxW, lh) {
     const words = text.split(' '); let line = ''; const lines = [];
@@ -1018,6 +1063,7 @@
     if (L.shake && !reduceMotion) ctx.translate(rand(-6, 6) * L.shake * 2, rand(-6, 6) * L.shake * 2);
     const th = L.def.theme;
     drawBackground(th);
+    ctx.save(); ctx.scale(ZOOM, ZOOM); ctx.translate(0, -(L.camY || 0));
     if (L.notes.length) drawNotes();
     drawTiles(th);
     drawFields();
@@ -1036,7 +1082,9 @@
     ctx.globalAlpha = 1;
     ctx.font = '700 17px "Cormorant Garamond", Georgia, serif';
     L.texts.forEach((x) => { ctx.globalAlpha = clamp(x.life * 1.5, 0, 1); ctx.fillStyle = th === 0 ? '#f3ead2' : '#05070d'; ctx.fillText(x.s, x.x - L.cam + 1, x.y + 1); ctx.fillStyle = th === 0 ? '#5a3a10' : x.c; ctx.fillText(x.s, x.x - L.cam, x.y); });
+    drawPlayerSpears();
     ctx.globalAlpha = 1;
+    ctx.restore();
     if (P.dead) { ctx.fillStyle = `rgba(43,29,16,${clamp(1.2 - P.dead, 0, 0.55)})`; ctx.fillRect(0, 0, VW, VH); }
     ctx.restore();
     drawHud();

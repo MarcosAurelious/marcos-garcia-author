@@ -102,3 +102,6 @@ body.touchy .rotate { display: inline; }
 .cast figcaption { font: 600 .95rem/1.1 var(--serif); color: var(--ink); }
 .cast small { display: block; font: italic 400 .78rem var(--serif); color: var(--ink-soft); margin-top: .1rem; }
 @media (max-width: 700px) { .cast { grid-template-columns: repeat(3, 1fr); row-gap: 14px; } }
+.touch .thr { width: 52px; height: 52px; font-size: 1.3rem; align-self: flex-end; }
+#cv.tall { aspect-ratio: 4 / 3; }
+@media (orientation: portrait) { body.touchy .touch { gap: 6px; } body.touchy .touch div { gap: 8px; } body.touchy .touch button { width: 64px; height: 64px; } body.touchy .touch .jmp { width: 72px; height: 72px; } body.touchy .touch .thr { width: 52px; height: 52px; } }

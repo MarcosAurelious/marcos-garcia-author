@@ -9,7 +9,7 @@
   <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
   <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=6">
+  <link rel="stylesheet" href="game.css?v=8">
 </head>
 <body>
 <main class="stage">
@@ -47,6 +47,7 @@
             <li><kbd>←</kbd><kbd>→</kbd> run</li>
             <li><kbd>Space</kbd> or <kbd>↑</kbd> jump</li>
             <li><kbd>X</kbd> or <kbd>J</kbd> swing the sword</li>
+            <li><kbd>K</kbd> or <kbd>C</kbd> throw a spear. Every <b>5 foes</b> you defeat drops 3 spears.</li>
             <li>On phones, use the on-screen buttons.</li>
             <li>Find all <b>nine scrolls</b> for a lesson from Marcus.</li>
           </ul>
@@ -76,7 +77,7 @@
       </div>
       <div class="touch" id="touch" aria-hidden="true">
         <div class="pad-l"><button data-k="left" type="button">◀</button><button data-k="right" type="button">▶</button></div>
-        <div class="pad-r"><button data-k="attack" type="button" class="atk">⚔</button><button data-k="jump" type="button" class="jmp">⤒</button></div>
+        <div class="pad-r"><button data-k="throw" type="button" class="thr" aria-label="Throw spear">➶</button><button data-k="attack" type="button" class="atk">⚔</button><button data-k="jump" type="button" class="jmp">⤒</button></div>
       </div>
     </div>
     <div class="game-bar">
@@ -104,6 +105,6 @@
   </section>
 
 </main>
-<script src="game.js?v=7"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>
