@@ -521,13 +521,30 @@
     if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.8)';
     else if (f.state === 'block') ctx.filter = 'brightness(1.15) saturate(0.6)';
-    let lx = 0; if (f.state === 'attack' && f.move !== 'special') { const m = MOVES[f.move]; if (f.t >= m.start && f.t < m.start + m.act + m.rec * 0.5) lx = f.face * 10; }
-    spr(ctx, h.set, h.a, idx, f.x + lx, f.y + 2 - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0), f.face, sc);
+    // startup / active / recovery: lean back, lunge in, ease out (on top of the drawn pose)
+    let lx = 0, rot = 0, sq = 1;
+    const ease = (x) => 1 - (1 - clamp(x, 0, 1)) ** 3;
+    if (f.state === 'attack') { const m = MOVES[f.move], heavy = f.move === 'heavy' || f.move === 'hkick' || f.move === 'special', reach = heavy ? 26 : 16;
+      if (f.t < m.start) { const w = ease(f.t / m.start); lx = -f.face * reach * 0.45 * w; rot = -0.06 * w * (heavy ? 1.4 : 1); sq = 1 - 0.03 * w; }
+      else if (f.t < m.start + m.act) { const w = ease((f.t - m.start) / m.act); lx = f.face * reach * w; rot = 0.05 * w; sq = 1 + 0.02 * w; }
+      else { const w = 1 - ease((f.t - m.start - m.act) / m.rec); lx = f.face * reach * w; rot = 0.05 * w; } }
+    else if (f.state === 'hurt') { const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1); lx = -f.face * 8 * w; rot = -0.08 * w; }
+    else if (f.state === 'walk') rot = Math.sin(f.anim * 9) * 0.02;
+    const status = f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
+    if (status && !(f.flash > 0)) ctx.filter = status;
+    const fy = f.y + 2 - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
+    ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
+    spr(ctx, h.set, h.a, idx, 0, 0, f.face, sc);
     ctx.restore();
     if (f.state === 'block') { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#8fd8ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, -1.1, 1.1); if (f.face < 0) { ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, Math.PI - 1.1, Math.PI + 1.1); } ctx.stroke(); ctx.restore(); }
     drawFx(f);
   }
+  function drawStatus(f) {
+    const tags = []; if (f.poison > 0) tags.push(['POISONED', '#d77bff']); if (f.burn > 0) tags.push(['BURNING', '#ff9b49']); if (f.slowT > 0) tags.push(['SLOWED', '#c4b1ff']);
+    tags.forEach(([t, c], i) => { ctx.save(); ctx.font = '700 13px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#120c08'; const y = FLOOR + 22 + i * 15; ctx.strokeText(t, f.x, y); ctx.fillStyle = c; ctx.fillText(t, f.x, y); ctx.restore(); });
+  }
   function drawFx(f) {
+    drawStatus(f);
     if (f.state === 'attack' && f.move !== 'special' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
       const reach = MOVES[f.move].reach * f.ch.size; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
       const kick = f.move === 'lkick' || f.move === 'hkick'; spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * (kick ? 0.3 : 0.55), f.face, f.move === 'heavy' || f.move === 'hkick' ? 2.3 : 1.6); ctx.restore(); }
