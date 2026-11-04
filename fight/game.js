@@ -378,6 +378,22 @@
       fire(big) { if (!ok()) return; const t = now(); noise(t, big ? 0.9 : 0.5, 0.9, 'lowpass', 300, 1800, 0.6, 0.3, 0.05); noise(t + 0.05, big ? 0.7 : 0.4, 0.4, 'bandpass', 2500, 900, 1, 0.2, 0.05); osc('sawtooth', 70, 45, t, big ? 0.8 : 0.4, 0.12); },
       // water: a crashing wash
       wave(big) { if (!ok()) return; const t = now(); noise(t, big ? 1.1 : 0.7, 0.75, 'bandpass', 400, 1500, 0.5, 0.4, 0.15); noise(t + 0.2, 0.6, 0.35, 'highpass', 3000, 6000, 0.5, 0.3, 0.1); },
+      // a lightning strike: a split-second white crack, a buzzing sizzle, a few branching snaps
+      lightning(big) { if (!ok()) return; const t = now(), k = big ? 1.3 : 1;
+        noise(t, 0.05, 1.1 * k, 'highpass', 1200, 1200, 0.5, 0.4);
+        noise(t, 0.12 * k, 0.6 * k, 'bandpass', 5000, 2000, 1.2, 0.35);
+        for (let i = 0; i < (big ? 7 : 4); i++) noise(t + 0.03 + i * 0.022 + Math.random() * 0.015, 0.02, 0.45, 'highpass', 3000 + Math.random() * 4000, 3000, 0.7, 0.3);
+        const ac = A(), o = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.value = 120; m.type = 'square'; m.frequency.value = 37; mg.gain.value = 90; m.connect(mg).connect(o.frequency);
+        env(g, t, 0.002, 0.18 * k, 0.35 * k); const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 400; o.connect(hp).connect(g).connect(bus); o.start(t); m.start(t); o.stop(t + 0.45 * k); m.stop(t + 0.45 * k); },
+      // thunder: a sharp clap, then a deep roll that rumbles unevenly and fades, delayed like the real thing
+      thunder(big, delay = 0.12) { if (!ok()) return; const ac = A(), t = now() + delay, dur = big ? 2.4 : 1.5;
+        noise(t, 0.18, 0.9, 'lowpass', 2400, 600, 0.6, 0.5);
+        const n = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain(), am = ac.createGain(); n.buffer = nb; n.loop = true; lp.type = 'lowpass'; lp.Q.value = 0.7;
+        lp.frequency.setValueAtTime(700, t); lp.frequency.exponentialRampToValueAtTime(90, t + dur);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(big ? 1.4 : 1.0, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        am.gain.setValueAtTime(1, t); let x = t + 0.1; while (x < t + dur) { am.gain.linearRampToValueAtTime(0.35 + Math.random() * 0.9, x); x += 0.08 + Math.random() * 0.18; }   // the uneven rolls
+        n.connect(lp).connect(am).connect(g).connect(bus); const w = ac.createGain(); w.gain.value = 0.6; g.connect(w).connect(verb); n.start(t, Math.random() * 0.4); n.stop(t + dur + 0.05);
+        osc('sine', 55, 32, t, dur * 0.7, big ? 0.5 : 0.35, 0.3, 0.05); },
       // the knockout: a huge body slam with a metal crash tail
       ko() { if (!ok()) return; const t = now(); osc('sine', 120, 30, t, 0.6, 0.9); noise(t, 0.4, 0.6, 'lowpass', 1200, 150, 0.7, 0.4); this.clang(true); },
     };
@@ -394,8 +410,10 @@
     if ((S.hit === 'blade' && punch) || S.hit === 'hammer') FX.clang(heavy || S.hit === 'hammer');
     else if (S.hit === 'tech') FX.laser(false);
   }
-  function castSound(f, big) {   // the special or super going off
+  const STORM = ['marcus', 'colossus', 'helios', 'pegasus', 'mars', 'hades'];   // legends who call the storm on every special
+  function castSound(f, big) {   // the special or super going off: every special cracks lightning, every super rolls thunder
     const S = STYLE[f.ch.id] || { sp: 'laser' };
+    FX.lightning(big); if (big || STORM.includes(f.ch.id)) FX.thunder(big, big ? 0.15 : 0.22);
     if (S.sp === 'spell') FX.spell(big, S.root); else if (S.sp === 'laser') FX.laser(big); else if (S.sp === 'zap') { FX.zap(); FX.laser(big); }
     else if (S.sp === 'fire') FX.fire(big); else if (S.sp === 'wave') FX.wave(big); else if (S.sp === 'clang') { FX.whoosh(true); FX.clang(true); }
   }
