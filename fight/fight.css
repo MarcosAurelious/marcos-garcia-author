@@ -115,5 +115,16 @@ body.touchy .touch { display: flex; }
   body.touchy .plaques { flex-direction: row; max-width: none; flex: none; gap: 6px; align-self: flex-end; }
   body.touchy .plq { width: 92px; }
   .stage { padding-top: 4px; }
-  body.touchy .gear { position: fixed; top: 8px; right: 10px; bottom: auto; }
+  body.touchy .stage { padding: 2px 0 0; }
+  body.touchy .arena { box-shadow: none; }
+  body.touchy .gear { position: fixed; top: 46px; right: 10px; left: auto; bottom: auto; transform: none; width: 34px; height: 34px; font-size: 1.05rem; opacity: .85; }
+}
+/* short screens (phones sideways): a compact results card so the arena shows around it */
+@media (max-height: 520px) {
+  .res-card { padding: 10px 18px; max-width: 460px; }
+  .res-card h2 { font-size: 1.7rem; margin: 0; }
+  .res-q { font-size: 1rem; margin: .2rem 0; } .res-s { font-size: .9rem; margin: .2rem 0 .5rem; }
+  .res-b .btn { font-size: .9rem; padding: .45rem .8rem; }
+  .res-end { margin: .3rem 0; } .res-end canvas { width: 60px; } .res-end p { font-size: .88rem; }
+  .menu .btn { padding: .4rem .9rem; }
 }

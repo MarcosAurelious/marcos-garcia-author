@@ -348,20 +348,28 @@
   /* ================= canvas ================= */
   const VW = 960, VH = 540, FLOOR = 488;
   // phones held upright (like the Quest): a taller view, the camera moved in on a narrower fighting floor so the fighters are bigger
-  let CAM = null, SH = VH, WALL_L = 50, WALL_R = VW - 50;   // SH: screen height in game units
+  let CAM = null, SH = VH, SW = VW, WALL_L = 50, WALL_R = VW - 50;   // SW x SH: the screen in game units (wider or taller than the 960x540 stage when the window is)
   const cv = $('#cv'); const ctx = cv.getContext('2d'); let RES = 1;
   function fit() {
     const wrap = $('#arena'), portrait = innerHeight > innerWidth && innerWidth < 760;
-    let w = portrait ? document.documentElement.clientWidth - 16 : Math.min(innerWidth - 24, (innerHeight - (document.body.classList.contains('touchy') ? 24 : 120)) * VW / VH);
+    const touchy = document.body.classList.contains('touchy'), phoneWide = touchy && !portrait && innerHeight <= 520;
+    let w = portrait ? document.documentElement.clientWidth - 16 : phoneWide ? document.documentElement.clientWidth - 4 : Math.min(innerWidth - 24, (innerHeight - (touchy ? 24 : 120)) * VW / VH * 1.65);
     w = Math.max(300, Math.floor(w)); wrap.style.width = w + 'px';
+    SW = VW;
+    if (!portrait) {   // wide windows and phones held sideways: the stage stays put, the view widens to show more of the backdrop
+      const h = phoneWide ? innerHeight - 8 : Math.min(innerHeight - (touchy ? 24 : 120), w * VH / VW);
+      SW = Math.round(clamp(VH * w / Math.max(200, h), VW, VW * 1.65));
+      w = Math.min(w, Math.floor(h * SW / VH)); wrap.style.width = w + 'px';   // never taller than the window
+      CAM = SW > VW ? { x0: -(SW - VW) / 2, s: 1, top: 0, w: SW, h: VH } : null; SH = VH; WALL_L = 50; WALL_R = VW - 50;
+    }
     if (portrait) {
       const PW = 640, X0 = 160, pad = $('#touch'), padH = pad && pad.offsetHeight ? pad.offsetHeight + 40 : 170, top = Math.max(0, wrap.getBoundingClientRect().top);
-      const avail = Math.max(w * 0.6, innerHeight - top - padH - 16), Hv = clamp(PW * avail / w, VH, 1000);   // world height on screen: the backdrop fills the extra sky above the stage
+      const avail = Math.max(w * 0.6, innerHeight - top - padH - 28), Hv = clamp(PW * avail / w, VH, 1000);   // world height on screen: the backdrop fills the extra sky above the stage
       CAM = { x0: X0, s: VW / PW, top: VH - Hv, w: PW, h: Hv }; SH = Math.round(Hv * VW / PW); WALL_L = X0 + 50; WALL_R = X0 + PW - 50;
-    } else { CAM = null; SH = VH; WALL_L = 50; WALL_R = VW - 50; }
-    cv.style.aspectRatio = `${VW} / ${SH}`;
-    const r = clamp(Math.ceil(w * (devicePixelRatio || 1) / VW * 4) / 4, 1, 2.5);
-    if (r !== RES || cv.width !== Math.round(VW * r) || cv.height !== Math.round(SH * r)) { RES = r; cv.width = Math.round(VW * r); cv.height = Math.round(SH * r); }
+    }
+    cv.style.aspectRatio = `${SW} / ${SH}`;
+    const r = clamp(Math.ceil(w * (devicePixelRatio || 1) / SW * 4) / 4, 1, 2.5);
+    if (r !== RES || cv.width !== Math.round(SW * r) || cv.height !== Math.round(SH * r)) { RES = r; cv.width = Math.round(SW * r); cv.height = Math.round(SH * r); }
   }
   addEventListener('resize', fit);
   if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touchy');
@@ -668,8 +676,8 @@
   function drawBg() {
     const im = G.bg, R = CAM ? { x: CAM.x0, y: CAM.top, w: CAM.w, h: CAM.h } : { x: 0, y: 0, w: VW, h: VH }; ctx.fillStyle = '#120c08'; ctx.fillRect(R.x, R.y, R.w, R.h);
     if (im.complete && im.naturalWidth && CAM) {   // upright phone: the whole backdrop scaled to the view's height, drifting gently with the fight
-      const c = bakedBg(im), bw = c.width / 1.5, k = R.h / VH, dw = bw * k, mid = (G.p[0].x + G.p[1].x) / 2 - (R.x + R.w / 2), room = Math.max(0, (dw - R.w) / 2);
-      ctx.drawImage(c, R.x + R.w / 2 - dw / 2 - clamp(mid / (R.w / 2 - 50), -1, 1) * room * 0.35, R.y, dw, R.h); }
+      const c = bakedBg(im), bw = c.width / 1.5, k = Math.max(R.h / VH, R.w / bw), dw = bw * k, dh = VH * k, mid = (G.p[0].x + G.p[1].x) / 2 - (R.x + R.w / 2), room = Math.max(0, (dw - R.w) / 2);
+      ctx.drawImage(c, R.x + R.w / 2 - dw / 2 - clamp(mid / Math.max(100, R.w / 2 - 50), -1, 1) * room * 0.35, R.y + (R.h - dh) * 0.7, dw, dh); }
     else if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2, bw = c.width / 1.5;
       if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
       else ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); }
@@ -779,7 +787,7 @@
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
   function drawHud() {
-    const HS = CAM ? 1.5 : 1, HW = VW / HS; ctx.save(); ctx.scale(HS, HS);   // upright phones: a bigger HUD, like the Quest's score bar
+    const HS = CAM && CAM.s > 1 ? 1.5 : 1, HW = SW / HS; ctx.save(); ctx.scale(HS, HS);   // upright phones: a bigger HUD, like the Quest's score bar
     const [a, b] = G.p; ctx.textBaseline = 'middle';
     bar(30, 24, HW * 0.396, 22, a.hp / a.maxHp, a.hp / a.maxHp > 0.3 ? '#e7c46a' : '#e0503a', false);
     bar(HW - 30 - HW * 0.396, 24, HW * 0.396, 22, b.hp / b.maxHp, b.hp / b.maxHp > 0.3 ? '#e7c46a' : '#e0503a', true);
@@ -803,17 +811,17 @@
         .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
       if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
       ctx.restore(); }
-    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
+    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (CAM && CAM.s > 1 ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
-      ctx.translate(HW / 2, (CAM ? SH / HS * 0.4 : 230)); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
+      ctx.translate(HW / 2, (CAM && CAM.s > 1 ? SH / HS * 0.4 : 230)); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
       const txt = showSub ? bn.sub : bn.text; ctx.strokeText(txt, 0, 0); const gr = ctx.createLinearGradient(0, -40, 0, 40); gr.addColorStop(0, '#fff6d8'); gr.addColorStop(1, '#e7a227'); ctx.fillStyle = gr; ctx.fillText(txt, 0, 0); ctx.restore(); }
     ctx.restore();
   }
 
   function render() {
     ctx.setTransform(RES, 0, 0, RES, 0, 0);
-    if (!G) { ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, VW, SH); return; }
+    if (!G) { ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, SW, SH); return; }
     ctx.save(); if (G.shake > 0 && !calm) ctx.translate(rand(-8, 8) * G.shake * 2, rand(-8, 8) * G.shake * 2);
     if (CAM) { ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top); }
     drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); order.forEach(drawFighter); drawAttacks();
