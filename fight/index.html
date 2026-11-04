@@ -9,7 +9,7 @@
   <title>Roman Arena: Gods of the Machine · A Fighting Game by Marcos Garcia</title>
   <meta name="description" content="A one-on-one arena fighting game: Marcus Aurelius, the Roman Automaton, the Black Knight, Anubis and more battle with lightning, spears and fire. Free, in your browser.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="fight.css?v=8">
+  <link rel="stylesheet" href="fight.css?v=10">
 </head>
 <body>
 <main class="stage">
@@ -61,12 +61,13 @@
       </div>
     </div>
     <div class="touch" id="touch" aria-hidden="true">
-      <div class="pad pad-d"><button type="button" data-k="breaker" class="brk" aria-label="Combo breaker">✦</button><button type="button" data-k="up" aria-label="Jump">▲</button><button type="button" data-k="left" aria-label="Left">◀</button><span class="hub"></span><button type="button" data-k="right" aria-label="Right">▶</button><button type="button" data-k="down" aria-label="Crouch">▼</button></div>
-      <div class="pad pad-a"><button type="button" data-k="light" aria-label="Punch">P</button><button type="button" data-k="heavy" aria-label="Heavy punch">HP</button><button type="button" data-k="lkick" aria-label="Kick">K</button><button type="button" data-k="hkick" aria-label="Heavy kick">HK</button><button type="button" data-k="special" class="sp" aria-label="Special">SP</button><button type="button" data-k="super" class="sup" aria-label="Super">★</button></div>
-      <p class="hint">Turn your phone sideways for a bigger arena</p>
+      <div class="stick" id="stick"><span class="knob"></span></div>
+      <div class="plaques"><button type="button" data-k="special" class="plq" aria-label="Special">Special</button><button type="button" data-k="breaker" class="plq" aria-label="Combo breaker">Breaker</button><button type="button" data-k="super" class="plq red" aria-label="Super">Super</button></div>
+      <div class="medals"><button type="button" data-k="light" class="med" aria-label="Light punch"><b>LP</b><small>PUNCH</small></button><button type="button" data-k="heavy" class="med" aria-label="Heavy punch"><b>HP</b><small>PUNCH</small></button><button type="button" data-k="lkick" class="med" aria-label="Light kick"><b>LK</b><small>KICK</small></button><button type="button" data-k="hkick" class="med" aria-label="Heavy kick"><b>HK</b><small>KICK</small></button></div>
+      <p class="hint">Drag the shield to move · turn sideways for a bigger arena</p>
     </div>
   </section>
 </main>
-<script src="game.js?v=35"></script>
+<script src="game.js?v=36"></script>
 </body>
 </html>

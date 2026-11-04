@@ -379,6 +379,21 @@
     const up = (e) => { e.preventDefault(); touchHeld.delete(k); b.classList.remove('on'); };
     b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
   });
+  // the shield joystick: drag the umbo; left/right/down are held, up is a jump on entry
+  (() => {
+    const st = $('#stick'); if (!st) return; const knob = st.querySelector('.knob'); let pid = null, cx = 0, cy = 0, upOn = false;
+    const dirs = ['left', 'right', 'down'];
+    const setDir = (dx, dy) => {
+      const r = st.clientWidth / 2, d = Math.hypot(dx, dy), k = d > r * 0.62 ? r * 0.62 / d : 1; knob.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
+      const dead = r * 0.22, want = { left: dx < -dead && Math.abs(dx) > Math.abs(dy) * 0.55, right: dx > dead && Math.abs(dx) > Math.abs(dy) * 0.55, down: dy > dead * 1.3 && dy > Math.abs(dx) * 0.6 };
+      dirs.forEach((n) => { if (want[n]) touchHeld.add(n); else touchHeld.delete(n); });
+      const up = dy < -dead * 1.3 && -dy > Math.abs(dx) * 0.6; if (up && !upOn) touchPressed.add('up'); upOn = up;
+    };
+    const end = (e) => { if (e.pointerId !== pid) return; pid = null; upOn = false; knob.style.transform = ''; dirs.forEach((n) => touchHeld.delete(n)); st.classList.remove('on-stick'); };
+    st.addEventListener('pointerdown', (e) => { e.preventDefault(); SFX.ensure(); pid = e.pointerId; st.setPointerCapture(pid); const b = st.getBoundingClientRect(); cx = b.left + b.width / 2; cy = b.top + b.height / 2; setDir(e.clientX - cx, e.clientY - cy); });
+    st.addEventListener('pointermove', (e) => { if (e.pointerId === pid) setDir(e.clientX - cx, e.clientY - cy); });
+    st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end); st.addEventListener('lostpointercapture', end);
+  })();
   function humanInput(slot) {
     const K = KEYS[slot], h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), p = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
     return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), special: p('special'), super: p('super'), breaker: p('breaker') };

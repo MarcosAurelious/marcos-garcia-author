@@ -73,31 +73,47 @@ h1 { font-family: var(--rock); font-weight: 400; letter-spacing: .03em; }
 .card .nm { font-family: var(--cond); font-weight: 400; font-size: 1.25rem; letter-spacing: .06em; }
 .step { font-family: var(--cond); font-size: 1.45rem; letter-spacing: .08em; }
 
-/* ---- touch controls: a real gamepad (D-pad cross on the left, attack block on the right) ---- */
-.touch { display: none; width: 100%; max-width: 560px; margin: 0 auto; justify-content: space-between; align-items: center; padding: 14px 6px 6px; gap: 10px; touch-action: none; user-select: none; -webkit-user-select: none; --b: min(64px, 16.5vw); --a: min(72px, 19vw); }
+/* ---- touch controls, Roman style: shield joystick, plaque buttons, gold coin attacks ---- */
+.touch { display: none; width: 100%; max-width: 560px; margin: 8px auto 0; justify-content: space-between; align-items: center; gap: 6px; padding: 4px; touch-action: none; user-select: none; -webkit-user-select: none; --s: min(118px, 31vw); --m: min(56px, 14.6vw); }
 body.touchy .touch { display: flex; }
-.touch button { border-radius: 50%; border: 2px solid var(--gold); background: rgba(40,28,16,.88); color: var(--ink); font-family: var(--cond); font-size: 1.35rem; letter-spacing: .06em; touch-action: none; padding: 0; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-.touch button.on { background: rgba(201,162,39,.65); color: #1a1108; transform: scale(.94); }
-.touch .pad-d { display: grid; grid-template-columns: repeat(3, var(--b)); grid-template-rows: repeat(3, var(--b)); gap: 4px; }
-.touch .pad-d button { width: var(--b); height: var(--b); border-radius: 14px; font-size: 1.25rem; }
-.touch .pad-d [data-k="up"] { grid-area: 1 / 2; } .touch .pad-d [data-k="left"] { grid-area: 2 / 1; } .touch .pad-d [data-k="right"] { grid-area: 2 / 3; } .touch .pad-d [data-k="down"] { grid-area: 3 / 2; }
-.touch .pad-d .brk { grid-area: 1 / 1; width: calc(var(--b) * .8); height: calc(var(--b) * .8); border-radius: 50%; place-self: center; border-color: #ffd27a; color: #ffd27a; font-size: 1rem; }
-.touch .pad-d .hub { grid-area: 2 / 2; border-radius: 50%; background: radial-gradient(circle, rgba(201,162,39,.25), transparent 70%); pointer-events: none; }
-.touch .pad-a { display: grid; grid-template-columns: repeat(2, var(--a)); gap: 8px 10px; }
-.touch .pad-a button { width: var(--a); height: var(--a); }
-.touch .pad-a .sp { border-color: #e7c46a; color: #e7c46a; } .touch .sup { border-color: #8fe6ff; color: #8fe6ff; }
+.touch button { -webkit-tap-highlight-color: transparent; touch-action: none; border: 0; padding: 0; cursor: pointer; }
+.touch .on { filter: brightness(1.4) saturate(1.2); transform: scale(.93); }
+/* the shield: scutum red, bronze rings, gold rim, a gold umbo that follows your thumb */
+.stick { position: relative; flex: none; width: var(--s); height: var(--s); border-radius: 50%; touch-action: none;
+  background: radial-gradient(circle, transparent 0 60%, rgba(0,0,0,.35) 61% 62%, transparent 63%),
+    radial-gradient(circle, #a8321f 0 47%, #6e1a10 48% 63%, #d4ad48 64% 67%, #7a1f14 68% 85%, #f0d27a 86% 90%, #8a6418 91% 96%, #3b2708 97%);
+  box-shadow: 0 5px 12px rgba(0,0,0,.65), inset 0 0 12px rgba(0,0,0,.5); }
+.stick::before { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: repeating-conic-gradient(#f6dc8a 0 4deg, transparent 4deg 22.5deg); -webkit-mask: radial-gradient(circle closest-side, transparent 0 79%, #000 80% 86%, transparent 87%); mask: radial-gradient(circle closest-side, transparent 0 79%, #000 80% 86%, transparent 87%); }
+.stick::after { content: ''; position: absolute; inset: 13%; border-radius: 50%; border: 1.5px dashed rgba(240,210,122,.55); pointer-events: none; }
+.stick .knob { position: absolute; left: 50%; top: 50%; width: 42%; height: 42%; margin: -21% 0 0 -21%; border-radius: 50%; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle at 38% 32%, #fff6cf, #ecc85e 30%, #b28a2c 62%, #5e4110 100%); box-shadow: 0 4px 8px rgba(0,0,0,.6), inset 0 0 0 2px #6b4a12, inset 0 0 0 5px rgba(255,236,170,.35); }
+.stick .knob::after { content: ''; position: absolute; inset: 30%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff, #e7c46a 60%, #8a6418); }
+/* plaques: a gilded frame with a dark marble panel */
+.plaques { display: flex; flex-direction: column; gap: 5px; flex: 1; max-width: 120px; }
+.plq { height: calc(var(--m) * .62); border-radius: 3px; color: #f6e7bf; font: 700 .7rem/1 var(--serif); letter-spacing: .14em; text-transform: uppercase; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(90deg, #8a6418, #f0d27a 4%, #8a6418 8%, transparent 8% 92%, #8a6418 92%, #f0d27a 96%, #8a6418), linear-gradient(#f0d27a, #a8842a 12%, #3a2712 14% 86%, #a8842a 88%, #f0d27a);
+  box-shadow: 0 3px 6px rgba(0,0,0,.6), inset 0 0 0 1px #4a3208; }
+.plq.red { color: #fff1c9; background: linear-gradient(90deg, #8a6418, #f0d27a 4%, #8a6418 8%, transparent 8% 92%, #8a6418 92%, #f0d27a 96%, #8a6418), linear-gradient(#f0d27a, #a8842a 12%, #8e2416 14% 86%, #a8842a 88%, #f0d27a); }
+.plq.cyan { color: #bff1ff; }
+/* gold coins: a bronze-rimmed medallion with a crimson field */
+.medals { display: grid; grid-template-columns: repeat(2, var(--m)); gap: 5px 6px; flex: none; }
+.med { width: var(--m); height: var(--m); border-radius: 50%; color: #ffe9b0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-shadow: 0 1px 0 #000;
+  background: radial-gradient(circle, #8e2416 0 54%, #f0d27a 55% 58%, #5e1a10 59% 66%, transparent 67%), radial-gradient(circle at 38% 30%, #fff3c4, #e2bd56 40%, #9a7220 75%, #4e360c);
+  box-shadow: 0 4px 8px rgba(0,0,0,.6), inset 0 0 0 1.5px #4e360c; }
+.med b { font: 700 1.15rem/1 var(--serif); letter-spacing: .04em; }
+.med small { font: 700 .48rem/1 var(--mono); letter-spacing: .12em; opacity: .9; }
 .touch .hint { display: none; }
 @media (orientation: portrait) {
   body.touchy .stage { padding-left: 6px; padding-right: 6px; }
-  body.touchy .touch .hint { display: block; position: absolute; left: 0; right: 0; bottom: -34px; text-align: center; font: italic 1rem var(--serif); color: var(--ink-soft); }
-  body.touchy .touch { position: relative; margin: auto auto 46px; }
-  body.touchy .fightscr { min-height: calc(100svh - 24px); }   /* arena on top, gamepad down where the thumbs rest */
+  body.touchy .touch .hint { display: block; position: absolute; left: 0; right: 0; top: 100%; margin-top: 6px; text-align: center; font: italic .95rem var(--serif); color: var(--ink-soft); }
+  body.touchy .touch { position: relative; margin-bottom: 30px; }
 }
-/* phone held sideways: controls float over the bottom corners of the arena */
+/* phone held sideways: the controls float over the bottom of the arena, like an arcade HUD */
 @media (orientation: landscape) and (max-height: 520px) {
-  body.touchy .touch { position: fixed; left: 0; right: 0; bottom: 6px; max-width: none; pointer-events: none; padding: 0 12px; --b: min(50px, 11vh); --a: min(56px, 12.5vh); }
-  body.touchy .touch .pad-d, body.touchy .touch .pad-a { pointer-events: auto; }
-  body.touchy .touch button { background: rgba(40,28,16,.5); }
+  body.touchy .touch { position: fixed; left: 0; right: 0; bottom: 8px; max-width: none; padding: 0 14px; align-items: flex-end; pointer-events: none; --s: min(104px, 27vh); --m: min(50px, 13vh); }
+  body.touchy .touch > * { pointer-events: auto; opacity: .88; }
+  body.touchy .plaques { flex-direction: row; max-width: none; flex: none; gap: 6px; align-self: flex-end; }
+  body.touchy .plq { width: 92px; }
   .stage { padding-top: 4px; }
   body.touchy .gear { position: fixed; top: 8px; right: 10px; bottom: auto; }
 }
