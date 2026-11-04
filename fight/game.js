@@ -233,8 +233,8 @@
     g.translate(Math.round(x), Math.round(y)); if (face < 0) g.scale(-1, 1);
     g.drawImage(im, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); g.restore();
   }
-  const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge'];
-  const LOCAL_BG = ['bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
+  const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge', 'bg-chiron', 'bg-diana'];
+  const LOCAL_BG = ['bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge', 'bg-chiron', 'bg-diana'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
   const BGS = BGN.map((n) => img((LOCAL_BG.includes(n) ? '' : Q) + n + '.webp'));
 
   /* ================= the roster =================
@@ -556,7 +556,7 @@
   const bgCache = new Map();
   function bakedBg(im) {   // a softened, darker copy so the fighters stand out (works on every browser: shrink-and-grow blur)
     if (bgCache.has(im)) return bgCache.get(im);
-    const busy = BUSY.some((n) => im.src.includes(n)), W = Math.round(VW * 1.08), Hh = VH, s = Math.max(W / im.naturalWidth, Hh / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s;
+    const busy = BUSY.some((n) => im.src.includes(n)), wide = im.naturalWidth / im.naturalHeight > 2.2, W = wide ? Math.round(VH * im.naturalWidth / im.naturalHeight) : Math.round(VW * 1.08), Hh = VH, s = Math.max(W / im.naturalWidth, Hh / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s;
     const small = document.createElement('canvas'), k = busy ? 0.28 : 0.45; small.width = Math.round(W * k); small.height = Math.round(Hh * k);
     const sg = small.getContext('2d'); sg.imageSmoothingQuality = 'high'; sg.drawImage(im, (W - w) / 2 * k, (Hh - h) / 2 * k, w * k, h * k);
     const c = document.createElement('canvas'); c.width = Math.round(W * 1.5); c.height = Math.round(Hh * 1.5); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
@@ -566,7 +566,9 @@
   }
   function drawBg() {
     const im = G.bg; ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, VW, VH);
-    if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2; ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); }
+    if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2, bw = c.width / 1.5;
+      if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
+      else ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); }
     const g = ctx.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
     ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(0, FLOOR, VW, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(0, FLOOR, VW, 2);
   }
