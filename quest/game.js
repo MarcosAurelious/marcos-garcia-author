@@ -377,75 +377,111 @@
     };
   })();
 
-  /* ================= music: original themes, synthesized live (no audio files) ================= */
+  /* ================= music: original rock themes synthesized live, plus Marcos's own recordings ================= */
   const MUSIC = (() => {
-    let on = store.get('aq-music') !== false, ac = null, master = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
+    let on = store.get('aq-music') !== false, ac = null, master = null, crunch = null, gtrL = null, gtrR = null, leadBus = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
     const NOTE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
     const hz = (s) => { const m = /^([A-G][#b]?)(\d)$/.exec(s); return 440 * Math.pow(2, (NOTE[m[1]] + (+m[2] + 1) * 12 - 69) / 12); };
     const seq = (str) => { const t = str.trim().split(/\s+/), out = new Array(t.length).fill(null); t.forEach((x, i) => { if (x === '-' || x === '.') return; let d = 1; while (t[i + d] === '-') d++; out[i] = { f: hz(x), d }; }); return out; };
     const ch = (s) => s.split(' ').map(hz);
     const T = {
       // Chapter I: a heroic charge in D minor (i, VI, III, VII)
-      ch1: { bpm: 136, wave: 'square', leadVol: 0.065, harm: 0.03, bass: 'octave', pad: 0.03, arp: 2, arpWave: 'triangle', arpVol: 0.03,
+      ch1: { bpm: 136, wave: 'square', leadVol: 0.065, harm: 0.03, bass: 'octave', pad: 0.03, arp: 2, arpWave: 'triangle', arpVol: 0.03, chug: 'O...o.o.O...o.o.', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('D3 F3 A3'), ch('Bb2 D3 F3'), ch('F3 A3 C4'), ch('C3 E3 G3')],
         lead: [seq('D5 - D5 - A4 - D5 - F5 - E5 - D5 - C5 - Bb4 - D5 - F5 - Bb5 - A5 - - - F5 - - - F5 - A5 - C6 - A5 - G5 - F5 - E5 - C5 - E5 - G5 - - - F5 - E5 - C5 - - - - -'),
                seq('A5 - - - G5 - F5 - G5 - A5 - - - D5 - F5 - - - E5 - D5 - E5 - F5 - - - Bb4 - C5 - F5 - A5 - C6 - Bb5 - A5 - G5 - F5 - G5 - - - A5 - - - C6 - - - A5 - G5 -')] },
       // Chapter II: the laboratory, an electric dance in E Phrygian dominant
-      ch2: { bpm: 140, wave: 'square', leadVol: 0.055, harm: 0.025, bass: 'octave', arp: 1, arpWave: 'square', arpVol: 0.026,
+      ch2: { bpm: 140, wave: 'square', leadVol: 0.055, harm: 0.025, bass: 'octave', arp: 1, arpWave: 'square', arpVol: 0.026, chug: 'o.o.o.o.o.o.o.o.', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('E3 G#3 B3'), ch('F3 A3 C4'), ch('E3 G#3 B3'), ch('D3 F3 A3')],
         lead: [seq('E5 - E5 - G#5 - B5 - A5 - G#5 - F5 - E5 - F5 - A5 - C6 - A5 - G#5 - - - E5 - - - E5 - G#5 - B5 - E6 - D6 - C6 - B5 - A5 - F5 - E5 - D5 - F5 - E5 - - - - - - -'),
                seq('B5 - - - A5 - G#5 - A5 - B5 - - - E5 - C6 - - - B5 - A5 - B5 - C6 - - - F5 - G#5 - B5 - E6 - B5 - G#5 - B5 - E6 - F6 - E6 - D6 - C6 - B5 - A5 - G#5 - F5 - E5 -')] },
       // Chapter III: the cosmos, soaring and bright in A minor (i, VI, III, VII)
-      ch3: { bpm: 128, wave: 'triangle', leadVol: 0.085, harm: 0.035, bass: 'octave', pad: 0.04, arp: 1, arpWave: 'sine', arpVol: 0.03,
+      ch3: { bpm: 128, wave: 'triangle', leadVol: 0.085, harm: 0.035, bass: 'octave', pad: 0.04, arp: 1, arpWave: 'sine', arpVol: 0.03, chug: 'O.......O.......', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('C3 E3 G3'), ch('G2 B2 D3')],
         lead: [seq('E5 - A5 - C6 - B5 - A5 - - - E5 - G5 - F5 - - - E5 - C5 - A4 - C5 - - - - - G5 - C6 - E6 - D6 - C6 - - - G5 - E5 - D5 - G5 - B5 - A5 - G5 - - - - - - -'),
                seq('A5 - - - C6 - - - B5 - A5 - G5 - E5 - F5 - A5 - C6 - A5 - F5 - - - C5 - - - E5 - G5 - C6 - G5 - E6 - - - D6 - C6 - B5 - - - D6 - - - G5 - A5 - B5 - D6 -')] },
       // Chapter VI: storm over the hills, driving G minor
-      ch4: { bpm: 144, wave: 'square', leadVol: 0.06, harm: 0.028, bass: 'octave', pad: 0.025, arp: 2, arpWave: 'triangle', arpVol: 0.03,
+      ch4: { bpm: 144, wave: 'square', leadVol: 0.06, harm: 0.028, bass: 'octave', pad: 0.025, arp: 2, arpWave: 'triangle', arpVol: 0.03, chug: 'O...x.x.O.x.x.x.', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('G2 Bb2 D3'), ch('Eb3 G3 Bb3'), ch('Bb2 D3 F3'), ch('F3 A3 C4')],
         lead: [seq('G5 - Bb5 - D6 - Bb5 - G5 - - - D5 - G5 - Eb5 - G5 - Bb5 - G5 - Eb5 - - - Bb4 - Eb5 - D5 - F5 - Bb5 - A5 - G5 - F5 - D5 - F5 - C5 - F5 - A5 - C6 - A5 - - - - - - -'),
                seq('D6 - - - C6 - Bb5 - A5 - G5 - - - D5 - Eb6 - - - D6 - C6 - Bb5 - G5 - - - Eb5 - F5 - Bb5 - D6 - F6 - D6 - Bb5 - F5 - D5 - F5 - A5 - C6 - F6 - E6 - C6 - A5 - F5 -')] },
       // Chapter VII: the Underworld gate, dark and pounding E minor
-      ch5: { bpm: 132, wave: 'sawtooth', leadVol: 0.05, harm: 0.03, bass: 'gallop', pad: 0.035, arp: 2, arpWave: 'square', arpVol: 0.022,
+      ch5: { bpm: 132, wave: 'sawtooth', leadVol: 0.05, harm: 0.03, bass: 'gallop', pad: 0.035, arp: 2, arpWave: 'square', arpVol: 0.022, chug: 'O.x.x.x.O.x.x.x.', crash: true, rockPower: 0.034,
         kick: [0, 4, 6, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('E3 G3 B3'), ch('C3 E3 G3'), ch('D3 F#3 A3'), ch('B2 D#3 F#3')],
         lead: [seq('E5 - - - B4 - E5 - G5 - F#5 - E5 - D#5 - E5 - G5 - C6 - B5 - A5 - G5 - E5 - - - D5 - F#5 - A5 - D6 - C6 - A5 - F#5 - A5 - B4 - D#5 - F#5 - B5 - A5 - F#5 - D#5 - B4 -'),
                seq('B5 - - - A5 - G5 - F#5 - G5 - A5 - B5 - C6 - - - B5 - A5 - G5 - E5 - G5 - C6 - D6 - - - C6 - B5 - A5 - F#5 - D5 - F#5 - D#6 - - - B5 - - - F#5 - - - D#5 - - -')] },
       // Chapter VIII: the Kingdom of Pluto, haunting B minor with a big pad
-      ch6: { bpm: 126, wave: 'triangle', leadVol: 0.085, harm: 0.03, bass: 'octave', pad: 0.045, arp: 1, arpWave: 'sine', arpVol: 0.03,
+      ch6: { bpm: 126, wave: 'triangle', leadVol: 0.085, harm: 0.03, bass: 'octave', pad: 0.045, arp: 1, arpWave: 'sine', arpVol: 0.03, chug: 'O.......O...x.x.', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('B2 D3 F#3'), ch('G2 B2 D3'), ch('D3 F#3 A3'), ch('A2 C#3 E3')],
         lead: [seq('F#5 - B5 - D6 - C#6 - B5 - - - F#5 - - - G5 - B5 - D6 - B5 - G5 - - - D5 - - - A5 - F#5 - D5 - F#5 - A5 - D6 - F#6 - D6 - E6 - C#6 - A5 - E5 - A5 - C#6 - E6 - - -'),
                seq('D6 - - - C#6 - B5 - C#6 - D6 - F#6 - - - G6 - - - F#6 - E6 - D6 - B5 - G5 - - - F#6 - - - E6 - D6 - A5 - F#5 - A5 - D6 - E6 - - - C#6 - A5 - E5 - - - A5 - - -')] },
       // Chapter IX: the Galvanic Forge, fast hammering F# minor
-      ch7: { bpm: 150, wave: 'square', leadVol: 0.055, harm: 0.026, bass: 'gallop', arp: 1, arpWave: 'square', arpVol: 0.024,
+      ch7: { bpm: 150, wave: 'square', leadVol: 0.055, harm: 0.026, bass: 'gallop', arp: 1, arpWave: 'square', arpVol: 0.024, chug: 'xxxxO.xxxxxxO.xx', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12, 14], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
         chords: [ch('F#3 A3 C#4'), ch('D3 F#3 A3'), ch('E3 G#3 B3'), ch('C#3 F3 G#3')],
         lead: [seq('F#5 F#5 - F#5 A5 - C#6 - F#5 F#5 - F#5 E5 - C#5 - D5 D5 - D5 F#5 - A5 - D6 - C#6 - A5 - F#5 - E5 E5 - E5 G#5 - B5 - E6 - D6 - B5 - G#5 - C#5 - F5 - G#5 - C#6 - B5 - G#5 - F5 - C#5 -'),
                seq('C#6 - - - B5 - A5 - G#5 - A5 - B5 - C#6 - D6 - - - C#6 - B5 - A5 - F#5 - A5 - D6 - E6 - - - D6 - C#6 - B5 - G#5 - B5 - E6 - F6 - - - C#6 - - - G#5 - - - F5 - - -')] },
       // Chapter X: the Edge of Eternity, a heroic finale in D major
-      ch8: { bpm: 138, wave: 'square', leadVol: 0.06, harm: 0.03, bass: 'octave', pad: 0.04, arp: 2, arpWave: 'triangle', arpVol: 0.03,
+      ch8: { bpm: 138, wave: 'square', leadVol: 0.06, harm: 0.03, bass: 'octave', pad: 0.04, arp: 2, arpWave: 'triangle', arpVol: 0.03, chug: 'O...o.o.O...o.o.', crash: true, rockPower: 0.034,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], tick: true, fill: true,
         chords: [ch('D3 F#3 A3'), ch('A2 C#3 E3'), ch('B2 D3 F#3'), ch('G2 B2 D3')],
         lead: [seq('D5 - F#5 - A5 - D6 - - - A5 - F#5 - A5 - C#6 - - - A5 - E5 - A5 - C#6 - E6 - - - D6 - - - B5 - F#5 - B5 - D6 - F#6 - - - G6 - F#6 - E6 - D6 - B5 - D6 - E6 - - -'),
                seq('F#6 - - - E6 - D6 - E6 - F#6 - A6 - - - E6 - - - C#6 - A5 - C#6 - E6 - A6 - - - F#6 - - - D6 - B5 - D6 - F#6 - B6 - - - G6 - - - F#6 - E6 - D6 - E6 - F#6 - G6 -')] },
       // The knights' gauntlet: a galloping A minor battle theme
-      knights: { bpm: 172, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0.02, arp: 2, arpWave: 'square', arpVol: 0.022,
+      knights: { bpm: 172, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0.02, arp: 2, arpWave: 'square', arpVol: 0.022, chug: 'xxxxO.xxxxxxO.xx', crash: true, rockPower: 0.045,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
         chords: [ch('A2 C3 E3'), ch('F2 A2 C3'), ch('G2 B2 D3'), ch('E3 G#3 B3')],
         lead: [seq('A5 - C6 - E6 - C6 - A5 - E5 - A5 - B5 - C6 - A5 - F5 - A5 - C6 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - G6 - - - G#5 - E5 - B4 - E5 - G#5 - B5 - E6 - - -'),
                seq('E6 - - - D6 - C6 - B5 - - - A5 - - - F6 - - - E6 - D6 - C6 - - - A5 - - - G6 - - - F6 - E6 - D6 - - - B5 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
       // Riot: the punk track from the music-video teaser (E, E, A, G power chords at 168 BPM), now the boss-battle theme
-      riot: { bpm: 168, wave: 'square', leadVol: 0, harm: 0, bass: 'octave', pad: 0, arp: 0, power: 0.05,
+      riot: { bpm: 168, wave: 'square', leadVol: 0, harm: 0, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('E2 B2 E3'), ch('E2 B2 E3'), ch('A2 E3 A3'), ch('G2 D3 G3')],
         lead: [seq('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')] },
+      // Legion Riot: fast E punk, distorted power chords and a shout-along hook
+      legion: { bpm: 180, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
+        kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('E2 B2 E3'), ch('C3 G3 C4'), ch('G2 D3 G3'), ch('D3 A3 D4')],
+        lead: [seq('E5 - - - E5 - G5 - - - E5 - D5 - B4 - C5 - - - C5 - E5 - - - G5 - E5 - C5 - D5 - - - B4 - D5 - G5 - - - F#5 - G5 - A5 - - - - - F#5 - D5 - - - - - - -'),
+               seq('B5 - B5 - B5 - A5 - G5 - - - E5 - - - G5 - G5 - G5 - E5 - C5 - - - E5 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - C6 - - - B5 - - - A5 - - - F#5 - - -')] },
+      // Colosseum Crash: A punk, the crowd's chant on top
+      arena: { bpm: 176, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'O...o.o.O...o.o.', crash: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('A2 E3 A3'), ch('F2 C3 F3'), ch('C3 G3 C4'), ch('G2 D3 G3')],
+        lead: [seq('A5 - A5 - C6 - A5 - E5 - - - A5 - C6 - C6 - - - A5 - F5 - - - A5 - C6 - A5 - G5 - - - E5 - G5 - C6 - - - E6 - D6 - D6 - - - B5 - - - G5 - - - - - - -'),
+               seq('E6 - - - E6 - D6 - C6 - - - A5 - - - F6 - - - E6 - C6 - A5 - - - F5 - - - E6 - D6 - C6 - G5 - E6 - D6 - C6 - G5 - B5 - - - D6 - - - G6 - - - - - - -')] },
+      // Gladiator Stomp: heavy D minor rock with a swinging kick
+      stomp: { bpm: 150, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true, chug: 'O...x.x.O.x.x.x.', crash: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('D2 A2 D3'), ch('Bb2 F3 Bb3'), ch('C3 G3 C4'), ch('A2 E3 A3')],
+        lead: [seq('D5 - - - F5 - - - A5 - G5 - F5 - E5 - D5 - - - - - - - Bb4 - D5 - F5 - - - E5 - - - G5 - - - C6 - Bb5 - G5 - E5 - C#5 - - - E5 - - - A5 - - - - - - -'),
+               seq('A5 - - - A5 - G5 - F5 - - - D5 - F5 - Bb5 - - - A5 - F5 - D5 - - - - - - - C6 - - - Bb5 - G5 - E5 - G5 - C6 - E6 - E6 - - - C#6 - - - A5 - - - E5 - - -')] },
+      // Hellfire Thrash: the Hades finale, E minor at full gallop
+      hellfire: { bpm: 192, wave: 'sawtooth', leadVol: 0.042, harm: 0.02, bass: 'gallop', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'xxxxO.xxxxxxO.xx', crash: true,
+        kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('E2 B2 E3'), ch('G2 D3 G3'), ch('A2 E3 A3'), ch('B2 F#3 B3')],
+        lead: [seq('E5 - G5 - B5 - E6 - D6 - B5 - G5 - B5 - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - E6 - - - C#6 - A5 - E5 - A5 - C#6 - E6 - D#6 - - - B5 - - - F#5 - - - D#5 - - -'),
+               seq('B5 - - - - - G5 - E5 - - - - - - - G5 - - - B5 - - - D6 - - - G6 - - - A5 - - - C#6 - - - E6 - - - A6 - - - F#6 - - - D#6 - - - B5 - - - F#5 - - -')] },
+      // Gods of the Machine: mid-tempo hard-rock anthem in G (the select-screen theme)
+      machine: { bpm: 140, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'O.....x.O...x.x.', crash: true,
+        kick: [0, 8, 10], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('G2 D3 G3'), ch('D3 A3 D4'), ch('E2 B2 E3'), ch('C3 G3 C4')],
+        lead: [seq('G5 - - - B5 - D6 - - - B5 - G5 - - - F#5 - - - A5 - D6 - - - A5 - F#5 - - - E5 - - - G5 - B5 - - - E6 - D6 - B5 - C6 - - - - - B5 - A5 - - - G5 - - -'),
+               seq('D6 - D6 - D6 - B5 - G5 - - - D6 - - - D6 - D6 - E6 - F#6 - A6 - - - F#6 - - - G6 - - - F#6 - E6 - B5 - - - E6 - - - E6 - - - D6 - C6 - B5 - - - G5 - - -')] },
+      // Sack of Rome: 200 BPM d-beat punk in A
+      sack: { bpm: 200, wave: 'square', leadVol: 0.048, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('A2 E3 A3'), ch('F#2 C#3 F#3'), ch('D3 A3 D4'), ch('E2 B2 E3')],
+        lead: [seq('A5 - - - C#6 - E6 - - - C#6 - A5 - E5 - F#5 - - - A5 - C#6 - - - A5 - F#5 - C#5 - D5 - F#5 - A5 - D6 - F#6 - - - E6 - D6 - E6 - - - - - - - B5 - G#5 - E5 - - -'),
+               seq('E6 - E6 - E6 - - - C#6 - - - A5 - - - C#6 - C#6 - C#6 - - - A5 - - - F#5 - - - A5 - - - D6 - - - F#6 - - - A6 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
       // Bosses: fast and furious C minor
-      boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022,
+      boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022, chug: 'O.xxO.xxO.xxO.x.', crash: true, rockPower: 0.045,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
         chords: [ch('C3 Eb3 G3'), ch('Ab2 C3 Eb3'), ch('Bb2 D3 F3'), ch('G2 B2 D3')],
         lead: [seq('C5 - Eb5 - G5 - Eb5 - C5 - G4 - C5 - D5 - Eb5 - C5 - Ab4 - C5 - Eb5 - - - F5 - G5 - F5 - D5 - Bb4 - D5 - F5 - - - Eb5 - D5 - D5 - B4 - G4 - B4 - D5 - - - - - - -'),
@@ -454,17 +490,38 @@
     Object.values(T).forEach((t) => t.lead.forEach((l) => { if (l.length !== 64) console.warn('music pattern length', l.length); }));
     function init() {
       if (ac) return true; ac = SFX.ac; if (!ac) return false;
-      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = 0;
+      const glue = ac.createDynamicsCompressor(); glue.threshold.value = -16; glue.knee.value = 8; glue.ratio.value = 4; glue.attack.value = 0.004; glue.release.value = 0.16;   // band glue, like a rock mix bus
+      const make = ac.createGain(); make.gain.value = 0.8; master.connect(glue).connect(make).connect(ac.destination);
+      // guitar crunch: power chords run through a soft-clip waveshaper, then a cabinet-style lowpass
+      const amp = (drive, tone, level, pan) => {   // one guitar rig: soft-clip amp, mid-scooped cabinet, panned
+        const sh = ac.createWaveShaper(), cv = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = i / 1023.5 - 1; cv[i] = Math.tanh(x * drive) * 0.62; } sh.curve = cv; sh.oversample = '4x';
+        const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 70;
+        const mid = ac.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = 700; mid.Q.value = 0.8; mid.gain.value = -4;
+        const pres = ac.createBiquadFilter(); pres.type = 'peaking'; pres.frequency.value = 2400; pres.Q.value = 1; pres.gain.value = 3;
+        const cab = ac.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = tone; cab.Q.value = 0.9;
+        const g = ac.createGain(); g.gain.value = level; let out = sh.connect(hp).connect(mid).connect(pres).connect(cab).connect(g);
+        if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = pan; out = out.connect(p); } out.connect(master); return sh; };
+      crunch = amp(6, 3200, 0.55, 0); gtrL = amp(9, 3600, 0.55, -0.7); gtrR = amp(9, 3400, 0.55, 0.7); leadBus = amp(14, 4200, 0.34, 0.08);
       noise = ac.createBuffer(1, ac.sampleRate * 0.3, ac.sampleRate); const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       return true;
     }
     function env(g, t, a, peak, hold, rel) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.setValueAtTime(peak, t + a + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + rel); }
-    function voice(f, t, dur, wave, vol, cutoff, a = 0.01, rel = 0.08) {
+    function voice(f, t, dur, wave, vol, cutoff, a = 0.01, rel = 0.08, dest = master) {
       const o = ac.createOscillator(), g = ac.createGain(); o.type = wave; o.frequency.setValueAtTime(f, t);
       let out = o; if (cutoff) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff; o.connect(lp); out = lp; }
-      out.connect(g); g.connect(master); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
+      out.connect(g); g.connect(dest); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
+    }
+    function lead(f, t, dur, vol) {   // distorted lead guitar: saw through the lead amp, vibrato that blooms on long notes
+      const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f * 0.985, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.03);
+      lfo.frequency.value = 5.6; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(dur > 0.25 ? f * 0.012 : 0, t + Math.min(dur, 0.35)); lfo.connect(lg).connect(o.frequency);
+      o.connect(g); g.connect(leadBus); env(g, t, 0.006, vol, Math.max(0.01, dur - 0.006), 0.09); o.start(t); o.stop(t + dur + 0.15); lfo.start(t); lfo.stop(t + dur + 0.15);
+    }
+    function strum(root, t, dur, vol, muted) {   // a power chord on two double-tracked guitars; palm mutes are short and dark
+      [[gtrL, 1], [gtrR, 1.0045]].forEach(([bus, dt], k) => [1, 1.5, 2].forEach((r, j) => voice(root * r * dt, t + k * 0.004 + j * 0.003, dur, 'sawtooth', vol * (j === 2 ? 0.7 : 1), muted ? 650 : 0, 0.002, muted ? 0.03 : 0.07, bus)));
     }
     function drum(kind, t, v = 1) {
+      if (kind === 't') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(v, t); o.frequency.exponentialRampToValueAtTime(v * 0.55, t + 0.18); g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g).connect(master); o.start(t); o.stop(t + 0.24); return; }
       if (kind === 'k') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12); g.gain.setValueAtTime(0.55, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16); o.connect(g).connect(master); o.start(t); o.stop(t + 0.18); return; }
       const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = noise;
       const P = { s: [1500, 0.12, 0.17, 'highpass'], h: [8000, 0.03, 0.035, 'highpass'], o: [6500, 0.09, 0.05, 'highpass'], c: [5000, 0.28, 0.07, 'highpass'] }[kind];
@@ -475,32 +532,62 @@
     function schedule(s, t) {
       const tr = track, sd = 60 / tr.bpm / 4, len = tr.lead[0].length, i = s % len, sec = Math.floor(s / len) % tr.lead.length, bar = Math.floor(i / 16), b = i % 16, c = tr.chords[bar % tr.chords.length];
       const n = tr.lead[sec][i];
-      if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
+      if (n && tr.dist && tr.leadVol) lead(n.f, t, n.d * sd * 0.92, tr.leadVol * 1.5);
+      else if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
       const root = c[0] / 2;
-      if (tr.power && b % 2 === 0) [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05));
+      if (tr.chug) { const pc = tr.chug[b]; if (pc !== '.') { let d = 1; while (b + d < 16 && tr.chug[b + d] === '.') d++; strum(c[0] > 160 ? c[0] / 2 : c[0], t, pc === 'O' ? sd * d * 0.95 : pc === 'o' ? sd * Math.min(d, 2) * 0.8 : sd * 0.55, (tr.power || tr.rockPower) * (pc === 'x' ? 1.5 : 1.25), pc === 'x'); } }
+      else if (tr.power && b % 2 === 0) { if (tr.dist) [1, 1.5, 2, 1.006, 0.996].forEach((r) => voice(c[0] * r, t, sd * 1.8, 'sawtooth', tr.power * 2.2, 0, 0.003, 0.04, crunch)); else [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05)); }
       if (tr.bass === 'octave' && b % 2 === 0) voice((b / 2) % 2 ? root * 2 : root, t, sd * 0.85, 'sawtooth', 0.085, 900, 0.005, 0.05);
       if (tr.bass === 'gallop' && (b % 4 !== 1)) voice(b % 4 === 0 ? root : root * 2, t, sd * 0.8, 'sawtooth', 0.085, 1000, 0.004, 0.04);
       if (tr.pad && b === 0) c.forEach((f) => { voice(f * 2, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); voice(f * 2 * 1.007, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); });
       if (tr.arp && b % tr.arp === 0) { const k = (b / tr.arp) % 4, tones = [c[0], c[1], c[2], c[1]]; voice(tones[k] * 4, t, sd * tr.arp * 0.55, tr.arpWave, tr.arpVol, 0, 0.004, 0.12); }
       const filling = tr.fill && bar % 4 === 3 && sec === tr.lead.length - 1 && b >= 12;
       if (tr.kick.includes(b)) drum('k', t);
-      if (filling) drum('s', t, 0.55 + (b - 12) * 0.15);
+      if (filling && tr.dist) drum('t', t, [210, 170, 135, 105][b - 12]);
+      else if (filling) drum('s', t, 0.55 + (b - 12) * 0.15);
       else if (tr.snare.includes(b)) drum('s', t);
       if (tr.hat.includes(b)) drum('o', t);
       if (tr.tick) drum('h', t, b % 2 ? 0.5 : 0.8);
-      if (bar === 0 && b === 0 && sec === 0) drum('c', t);
+      if ((bar === 0 && b === 0 && sec === 0) || (tr.crash && b === 0 && bar % 4 === 0)) drum('c', t);
     }
+    // Marcos's own recordings: decoded once, looped sample-accurately (the loop points sit on the downbeat; a one-beat crossfade is baked into the file)
+    const SONGS = {
+      acta: { src: '../fight/music/acta-non-verba.mp3?v=2', loopStart: 31.37, loopEnd: 95.3738, vol: 1.0 },   // Acta Non Verba (instrumental): intro plays once, then 0:31-1:35 loops
+      ego: { src: '../fight/music/ego-death.mp3?v=2', loopStart: 16.625, loopEnd: 66.2807, vol: 1.0 },           // Ego Death (instrumental): 0:16-1:06 loops
+    };
+    const songBuf = {}; let songSrc = null, songGain = null, songPos = 0, songAt = 0, songName = '';
+    function songLoad(n) { const S = SONGS[n]; if (!songBuf[n]) songBuf[n] = fetch(S.src).then((r) => r.arrayBuffer()).then((ab) => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej))).catch(() => { delete songBuf[n]; return null; }); return songBuf[n]; }
+    function songWhere() { const S = SONGS[songName]; let p = songPos + (ac.currentTime - songAt); if (S && p > S.loopEnd) p = S.loopStart + (p - S.loopStart) % (S.loopEnd - S.loopStart); return p; }
+    function songHalt(keep) { if (songSrc) { if (keep) songPos = songWhere(); const s0 = songSrc; songGain.gain.cancelScheduledValues(ac.currentTime); songGain.gain.setTargetAtTime(0, ac.currentTime, 0.06); setTimeout(() => { try { s0.stop(); } catch { /* already stopped */ } }, 300); songSrc = null; } if (!keep) songPos = 0; }
+    function songStart() {
+      if (!on || !init()) return; const n = name, S = SONGS[n]; if (!S) return;
+      if (!songGain) { songGain = ac.createGain(); songGain.gain.value = 0; songGain.connect(ac.destination); }
+      songLoad(n).then((buf) => {
+        if (!buf || name !== n || !on || songSrc || paused) return;
+        const src = ac.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = S.loopStart; src.loopEnd = S.loopEnd; src.connect(songGain);
+        const t = ac.currentTime + 0.05; src.start(t, songPos); songAt = t; songName = n; songSrc = src;
+        songGain.gain.cancelScheduledValues(ac.currentTime); songGain.gain.setValueAtTime(0.0001, ac.currentTime); songGain.gain.setTargetAtTime(S.vol, t, 0.08);
+      });
+    }
+    let paused = false;
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
-      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(name === 'boss' || name === 'knights' || name === 'riot' ? 0.36 : 0.32, ac.currentTime, 0.25); }
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(['boss', 'knights', 'riot', 'legion', 'arena', 'stomp', 'hellfire', 'machine', 'sack'].includes(name) ? 0.36 : 0.34, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
-      play(n) { if (name === n && running) return; name = n; track = T[n]; step = 0; if (ac) nextT = ac.currentTime + 0.3; start(); },
-      pause() { halt(0.08); }, resume() { if (track) { if (ac) nextT = ac.currentTime + 0.1; start(); } }, stop() { halt(0.4); name = ''; },
-      toggle() { on = !on; store.set('aq-music', on); if (on) this.resume(); else halt(0.1); return on; },
+      play(n) {
+        paused = false;
+        if (SONGS[n]) { if (name === n && songSrc) return; halt(0.2); songHalt(false); name = n; track = null; songStart(); return; }
+        if (name === n && running) return; songHalt(false); name = n; track = T[n]; step = 0; if (ac) nextT = ac.currentTime + 0.3; start();
+      },
+      pause() { paused = true; halt(0.08); if (ac) songHalt(true); },
+      resume() { paused = false; if (SONGS[name]) songStart(); else if (track) { if (ac) nextT = ac.currentTime + 0.1; start(); } },
+      stop() { halt(0.4); if (ac) songHalt(false); name = ''; },
+      toggle() { on = !on; store.set('aq-music', on); if (on) this.resume(); else { halt(0.1); if (ac) songHalt(true); } return on; },
     };
   })();
+  const BOSS_TRACK = ['legion', 'arena', 'riot', 'stomp', 'machine', 'sack', 'hellfire', 'stomp', 'hellfire', 'ego'];   // one punk/rock track per chapter boss
   const chapterTrack = () => LEVELS[S.level].music || ['ch1', 'ch2', 'ch3'][LEVELS[S.level].theme];
 
   /* ================= input ================= */
@@ -593,7 +680,7 @@
         L.boss = b; L.enemies.push(b);
       }
       else if (XK[e.type]) L.enemies.push(makeX(e.type, e.tx, e.ty));
-      else if (e.type === 'xboss') { L.boss = makeX(e.kind, e.tx, e.ty, { minX: e.minX }); if (e.next) { L.gauntlet = e.next.slice(); L.boss.music = 'knights'; } L.enemies.push(L.boss); }
+      else if (e.type === 'xboss') { L.boss = makeX(e.kind, e.tx, e.ty, { minX: e.minX }); if (e.next) { L.gauntlet = e.next.slice(); L.boss.music = 'ego'; } L.enemies.push(L.boss); }
       else if (e.type === 'boss') { L.boss = { type: 'boss', big: true, title: 'THE ROMAN AUTOMATON', x, y: (e.ty + 1) * T - 100, w: 56, h: 100, vx: 0, vy: 0, hp: 14, maxHp: 14, face: -1, hurt: 0, onGround: false, anim: 0, awake: false, state: 'walk', st: 1.5, phase: 1, count: 0, shieldCd: 4, shield: 0, minX: (e.minX || 162) * T }; L.enemies.push(L.boss); }
     });
     L.check = { x: L.start.x, y: L.start.y };
@@ -680,7 +767,7 @@
       if (en.big && L.gauntlet && L.gauntlet.length) {   // the next knight of the gauntlet rides in
         SFX.win(); L.shake = 0.5; L.shots = []; L.zones = []; L.waves = []; L.strikes = []; L.drones = [];
         const nb = makeX(L.gauntlet.shift(), Math.round((en.minX || en.x) / T) + 14, 11, { minX: Math.round(en.minX / T) });
-        Object.assign(nb, { awake: true, music: 'knights', st: 1.6 }); L.boss = nb; L.enemies.push(nb);
+        Object.assign(nb, { awake: true, music: 'ego', st: 1.6 }); L.boss = nb; L.enemies.push(nb);
         toast(en.title.charAt(0) + en.title.slice(1).toLowerCase() + ' falls. ' + nb.wakeText, 'Boss');
         return true;
       }
@@ -1033,7 +1120,7 @@
   }
 
   /* ---------- the Dark Commander (Chapter II) ---------- */
-  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play(b.music || 'riot'); toast(text, 'Boss'); return true; } return false; }
+  function wake(b, text) { if (b.awake) return true; if (P.x > b.x - 470) { b.awake = true; L.bossOn = true; SFX.boss(); MUSIC.play(b.music || BOSS_TRACK[S.level] || 'riot'); toast(text, 'Boss'); return true; } return false; }
   function updateCommander(b, dt) {
     if (!wake(b, 'The Dark Commander bars the way. Watch his spear, strike when he recovers, or land on his helmet.')) return;
     b.anim += dt; b.st -= dt;
@@ -1602,7 +1689,9 @@
   }
   gear.addEventListener('click', () => { SFX.ensure(); openSettings(panel.hidden); });
   $('#set-close').addEventListener('click', () => openSettings(false));
-  $('#set-quit').addEventListener('click', () => { openSettings(false); MUSIC.stop(); S.mode = 'done'; $('#s-game').hidden = true; $('#s-title').hidden = false; showChapters(); showBest(); window.scrollTo({ top: 0 }); });
+  // title screen theme: Acta Non Verba starts on the first tap (browsers block sound until then)
+  document.addEventListener('pointerdown', () => { if (!$('#s-title').hidden) { SFX.ensure(); MUSIC.play('acta'); } });
+  $('#set-quit').addEventListener('click', () => { openSettings(false); MUSIC.play('acta'); S.mode = 'done'; $('#s-game').hidden = true; $('#s-title').hidden = false; showChapters(); showBest(); window.scrollTo({ top: 0 }); });
   function togglePause() {
     if (S.mode === 'play') overlay('Paused', 'Breathe', '“Receive without arrogance; let go without struggle.” Take a moment, then continue.', 'Resume', null);
     else if (S.mode === 'overlay' && ov.title.textContent === 'Breathe') ov.go.click();
