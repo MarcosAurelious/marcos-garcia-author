@@ -278,9 +278,14 @@
     cerberus: { f0: 190, fs: 0.95, rasp: 0.7, kind: 'hound' }, pegasus: { f0: 520, fs: 1.45, rasp: 0.1, kind: 'horse' }, helios: { f0: 180, fs: 1.05, rasp: 0, kind: 'machine', ring: 0.8 },
     neptune: { f0: 82, fs: 0.82, rasp: 0.6, hiss: 0.8, kind: 'beast' }, hades: { f0: 66, fs: 0.76, rasp: 0.5, echo: 0.45 },
   };
-  const LINES = {   // [vowel, seconds, pitch start, pitch peak, pitch end, loudness] per syllable; a leading breath gives the "h"
-    atk: [['a', 0.2, 1.05, 1.25, 0.9, 0.8]], jab: [['u', 0.09, 1.1, 1.2, 1.0, 0.45]], sp: [['i', 0.07, 1.2, 1.3, 1.3, 0.6], ['a', 0.38, 1.3, 1.55, 0.95, 1]],
-    sup: [['a', 0.8, 1.1, 1.6, 0.85, 1.15]], hurt: [['u', 0.17, 1.15, 1.2, 0.8, 0.75]], ko: [['a', 0.95, 1.5, 1.7, 0.55, 1.1]], win: [['e', 0.16, 1.2, 1.35, 1.3, 0.9], ['a', 0.42, 1.35, 1.5, 1.0, 1]],
+  const LINES = {   // [vowel, seconds, pitch start, pitch peak, pitch end, loudness] per syllable: short, rising, chopped off hard, like a kiai
+    atk: [['a', 0.13, 1.2, 1.45, 1.35, 1.1]],                                             // "HAH!"
+    jab: [['u', 0.065, 1.25, 1.35, 1.3, 0.7]],                                            // "HUP"
+    sp: [['i', 0.055, 1.3, 1.4, 1.4, 0.85], ['a', 0.2, 1.4, 1.7, 1.5, 1.2]],              // "HI-YAH!"
+    sup: [['o', 0.07, 1.15, 1.25, 1.25, 0.9], ['a', 0.42, 1.35, 1.8, 1.6, 1.3]],          // "RAAAH!" climbing
+    hurt: [['u', 0.075, 1.3, 1.35, 1.15, 0.8]],                                           // a clipped "UGH"
+    ko: [['a', 0.38, 1.7, 1.75, 1.25, 1.2]],                                              // a short, defiant cry
+    win: [['a', 0.1, 1.35, 1.45, 1.45, 1], ['a', 0.1, 1.45, 1.55, 1.55, 1.05], ['a', 0.3, 1.55, 1.8, 1.7, 1.25]],   // "HA! HA! HAAH!"
   };
   const vLast = {};
   function speak(ch, line) {
@@ -291,18 +296,20 @@
     let t = now + 0.005, kind = V.kind || 'human', syl = LINES[line];
     if (kind === 'hound' && (line === 'atk' || line === 'sp' || line === 'sup' || line === 'win')) syl = [0, 1, 2].map(() => ['a', 0.11, 1.3, 1.4, 0.8, 0.9]);   // three heads, three barks
     if (kind === 'horse' && line !== 'jab') syl = [['i', line === 'hurt' ? 0.25 : 0.55, 1.0, 1.5, 0.75, 0.9]];   // a whinny
-    if (kind === 'beast' && line !== 'jab') syl = syl.map(([v, d, a, b, c, l]) => ['o', d * 1.3, a * 0.9, b * 0.9, c * 0.8, l]);   // roars
+    if (kind === 'beast' && line !== 'jab') syl = syl.map(([v, d, a, b, c, l]) => ['o', d * 1.15, a * 0.95, b, c * 0.95, l]);   // roars
     const breath = (at, dur, vol) => { const n = ac.createBufferSource(), b = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate), dd = b.getChannelData(0); for (let i = 0; i < dd.length; i++) dd[i] = Math.random() * 2 - 1;
       const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800 * V.fs; bp.Q.value = 0.8; const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.linearRampToValueAtTime(vol, at + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
       n.buffer = b; n.connect(bp).connect(g).connect(out); n.start(at); n.stop(at + dur + 0.02); };
-    if (kind === 'human' && line !== 'hurt' && line !== 'jab') { breath(t, 0.07, 0.05); t += 0.045; }
+    if (line === 'atk' || line === 'sp' || line === 'sup' || line === 'win') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(V.f0 * 0.9, t); o.frequency.exponentialRampToValueAtTime(V.f0 * 0.5, t + 0.08); g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1); o.connect(g).connect(out); o.start(t); o.stop(t + 0.12); }
+    if (kind === 'human' && line !== 'hurt' && line !== 'jab') { breath(t, 0.05, 0.07); t += 0.03; }
     syl.forEach(([vow, dur, p0, p1, p2, loud]) => {
       const f0 = V.f0 * (0.97 + Math.random() * 0.06), src = ac.createOscillator(); src.type = kind === 'machine' ? 'square' : 'sawtooth';
       src.frequency.setValueAtTime(f0 * p0, t); src.frequency.linearRampToValueAtTime(f0 * p1, t + dur * 0.3); src.frequency.exponentialRampToValueAtTime(f0 * p2, t + dur);
-      const vib = ac.createOscillator(), vg = ac.createGain(); vib.frequency.value = kind === 'horse' ? 9 : 5.5; vg.gain.value = f0 * (kind === 'horse' ? 0.07 : 0.015); vib.connect(vg).connect(src.frequency);
-      const amp = ac.createGain(); amp.gain.setValueAtTime(0.0001, t); amp.gain.linearRampToValueAtTime(0.11 * loud, t + 0.025); amp.gain.setValueAtTime(0.1 * loud, t + dur * 0.6); amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      let node = src;
-      if (V.rasp) { const lfo = ac.createOscillator(), lg = ac.createGain(), rg = ac.createGain(); lfo.type = 'square'; lfo.frequency.value = 28 + Math.random() * 14; lg.gain.value = V.rasp * 0.5; rg.gain.value = 1 - V.rasp * 0.5; lfo.connect(lg).connect(rg.gain); src.connect(rg); node = rg; lfo.start(t); lfo.stop(t + dur + 0.05); }
+      const vib = ac.createOscillator(), vg = ac.createGain(); vib.frequency.value = kind === 'horse' ? 9 : 5.5; vg.gain.value = f0 * (kind === 'horse' ? 0.07 : kind === 'human' ? 0 : 0.01); vib.connect(vg).connect(src.frequency);
+      const amp = ac.createGain(); amp.gain.setValueAtTime(0.0001, t); amp.gain.linearRampToValueAtTime(0.13 * loud, t + 0.008); amp.gain.setValueAtTime(0.12 * loud, t + dur * 0.7); amp.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.03);
+      let node = src; if (!speak.drive) { speak.drive = ac.createWaveShaper(); const cv = new Float32Array(512); for (let i = 0; i < 512; i++) { const x = i / 255.5 - 1; cv[i] = Math.tanh(x * 3.2); } speak.drive.curve = cv; }
+      const dr = ac.createWaveShaper(); dr.curve = speak.drive.curve; src.connect(dr); node = dr;
+      if (V.rasp) { const lfo = ac.createOscillator(), lg = ac.createGain(), rg = ac.createGain(); lfo.type = 'square'; lfo.frequency.value = 28 + Math.random() * 14; lg.gain.value = V.rasp * 0.5; rg.gain.value = 1 - V.rasp * 0.5; lfo.connect(lg).connect(rg.gain); dr.connect(rg); node = rg; lfo.start(t); lfo.stop(t + dur + 0.05); }
       const F = VOWEL[vow].map((x) => x * V.fs); [1, 0.6, 0.35].forEach((lv, k) => { const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F[k]; bp.Q.value = 6 + k * 3; const g = ac.createGain(); g.gain.value = lv * 3.2; node.connect(bp).connect(g).connect(amp); });
       if (V.ring) { const r = ac.createOscillator(), rg = ac.createGain(); r.type = 'sine'; r.frequency.value = kind === 'machine' ? 1240 : 420; rg.gain.setValueAtTime(0.05 * V.ring * loud, t); rg.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.25); r.connect(rg).connect(out); r.start(t); r.stop(t + dur + 0.3); }
       if (V.hiss) breath(t, dur + 0.1, 0.06 * V.hiss * loud);
@@ -383,8 +390,8 @@
     marcus: ['Stoic Will', 'super meter fills 25% faster'],
   };
   const BODY_H = 190;   // every fighter is scaled so the standing pose is about this tall (times size)
-  // health tuned from ~12,000 computer-vs-computer matches so every fighter wins about half the time
-  const BALANCE = {"marcus":1.07,"mars":1.1,"colossus":0.76,"medusa":0.91,"minotaur":0.98,"vulcan":0.81,"chiron":0.97,"diana":1.09,"cerberus":1.11,"pegasus":1.38,"helios":0.91,"neptune":1.08,"hades":0.86};
+  // health re-tuned for the faster fighting speed from ~22,000 computer-vs-computer matches so every fighter wins about half the time
+  const BALANCE = {"marcus":1.13,"mars":1.02,"colossus":0.8,"medusa":0.99,"minotaur":0.84,"vulcan":0.77,"chiron":1.07,"diana":1.16,"cerberus":1.04,"pegasus":1.23,"helios":0.93,"neptune":1.01,"hades":0.95};
   ROSTER.forEach((c) => { c.hp = Math.round(c.hp * 1.6 * (BALANCE[c.id] || 1)); const f = frameOf(c.anims.idle.set, c.anims.idle.a, 0); c.scale = BODY_H * c.size / f[3]; });
 
   /* ================= canvas ================= */
@@ -433,37 +440,42 @@
   const touchHeld = new Set(), touchPressed = new Set();
   document.querySelectorAll('#touch [data-k]').forEach((b) => {
     const k = b.dataset.k;
-    const down = (e) => { e.preventDefault(); SFX.ensure(); touchHeld.add(k); touchPressed.add(k); b.classList.add('on'); };
+    const down = (e) => { e.preventDefault(); SFX.ensure(); touchHeld.add(k); touchPressed.add(k); b.classList.add('on'); if (navigator.vibrate && !calm) try { navigator.vibrate(k === 'super' ? 25 : 10); } catch { /* no haptics */ } };
     const up = (e) => { e.preventDefault(); touchHeld.delete(k); b.classList.remove('on'); };
     b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
   });
   // the shield joystick: drag the umbo; left/right/down are held, up is a jump on entry
   (() => {
-    const st = $('#stick'); if (!st) return; const knob = st.querySelector('.knob'); let pid = null, cx = 0, cy = 0, upOn = false;
+    const st = $('#stick'); if (!st) return; const knob = st.querySelector('.knob'); let pid = null, cx = 0, cy = 0, ox = 0, oy = 0, upOn = false;
     const dirs = ['left', 'right', 'down'];
-    const setDir = (dx, dy) => {
-      const r = st.clientWidth / 2, d = Math.hypot(dx, dy), k = d > r * 0.62 ? r * 0.62 / d : 1; knob.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
-      const dead = r * 0.22, want = { left: dx < -dead && Math.abs(dx) > Math.abs(dy) * 0.55, right: dx > dead && Math.abs(dx) > Math.abs(dy) * 0.55, down: dy > dead * 1.3 && dy > Math.abs(dx) * 0.6 };
+    const setDir = (dx, dy) => {   // 8-way: each direction owns a 135-degree wedge, so diagonals (crouch-forward, jump-back) work
+      const r = st.clientWidth / 2, d = Math.hypot(dx, dy), k = d > r * 0.55 ? r * 0.55 / d : 1; knob.style.transform = `translate(${(dx * k + ox)}px, ${(dy * k + oy)}px)`;
+      const on = d > r * 0.16, ang = Math.atan2(dy, dx) * 180 / Math.PI;   // 0 = right, 90 = down
+      const want = { right: on && Math.abs(ang) < 67.5, left: on && Math.abs(ang) > 112.5, down: on && ang > 22.5 && ang < 157.5 && d > r * 0.24 };
       dirs.forEach((n) => { if (want[n]) touchHeld.add(n); else touchHeld.delete(n); });
-      const up = dy < -dead * 1.3 && -dy > Math.abs(dx) * 0.6; if (up && !upOn) touchPressed.add('up'); upOn = up;
+      const up = on && d > r * 0.24 && ang < -22.5 && ang > -157.5; if (up && !upOn) touchPressed.add('up'); upOn = up;
     };
-    const end = (e) => { if (e.pointerId !== pid) return; pid = null; upOn = false; knob.style.transform = ''; dirs.forEach((n) => touchHeld.delete(n)); st.classList.remove('on-stick'); };
-    st.addEventListener('pointerdown', (e) => { e.preventDefault(); SFX.ensure(); pid = e.pointerId; st.setPointerCapture(pid); const b = st.getBoundingClientRect(); cx = b.left + b.width / 2; cy = b.top + b.height / 2; setDir(e.clientX - cx, e.clientY - cy); });
+    const end = (e) => { if (e.pointerId !== pid) return; pid = null; upOn = false; ox = oy = 0; knob.style.transform = ''; dirs.forEach((n) => touchHeld.delete(n)); st.classList.remove('on-stick'); };
+    st.addEventListener('pointerdown', (e) => { e.preventDefault(); SFX.ensure(); pid = e.pointerId; st.setPointerCapture(pid); const b = st.getBoundingClientRect(), r = b.width / 2, mx = b.left + r, my = b.top + r;
+      // the stick centres where the thumb lands (kept inside the shield), so touching off-centre never jerks the fighter
+      ox = clamp(e.clientX - mx, -r * 0.35, r * 0.35); oy = clamp(e.clientY - my, -r * 0.35, r * 0.35); cx = mx + ox; cy = my + oy; setDir(e.clientX - cx, e.clientY - cy); });
     st.addEventListener('pointermove', (e) => { if (e.pointerId === pid) setDir(e.clientX - cx, e.clientY - cy); });
     st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end); st.addEventListener('lostpointercapture', end);
   })();
+  const BUF = { p1: {}, p2: {} }, BUFFERED = ['light', 'heavy', 'lkick', 'hkick', 'special', 'super'];   // a press made a moment early (during an attack) still comes out
   function humanInput(slot) {
-    const K = KEYS[slot], h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), p = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
+    const K = KEYS[slot], now = performance.now(), h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), raw = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
+    const p = (n) => { if (!BUFFERED.includes(n)) return raw(n); if (raw(n)) BUF[slot][n] = now; return now - (BUF[slot][n] || -1e9) < 160; };
     return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), special: p('special'), super: p('super'), breaker: p('breaker') };
   }
 
   /* ================= fighters ================= */
   const MOVES = {   // seconds: startup, active, recovery; reach in px; damage
-    light: { start: 0.07, act: 0.09, rec: 0.13, reach: 112, dmg: 5, stun: 0.24, push: 140, meter: 6 },
-    heavy: { start: 0.2, act: 0.11, rec: 0.3, reach: 140, dmg: 11, stun: 0.42, push: 330, meter: 10 },
-    lkick: { start: 0.09, act: 0.1, rec: 0.16, reach: 132, dmg: 6, stun: 0.26, push: 170, meter: 7, low: true },
-    hkick: { start: 0.22, act: 0.12, rec: 0.32, reach: 160, dmg: 12, stun: 0.45, push: 360, meter: 11, low: true },
-    special: { start: 0.24, act: 0.12, rec: 0.36, reach: 0, dmg: 12, stun: 0.5, push: 360, meter: 0 },
+    light: { start: 0.05, act: 0.08, rec: 0.09, reach: 112, dmg: 5, stun: 0.21, push: 140, meter: 6 },     // tuned ~25% faster than launch for a snappier, arcade feel
+    heavy: { start: 0.15, act: 0.1, rec: 0.22, reach: 140, dmg: 11, stun: 0.36, push: 330, meter: 10 },
+    lkick: { start: 0.07, act: 0.09, rec: 0.12, reach: 132, dmg: 6, stun: 0.23, push: 170, meter: 7, low: true },
+    hkick: { start: 0.17, act: 0.11, rec: 0.24, reach: 160, dmg: 12, stun: 0.38, push: 360, meter: 11, low: true },
+    special: { start: 0.18, act: 0.11, rec: 0.27, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
   };
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
@@ -514,8 +526,9 @@
   const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
   function startMove(f, kind, isSuper) {
+    if (!f.cpu) BUF[f.side ? 'p2' : 'p1'] = {};
     const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper;
-    speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.4 ? 'jab' : '');
+    speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.3 ? 'jab' : '');
     if (kind === 'special') { f.cool = isSuper ? 0.6 : 1.5; voice(f, 'sp'); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else SFX.slash();
     if (f.onGround) f.vx = 0;
@@ -545,7 +558,7 @@
       dmg = Math.max(1, Math.round(dmg * 0.15)); target.block = 0.2; target.state = 'block'; target.t = 0; target.vx = -target.face * push * 0.7; SFX.bump();
       spark(hitX, target.y - BODY_H * target.ch.size * 0.55, ['#8fd8ff', '#ffffff'], 10); target.meter = Math.min(100, target.meter + 4);
     } else {
-      if (target.hp - dmg > 0) speak(target.ch, 'hurt'); target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
+      if (target.hp - dmg > 0 && (dmg >= 10 || Math.random() < 0.3)) speak(target.ch, 'hurt'); target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
       dmg = Math.max(1, dmg + passive(attacker, target, attacker.state === 'attack' ? attacker.move : 'special', dmg));
       voice(attacker, 'hit'); const hy = target.y - BODY_H * target.ch.size * 0.55; spark(hitX, hy, attacker.ch.special.col.concat(['#ffffff']), dmg >= 10 ? 34 : 22);
       (G.rings = G.rings || []).push({ x: hitX, y: hy, t: 0, max: dmg >= 10 ? 0.32 : 0.22, r: dmg >= 10 ? 90 : 55, col: attacker.ch.special.col[0] });
@@ -608,13 +621,13 @@
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
-        if (inp.up) { f.vy = -860; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.1; SFX.jump(); }
+        if (inp.up) { f.vy = -960; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.3; SFX.jump(); }
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
-        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
+        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.18 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
     // physics
-    if (!f.onGround) { f.vy += 2300 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
+    if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
     else if (f.state === 'hurt' || f.state === 'block' || f.state === 'ko') f.vx *= Math.pow(0.0009, dt);
     f.x += f.vx * dt; f.x = clamp(f.x, WALL_L, WALL_R);
   }
