@@ -339,6 +339,24 @@
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
+  const STAGE_NAMES = { 'bg-battlefield': 'The Field of Mars', 'bg-colosseum': 'The Grand Colosseum', 'bg-sea': 'The Temple of the Tides', 'bg-gorgon': 'The Gorgon\'s Garden', 'bg-gate': 'The Abyssal Gate',
+    'bg-hades': 'The Throne of Hades', 'bg-labyrinth': 'The Labyrinth of the Minotaur', 'bg-forge': 'The Forge of Vulcan', 'bg-chiron': 'Chiron\'s Grove', 'bg-diana': 'Diana\'s Moonlit Glade' };
+  // arcade endings: two lines of story for whoever clears the ladder
+  const ENDINGS = {
+    marcus: ['With the Underworld broken, Marcus returned the Tesla core to Rome and lit the city for a thousand nights.', 'He wrote one line in his journal that evening: “The obstacle was the way.”'],
+    mars: ['Mars hung the trident of Hades above his forge and declared the war finished, for now.', 'The legions say that when thunder rolls over the Campus Martius, he is sharpening his sword again.'],
+    colossus: ['The Colossus took the empty throne of the Underworld and did not move for a hundred years.', 'Pilgrims still climb its knees to leave laurels, and swear the bronze is warm to the touch.'],
+    medusa: ['Medusa turned the gates of Hades to marble and built a garden in the dark.', 'No hero has visited since. The statues at the entrance suggest a few tried.'],
+    minotaur: ['The Minotaur walked out of the last labyrinth there was and kept walking, all the way to the sea.', 'For the first time in his life, nothing around him had walls.'],
+    vulcan: ['Vulcan melted the trident of Hades down and forged a new crown, then gave it away.', '“I make things,” he said. “I do not need to wear them.”'],
+    chiron: ['Chiron mapped every star the Underworld had hidden and carried the chart back to the living.', 'Sailors still steer by it, and call the brightest point the Archer.'],
+    diana: ['Diana released the hounds of the Underworld into her forest and taught them to hunt by moonlight.', 'On clear nights, three-headed shadows run beside her, and they are happy.'],
+    cerberus: ['Cerberus guarded the gate for ten thousand years. Today, for the first time, he walked through it.', 'All three heads agreed: the world above smells wonderful.'],
+    pegasus: ['Pegasus carried the last ember of the Underworld up past the clouds and set it in the sky.', 'You can see it rising every evening, just after the sun goes down.'],
+    helios: ['Helios Orb poured its light into the deepest cavern of the dead, and the darkness simply ended.', 'Its gears turned once more, then settled, as if satisfied.'],
+    neptune: ['Neptune flooded the halls of Hades and the fires hissed out one by one.', 'The Underworld is a sea now, quiet and deep, and the serpent sleeps at the bottom of it.'],
+    hades: ['Hades crushed the bronze Colossus and reclaimed every soul it had stolen from his kingdom.', 'The Throne of the Underworld is his again. He has never been more polite to visitors.'],
+  };
   const PUNK = ['legion', 'arena', 'stomp', 'riot', 'hellfire'];
   const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'legion', 'hellfire'];
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
@@ -347,6 +365,7 @@
     [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); });
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
+    if (!ARC) { const sp = store.get('af-stage'); const bgN = sp && LOCAL_BG.includes(sp) ? sp : pick(LOCAL_BG); G.bg = BGS[BGN.indexOf(bgN)]; G.stageName = STAGE_NAMES[bgN]; }
     if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[BGN.indexOf(STAGES[ARC.stage][1])] || G.bg; }
     startRound();
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : pick(PUNK));
@@ -741,17 +760,23 @@
     $('#sel-step').textContent = step; $('#fight').disabled = chosen[0] === null || (mode === '2p' && chosen[1] === null);
     document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
-    $('#levels').hidden = mode === '2p' || mode === 'training';
+    $('#levels').hidden = mode === '2p' || mode === 'training'; $('#stage-row').hidden = mode === 'arcade';
   }
   function choose(i) { SFX.ensure(); SFX.coin(); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
   document.querySelectorAll('[data-level]').forEach((b) => b.addEventListener('click', () => { level = +b.dataset.level; store.set('af-level', level); syncSelect(); }));
+  (() => {   // stage select for versus and training
+    const sel = $('#stage-pick'); const o = document.createElement('option'); o.value = 'random'; o.textContent = 'Random stage'; sel.append(o);
+    LOCAL_BG.forEach((n) => { const op = document.createElement('option'); op.value = n; op.textContent = STAGE_NAMES[n]; sel.append(op); });
+    const cur = store.get('af-stage'); sel.value = cur && LOCAL_BG.includes(cur) ? cur : 'random';
+    sel.addEventListener('change', () => store.set('af-stage', sel.value === 'random' ? null : sel.value));
+  })();
   $('#sel-reset').addEventListener('click', () => { chosen = [null, null]; syncSelect(); });
   $('#fight').addEventListener('click', () => {
     SFX.ensure(); let p2 = chosen[1]; if (p2 === null) { do { p2 = Math.floor(Math.random() * ROSTER.length); } while (p2 === chosen[0]); }
     $('#s-select').hidden = true; $('#s-fight').hidden = false; $('#result').hidden = true; fit();
     ARC = null;
-    if (mode === 'training') { newMatch(ROSTER[chosen[0]], ROSTER[p2], 0); G.training = true; G.p[1].dummy = true; G.p[1].cpu = null; G.stageName = 'Training'; window.scrollTo({ top: 0 }); return; }
+    if (mode === 'training') { newMatch(ROSTER[chosen[0]], ROSTER[p2], 0); G.training = true; G.p[1].dummy = true; G.p[1].cpu = null; G.stageName = 'Training · ' + G.stageName; window.scrollTo({ top: 0 }); return; }
     if (mode === 'arcade') {
       const me = ROSTER[chosen[0]], hades = ROSTER.find((c) => c.id === 'hades'), boss = me === hades ? ROSTER.find((c) => c.id === 'colossus') : hades;
       const pool = ROSTER.filter((c) => c !== me && c !== boss).sort(() => Math.random() - 0.5).slice(0, 5);
@@ -766,13 +791,14 @@
     $('#res-k').textContent = champ.cpu ? 'Defeat' : (G.p[1].cpu ? 'Victory' : `Player ${champ.side + 1} wins`);
     $('#res-name').textContent = champ.ch.name; $('#res-quote').textContent = '“' + champ.ch.quote + '”';
     if (!champ.cpu && G.p[1].cpu) { const s = (store.get('af-streak') || 0) + 1; store.set('af-streak', s); $('#res-streak').textContent = `Win streak: ${s}`; } else if (G.p[1].cpu) { store.set('af-streak', 0); $('#res-streak').textContent = 'Win streak reset. Breathe, and go again.'; } else $('#res-streak').textContent = '';
-    $('#res-again').textContent = 'Rematch'; $('#res-next').hidden = false;
+    $('#res-again').textContent = 'Rematch'; $('#res-next').hidden = false; $('#res-end').hidden = true;
     if (ARC) {
       const won = champ.side === 0;
       if (won) { ARC.score += 1000 + Math.round(champ.hp / champ.maxHp * 1000) + Math.ceil(G.timer) * 10; ARC.stage += 1; }
       const done = won && ARC.stage >= 6;
       $('#res-k').textContent = done ? 'Champion of the Arena' : won ? `Stage ${ARC.stage} cleared` : `Stage ${ARC.stage + 1} lost`;
-      if (done) { const best = Math.max(store.get('af-arcade-best') || 0, ARC.score); store.set('af-arcade-best', best); $('#res-streak').textContent = `Final score ${ARC.score.toLocaleString('en-US')} · best ${best.toLocaleString('en-US')}. The gods bow to you.`; $('#res-again').textContent = 'New campaign'; }
+      if (done) { const best = Math.max(store.get('af-arcade-best') || 0, ARC.score); store.set('af-arcade-best', best); $('#res-streak').textContent = `Final score ${ARC.score.toLocaleString('en-US')} · best ${best.toLocaleString('en-US')}. The gods bow to you.`; $('#res-again').textContent = 'New campaign';
+        const e = ENDINGS[champ.ch.id]; if (e) { const box = $('#res-end'); box.replaceChildren(portrait(champ.ch)); e.forEach((line) => { const p = document.createElement('p'); p.textContent = line; box.append(p); }); box.hidden = false; $('#res-name').textContent = champ.ch.name + ': The Ending'; } }
       else { $('#res-streak').textContent = `Score ${ARC.score.toLocaleString('en-US')}` + (won ? ` · next: ${ARC.ladder[ARC.stage].name}` : ''); $('#res-again').textContent = won ? 'Next battle' : 'Retry stage'; }
       $('#res-next').hidden = true; ARC.done = done;
     }

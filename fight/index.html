@@ -9,7 +9,7 @@
   <title>Roman Arena: Gods of the Machine · A Fighting Game by Marcos Garcia</title>
   <meta name="description" content="A one-on-one arena fighting game: Marcus Aurelius, the Roman Automaton, the Black Knight, Anubis and more battle with lightning, spears and fire. Free, in your browser.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="fight.css?v=4">
+  <link rel="stylesheet" href="fight.css?v=5">
 </head>
 <body>
 <main class="stage">
@@ -18,12 +18,13 @@
       <p class="eyebrow">From the world of The Aurelious Quest</p>
       <h1>Roman Arena</h1>
       <p class="sub">Gods of the Machine</p>
-      <p class="tag">Thirteen legends. One arena. Choose your fighter.</p>
+      <p class="tag">Thirteen legends. Ten arenas. Choose your fighter.</p>
     </header>
     <div class="modes">
       <div class="seg" role="group" aria-label="Mode"><button type="button" class="btn" data-mode="arcade">Arcade</button><button type="button" class="btn" data-mode="cpu">1 Player vs CPU</button><button type="button" class="btn" data-mode="2p">2 Players</button><button type="button" class="btn" data-mode="training">Training</button></div>
       <div class="seg" id="levels" role="group" aria-label="Difficulty"><button type="button" class="btn" data-level="1">Easy</button><button type="button" class="btn" data-level="2">Normal</button><button type="button" class="btn" data-level="3">Hard</button></div>
     </div>
+    <div class="stage-row" id="stage-row"><label for="stage-pick">Stage</label><select id="stage-pick"></select></div>
     <p class="step" id="sel-step" aria-live="polite"></p>
     <div class="roster" id="roster"></div>
     <div class="go"><button type="button" class="btn ghost" id="sel-reset">Clear picks</button><button type="button" class="btn gold big" id="fight" disabled>Fight!</button></div>
@@ -53,6 +54,7 @@
           <p class="res-k" id="res-k"></p>
           <h2 id="res-name"></h2>
           <p class="res-q" id="res-quote"></p>
+          <div class="res-end" id="res-end" hidden></div>
           <p class="res-s" id="res-streak"></p>
           <div class="res-b"><button type="button" class="btn gold" id="res-again">Rematch</button><button type="button" class="btn" id="res-next">Next opponent</button><button type="button" class="btn" id="res-select">Character select</button></div>
         </div>
@@ -64,6 +66,6 @@
     </div>
   </section>
 </main>
-<script src="game.js?v=29"></script>
+<script src="game.js?v=30"></script>
 </body>
 </html>

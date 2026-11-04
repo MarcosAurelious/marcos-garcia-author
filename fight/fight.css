@@ -67,3 +67,13 @@ body.touchy .touch { display: flex; }
   body.touchy .touch .pad-a { grid-template-columns: repeat(6, 1fr); justify-items: center; }
   body.touchy .touch .pad-a button { width: min(56px, 14.5vw); height: min(56px, 14.5vw); }
 }
+
+.stage-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 10px; }
+.stage-row[hidden] { display: none; }
+.stage-row label { font: 700 .78rem var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.stage-row select { font: 600 1rem var(--serif); color: var(--ink); background: var(--panel); border: 1.5px solid var(--gold); padding: .45rem .8rem; }
+.stage-row select:focus-visible { outline: 3px solid #8fe6ff; outline-offset: 2px; }
+.res-end { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; text-align: left; margin: .6rem 0 .9rem; }
+.res-end[hidden] { display: none; }
+.res-end canvas { grid-row: span 2; width: 92px; height: auto; }
+.res-end p { margin: 0; color: var(--ink); font-size: 1.02rem; line-height: 1.4; }
