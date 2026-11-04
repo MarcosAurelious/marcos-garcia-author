@@ -214,15 +214,41 @@
       if (tr.tick) drum('h', t, b % 2 ? 0.5 : 0.8);
       if ((bar === 0 && b === 0 && sec === 0) || (tr.crash && b === 0 && bar % 4 === 0)) drum('c', t);
     }
+    // Marcos's own recordings: decoded once, looped sample-accurately (the loop points sit on the downbeat; a one-beat crossfade is baked into the file)
+    const SONGS = {
+      acta: { src: 'music/acta-non-verba.mp3', loopStart: 31.37, loopEnd: 95.3738, vol: 0.7 },   // Acta Non Verba: intro plays once, then 0:31-1:35 loops
+      ego: { src: 'music/ego-death.mp3', loopStart: 16.625, loopEnd: 66.2807, vol: 0.7 },           // Ego Death: 0:16-1:06 loops
+    };
+    const songBuf = {}; let songSrc = null, songGain = null, songPos = 0, songAt = 0, songName = '';
+    function songLoad(n) { const S = SONGS[n]; if (!songBuf[n]) songBuf[n] = fetch(S.src).then((r) => r.arrayBuffer()).then((ab) => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej))).catch(() => { delete songBuf[n]; return null; }); return songBuf[n]; }
+    function songWhere() { const S = SONGS[songName]; let p = songPos + (ac.currentTime - songAt); if (S && p > S.loopEnd) p = S.loopStart + (p - S.loopStart) % (S.loopEnd - S.loopStart); return p; }
+    function songHalt(keep) { if (songSrc) { if (keep) songPos = songWhere(); const s0 = songSrc; songGain.gain.cancelScheduledValues(ac.currentTime); songGain.gain.setTargetAtTime(0, ac.currentTime, 0.06); setTimeout(() => { try { s0.stop(); } catch { /* already stopped */ } }, 300); songSrc = null; } if (!keep) songPos = 0; }
+    function songStart() {
+      if (!on || !init()) return; const n = name, S = SONGS[n]; if (!S) return;
+      if (!songGain) { songGain = ac.createGain(); songGain.gain.value = 0; songGain.connect(ac.destination); }
+      songLoad(n).then((buf) => {
+        if (!buf || name !== n || !on || songSrc || paused) return;
+        const src = ac.createBufferSource(); src.buffer = buf; src.loop = true; src.loopStart = S.loopStart; src.loopEnd = S.loopEnd; src.connect(songGain);
+        const t = ac.currentTime + 0.05; src.start(t, songPos); songAt = t; songName = n; songSrc = src;
+        songGain.gain.cancelScheduledValues(ac.currentTime); songGain.gain.setValueAtTime(0.0001, ac.currentTime); songGain.gain.setTargetAtTime(S.vol, t, 0.08);
+      });
+    }
+    let paused = false;
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
       master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(['boss', 'knights', 'riot', 'legion', 'arena', 'stomp', 'hellfire', 'machine', 'sack'].includes(name) ? 0.36 : 0.32, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
-      play(n) { if (name === n && running) return; name = n; track = T[n]; step = 0; if (ac) nextT = ac.currentTime + 0.3; start(); },
-      pause() { halt(0.08); }, resume() { if (track) { if (ac) nextT = ac.currentTime + 0.1; start(); } }, stop() { halt(0.4); name = ''; },
-      toggle() { on = !on; store.set('af-music', on); if (on) this.resume(); else halt(0.1); return on; },
+      play(n) {
+        paused = false;
+        if (SONGS[n]) { if (name === n && songSrc) return; halt(0.2); songHalt(false); name = n; track = null; songStart(); return; }
+        if (name === n && running) return; songHalt(false); name = n; track = T[n]; step = 0; if (ac) nextT = ac.currentTime + 0.3; start();
+      },
+      pause() { paused = true; halt(0.08); if (ac) songHalt(true); },
+      resume() { paused = false; if (SONGS[name]) songStart(); else if (track) { if (ac) nextT = ac.currentTime + 0.1; start(); } },
+      stop() { halt(0.4); if (ac) songHalt(false); name = ''; },
+      toggle() { on = !on; store.set('af-music', on); if (on) this.resume(); else { halt(0.1); if (ac) songHalt(true); } return on; },
     };
   })();
 
@@ -391,7 +417,7 @@
     hades: ['Hades crushed the bronze Colossus and reclaimed every soul it had stolen from his kingdom.', 'The Throne of the Underworld is his again. He has never been more polite to visitors.'],
   };
   const PUNK = ['legion', 'arena', 'stomp', 'riot', 'hellfire', 'machine', 'sack'];
-  const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'sack', 'hellfire'];
+  const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'sack', 'ego'];   // the final fight at the Throne of Hades plays Ego Death
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
@@ -401,7 +427,7 @@
     if (!ARC) { const sp = store.get('af-stage'); const bgN = sp && LOCAL_BG.includes(sp) ? sp : pick(LOCAL_BG); G.bg = BGS[BGN.indexOf(bgN)]; G.stageName = STAGE_NAMES[bgN]; }
     if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[BGN.indexOf(STAGES[ARC.stage][1])] || G.bg; }
     startRound();
-    MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : pick(PUNK));
+    MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
     G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, onGround: true, cool: 0, combo: 0 }));
@@ -795,7 +821,7 @@
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
     $('#levels').hidden = mode === '2p' || mode === 'training'; $('#stage-row').hidden = mode === 'arcade';
   }
-  function choose(i) { SFX.ensure(); SFX.coin(); if (!G) MUSIC.play('machine'); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
+  function choose(i) { SFX.ensure(); SFX.coin(); if (!G) MUSIC.play('acta'); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
   document.querySelectorAll('[data-level]').forEach((b) => b.addEventListener('click', () => { level = +b.dataset.level; store.set('af-level', level); syncSelect(); }));
   (() => {   // stage select for versus and training
@@ -842,7 +868,7 @@
     else newMatch(a.ch, b.ch, G.cpuLevel); });
   $('#res-next').addEventListener('click', () => { $('#result').hidden = true; const a = G.p[0]; let n; do { n = pick(ROSTER); } while (n === a.ch); newMatch(a.ch, n, G.cpuLevel || level); });
   $('#res-select').addEventListener('click', backToSelect);
-  function backToSelect() { G = null; MUSIC.play('machine'); ARC = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
+  function backToSelect() { G = null; MUSIC.play('acta'); ARC = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
   // settings
   function togglePause(force) { if (!G || G.mode === 'over') return; G.pause = force !== undefined ? force : !G.pause; $('#menu').hidden = !G.pause; if (G.pause) MUSIC.pause(); else { MUSIC.resume(); last = performance.now(); } }
   $('#gear').addEventListener('click', () => togglePause());
