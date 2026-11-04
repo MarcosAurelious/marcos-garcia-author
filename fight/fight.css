@@ -49,27 +49,10 @@ kbd { font: 700 .75rem var(--mono); border: 1px solid var(--gold); padding: 0 .3
 .res-card h2 { font-size: clamp(1.8rem, 5vw, 2.8rem); margin: .2rem 0; color: var(--gold-2); }
 .res-q { font-style: italic; font-size: 1.2rem; color: var(--ink); } .res-s { color: var(--ink-soft); }
 .res-b { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.touch { display: none; width: 100%; justify-content: space-between; padding: 10px 4px 4px; gap: 8px; touch-action: none; user-select: none; -webkit-user-select: none; }
-.touch .pad { display: flex; gap: 8px; align-items: center; }
-.touch button { width: min(64px, 15vw); height: min(64px, 15vw); border-radius: 50%; border: 2px solid var(--gold); background: rgba(40,28,16,.85); color: var(--ink); font: 700 1.2rem var(--mono); touch-action: none; }
-.touch button.on { background: rgba(201,162,39,.6); } .touch .sup { border-color: #8fe6ff; color: #8fe6ff; }
-body.touchy .touch { display: flex; }
-@media (orientation: landscape) and (max-height: 520px) { body.touchy .touch { position: fixed; left: 0; right: 0; bottom: 6px; pointer-events: none; padding: 0 10px; } body.touchy .touch .pad { pointer-events: auto; } body.touchy .touch button { background: rgba(40,28,16,.55); } .stage { padding-top: 4px; } }
 @media (max-width: 760px) { .roster { grid-template-columns: repeat(3, 1fr); } .howto { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 .sub { margin: -.2rem 0 .3rem; font: 700 .85rem var(--mono); letter-spacing: .4em; text-transform: uppercase; color: var(--ink-soft); }
-.touch .pad-a { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; }
-.touch .col { display: flex; flex-direction: column; gap: 6px; }
-.touch .pad-d .col button { width: min(52px, 12vw); height: min(52px, 12vw); }
-.touch .brk { border-color: #ffd27a; color: #ffd27a; }
-.touch button { font-size: 1rem; }
-@media (orientation: portrait) {
-  body.touchy .touch { flex-direction: column; align-items: stretch; gap: 10px; }
-  body.touchy .touch .pad-d { justify-content: space-between; }
-  body.touchy .touch .pad-a { grid-template-columns: repeat(6, 1fr); justify-items: center; }
-  body.touchy .touch .pad-a button { width: min(56px, 14.5vw); height: min(56px, 14.5vw); }
-}
 
 .stage-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 10px; }
 .stage-row[hidden] { display: none; }
@@ -89,3 +72,32 @@ h1 { font-family: var(--rock); font-weight: 400; letter-spacing: .03em; }
 .eyebrow { font-size: 1rem; } .sub { font-size: 1.15rem; } .set-h, .res-k { font-size: 1.1rem; } .stage-row label { font-size: 1rem; }
 .card .nm { font-family: var(--cond); font-weight: 400; font-size: 1.25rem; letter-spacing: .06em; }
 .step { font-family: var(--cond); font-size: 1.45rem; letter-spacing: .08em; }
+
+/* ---- touch controls: a real gamepad (D-pad cross on the left, attack block on the right) ---- */
+.touch { display: none; width: 100%; max-width: 560px; margin: 0 auto; justify-content: space-between; align-items: center; padding: 14px 6px 6px; gap: 10px; touch-action: none; user-select: none; -webkit-user-select: none; --b: min(64px, 16.5vw); --a: min(72px, 19vw); }
+body.touchy .touch { display: flex; }
+.touch button { border-radius: 50%; border: 2px solid var(--gold); background: rgba(40,28,16,.88); color: var(--ink); font-family: var(--cond); font-size: 1.35rem; letter-spacing: .06em; touch-action: none; padding: 0; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+.touch button.on { background: rgba(201,162,39,.65); color: #1a1108; transform: scale(.94); }
+.touch .pad-d { display: grid; grid-template-columns: repeat(3, var(--b)); grid-template-rows: repeat(3, var(--b)); gap: 4px; }
+.touch .pad-d button { width: var(--b); height: var(--b); border-radius: 14px; font-size: 1.25rem; }
+.touch .pad-d [data-k="up"] { grid-area: 1 / 2; } .touch .pad-d [data-k="left"] { grid-area: 2 / 1; } .touch .pad-d [data-k="right"] { grid-area: 2 / 3; } .touch .pad-d [data-k="down"] { grid-area: 3 / 2; }
+.touch .pad-d .brk { grid-area: 1 / 1; width: calc(var(--b) * .8); height: calc(var(--b) * .8); border-radius: 50%; place-self: center; border-color: #ffd27a; color: #ffd27a; font-size: 1rem; }
+.touch .pad-d .hub { grid-area: 2 / 2; border-radius: 50%; background: radial-gradient(circle, rgba(201,162,39,.25), transparent 70%); pointer-events: none; }
+.touch .pad-a { display: grid; grid-template-columns: repeat(2, var(--a)); gap: 8px 10px; }
+.touch .pad-a button { width: var(--a); height: var(--a); }
+.touch .pad-a .sp { border-color: #e7c46a; color: #e7c46a; } .touch .sup { border-color: #8fe6ff; color: #8fe6ff; }
+.touch .hint { display: none; }
+@media (orientation: portrait) {
+  body.touchy .stage { padding-left: 6px; padding-right: 6px; }
+  body.touchy .touch .hint { display: block; position: absolute; left: 0; right: 0; bottom: -34px; text-align: center; font: italic 1rem var(--serif); color: var(--ink-soft); }
+  body.touchy .touch { position: relative; margin: auto auto 46px; }
+  body.touchy .fightscr { min-height: calc(100svh - 24px); }   /* arena on top, gamepad down where the thumbs rest */
+}
+/* phone held sideways: controls float over the bottom corners of the arena */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.touchy .touch { position: fixed; left: 0; right: 0; bottom: 6px; max-width: none; pointer-events: none; padding: 0 12px; --b: min(50px, 11vh); --a: min(56px, 12.5vh); }
+  body.touchy .touch .pad-d, body.touchy .touch .pad-a { pointer-events: auto; }
+  body.touchy .touch button { background: rgba(40,28,16,.5); }
+  .stage { padding-top: 4px; }
+  body.touchy .gear { position: fixed; top: 8px; right: 10px; bottom: auto; }
+}

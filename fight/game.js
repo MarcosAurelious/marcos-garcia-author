@@ -350,7 +350,7 @@
   const cv = $('#cv'); const ctx = cv.getContext('2d'); let RES = 1;
   function fit() {
     const wrap = $('#arena'), portrait = innerHeight > innerWidth && innerWidth < 760;
-    let w = portrait ? innerWidth - 16 : Math.min(innerWidth - 24, (innerHeight - (document.body.classList.contains('touchy') ? 24 : 120)) * VW / VH);
+    let w = portrait ? document.documentElement.clientWidth - 16 : Math.min(innerWidth - 24, (innerHeight - (document.body.classList.contains('touchy') ? 24 : 120)) * VW / VH);
     w = Math.max(300, Math.floor(w)); wrap.style.width = w + 'px';
     const r = clamp(Math.ceil(w * (devicePixelRatio || 1) / VW * 4) / 4, 1, 2.5);
     if (r !== RES || cv.width !== Math.round(VW * r)) { RES = r; cv.width = Math.round(VW * r); cv.height = Math.round(VH * r); }
