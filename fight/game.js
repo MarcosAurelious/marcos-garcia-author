@@ -216,8 +216,8 @@
     }
     // Marcos's own recordings: decoded once, looped sample-accurately (the loop points sit on the downbeat; a one-beat crossfade is baked into the file)
     const SONGS = {
-      acta: { src: 'music/acta-non-verba.mp3', loopStart: 31.37, loopEnd: 95.3738, vol: 0.7 },   // Acta Non Verba: intro plays once, then 0:31-1:35 loops
-      ego: { src: 'music/ego-death.mp3', loopStart: 16.625, loopEnd: 66.2807, vol: 0.7 },           // Ego Death: 0:16-1:06 loops
+      acta: { src: 'music/acta-non-verba.mp3?v=2', loopStart: 31.37, loopEnd: 95.3738, vol: 1.0 },   // Acta Non Verba (instrumental): intro plays once, then 0:31-1:35 loops
+      ego: { src: 'music/ego-death.mp3?v=2', loopStart: 16.625, loopEnd: 66.2807, vol: 1.0 },           // Ego Death (instrumental): 0:16-1:06 loops
     };
     const songBuf = {}; let songSrc = null, songGain = null, songPos = 0, songAt = 0, songName = '';
     function songLoad(n) { const S = SONGS[n]; if (!songBuf[n]) songBuf[n] = fetch(S.src).then((r) => r.arrayBuffer()).then((ab) => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej))).catch(() => { delete songBuf[n]; return null; }); return songBuf[n]; }
