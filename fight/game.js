@@ -43,7 +43,7 @@
     };
   })();
   const MUSIC = (() => {
-    let on = store.get('af-music') !== false, ac = null, master = null, crunch = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
+    let on = store.get('af-music') !== false, ac = null, master = null, crunch = null, gtrL = null, gtrR = null, leadBus = null, noise = null, timer = null, track = null, name = '', step = 0, nextT = 0, running = false;
     const NOTE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
     const hz = (s) => { const m = /^([A-G][#b]?)(\d)$/.exec(s); return 440 * Math.pow(2, (NOTE[m[1]] + (+m[2] + 1) * 12 - 69) / 12); };
     const seq = (str) => { const t = str.trim().split(/\s+/), out = new Array(t.length).fill(null); t.forEach((x, i) => { if (x === '-' || x === '.') return; let d = 1; while (t[i + d] === '-') d++; out[i] = { f: hz(x), d }; }); return out; };
@@ -104,34 +104,46 @@
         lead: [seq('A5 - C6 - E6 - C6 - A5 - E5 - A5 - B5 - C6 - A5 - F5 - A5 - C6 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - G6 - - - G#5 - E5 - B4 - E5 - G#5 - B5 - E6 - - -'),
                seq('E6 - - - D6 - C6 - B5 - - - A5 - - - F6 - - - E6 - D6 - C6 - - - A5 - - - G6 - - - F6 - E6 - D6 - - - B5 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
       // Riot: the punk track from the music-video teaser (E, E, A, G power chords at 168 BPM), now the boss-battle theme
-      riot: { bpm: 168, wave: 'square', leadVol: 0, harm: 0, bass: 'octave', pad: 0, arp: 0, power: 0.05,
+      riot: { bpm: 168, wave: 'square', leadVol: 0, harm: 0, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
         kick: [0, 4, 8, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('E2 B2 E3'), ch('E2 B2 E3'), ch('A2 E3 A3'), ch('G2 D3 G3')],
         lead: [seq('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')] },
       // Legion Riot: fast E punk, distorted power chords and a shout-along hook
-      legion: { bpm: 180, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true,
+      legion: { bpm: 180, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
         kick: [0, 4, 8, 10, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('E2 B2 E3'), ch('C3 G3 C4'), ch('G2 D3 G3'), ch('D3 A3 D4')],
         lead: [seq('E5 - - - E5 - G5 - - - E5 - D5 - B4 - C5 - - - C5 - E5 - - - G5 - E5 - C5 - D5 - - - B4 - D5 - G5 - - - F#5 - G5 - A5 - - - - - F#5 - D5 - - - - - - -'),
                seq('B5 - B5 - B5 - A5 - G5 - - - E5 - - - G5 - G5 - G5 - E5 - C5 - - - E5 - - - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - C6 - - - B5 - - - A5 - - - F#5 - - -')] },
       // Colosseum Crash: A punk, the crowd's chant on top
-      arena: { bpm: 176, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true,
+      arena: { bpm: 176, wave: 'square', leadVol: 0.05, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'O...o.o.O...o.o.', crash: true,
         kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('A2 E3 A3'), ch('F2 C3 F3'), ch('C3 G3 C4'), ch('G2 D3 G3')],
         lead: [seq('A5 - A5 - C6 - A5 - E5 - - - A5 - C6 - C6 - - - A5 - F5 - - - A5 - C6 - A5 - G5 - - - E5 - G5 - C6 - - - E6 - D6 - D6 - - - B5 - - - G5 - - - - - - -'),
                seq('E6 - - - E6 - D6 - C6 - - - A5 - - - F6 - - - E6 - C6 - A5 - - - F5 - - - E6 - D6 - C6 - G5 - E6 - D6 - C6 - G5 - B5 - - - D6 - - - G6 - - - - - - -')] },
       // Gladiator Stomp: heavy D minor rock with a swinging kick
-      stomp: { bpm: 150, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true,
+      stomp: { bpm: 150, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.05, dist: true, chug: 'O...x.x.O.x.x.x.', crash: true,
         kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('D2 A2 D3'), ch('Bb2 F3 Bb3'), ch('C3 G3 C4'), ch('A2 E3 A3')],
         lead: [seq('D5 - - - F5 - - - A5 - G5 - F5 - E5 - D5 - - - - - - - Bb4 - D5 - F5 - - - E5 - - - G5 - - - C6 - Bb5 - G5 - E5 - C#5 - - - E5 - - - A5 - - - - - - -'),
                seq('A5 - - - A5 - G5 - F5 - - - D5 - F5 - Bb5 - - - A5 - F5 - D5 - - - - - - - C6 - - - Bb5 - G5 - E5 - G5 - C6 - E6 - E6 - - - C#6 - - - A5 - - - E5 - - -')] },
       // Hellfire Thrash: the Hades finale, E minor at full gallop
-      hellfire: { bpm: 192, wave: 'sawtooth', leadVol: 0.042, harm: 0.02, bass: 'gallop', pad: 0, arp: 0, power: 0.045, dist: true,
+      hellfire: { bpm: 192, wave: 'sawtooth', leadVol: 0.042, harm: 0.02, bass: 'gallop', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'xxxxO.xxxxxxO.xx', crash: true,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
         chords: [ch('E2 B2 E3'), ch('G2 D3 G3'), ch('A2 E3 A3'), ch('B2 F#3 B3')],
         lead: [seq('E5 - G5 - B5 - E6 - D6 - B5 - G5 - B5 - D6 - - - B5 - G5 - D5 - G5 - B5 - D6 - E6 - - - C#6 - A5 - E5 - A5 - C#6 - E6 - D#6 - - - B5 - - - F#5 - - - D#5 - - -'),
                seq('B5 - - - - - G5 - E5 - - - - - - - G5 - - - B5 - - - D6 - - - G6 - - - A5 - - - C#6 - - - E6 - - - A6 - - - F#6 - - - D#6 - - - B5 - - - F#5 - - -')] },
+      // Gods of the Machine: mid-tempo hard-rock anthem in G (the select-screen theme)
+      machine: { bpm: 140, wave: 'sawtooth', leadVol: 0.045, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'O.....x.O...x.x.', crash: true,
+        kick: [0, 8, 10], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('G2 D3 G3'), ch('D3 A3 D4'), ch('E2 B2 E3'), ch('C3 G3 C4')],
+        lead: [seq('G5 - - - B5 - D6 - - - B5 - G5 - - - F#5 - - - A5 - D6 - - - A5 - F#5 - - - E5 - - - G5 - B5 - - - E6 - D6 - B5 - C6 - - - - - B5 - A5 - - - G5 - - -'),
+               seq('D6 - D6 - D6 - B5 - G5 - - - D6 - - - D6 - D6 - E6 - F#6 - A6 - - - F#6 - - - G6 - - - F#6 - E6 - B5 - - - E6 - - - E6 - - - D6 - C6 - B5 - - - G5 - - -')] },
+      // Sack of Rome: 200 BPM d-beat punk in A
+      sack: { bpm: 200, wave: 'square', leadVol: 0.048, harm: 0.02, bass: 'octave', pad: 0, arp: 0, power: 0.045, dist: true, chug: 'o.o.o.o.o.o.o.o.', crash: true,
+        kick: [0, 3, 8, 11], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: false, fill: true,
+        chords: [ch('A2 E3 A3'), ch('F#2 C#3 F#3'), ch('D3 A3 D4'), ch('E2 B2 E3')],
+        lead: [seq('A5 - - - C#6 - E6 - - - C#6 - A5 - E5 - F#5 - - - A5 - C#6 - - - A5 - F#5 - C#5 - D5 - F#5 - A5 - D6 - F#6 - - - E6 - D6 - E6 - - - - - - - B5 - G#5 - E5 - - -'),
+               seq('E6 - E6 - E6 - - - C#6 - - - A5 - - - C#6 - C#6 - C#6 - - - A5 - - - F#5 - - - A5 - - - D6 - - - F#6 - - - A6 - - - G#6 - - - E6 - - - B5 - - - G#5 - - -')] },
       // Bosses: fast and furious C minor
       boss: { bpm: 166, wave: 'sawtooth', leadVol: 0.045, harm: 0.022, bass: 'gallop', pad: 0, arp: 2, arpWave: 'square', arpVol: 0.022,
         kick: [0, 3, 4, 8, 11, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], tick: true, fill: true,
@@ -142,10 +154,19 @@
     Object.values(T).forEach((t) => t.lead.forEach((l) => { if (l.length !== 64) console.warn('music pattern length', l.length); }));
     function init() {
       if (ac) return true; ac = SFX.ac; if (!ac) return false;
-      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = 0;
+      const glue = ac.createDynamicsCompressor(); glue.threshold.value = -16; glue.knee.value = 8; glue.ratio.value = 4; glue.attack.value = 0.004; glue.release.value = 0.16;   // band glue, like a rock mix bus
+      const make = ac.createGain(); make.gain.value = 0.8; master.connect(glue).connect(make).connect(ac.destination);
       // guitar crunch: power chords run through a soft-clip waveshaper, then a cabinet-style lowpass
-      crunch = ac.createWaveShaper(); const cv = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; cv[i] = Math.tanh(x * 6) * 0.6; } crunch.curve = cv; crunch.oversample = '2x';
-      const cab = ac.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = 3200; const cg = ac.createGain(); cg.gain.value = 0.55; crunch.connect(cab).connect(cg).connect(master);
+      const amp = (drive, tone, level, pan) => {   // one guitar rig: soft-clip amp, mid-scooped cabinet, panned
+        const sh = ac.createWaveShaper(), cv = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = i / 1023.5 - 1; cv[i] = Math.tanh(x * drive) * 0.62; } sh.curve = cv; sh.oversample = '4x';
+        const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 70;
+        const mid = ac.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = 700; mid.Q.value = 0.8; mid.gain.value = -4;
+        const pres = ac.createBiquadFilter(); pres.type = 'peaking'; pres.frequency.value = 2400; pres.Q.value = 1; pres.gain.value = 3;
+        const cab = ac.createBiquadFilter(); cab.type = 'lowpass'; cab.frequency.value = tone; cab.Q.value = 0.9;
+        const g = ac.createGain(); g.gain.value = level; let out = sh.connect(hp).connect(mid).connect(pres).connect(cab).connect(g);
+        if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = pan; out = out.connect(p); } out.connect(master); return sh; };
+      crunch = amp(6, 3200, 0.55, 0); gtrL = amp(9, 3600, 0.55, -0.7); gtrR = amp(9, 3400, 0.55, 0.7); leadBus = amp(14, 4200, 0.34, 0.08);
       noise = ac.createBuffer(1, ac.sampleRate * 0.3, ac.sampleRate); const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       return true;
     }
@@ -155,7 +176,16 @@
       let out = o; if (cutoff) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff; o.connect(lp); out = lp; }
       out.connect(g); g.connect(dest); env(g, t, a, vol, Math.max(0.01, dur - a), rel); o.start(t); o.stop(t + dur + rel + 0.05);
     }
+    function lead(f, t, dur, vol) {   // distorted lead guitar: saw through the lead amp, vibrato that blooms on long notes
+      const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f * 0.985, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.03);
+      lfo.frequency.value = 5.6; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(dur > 0.25 ? f * 0.012 : 0, t + Math.min(dur, 0.35)); lfo.connect(lg).connect(o.frequency);
+      o.connect(g); g.connect(leadBus); env(g, t, 0.006, vol, Math.max(0.01, dur - 0.006), 0.09); o.start(t); o.stop(t + dur + 0.15); lfo.start(t); lfo.stop(t + dur + 0.15);
+    }
+    function strum(root, t, dur, vol, muted) {   // a power chord on two double-tracked guitars; palm mutes are short and dark
+      [[gtrL, 1], [gtrR, 1.0045]].forEach(([bus, dt], k) => [1, 1.5, 2].forEach((r, j) => voice(root * r * dt, t + k * 0.004 + j * 0.003, dur, 'sawtooth', vol * (j === 2 ? 0.7 : 1), muted ? 650 : 0, 0.002, muted ? 0.03 : 0.07, bus)));
+    }
     function drum(kind, t, v = 1) {
+      if (kind === 't') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(v, t); o.frequency.exponentialRampToValueAtTime(v * 0.55, t + 0.18); g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g).connect(master); o.start(t); o.stop(t + 0.24); return; }
       if (kind === 'k') { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12); g.gain.setValueAtTime(0.55, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16); o.connect(g).connect(master); o.start(t); o.stop(t + 0.18); return; }
       const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = noise;
       const P = { s: [1500, 0.12, 0.17, 'highpass'], h: [8000, 0.03, 0.035, 'highpass'], o: [6500, 0.09, 0.05, 'highpass'], c: [5000, 0.28, 0.07, 'highpass'] }[kind];
@@ -166,24 +196,27 @@
     function schedule(s, t) {
       const tr = track, sd = 60 / tr.bpm / 4, len = tr.lead[0].length, i = s % len, sec = Math.floor(s / len) % tr.lead.length, bar = Math.floor(i / 16), b = i % 16, c = tr.chords[bar % tr.chords.length];
       const n = tr.lead[sec][i];
-      if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
+      if (n && tr.dist && tr.leadVol) lead(n.f, t, n.d * sd * 0.92, tr.leadVol * 1.5);
+      else if (n) { const cut = tr.wave === 'sawtooth' ? 2600 : tr.wave === 'square' ? 3400 : 0; voice(n.f, t, n.d * sd * 0.9, tr.wave, tr.leadVol, cut, 0.008, 0.1); if (tr.harm) voice(n.f / 2, t, n.d * sd * 0.9, 'square', tr.harm, 1600, 0.008, 0.1); }
       const root = c[0] / 2;
-      if (tr.power && b % 2 === 0) { if (tr.dist) [1, 1.5, 2, 1.006, 0.996].forEach((r) => voice(c[0] * r, t, sd * 1.8, 'sawtooth', tr.power * 2.2, 0, 0.003, 0.04, crunch)); else [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05)); }
+      if (tr.chug) { const pc = tr.chug[b]; if (pc !== '.') { let d = 1; while (b + d < 16 && tr.chug[b + d] === '.') d++; strum(c[0], t, pc === 'O' ? sd * d * 0.95 : pc === 'o' ? sd * Math.min(d, 2) * 0.8 : sd * 0.55, tr.power * (pc === 'x' ? 1.5 : 1.25), pc === 'x'); } }
+      else if (tr.power && b % 2 === 0) { if (tr.dist) [1, 1.5, 2, 1.006, 0.996].forEach((r) => voice(c[0] * r, t, sd * 1.8, 'sawtooth', tr.power * 2.2, 0, 0.003, 0.04, crunch)); else [1, 1.5, 2, 1.004].forEach((r) => voice(c[0] * r, t, sd * 1.9, 'square', tr.power, 2200, 0.004, 0.05)); }
       if (tr.bass === 'octave' && b % 2 === 0) voice((b / 2) % 2 ? root * 2 : root, t, sd * 0.85, 'sawtooth', 0.085, 900, 0.005, 0.05);
       if (tr.bass === 'gallop' && (b % 4 !== 1)) voice(b % 4 === 0 ? root : root * 2, t, sd * 0.8, 'sawtooth', 0.085, 1000, 0.004, 0.04);
       if (tr.pad && b === 0) c.forEach((f) => { voice(f * 2, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); voice(f * 2 * 1.007, t, sd * 15, 'sawtooth', tr.pad / 2, 1300, 0.08, 0.4); });
       if (tr.arp && b % tr.arp === 0) { const k = (b / tr.arp) % 4, tones = [c[0], c[1], c[2], c[1]]; voice(tones[k] * 4, t, sd * tr.arp * 0.55, tr.arpWave, tr.arpVol, 0, 0.004, 0.12); }
       const filling = tr.fill && bar % 4 === 3 && sec === tr.lead.length - 1 && b >= 12;
       if (tr.kick.includes(b)) drum('k', t);
-      if (filling) drum('s', t, 0.55 + (b - 12) * 0.15);
+      if (filling && tr.dist) drum('t', t, [210, 170, 135, 105][b - 12]);
+      else if (filling) drum('s', t, 0.55 + (b - 12) * 0.15);
       else if (tr.snare.includes(b)) drum('s', t);
       if (tr.hat.includes(b)) drum('o', t);
       if (tr.tick) drum('h', t, b % 2 ? 0.5 : 0.8);
-      if (bar === 0 && b === 0 && sec === 0) drum('c', t);
+      if ((bar === 0 && b === 0 && sec === 0) || (tr.crash && b === 0 && bar % 4 === 0)) drum('c', t);
     }
     function tick() { if (!running || !track) return; while (nextT < ac.currentTime + 0.15) { schedule(step, nextT); nextT += 60 / track.bpm / 4; step++; } }
     function start() { if (!on || !track || !init()) return; running = true; clearInterval(timer); nextT = Math.max(nextT, ac.currentTime + 0.05); timer = setInterval(tick, 25);
-      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(['boss', 'knights', 'riot', 'legion', 'arena', 'stomp', 'hellfire'].includes(name) ? 0.36 : 0.32, ac.currentTime, 0.25); }
+      master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(['boss', 'knights', 'riot', 'legion', 'arena', 'stomp', 'hellfire', 'machine', 'sack'].includes(name) ? 0.36 : 0.32, ac.currentTime, 0.25); }
     function halt(fade = 0.15) { running = false; clearInterval(timer); if (master) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, fade); } }
     return {
       get on() { return on; },
@@ -357,8 +390,8 @@
     neptune: ['Neptune flooded the halls of Hades and the fires hissed out one by one.', 'The Underworld is a sea now, quiet and deep, and the serpent sleeps at the bottom of it.'],
     hades: ['Hades crushed the bronze Colossus and reclaimed every soul it had stolen from his kingdom.', 'The Throne of the Underworld is his again. He has never been more polite to visitors.'],
   };
-  const PUNK = ['legion', 'arena', 'stomp', 'riot', 'hellfire'];
-  const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'legion', 'hellfire'];
+  const PUNK = ['legion', 'arena', 'stomp', 'riot', 'hellfire', 'machine', 'sack'];
+  const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'sack', 'hellfire'];
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
@@ -634,7 +667,7 @@
   }
   function drawStatus(f) {
     const tags = []; if (f.poison > 0) tags.push(['POISONED', '#d77bff']); if (f.burn > 0) tags.push(['BURNING', '#ff9b49']); if (f.slowT > 0) tags.push(['SLOWED', '#c4b1ff']);
-    tags.forEach(([t, c], i) => { ctx.save(); ctx.font = '700 13px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#120c08'; const y = FLOOR + 22 + i * 15; ctx.strokeText(t, f.x, y); ctx.fillStyle = c; ctx.fillText(t, f.x, y); ctx.restore(); });
+    tags.forEach(([t, c], i) => { ctx.save(); ctx.font = '17px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#120c08'; const y = FLOOR + 22 + i * 15; ctx.strokeText(t, f.x, y); ctx.fillStyle = c; ctx.fillText(t, f.x, y); ctx.restore(); });
   }
   function drawFx(f) {
     drawStatus(f);
@@ -689,7 +722,7 @@
       ctx.restore(); });
     G.waves.forEach((w) => { if (w.delay > 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = w.col[0]; ctx.shadowBlur = 18; spr(ctx, 'bfx', 'burst', 0, w.x, FLOOR - 30, Math.sign(w.vx), 0.9 + 0.12 * Math.sin(G.t * 30)); ctx.restore(); });
     (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
-    (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '800 20px Georgia, serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
+    (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '24px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
@@ -699,28 +732,28 @@
     bar(VW - 410, 24, 380, 22, b.hp / b.maxHp, b.hp / b.maxHp > 0.3 ? '#e7c46a' : '#e0503a', true);
     bar(30, 54, 180, 8, a.meter / 100, a.meter >= 100 ? (Math.floor(G.t * 4) % 2 && !calm ? '#ffffff' : '#57b6ff') : '#57b6ff', false);
     bar(VW - 210, 54, 180, 8, b.meter / 100, b.meter >= 100 ? (Math.floor(G.t * 4) % 2 && !calm ? '#ffffff' : '#57b6ff') : '#57b6ff', true);
-    ctx.font = '700 17px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2'; ctx.strokeStyle = '#120c08'; ctx.lineWidth = 4;
+    ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillStyle = '#f3ead2'; ctx.strokeStyle = '#120c08'; ctx.lineWidth = 4;
     const name = (t, x, al) => { ctx.textAlign = al; ctx.strokeText(t, x, 78); ctx.fillText(t, x, 78); };
     name(a.ch.name.toUpperCase() + (a.meter >= 100 ? '  ·  SUPER READY' : ''), 30, 'left'); name((b.meter >= 100 ? 'SUPER READY  ·  ' : '') + b.ch.name.toUpperCase() + (b.cpu ? ' (CPU)' : ''), VW - 30, 'right');
     // round wins as gold laurels
     for (let i = 0; i < 2; i++) { ctx.fillStyle = a.wins > i ? '#e7c46a' : 'rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.arc(402 - i * 18, 58, 6, 0, 7); ctx.fill();
       ctx.fillStyle = b.wins > i ? '#e7c46a' : 'rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.arc(VW - 402 + i * 18, 58, 6, 0, 7); ctx.fill(); }
     // timer
-    ctx.textAlign = 'center'; ctx.font = '700 40px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), VW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), VW / 2, 38);
-    if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '800 30px Georgia, serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? VW - 30 : 30;
+    ctx.textAlign = 'center'; ctx.font = '50px "Bebas Neue", Impact, sans-serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), VW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), VW / 2, 38);
+    if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '34px "Metal Mania", Impact, sans-serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? VW - 30 : 30;
       ctx.lineWidth = 6; const cy = G.training && !G.comboMsg.side ? 372 : 130; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.restore(); }
     if (G.training) { ctx.save(); ctx.fillStyle = 'rgba(12,8,5,0.78)'; ctx.fillRect(18, 96, 300, 250); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, 250);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '700 15px "Space Mono", monospace'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
       const me = G.p[0], pas = PASSIVE[me.ch.id];
       ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'L / S  special: ' + me.ch.special.name, 'Q / ★  super (meter is always full here)', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → special', 'Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')]
         .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
-      if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '700 17px Georgia, serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
+      if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
       ctx.restore(); }
-    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = 'italic 600 24px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), VW / 2, 150); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), VW / 2, 150); ctx.restore(); }
+    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), VW / 2, 150); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), VW / 2, 150); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
-      ctx.translate(VW / 2, 230); ctx.scale(sc, sc); ctx.font = '700 86px "Cormorant Garamond", Georgia, serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
+      ctx.translate(VW / 2, 230); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
       const txt = showSub ? bn.sub : bn.text; ctx.strokeText(txt, 0, 0); const gr = ctx.createLinearGradient(0, -40, 0, 40); gr.addColorStop(0, '#fff6d8'); gr.addColorStop(1, '#e7a227'); ctx.fillStyle = gr; ctx.fillText(txt, 0, 0); ctx.restore(); }
   }
   function render() {
@@ -762,7 +795,7 @@
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
     $('#levels').hidden = mode === '2p' || mode === 'training'; $('#stage-row').hidden = mode === 'arcade';
   }
-  function choose(i) { SFX.ensure(); SFX.coin(); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
+  function choose(i) { SFX.ensure(); SFX.coin(); if (!G) MUSIC.play('machine'); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
   document.querySelectorAll('[data-level]').forEach((b) => b.addEventListener('click', () => { level = +b.dataset.level; store.set('af-level', level); syncSelect(); }));
   (() => {   // stage select for versus and training
@@ -809,7 +842,7 @@
     else newMatch(a.ch, b.ch, G.cpuLevel); });
   $('#res-next').addEventListener('click', () => { $('#result').hidden = true; const a = G.p[0]; let n; do { n = pick(ROSTER); } while (n === a.ch); newMatch(a.ch, n, G.cpuLevel || level); });
   $('#res-select').addEventListener('click', backToSelect);
-  function backToSelect() { MUSIC.stop(); G = null; ARC = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
+  function backToSelect() { G = null; MUSIC.play('machine'); ARC = null; $('#s-fight').hidden = true; $('#s-select').hidden = false; $('#result').hidden = true; $('#menu').hidden = true; chosen[1] = null; syncSelect(); }
   // settings
   function togglePause(force) { if (!G || G.mode === 'over') return; G.pause = force !== undefined ? force : !G.pause; $('#menu').hidden = !G.pause; if (G.pause) MUSIC.pause(); else { MUSIC.resume(); last = performance.now(); } }
   $('#gear').addEventListener('click', () => togglePause());
@@ -820,5 +853,6 @@
   $('#m-sound').addEventListener('click', () => { SFX.ensure(); SFX.toggle(); syncBtns(); });
   $('#m-calm').addEventListener('click', () => { calm = !calm; store.set('af-calm', calm); syncBtns(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.mode !== 'over' && !G.pause) togglePause(true); });
+  if (document.fonts) ['24px "Metal Mania"', '24px "Bebas Neue"'].forEach((f) => document.fonts.load(f).catch(() => {}));   // canvas text needs the fonts loaded before first use
   syncBtns(); buildSelect(); fit(); requestAnimationFrame(frame);
 })();

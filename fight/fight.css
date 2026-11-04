@@ -1,4 +1,7 @@
-:root { --ink: #f3ead2; --ink-soft: #c9bda3; --gold: #c9a227; --gold-2: #e7c46a; --bg: #120c08; --panel: #1d140d; --serif: "Cormorant Garamond", Georgia, serif; --mono: "Space Mono", ui-monospace, monospace; }
+/* Rock-poster display fonts (SIL Open Font License, self-hosted) */
+@font-face { font-family: 'Metal Mania'; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/metal-mania-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Bebas Neue'; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/bebas-neue-latin-400-normal.woff2) format('woff2'); }
+:root { --rock: "Metal Mania", Impact, sans-serif; --cond: "Bebas Neue", Impact, sans-serif; --ink: #f3ead2; --ink-soft: #c9bda3; --gold: #c9a227; --gold-2: #e7c46a; --bg: #120c08; --panel: #1d140d; --serif: "Cormorant Garamond", Georgia, serif; --mono: "Space Mono", ui-monospace, monospace; }
 * { box-sizing: border-box; }
 html { touch-action: manipulation; }
 html { background: #0b0705; }
@@ -77,3 +80,12 @@ body.touchy .touch { display: flex; }
 .res-end[hidden] { display: none; }
 .res-end canvas { grid-row: span 2; width: 92px; height: auto; }
 .res-end p { margin: 0; color: var(--ink); font-size: 1.02rem; line-height: 1.4; }
+
+/* rock / fight-game typography */
+h1 { font-family: var(--rock); font-weight: 400; letter-spacing: .03em; }
+.res-card h2 { font-family: var(--rock); font-weight: 400; }
+.btn, .eyebrow, .sub, .set-h, .res-k, .stage-row label, .card.p1::before, .card.p2::before, .touch button { font-family: var(--cond); font-weight: 400; letter-spacing: .14em; }
+.btn { font-size: 1.05rem; } .btn.big { font-size: 1.4rem; letter-spacing: .18em; }
+.eyebrow { font-size: 1rem; } .sub { font-size: 1.15rem; } .set-h, .res-k { font-size: 1.1rem; } .stage-row label { font-size: 1rem; }
+.card .nm { font-family: var(--cond); font-weight: 400; font-size: 1.25rem; letter-spacing: .06em; }
+.step { font-family: var(--cond); font-size: 1.45rem; letter-spacing: .08em; }
