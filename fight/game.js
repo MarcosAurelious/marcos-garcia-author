@@ -269,6 +269,48 @@
     neptune: { hit: () => SFX.noise(0.18, 0.09, 600), sp: () => { SFX.noise(0.9, 0.12, 300); SFX.tone(90, 60, 0.8, 'sine', 0.08); } },
     hades: { hit: () => SFX.tone(320, 140, 0.25, 'sine', 0.09), sp: () => { SFX.tone(60, 30, 0.9, 'sawtooth', 0.11); [220, 207, 196].forEach((f, i) => SFX.tone(f, f * 0.7, 0.5, 'sine', 0.05, i * 0.12)); } },
   };
+  /* ---- fighter voices: a small formant synthesizer (a glottal buzz shaped by vowel resonances), so every legend yells in their own voice ---- */
+  const VOWEL = { a: [730, 1090, 2440], o: [570, 840, 2410], e: [530, 1840, 2480], i: [300, 2200, 3000], u: [330, 870, 2240] };
+  // f0: pitch · fs: formant size (lower = bigger body) · rasp: growl · hiss/ring/echo: character colour · kind: how the lines are voiced
+  const VOX = {
+    marcus: { f0: 128, fs: 1, rasp: 0.15 }, mars: { f0: 98, fs: 0.9, rasp: 0.45 }, colossus: { f0: 72, fs: 0.78, rasp: 0.3, ring: 0.5 }, medusa: { f0: 235, fs: 1.18, rasp: 0.1, hiss: 0.6 },
+    minotaur: { f0: 70, fs: 0.8, rasp: 0.85, kind: 'beast' }, vulcan: { f0: 88, fs: 0.86, rasp: 0.55 }, chiron: { f0: 142, fs: 1, rasp: 0.12 }, diana: { f0: 265, fs: 1.2, rasp: 0.05 },
+    cerberus: { f0: 190, fs: 0.95, rasp: 0.7, kind: 'hound' }, pegasus: { f0: 520, fs: 1.45, rasp: 0.1, kind: 'horse' }, helios: { f0: 180, fs: 1.05, rasp: 0, kind: 'machine', ring: 0.8 },
+    neptune: { f0: 82, fs: 0.82, rasp: 0.6, hiss: 0.8, kind: 'beast' }, hades: { f0: 66, fs: 0.76, rasp: 0.5, echo: 0.45 },
+  };
+  const LINES = {   // [vowel, seconds, pitch start, pitch peak, pitch end, loudness] per syllable; a leading breath gives the "h"
+    atk: [['a', 0.2, 1.05, 1.25, 0.9, 0.8]], jab: [['u', 0.09, 1.1, 1.2, 1.0, 0.45]], sp: [['i', 0.07, 1.2, 1.3, 1.3, 0.6], ['a', 0.38, 1.3, 1.55, 0.95, 1]],
+    sup: [['a', 0.8, 1.1, 1.6, 0.85, 1.15]], hurt: [['u', 0.17, 1.15, 1.2, 0.8, 0.75]], ko: [['a', 0.95, 1.5, 1.7, 0.55, 1.1]], win: [['e', 0.16, 1.2, 1.35, 1.3, 0.9], ['a', 0.42, 1.35, 1.5, 1.0, 1]],
+  };
+  const vLast = {};
+  function speak(ch, line) {
+    const ac = SFX.ac, V = VOX[ch.id]; if (!SFX.on || !ac || !V || !LINES[line]) return false;
+    const now = ac.currentTime; if ((line === 'atk' || line === 'jab' || line === 'hurt') && vLast[ch.id] > now - 0.22) return true; vLast[ch.id] = now;
+    const out = ac.createGain(); out.gain.value = 1.4; out.connect(ac.destination);
+    if (V.echo) { const d = ac.createDelay(1), fb = ac.createGain(), wet = ac.createGain(); d.delayTime.value = 0.16; fb.gain.value = V.echo * 0.6; wet.gain.value = V.echo; out.connect(d); d.connect(fb).connect(d); d.connect(wet).connect(ac.destination); }
+    let t = now + 0.005, kind = V.kind || 'human', syl = LINES[line];
+    if (kind === 'hound' && (line === 'atk' || line === 'sp' || line === 'sup' || line === 'win')) syl = [0, 1, 2].map(() => ['a', 0.11, 1.3, 1.4, 0.8, 0.9]);   // three heads, three barks
+    if (kind === 'horse' && line !== 'jab') syl = [['i', line === 'hurt' ? 0.25 : 0.55, 1.0, 1.5, 0.75, 0.9]];   // a whinny
+    if (kind === 'beast' && line !== 'jab') syl = syl.map(([v, d, a, b, c, l]) => ['o', d * 1.3, a * 0.9, b * 0.9, c * 0.8, l]);   // roars
+    const breath = (at, dur, vol) => { const n = ac.createBufferSource(), b = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate), dd = b.getChannelData(0); for (let i = 0; i < dd.length; i++) dd[i] = Math.random() * 2 - 1;
+      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800 * V.fs; bp.Q.value = 0.8; const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.linearRampToValueAtTime(vol, at + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      n.buffer = b; n.connect(bp).connect(g).connect(out); n.start(at); n.stop(at + dur + 0.02); };
+    if (kind === 'human' && line !== 'hurt' && line !== 'jab') { breath(t, 0.07, 0.05); t += 0.045; }
+    syl.forEach(([vow, dur, p0, p1, p2, loud]) => {
+      const f0 = V.f0 * (0.97 + Math.random() * 0.06), src = ac.createOscillator(); src.type = kind === 'machine' ? 'square' : 'sawtooth';
+      src.frequency.setValueAtTime(f0 * p0, t); src.frequency.linearRampToValueAtTime(f0 * p1, t + dur * 0.3); src.frequency.exponentialRampToValueAtTime(f0 * p2, t + dur);
+      const vib = ac.createOscillator(), vg = ac.createGain(); vib.frequency.value = kind === 'horse' ? 9 : 5.5; vg.gain.value = f0 * (kind === 'horse' ? 0.07 : 0.015); vib.connect(vg).connect(src.frequency);
+      const amp = ac.createGain(); amp.gain.setValueAtTime(0.0001, t); amp.gain.linearRampToValueAtTime(0.11 * loud, t + 0.025); amp.gain.setValueAtTime(0.1 * loud, t + dur * 0.6); amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      let node = src;
+      if (V.rasp) { const lfo = ac.createOscillator(), lg = ac.createGain(), rg = ac.createGain(); lfo.type = 'square'; lfo.frequency.value = 28 + Math.random() * 14; lg.gain.value = V.rasp * 0.5; rg.gain.value = 1 - V.rasp * 0.5; lfo.connect(lg).connect(rg.gain); src.connect(rg); node = rg; lfo.start(t); lfo.stop(t + dur + 0.05); }
+      const F = VOWEL[vow].map((x) => x * V.fs); [1, 0.6, 0.35].forEach((lv, k) => { const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F[k]; bp.Q.value = 6 + k * 3; const g = ac.createGain(); g.gain.value = lv * 3.2; node.connect(bp).connect(g).connect(amp); });
+      if (V.ring) { const r = ac.createOscillator(), rg = ac.createGain(); r.type = 'sine'; r.frequency.value = kind === 'machine' ? 1240 : 420; rg.gain.setValueAtTime(0.05 * V.ring * loud, t); rg.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.25); r.connect(rg).connect(out); r.start(t); r.stop(t + dur + 0.3); }
+      if (V.hiss) breath(t, dur + 0.1, 0.06 * V.hiss * loud);
+      if (kind === 'beast' || kind === 'hound') breath(t, dur, 0.04 * loud);
+      amp.connect(out); src.start(t); src.stop(t + dur + 0.05); vib.start(t); vib.stop(t + dur + 0.05); t += dur + (kind === 'hound' ? 0.05 : 0.03);
+    });
+    return true;
+  }
   const voice = (f, k) => { const v = VOICE[f.ch.id]; if (v) v[k](); else (k === 'hit' ? SFX.hit() : SFX.zap()); };
 
   /* ================= art ================= */
@@ -348,24 +390,24 @@
   /* ================= canvas ================= */
   const VW = 960, VH = 540, FLOOR = 488;
   // phones held upright (like the Quest): a taller view, the camera moved in on a narrower fighting floor so the fighters are bigger
-  let CAM = null, SH = VH, SW = VW, WALL_L = 50, WALL_R = VW - 50;   // SW x SH: the screen in game units (wider or taller than the 960x540 stage when the window is)
+  let CAM = null, BASE = { minX: 0, w: VW, h: VH }, PORTRAIT = false, CZ = 1, CX = VW / 2, SH = VH, SW = VW, WALL_L = 50, WALL_R = VW - 50;   // SW x SH: the screen in game units (wider or taller than the 960x540 stage when the window is)
   const cv = $('#cv'); const ctx = cv.getContext('2d'); let RES = 1;
   function fit() {
     const wrap = $('#arena'), portrait = innerHeight > innerWidth && innerWidth < 760;
     const touchy = document.body.classList.contains('touchy'), phoneWide = touchy && !portrait && innerHeight <= 520;
     let w = portrait ? document.documentElement.clientWidth - 16 : phoneWide ? document.documentElement.clientWidth - 4 : Math.min(innerWidth - 24, (innerHeight - (touchy ? 24 : 120)) * VW / VH * 1.65);
     w = Math.max(300, Math.floor(w)); wrap.style.width = w + 'px';
-    SW = VW;
+    SW = VW; SH = VH; PORTRAIT = portrait; BASE = { minX: 0, w: VW, h: VH }; WALL_L = 50; WALL_R = VW - 50;
     if (!portrait) {   // wide windows and phones held sideways: the stage stays put, the view widens to show more of the backdrop
       const h = phoneWide ? innerHeight - 8 : Math.min(innerHeight - (touchy ? 24 : 120), w * VH / VW);
       SW = Math.round(clamp(VH * w / Math.max(200, h), VW, VW * 1.65));
       w = Math.min(w, Math.floor(h * SW / VH)); wrap.style.width = w + 'px';   // never taller than the window
-      CAM = SW > VW ? { x0: -(SW - VW) / 2, s: 1, top: 0, w: SW, h: VH } : null; SH = VH; WALL_L = 50; WALL_R = VW - 50;
+      BASE = { minX: -(SW - VW) / 2, w: SW, h: VH };
     }
     if (portrait) {
       const PW = 640, X0 = 160, pad = $('#touch'), padH = pad && pad.offsetHeight ? pad.offsetHeight + 40 : 170, top = Math.max(0, wrap.getBoundingClientRect().top);
       const avail = Math.max(w * 0.6, innerHeight - top - padH - 28), Hv = clamp(PW * avail / w, VH, 1000);   // world height on screen: the backdrop fills the extra sky above the stage
-      CAM = { x0: X0, s: VW / PW, top: VH - Hv, w: PW, h: Hv }; SH = Math.round(Hv * VW / PW); WALL_L = X0 + 50; WALL_R = X0 + PW - 50;
+      BASE = { minX: X0, w: PW, h: Hv }; SH = Math.round(Hv * VW / PW); WALL_L = X0 + 50; WALL_R = X0 + PW - 50;
     }
     cv.style.aspectRatio = `${SW} / ${SH}`;
     const r = clamp(Math.ceil(w * (devicePixelRatio || 1) / SW * 4) / 4, 1, 2.5);
@@ -453,6 +495,7 @@
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
     [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); });
+    CZ = 1; CX = VW / 2;
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
     if (!ARC) { const sp = store.get('af-stage'); const bgN = sp && LOCAL_BG.includes(sp) ? sp : pick(LOCAL_BG); G.bg = BGS[BGN.indexOf(bgN)]; G.stageName = STAGE_NAMES[bgN]; }
@@ -472,6 +515,7 @@
 
   function startMove(f, kind, isSuper) {
     const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper;
+    speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.4 ? 'jab' : '');
     if (kind === 'special') { f.cool = isSuper ? 0.6 : 1.5; voice(f, 'sp'); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else SFX.slash();
     if (f.onGround) f.vx = 0;
@@ -501,7 +545,7 @@
       dmg = Math.max(1, Math.round(dmg * 0.15)); target.block = 0.2; target.state = 'block'; target.t = 0; target.vx = -target.face * push * 0.7; SFX.bump();
       spark(hitX, target.y - BODY_H * target.ch.size * 0.55, ['#8fd8ff', '#ffffff'], 10); target.meter = Math.min(100, target.meter + 4);
     } else {
-      target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
+      if (target.hp - dmg > 0) speak(target.ch, 'hurt'); target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
       dmg = Math.max(1, dmg + passive(attacker, target, attacker.state === 'attack' ? attacker.move : 'special', dmg));
       voice(attacker, 'hit'); const hy = target.y - BODY_H * target.ch.size * 0.55; spark(hitX, hy, attacker.ch.special.col.concat(['#ffffff']), dmg >= 10 ? 34 : 22);
       (G.rings = G.rings || []).push({ x: hitX, y: hy, t: 0, max: dmg >= 10 ? 0.32 : 0.22, r: dmg >= 10 ? 90 : 55, col: attacker.ch.special.col[0] });
@@ -516,7 +560,7 @@
   }
   function knockout(winner, loser) {
     if (G.training) { loser.hp = loser.maxHp; return; }
-    loser.state = 'ko'; loser.t = 0; loser.vx = -loser.face * 380; loser.vy = -520; loser.onGround = false;
+    speak(loser.ch, 'ko'); loser.state = 'ko'; loser.t = 0; loser.vx = -loser.face * 380; loser.vy = -520; loser.onGround = false;
     G.mode = 'ko'; G.t = 0; G.stop = 0.22; G.slow = 1.6; G.shake = 0.5; G.flash = 0.25; G.banner = { text: 'K.O.', sub: winner.took ? '' : 'PERFECT!', t: 0, big: true }; SFX.boss();
     (G.rings = G.rings || []).push({ x: loser.x, y: loser.y - BODY_H * loser.ch.size * 0.5, t: 0, max: 0.6, r: 220, col: winner.ch.special.col[0] });
     winner.wins += 1;
@@ -654,7 +698,7 @@
     separate(); updateAttacks(dt);
     if (G.mode === 'ko' && G.t > 2.6) {
       const champ = G.p.find((f) => f.wins >= 2);
-      if (champ) { G.mode = 'over'; G.winner = champ; MUSIC.pause(); SFX.win(); showResult(champ); }
+      if (champ) { G.mode = 'over'; G.winner = champ; MUSIC.pause(); SFX.win(); setTimeout(() => speak(champ.ch, 'win'), 350); showResult(champ); }
       else { G.round += 1; startRound(); }
     }
     pressed.clear(); touchPressed.clear();
@@ -787,7 +831,7 @@
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
   function drawHud() {
-    const HS = CAM && CAM.s > 1 ? 1.5 : 1, HW = SW / HS; ctx.save(); ctx.scale(HS, HS);   // upright phones: a bigger HUD, like the Quest's score bar
+    const HS = PORTRAIT ? 1.5 : 1, HW = SW / HS; ctx.save(); ctx.scale(HS, HS);   // upright phones: a bigger HUD, like the Quest's score bar
     const [a, b] = G.p; ctx.textBaseline = 'middle';
     bar(30, 24, HW * 0.396, 22, a.hp / a.maxHp, a.hp / a.maxHp > 0.3 ? '#e7c46a' : '#e0503a', false);
     bar(HW - 30 - HW * 0.396, 24, HW * 0.396, 22, b.hp / b.maxHp, b.hp / b.maxHp > 0.3 ? '#e7c46a' : '#e0503a', true);
@@ -811,10 +855,10 @@
         .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
       if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
       ctx.restore(); }
-    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (CAM && CAM.s > 1 ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
+    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (PORTRAIT ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
-      ctx.translate(HW / 2, (CAM && CAM.s > 1 ? SH / HS * 0.4 : 230)); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
+      ctx.translate(HW / 2, (PORTRAIT ? SH / HS * 0.4 : 230)); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
       const txt = showSub ? bn.sub : bn.text; ctx.strokeText(txt, 0, 0); const gr = ctx.createLinearGradient(0, -40, 0, 40); gr.addColorStop(0, '#fff6d8'); gr.addColorStop(1, '#e7a227'); ctx.fillStyle = gr; ctx.fillText(txt, 0, 0); ctx.restore(); }
     ctx.restore();
   }
@@ -823,7 +867,12 @@
     ctx.setTransform(RES, 0, 0, RES, 0, 0);
     if (!G) { ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, SW, SH); return; }
     ctx.save(); if (G.shake > 0 && !calm) ctx.translate(rand(-8, 8) * G.shake * 2, rand(-8, 8) * G.shake * 2);
-    if (CAM) { ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top); }
+    {   // fighting-game camera: zooms in when the fighters close in, pulls back as they separate, always keeps both in view
+      const [p, q] = G.p, mid = (p.x + q.x) / 2, want = clamp(BASE.w / (Math.abs(p.x - q.x) + (PORTRAIT ? 300 : 360)), 1, PORTRAIT ? 1.5 : 1.3);
+      CZ += (want - CZ) * 0.06; const Wv = BASE.w / CZ, Hv = BASE.h / CZ; CX += (clamp(mid, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2) - CX) * 0.12;
+      CX = clamp(CX, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2);
+      CAM = { x0: CX - Wv / 2, s: SW / Wv, top: VH - Hv, w: Wv, h: Hv }; ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top);
+    }
     drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); order.forEach(drawFighter); drawAttacks();
     if (G.flash > 0 && !calm) { ctx.fillStyle = `rgba(255,255,255,${G.flash * 0.6})`; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     else if (G.flash > 0) { ctx.fillStyle = 'rgba(10,6,20,0.35)'; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
