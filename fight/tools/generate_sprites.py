@@ -25,6 +25,7 @@ def atlas(name):
 ATTACK = atlas('AATLAS')
 FIGHT = atlas('FATLAS')
 metadata = {}
+report = {}
 for ident in IDS:
     original = ROOT / 'atk' / (ident + '.webp')
     if not original.exists():
@@ -38,10 +39,16 @@ for ident in IDS:
         entries = ATTACK.get('a_' + ident, {}).get(action) or FIGHT.get('f_' + ident, {}).get(action)
         if entries:
             all_frames.extend(entries)
-    tallest = max(f[3] for f in all_frames)
+    # Scale from the fighter's standing stature, never from an extended attack.
+    standing = ATTACK.get('a_' + ident, {}).get('idle') or FIGHT.get('f_' + ident, {}).get('idle')
+    if not standing:
+        raise RuntimeError('Missing standing reference: ' + ident)
+    standing_height = max(f[3] for f in standing)
     widest = max(f[2] for f in all_frames)
-    fighter_scale = min(1.10, 205 / tallest, 218 / widest)
+    tallest = max(f[3] for f in all_frames)
+    fighter_scale = min(1.10, 194 / standing_height, 275 / widest, 270 / tallest)
     parts = []
+    bounds = {}
     for action, count in COUNTS.items():
         frames = ATTACK.get('a_' + ident, {}).get(action)
         source = src
@@ -90,6 +97,12 @@ for ident in IDS:
             px = max(0, min(px, CELL_W - crop.width))
             py = max(0, min(py, CELL_H - crop.height))
             cell.alpha_composite(crop, (px,py))
+            bbox = cell.getchannel('A').getbbox()
+            if not bbox:
+                raise RuntimeError(f'Invisible animation {ident}/{action}/{n}')
+            if bbox[0] < 1 or bbox[1] < 1 or bbox[2] > CELL_W - 1 or bbox[3] > CELL_H - 1:
+                raise RuntimeError(f'Cut-off sprite {ident}/{action}/{n}: {bbox}')
+            bounds.setdefault(action, []).append(bbox)
             parts.append((action, cell))
     rows = math.ceil(len(parts)/COLS)
     sheet = Image.new('RGBA',(COLS*CELL_W,rows*CELL_H),(0,0,0,0))
@@ -101,8 +114,13 @@ for ident in IDS:
     output=OUT/(ident+'.webp')
     sheet.save(output,'WEBP',quality=85,method=5)
     metadata['g_'+ident]=manifest
+    report[ident] = {'scale': round(fighter_scale,4), 'standing_height': standing_height,
+      'frames':len(parts),'ranges':{action:{'width_span':max(b[2]-b[0] for b in boxes)-min(b[2]-b[0] for b in boxes),
+        'height_span':max(b[3]-b[1] for b in boxes)-min(b[3]-b[1] for b in boxes)}
+        for action,boxes in bounds.items()}}
     print(ident, output.stat().st_size, 'bytes',len(parts),'frames')
 (OUT/'atlas-data.js').write_text('window.__ARENA_GENERATED_ATLAS = '+json.dumps(metadata,separators=(',',':'))+';\n',encoding='utf8')
+(OUT/'qa-report.json').write_text(json.dumps(report,indent=2)+'\\n',encoding='utf8')
 print('Generated',len(metadata),'fighters and',sum(len(v) for v in metadata.values()),'animation types')
 
 # Dedicated cinematic cut-in strips: transparent, centered characters enlarged
