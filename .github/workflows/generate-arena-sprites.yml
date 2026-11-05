@@ -27,7 +27,9 @@ jobs:
       - name: Validate files
         run: |
           test -f fight/generated/atlas-data.js
+          test -f fight/cutins/atlas-data.js
           test "$(find fight/generated -name '*.webp' | wc -l)" -eq 13
+          test "$(find fight/cutins -name '*.webp' | wc -l)" -eq 13
           python - <<'PY'
           import re
           from pathlib import Path
@@ -41,8 +43,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add fight/generated/
+          git add fight/generated/ fight/cutins/
           if ! git diff --cached --quiet; then
-            git commit -m "Generate foot-aligned animation atlases for all 13 Roman Arena fighters"
+            git commit -m "Generate animation atlases and 13 cinematic special sprite strips"
             git push
           fi
