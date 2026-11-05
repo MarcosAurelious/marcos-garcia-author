@@ -625,7 +625,7 @@
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
-    [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); });
+    [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); if(window.ArenaSpecialFX)window.ArenaSpecialFX.preload(c.id); });
     CZ = 1; CX = VW / 2;
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
@@ -1214,7 +1214,7 @@
     // Use each fighter's animated eight-frame signature effect in the cinematic.
     // c.t advances while the rest of the arena is paused.
     if(window.ArenaSpecialFX)window.ArenaSpecialFX.draw(ctx,c.id,centerX,h*.54,
-      Math.min(w*.37,330),Math.min(h*.48,285),c.t,c.side?-1:1);
+      Math.min(w*.59,530),Math.min(h*.62,340),c.t,c.side?-1:1,'special');
     const frames = CUTIN_ATLAS[c.id], portrait = cutinImg(c.id);
     if (frames && portrait.complete && portrait.naturalWidth && frames.length) {
       const n = Math.min(frames.length-1,Math.floor(p*frames.length));
