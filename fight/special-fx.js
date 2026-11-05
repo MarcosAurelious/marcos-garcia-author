@@ -1,4 +1,4 @@
-/* Roman Arena v51 — procedurally generated transparent special-effect sprites.
+/* Roman Arena v54 — painterly pixel-art special sprite playback with safe fallbacks.
    Each sprite is rendered once in a small offscreen canvas and reused in-game.
    No changes to existing fighter character sheets. */
 (() => {
@@ -23,6 +23,7 @@ function rasterSprite(id,layer='special') {
   const item=rasterPainted.get(key);
   return item.ready?item.image:null;
 }
+function preload(id){rasterSprite(id,'special');rasterSprite(id,'effect');}
 function authoredSprite(id) {
   if(!PAINTED_IDS.includes(id))return null;
   if(!painted.has(id)){
@@ -153,5 +154,5 @@ function stone(ctx,f,time){if(!f.petrified||f.petrified<=0)return;
  const h=190*f.ch.size;ctx.fillRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);
  ctx.strokeStyle='#e5e2e0';ctx.lineWidth=3;ctx.strokeRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);ctx.restore();
 }
-window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw,authoredSprite,rasterSprite,PAINTED_IDS};
+window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw,authoredSprite,rasterSprite,preload,PAINTED_IDS};
 })();
