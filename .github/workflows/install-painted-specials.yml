@@ -46,12 +46,11 @@ jobs:
                       (target/f'{id}_{suffix}.png').write_bytes(data)
           print('Validated 26 illustrated atlases, 13 fighters.')
           PY
-      - name: Publish new assets and remove upload ZIP
+      - name: Publish verified special assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add fight/specials/painted/
-          git rm -f fight/painted-specials-v54.zip
           if ! git diff --cached --quiet; then
             git commit -m "Publish 13 painterly Roman Arena special animations and effects"
             git push
