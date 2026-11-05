@@ -797,10 +797,31 @@
   }
   function dashHit(f) { const o = opp(f); if (!f.dashHit && overlap({ x: f.x - 50, y: f.y - BODY_H, w: 100, h: BODY_H }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
   function updateAttacks(dt) {
-    G.shots.forEach((s) => { s.x += s.vx * dt; s.life -= dt; const t = G.p[1 - s.owner];
-      G.shots.forEach((o) => { if (o !== s && o.owner !== s.owner && !o.dead && Math.abs(o.x - s.x) < 40 && Math.abs(o.y - s.y) < 50) { s.dead = o.dead = true; spark((s.x + o.x) / 2, s.y, s.col.concat(o.col), 20); FX.clang(true); FX.zap(); } });
-      if (!s.dead && t.state !== 'ko' && overlap({ x: s.x - 22, y: s.y - 22, w: 44, h: 44 }, hurtbox(t))) { s.dead = true; damage(G.p[s.owner], t, s.dmg, 0.45, 300, s.x); }
-      if (s.x < -60 || s.x > VW + 60) s.dead = true; });
+    G.shots.forEach(shot=>{
+      shot.x+=shot.vx*dt;
+      if(shot.rain)shot.y+=shot.vy*dt;
+      shot.life-=dt;
+      const t=G.p[1-shot.owner],attacker=G.p[shot.owner];
+      G.shots.forEach(o=>{if(o===shot||o.owner===shot.owner||o.dead||shot.dead)return;
+        if(Math.abs(o.x-shot.x)<36&&Math.abs(o.y-shot.y)<40){
+          shot.dead=o.dead=true;spark(shot.x,shot.y,shot.col.concat(o.col),15);FX.clang(true);
+        }
+      });
+      if(shot.kind==='hades'&&!shot.dead&&t.state!=='ko'&&t.petrified<=0&&Math.abs(shot.x-t.x)<250)
+        t.x=clamp(t.x+Math.sign(shot.x-t.x)*75*dt,WALL_L,WALL_R);
+      const box=shot.rain?{x:shot.x-12,y:shot.y-32,w:24,h:64}:{x:shot.x-24,y:shot.y-24,w:48,h:48};
+      if(!shot.dead&&!shot.hit&&t.state!=='ko'&&overlap(box,hurtbox(t))){
+        shot.hit=true;
+        damage(attacker,t,shot.dmg,shot.kind==='medusa'?.12:.46,shot.kind==='medusa'?0:260,shot.x);
+        if(shot.kind==='medusa'&&t.hp>0&&t.state==='hurt'){
+          t.petrified=4;t.petrifyOwner=attacker.side;t.state='idle';t.t=0;t.vx=0;t.vy=0;
+          say(t,'PETRIFIED · 4 SEC','#dedce3');
+        }
+        if(shot.kind!=='diana')shot.dead=true;
+        if(shot.kind==='diana')spark(t.x,t.y-90,['#b6ff4a','#f7ffed'],24);
+      }
+      if(shot.x< -75||shot.x>VW+75||shot.y>FLOOR+80||shot.life<=0)shot.dead=true;
+    });
     G.shots = G.shots.filter((s) => !s.dead && s.life > 0);
     G.beams.forEach((b) => { b.t += dt; const t = G.p[1 - b.owner], box = { x: b.face > 0 ? b.x : b.x - b.len, y: b.y - 26, w: b.len, h: 52 };
       if (!b.hit && b.t > 0.05 && t.state !== 'ko' && overlap(box, hurtbox(t))) { b.hit = true; damage(G.p[b.owner], t, b.dmg, 0.55, 380, t.x - b.face * 20); } });
@@ -1035,8 +1056,8 @@
     else if (f.state === 'walk') { rot = 0; sq = 1; }
     else if (f.state === 'idle') { sq = calm ? 1 : 1 + Math.sin(f.anim * 2.2) * 0.002; }
     else if (f.state === 'jump') { rot = f.vy < 0 ? -0.045 : 0.035; sq = f.vy < 0 ? 1.025 : 0.98; }
-    const status = f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
-    if (status && !(f.flash > 0)) ctx.filter = status;
+    const status = f.petrified > 0 ? 'grayscale(1) brightness(.83) contrast(1.3)' : f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
+    if (status && (f.petrified > 0 || !(f.flash > 0))) ctx.filter = status;
     const strideBob = 0; // no second bounce: feet stay aligned to FLOOR
     const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
@@ -1053,6 +1074,7 @@
     }
     ctx.restore();
     if (f.state === 'block') { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#8fd8ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, -1.1, 1.1); if (f.face < 0) { ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, Math.PI - 1.1, Math.PI + 1.1); } ctx.stroke(); ctx.restore(); }
+    if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawCharge(ctx,f,G.t);
     drawFx(f);
   }
   function drawStatus(f) {
@@ -1105,12 +1127,13 @@
     ctx.strokeStyle = s.col[1] || '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + t * 0.1; ctx.moveTo(s.x + Math.cos(a) * r * 0.6, s.y + Math.sin(a) * r * 0.6); ctx.lineTo(s.x + Math.cos(a + 0.4) * r * (1.3 + (calm ? 0 : Math.random() * 0.4)), s.y + Math.sin(a + 0.4) * r * 1.3); } ctx.stroke();
   }
   function drawAttacks() {
-    G.shots.forEach((s) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = s.col[0]; ctx.shadowBlur = 20;
-      if (frameOf(s.set, s.a, 0)) spr(ctx, s.set, s.a, 0, s.x, s.y, s.face, s.sc); else drawBolt(s); ctx.restore(); });
-    G.beams.forEach((b) => { const k = 1 - b.t / b.dur; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = b.col[0]; ctx.shadowBlur = 24;
-      [[22, 'rgba(87,182,255,0.45)'], [10, '#bfe6ff'], [4, '#ffffff']].forEach(([w, c]) => { ctx.strokeStyle = c; ctx.lineWidth = w * k + 1; ctx.beginPath(); ctx.moveTo(b.x, b.y); for (let i = 1; i <= 16; i++) ctx.lineTo(b.x + b.face * b.len * i / 16, b.y + (i < 16 ? rand(-7, 7) : 0)); ctx.stroke(); });
-      ctx.restore(); });
-    G.waves.forEach((w) => { if (w.delay > 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = w.col[0]; ctx.shadowBlur = 18; spr(ctx, 'bfx', 'burst', 0, w.x, FLOOR - 30, Math.sign(w.vx), 0.9 + 0.12 * Math.sin(G.t * 30)); ctx.restore(); });
+    G.shots.forEach(s=>{ctx.save();
+      if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawProjectile(ctx,s,G.t);
+      else {ctx.globalCompositeOperation='lighter';if(frameOf(s.set,s.a,0))spr(ctx,s.set,s.a,0,s.x,s.y,s.face,s.sc);else drawBolt(s);}
+      ctx.restore();});
+    G.beams.forEach(b=>{if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawBeam(ctx,b,G.t);});
+    G.waves.forEach(w=>{if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawWave(ctx,w,G.t,FLOOR);
+      else if(w.delay<=0)spr(ctx,'bfx','burst',0,w.x,FLOOR-30,Math.sign(w.vx),1);});
     (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
     (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '24px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
