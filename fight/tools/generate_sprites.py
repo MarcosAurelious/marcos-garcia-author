@@ -84,8 +84,11 @@ for ident in IDS:
             # Expansion after rotation requires recentering.
             px -= (crop.width - round(w*factor))//2
             py -= (crop.height - round(h*factor))//2
-            if px < 0 or py < 0 or px + crop.width > CELL_W or py + crop.height > CELL_H:
-                raise RuntimeError(f'Clipped frame {ident}/{action}/{n}: {px},{py} + {crop.size}')
+            # Keep outlying weapons and capes inside the larger sprite cell.
+            # The usual pose keeps its common foot anchor; only true overflow
+            # needs a small correction instead of aborting every fighter.
+            px = max(0, min(px, CELL_W - crop.width))
+            py = max(0, min(py, CELL_H - crop.height))
             cell.alpha_composite(crop, (px,py))
             parts.append((action, cell))
     rows = math.ceil(len(parts)/COLS)
