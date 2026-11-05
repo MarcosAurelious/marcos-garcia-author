@@ -635,7 +635,7 @@
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
-    G.cutin = null; G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
+    G.cutin = null; G.rings = []; G.p.forEach((f, i) => Object.assign(f, { petrified: 0, petrifyOwner: null, took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -675,6 +675,8 @@
   }
   function damage(attacker, target, dmg, stun, push, hitX) {
     if (target.inv > 0) return;
+    if(target.petrified>0&&target.petrifyOwner===attacker.side){target.petrified=0;target.petrifyOwner=null;
+      spark(target.x,target.y-90,['#e8e5ef','#aaaaaf','#7859b0'],22);say(target,'STONE SHATTER','#e5dbff');}
     const low = attacker.move && MOVES[attacker.move] && MOVES[attacker.move].low;
     const blocking = target.onGround && target.state !== 'attack' && target.state !== 'hurt' && target.state !== 'ko' && target.holdBack && (!low || target.crouch || Math.random() < 0.5);
     if (blocking) {
@@ -704,7 +706,10 @@
   function spark(x, y, cols, n) { const k = reduceMotion ? Math.ceil(n / 3) : n; for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, v = rand(120, 420); G.fx.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.25, 0.55), c: cols[i % cols.length], r: rand(2, 5) }); } }
 
   function fighterUpdate(f, inp, dt) {
-    const o = opp(f); f.anim += dt; f.t += dt; f.flash -= dt; f.cool -= dt; f.comboT -= dt;
+    const o=opp(f);
+    if(f.petrified>0){f.petrified=Math.max(0,f.petrified-dt);f.vx=0;f.vy=0;f.onGround=true;f.y=FLOOR;
+      if(f.petrified===0){f.petrifyOwner=null;f.state='idle';f.t=0;f.cool=Math.max(f.cool,.1);}return;}
+    f.anim += dt; f.t += dt; f.flash -= dt; f.cool -= dt; f.comboT -= dt;
     const toward = Math.sign(o.x - f.x) || f.face;
     f.holdBack = (toward > 0 && inp.left && !inp.right) || (toward < 0 && inp.right && !inp.left);
     // combo breaker: spend 40% meter to burst out of a combo
@@ -727,13 +732,17 @@
       const inAct = f.t >= m.start && f.t < m.start + m.act;
       if (f.move === 'special') {
         if (!f.fired && f.t >= m.start) { f.fired = true; fireSpecial(f); }
-        if (sp.kind === 'dash' && f.t >= m.start && f.t < m.start + 0.22) { f.vx = f.face * sp.dist / 0.22 * (f.superOn ? 1.3 : 1); dashHit(f); }
-        else if (sp.kind === 'dash') f.vx *= 0.8;
+        if ((sp.kind === 'dash'||f.ch.id==='colossus') && f.t >= m.start && f.t < m.start + 0.22) {
+          const dist=sp.dist||(f.ch.id==='colossus'?315:340);
+          f.vx=f.face*dist/.22*(f.superOn?1.22:1);
+          if(f.ch.id==='pegasus') f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);
+          dashHit(f);
+        } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
       } else if (inAct && !f.hit) {
         const reach = m.reach * f.ch.size, hb = m.low ? { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.55, w: reach, h: BODY_H * f.ch.size * 0.55 } : { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
         if (overlap(hb, hurtbox(o)) && o.state !== 'ko') { f.hit = true; damage(f, o, Math.round(m.dmg * (f.ch.id === 'automaton' ? 1.15 : 1)), m.stun, m.push, f.x + f.face * reach * 0.75); }
       }
-      if (f.t >= total && (f.onGround || f.move !== 'special')) { f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
+      if (f.t >= total && (f.onGround || f.move !== 'special')) { if(f.ch.id==='pegasus')f.y=FLOOR;f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
     }
     if (canAct && G.mode === 'play') {
       if (f.onGround) f.face = toward;
@@ -761,11 +770,30 @@
     if (Math.abs(a.y - b.y) < 120 && Math.abs(a.x - b.x) < min) { const mid = (a.x + b.x) / 2, s = Math.sign(a.x - b.x) || (a.side ? 1 : -1); a.x = clamp(mid + s * min / 2, 50, VW - 50); b.x = clamp(mid - s * min / 2, 50, VW - 50); if (Math.abs(a.x - b.x) < min) (a.x <= 50 || a.x >= VW - 50 ? b : a).x += s * (min - Math.abs(a.x - b.x)) * (a.x <= 50 || a.x >= VW - 50 ? -1 : 1); }
   }
   function fireSpecial(f) {
-    const sp = f.ch.special, sup = f.superOn, mul = sup ? 2.2 : 1, top = f.y - BODY_H * f.ch.size * 0.55;
-    if (sp.kind === 'proj') { const n = sup ? 3 : 1; for (let i = 0; i < n; i++) G.shots.push({ owner: f.side, x: f.x + f.face * 60, y: top + (i - (n - 1) / 2) * 38, vx: f.face * sp.speed, set: sp.set, a: sp.a, sc: sp.sc * (sup ? 1.4 : 1), dmg: Math.round(MOVES.special.dmg * (sup ? 1.1 : 1)), col: sp.col, life: 2.4, face: f.face }); if (sp.heal) f.hp = Math.min(f.maxHp, f.hp + sp.heal * (sup ? 2 : 1)); }
-    else if (sp.kind === 'beam') G.beams.push({ owner: f.side, x: f.x + f.face * 50, y: top - 6, face: f.face, len: sp.len * (sup ? 1.6 : 1), t: 0, dur: 0.32, dmg: Math.round(13 * mul), hit: false, col: sp.col });
-    else if (sp.kind === 'wave') { const n = sup ? 3 : 1; for (let i = 0; i < n; i++) G.waves.push({ owner: f.side, x: f.x + f.face * (60 + i * 70), vx: f.face * 470, dmg: Math.round(12 * (sup ? 1.1 : 1)), life: 1.6, col: sp.col, delay: i * 0.12 }); G.shake = 0.25; }
-    else if (sp.kind === 'dash') { f.dashDmg = Math.round(13 * mul); f.dashHit = false; spark(f.x, f.y - 40, sp.col, 10); }
+    const sp=f.ch.special,id=f.ch.id,sup=f.superOn,mul=sup?2.2:1,top=f.y-BODY_H*f.ch.size*.55;
+    const power=Math.round(12*(sup?1.35:1));
+    const projectile=(kind,speed,damage=power)=>{
+      G.shots.push({owner:f.side,x:f.x+f.face*62,y:top,vx:f.face*speed,set:sp.set||'bfx',a:sp.a||'orb',
+        sc:sp.sc||1,dmg:damage,col:sp.col,life:2.3,face:f.face,kind});
+    };
+    if(id==='chiron'){
+      const target=opp(f);
+      for(let i=0;i<(sup?9:6);i++)G.shots.push({owner:f.side,x:clamp(target.x+(i-2.5)*49,WALL_L+15,WALL_R-15),
+        y:FLOOR-310-(i%3)*38,vx:0,vy:850+(i%3)*85,rain:true,set:sp.set,a:sp.a,
+        kind:'chiron',sc:sp.sc||1,dmg:sup?7:5,col:sp.col,life:1.3,face:1});
+    } else if(['marcus','medusa','diana','hades'].includes(id)) projectile(id,sp.speed||500,id==='medusa'?2:power);
+    else if(id==='helios')G.beams.push({owner:f.side,x:f.x+f.face*50,y:top-6,face:f.face,len:sp.len*(sup?1.45:1),
+      t:0,dur:sup?.50:.38,dmg:Math.round(13*mul),hit:false,col:sp.col,kind:'helios'});
+    else if(id==='vulcan'||id==='neptune'){
+      for(let i=0;i<(sup?4:2);i++)G.waves.push({owner:f.side,x:f.x+f.face*(65+i*35),vx:f.face*(id==='neptune'?510:430),
+        dmg:sup?12:8,life:1.8,col:sp.col,delay:i*.10,kind:id});
+      G.shake=Math.max(G.shake,.24);
+    } else if(['colossus','mars','minotaur','cerberus','pegasus'].includes(id)){
+      f.dashDmg=Math.round((id==='colossus'?19:15)*mul);f.dashHit=false;spark(f.x,f.y-80,sp.col,14);
+    } else if(sp.kind==='proj')projectile(id,sp.speed||500);
+    else if(sp.kind==='beam')G.beams.push({owner:f.side,x:f.x+f.face*50,y:top,face:f.face,len:sp.len,t:0,dur:.35,dmg:Math.round(13*mul),hit:false,col:sp.col,kind:id});
+    else if(sp.kind==='wave')G.waves.push({owner:f.side,x:f.x+f.face*60,vx:f.face*470,dmg:power,life:1.6,col:sp.col,delay:0,kind:id});
+    else if(sp.kind==='dash'){f.dashDmg=Math.round(15*mul);f.dashHit=false;}
   }
   function dashHit(f) { const o = opp(f); if (!f.dashHit && overlap({ x: f.x - 50, y: f.y - BODY_H, w: 100, h: BODY_H }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
   function updateAttacks(dt) {
