@@ -435,8 +435,17 @@
   const GENERATED = window.__ARENA_GENERATED_ATLAS || {};
   const GENERATED_IMAGES = {};
   const generatedImg = (set) => GENERATED_IMAGES[set] || (GENERATED_IMAGES[set] = img('generated/' + set.slice(2) + '.webp'));
-  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED);
-  const imgFor = (set) => (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  // Mars-only hand-illustrated HP (shield punch) and HK (karate side kick).
+  // The other movement sprites and special attacks retain their stable sources.
+  const MARS_ATTACK_ATLAS = {};
+  const MARS_ATTACK_IMAGES = {};
+  for(const action of ['heavy','hkick']){
+    const set='mars-atk-'+action;
+    MARS_ATTACK_ATLAS[set]={frames:Array.from({length:8},(_,i)=>[320*i,0,320,320,160,305])};
+    MARS_ATTACK_IMAGES[set]=img('attacks/mars_'+action+'.png');
+  }
+  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS);
+  const imgFor = (set) => MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   const PIXEL = new Set(['knight', 'archer', 'commander', 'priestess', 'warrior', 'fx']);
   function frameOf(set, anim, i) { const fr = ALL[set] && ALL[set][anim]; if (!fr) return null; return fr[((Math.floor(i) % fr.length) + fr.length) % fr.length]; }
   function spr(g, set, anim, i, x, y, face = 1, scale = 1, alpha = 1) {
@@ -955,6 +964,13 @@
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
+    if(f.ch.id==='mars' && f.state==='attack' && (f.move==='heavy'||f.move==='hkick')){
+      const set='mars-atk-'+f.move, image=MARS_ATTACK_IMAGES[set];
+      if(image && image.complete && image.naturalWidth===2560 && image.naturalHeight===320){
+        const move=MOVES[f.move], total=move.start+move.act+move.rec;
+        return {h:{set,a:'frames'},idx:Math.min(7,Math.floor(clamp(f.t/total,0,.9999)*8)),mix:0};
+      }
+    }
     // Prefer generated, transparent, foot-aligned animation sheets only after
     // their images decode successfully. Any missing asset falls back to v47 art.
     const generatedSet = 'g_' + f.ch.id;
@@ -1027,7 +1043,7 @@
     return { h, idx: list[base], next: list[nextIndex], mix: calm ? 0 : rawMix };
   }
   function drawFighter(f) {
-    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('n') ? 1 : 1);
+    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : 1);
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
