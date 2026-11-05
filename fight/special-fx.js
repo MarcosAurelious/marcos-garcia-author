@@ -9,16 +9,18 @@ const painted = new Map();
 // The new painterly pixel-art sheets are seven 256x144 frames each.
 // If not uploaded yet, the previous 8-frame vector sheets remain a safe fallback.
 const rasterPainted = new Map();
-function rasterSprite(id) {
+function rasterSprite(id,layer='special') {
   if(!PAINTED_IDS.includes(id))return null;
-  if(!rasterPainted.has(id)) {
+  const key=id+'_'+layer;
+  if(!rasterPainted.has(key)) {
     const im=new Image(),item={image:im,ready:false,failed:false};
-    rasterPainted.set(id,item);
-    im.onload=()=>{item.ready=im.naturalWidth===1792&&im.naturalHeight===144;};
+    rasterPainted.set(key,item);
+    const isEffect=layer==='effect';
+    im.onload=()=>{item.ready=im.naturalWidth===(isEffect?1280:2688)&&im.naturalHeight===160;};
     im.onerror=()=>{item.failed=true;};
-    im.src='specials/painted/'+id+'_special.png';
+    im.src='specials/painted/'+id+'_'+(isEffect?'effect':'special')+'.png';
   }
-  const item=rasterPainted.get(id);
+  const item=rasterPainted.get(key);
   return item.ready?item.image:null;
 }
 function authoredSprite(id) {
@@ -96,15 +98,20 @@ function make(id, frame) {
   return c;
 }
 function sprite(id,frame){const key=id+':'+(frame%8);if(!cache.has(key))cache.set(key,make(id,frame%8));return cache.get(key);}
-function draw(ctx,id,x,y,w,h,now,face=1){
- const raster=rasterSprite(id);
- const f=((Math.floor(now*12)%(raster?7:8))+(raster?7:8))%(raster?7:8);
+function draw(ctx,id,x,y,w,h,now,face=1,layer='effect'){
+ const raster=rasterSprite(id,layer);
+ const count=raster?(layer==='special'?7:8):8;
+ const frame=((Math.floor(now*12)%count)+count)%count;
  ctx.save();ctx.translate(x,y);ctx.scale(face,1);
- if(raster)ctx.drawImage(raster,256*f,0,256,144,-w/2,-h/2,w,h);
- else {
+ if(raster){
+   const sw=layer==='special'?384:160;
+   // Keep texture proportions, and do not squash the illustrated actors.
+   const fit=Math.min(w/sw,h/160);
+   ctx.drawImage(raster,sw*frame,0,sw,160,-sw*fit/2,-160*fit/2,sw*fit,160*fit);
+ }else{
    const vector=authoredSprite(id);
-   if(vector)ctx.drawImage(vector,192*f,0,192,192,-w/2,-h/2,w,h);
-   else {const c=sprite(id,f);ctx.drawImage(c,-w/2,-h/2,w,h);}
+   if(vector)ctx.drawImage(vector,192*frame,0,192,192,-w/2,-h/2,w,h);
+   else{const c=sprite(id,frame);ctx.drawImage(c,-w/2,-h/2,w,h);}
  }
  ctx.restore();
 }
