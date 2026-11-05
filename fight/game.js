@@ -579,7 +579,7 @@
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
     return { ch, side, x: side === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: side === 0 ? 1 : -1, hp: ch.hp, maxHp: ch.hp, meter: 0, wins: 0,
-      state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
+      state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, knockdown: false, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
   const STAGE_NAMES = { 'bg-battlefield': 'The Field of Mars', 'bg-colosseum': 'The Grand Colosseum', 'bg-sea': 'The Temple of the Tides', 'bg-gorgon': 'The Gorgon\'s Garden', 'bg-gate': 'The Abyssal Gate',
@@ -615,7 +615,7 @@
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
-    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, onGround: true, cool: 0, combo: 0 }));
+    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -657,7 +657,7 @@
       dmg = Math.max(1, Math.round(dmg * 0.15)); target.block = 0.2; target.state = 'block'; target.t = 0; target.vx = -target.face * push * 0.7; FX.block();
       spark(hitX, target.y - BODY_H * target.ch.size * 0.55, ['#8fd8ff', '#ffffff'], 10); target.meter = Math.min(100, target.meter + 4);
     } else {
-      if (target.hp - dmg > 0 && (dmg >= 10 || Math.random() < 0.3)) speak(target.ch, 'hurt'); target.state = 'hurt'; target.t = 0; target.stun = stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
+      if (target.hp - dmg > 0 && (dmg >= 10 || Math.random() < 0.3)) speak(target.ch, 'hurt'); target.state = 'hurt'; target.t = 0; target.knockdown = dmg >= 11 && target.onGround && target.hp > dmg; target.stun = target.knockdown ? Math.max(stun, 0.72) : stun; target.vx = -target.face * push; if (!target.onGround) target.vy = -320;
       dmg = Math.max(1, dmg + passive(attacker, target, attacker.state === 'attack' ? attacker.move : 'special', dmg));
       strikeSound(attacker, dmg >= 10); const hy = target.y - BODY_H * target.ch.size * 0.55; spark(hitX, hy, attacker.ch.special.col.concat(['#ffffff']), dmg >= 10 ? 34 : 22);
       (G.rings = G.rings || []).push({ x: hitX, y: hy, t: 0, max: dmg >= 10 ? 0.32 : 0.22, r: dmg >= 10 ? 90 : 55, col: attacker.ch.special.col[0] });
@@ -696,7 +696,7 @@
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
     if (f.state === 'ko') { /* fall */ }
-    else if (f.state === 'hurt') { if (f.t >= f.stun && f.onGround) f.state = 'idle'; }
+    else if (f.state === 'hurt') { if (f.t >= f.stun && f.onGround) { f.state = 'idle'; f.knockdown = false; } }
     else if (f.state === 'block') { f.block -= dt; if (f.block <= 0) f.state = 'idle'; }
     else if (f.state === 'attack') {
       const m = MOVES[f.move], total = m.start + m.act + m.rec, sp = f.ch.special;
@@ -845,7 +845,15 @@
     if (f.state === 'walk') { k = 'walk'; frame = f.anim * 10.5 * (f.slowT > 0 ? 0.65 : 1); }
     else if (f.state === 'jump') { k = 'jump'; frame = f.vy < 0 ? 0 : 1; }
     else if (f.state === 'attack') { const m = MOVES[f.move], prog = clamp(f.t / (m.start + m.act + m.rec), 0, 0.999); k = (f.move === 'lkick' || f.move === 'hkick') && !A[f.move] ? (f.move === 'lkick' ? 'light' : 'heavy') : f.move; if (f.move === 'heavy' && A.heavyHit && f.t >= m.start) k = 'heavyHit'; if (!f.onGround && f.move !== 'special') k = A.jump ? f.move : 'jump'; frame = prog; }
-    else if (f.state === 'hurt' || f.state === 'block') { k = 'hurt'; frame = 0; }
+    else if (f.state === 'hurt' || f.state === 'block') {
+      k = 'hurt'; frame = 0;
+      if (f.state === 'hurt' && f.knockdown && A.ko) {
+        // Hit stagger -> fall -> floor hold -> rise, respecting original sprite anchors.
+        const p = clamp(f.t / f.stun, 0, 0.999);
+        k = p < 0.16 || p > 0.87 ? 'hurt' : 'ko';
+        frame = p < 0.16 ? 0 : p < 0.46 ? (p - 0.16) / 0.30 : p < 0.73 ? 0.999 : 1 - (p - 0.73) / 0.14;
+      }
+    }
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
@@ -897,7 +905,15 @@
       if (f.t < m.start) { const w = ease(f.t / m.start); lx = -f.face * reach * 0.45 * w; rot = -0.06 * w * (heavy ? 1.4 : 1); sq = 1 - 0.03 * w; }
       else if (f.t < m.start + m.act) { const w = ease((f.t - m.start) / m.act); lx = f.face * reach * w; rot = 0.05 * w; sq = 1 + 0.02 * w; }
       else { const w = 1 - ease((f.t - m.start - m.act) / m.rec); lx = f.face * reach * w; rot = 0.05 * w; } }
-    else if (f.state === 'hurt') { const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1); lx = -f.face * 8 * w; rot = -0.08 * w; }
+    else if (f.state === 'hurt') {
+      const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1);
+      lx = -f.face * 8 * w; rot = -0.08 * w;
+      if (f.knockdown) { const p = clamp(f.t / f.stun, 0, 1);
+        // Extra body weight on the landing; recovery springs back into stance.
+        rot += -0.09 * Math.sin(Math.PI * p);
+        sq = 1 - 0.045 * Math.sin(Math.PI * p);
+      }
+    }
     else if (f.state === 'walk') { const stride = f.anim * 10.5 * Math.PI * 2; rot = Math.sin(stride) * 0.026; sq = 1 + Math.sin(stride * 2) * 0.012; }
     else if (f.state === 'idle') { sq = 1 + Math.sin(f.anim * 3.5) * 0.008; }
     else if (f.state === 'jump') { rot = f.vy < 0 ? -0.045 : 0.035; sq = f.vy < 0 ? 1.025 : 0.98; }
