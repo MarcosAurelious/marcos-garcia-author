@@ -582,7 +582,7 @@
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
     return { ch, side, x: side === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: side === 0 ? 1 : -1, hp: ch.hp, maxHp: ch.hp, meter: 0, wins: 0,
-      state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, knockdown: false, onGround: true, anim: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
+      state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, knockdown: false, onGround: true, anim: 0, strideTravel: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
   let G = null;   // the match
   const STAGE_NAMES = { 'bg-battlefield': 'The Field of Mars', 'bg-colosseum': 'The Grand Colosseum', 'bg-sea': 'The Temple of the Tides', 'bg-gorgon': 'The Gorgon\'s Garden', 'bg-gate': 'The Abyssal Gate',
@@ -618,7 +618,7 @@
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
-    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, onGround: true, cool: 0, combo: 0 }));
+    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -731,7 +731,9 @@
     // physics
     if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
     else if (f.state === 'hurt' || f.state === 'block' || f.state === 'ko') f.vx *= Math.pow(0.0009, dt);
+    const priorX = f.x;
     f.x += f.vx * dt; f.x = clamp(f.x, WALL_L, WALL_R);
+    if (f.state === 'walk' && f.onGround) f.strideTravel = (f.strideTravel || 0) + Math.abs(f.x - priorX);
   }
   function separate() {   // fighters push each other apart instead of overlapping
     const [a, b] = G.p, min = 88 * (a.ch.size + b.ch.size) / 2;
@@ -899,7 +901,9 @@
           phase = clamp(0.5 + f.vy / 1800, 0, 0.9999);
         } else {
           const cadence = f.state === 'walk' ? 1.32 : k === 'victory' ? 0.68 : 0.54;
-          phase = ((f.anim * cadence * motion.cadence) % 1 + 1) % 1;
+          phase = f.state === 'walk'
+            ? (((f.strideTravel || 0) / 106) % 1 + 1) % 1
+            : ((f.anim * cadence * motion.cadence) % 1 + 1) % 1;
         }
         return { h: { set: generatedSet, a: k }, idx: Math.min(count - 1, Math.floor(phase * count)), mix: 0 };
       }
@@ -970,12 +974,12 @@
         sq = 1 - 0.045 * Math.sin(Math.PI * p);
       }
     }
-    else if (f.state === 'walk') { const stride = f.anim * 10.5 * Math.PI * 2 * motion.cadence; rot = Math.sin(stride) * 0.026 * motion.lean; sq = 1 + Math.sin(stride * 2) * 0.012 * motion.bounce; }
-    else if (f.state === 'idle') { sq = 1 + Math.sin(f.anim * 3.5) * 0.008; }
+    else if (f.state === 'walk') { rot = 0; sq = 1; }
+    else if (f.state === 'idle') { sq = calm ? 1 : 1 + Math.sin(f.anim * 2.2) * 0.002; }
     else if (f.state === 'jump') { rot = f.vy < 0 ? -0.045 : 0.035; sq = f.vy < 0 ? 1.025 : 0.98; }
     const status = f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
     if (status && !(f.flash > 0)) ctx.filter = status;
-    const strideBob = f.state === 'walk' && f.onGround ? Math.abs(Math.sin(f.anim * 10.5 * Math.PI * motion.cadence)) * 4 * motion.bounce : 0;
+    const strideBob = 0; // no second bounce: feet stay aligned to FLOOR
     const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
     // Synthesized in-between animation poses: blend only adjacent source frames.
