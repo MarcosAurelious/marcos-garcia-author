@@ -13,8 +13,8 @@ OUT.mkdir(exist_ok=True)
 IDS = 'marcus mars colossus medusa minotaur vulcan chiron diana cerberus pegasus helios neptune hades'.split()
 COUNTS = dict(idle=1, walk=4, jump=6, light=12, heavy=12, lkick=12, hkick=12,
               hurt=6, ko=8, special=12, victory=6)
-CELL_W, CELL_H, COLS = 256, 256, 8
-FOOT_X, FOOT_Y = 128, 239
+CELL_W, CELL_H, COLS = 320, 320, 8
+FOOT_X, FOOT_Y = 160, 294
 
 def atlas(name):
     m = re.search(r'const ' + name + r' = (\{[^\n]+\});', JS)
