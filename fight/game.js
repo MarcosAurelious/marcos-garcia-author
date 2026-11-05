@@ -849,6 +849,22 @@
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
+    // Marcus animation production pass: treat each original drawn frame as a key
+    // pose and synthesize additional motion samples between those poses.
+    // Frame count: 8 walk/idle, 12 attack, keeping the original atlas untouched.
+    if (f.ch.id === 'marcus') {
+      const steps = f.state === 'attack' ? 12 : f.state === 'walk' ? 8 : f.state === 'idle' ? 8 : 0;
+      if (steps && list.length > 1) {
+        const moveTotal = f.state === 'attack' ? (MOVES[f.move].start + MOVES[f.move].act + MOVES[f.move].rec) : 1;
+        const phase = f.state === 'attack' ? clamp(f.t / moveTotal, 0, 0.9999)
+          : ((f.anim * (f.state === 'walk' ? 1.65 : 0.65)) % 1 + 1) % 1;
+        const step = Math.min(steps - 1, Math.floor(phase * steps));
+        const synthetic = (step + 0.5) / steps * (list.length - (f.state === 'attack' ? 1 : 0));
+        const ai = Math.min(list.length - 1, Math.floor(synthetic));
+        const bi = f.state === 'attack' ? Math.min(list.length - 1, ai + 1) : (ai + 1) % list.length;
+        return { h, idx: list[ai], next: list[bi], mix: calm ? 0 : synthetic - Math.floor(synthetic) };
+      }
+    }
     // Blend the original painted poses in a small transition window so we keep
     // each fighter's unique armor and silhouette without a full-frame ghost trail.
     if (f.state === 'attack' && f.move !== 'special' && list.length === 4) {
