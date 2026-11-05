@@ -840,6 +840,23 @@
     const g = ctx.createLinearGradient(0, R.y, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(R.x, R.y, R.w, R.h);
     ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(R.x, FLOOR, R.w, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(R.x, FLOOR, R.w, 2);
   }
+  // Every fighter keeps its own atlas, center/foot anchors, and attack poses.
+  // These profiles create additional displayed motion samples (not new painted art).
+  const MOTION_PACKS = {
+    marcus:   { cadence: 1.06, lean: 1.0, bounce: 1.0, power: 1.0 },
+    mars:     { cadence: 1.04, lean: 1.1, bounce: 0.9, power: 1.2 },
+    colossus: { cadence: 0.77, lean: 0.6, bounce: 0.5, power: 1.5 },
+    medusa:   { cadence: 1.13, lean: 0.8, bounce: 0.6, power: 0.85 },
+    minotaur: { cadence: 0.92, lean: 1.2, bounce: 1.2, power: 1.5 },
+    vulcan:   { cadence: 0.90, lean: 0.9, bounce: 0.7, power: 1.35 },
+    chiron:   { cadence: 1.04, lean: 0.7, bounce: 0.6, power: 0.9 },
+    diana:    { cadence: 1.22, lean: 1.15, bounce: 1.2, power: 0.95 },
+    cerberus: { cadence: 1.08, lean: 1.25, bounce: 1.35, power: 1.15 },
+    pegasus:  { cadence: 1.20, lean: 0.75, bounce: 0.75, power: 0.9 },
+    helios:   { cadence: 1.12, lean: 0.55, bounce: 0.45, power: 1.0 },
+    neptune:  { cadence: 0.85, lean: 0.75, bounce: 0.55, power: 1.45 },
+    hades:    { cadence: 0.94, lean: 0.85, bounce: 0.65, power: 1.25 }
+  };
   function animFor(f) {
     const A = f.ch.anims; let k = 'idle', frame = f.anim * 6;
     if (f.state === 'walk') { k = 'walk'; frame = f.anim * 10.5 * (f.slowT > 0 ? 0.65 : 1); }
@@ -857,36 +874,44 @@
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
-    // Marcus animation production pass: treat each original drawn frame as a key
-    // pose and synthesize additional motion samples between those poses.
-    // Frame count: 8 walk/idle, 12 attack, keeping the original atlas untouched.
-    if (f.ch.id === 'marcus') {
-      const steps = f.state === 'attack' ? 12 : f.state === 'walk' ? 8 : f.state === 'idle' ? 8 : 0;
-      if (steps && list.length > 1) {
-        const moveTotal = f.state === 'attack' ? (MOVES[f.move].start + MOVES[f.move].act + MOVES[f.move].rec) : 1;
-        const phase = f.state === 'attack' ? clamp(f.t / moveTotal, 0, 0.9999)
-          : ((f.anim * (f.state === 'walk' ? 1.65 : 0.65)) % 1 + 1) % 1;
-        const step = Math.min(steps - 1, Math.floor(phase * steps));
-        const synthetic = (step + 0.5) / steps * (list.length - (f.state === 'attack' ? 1 : 0));
-        const ai = Math.min(list.length - 1, Math.floor(synthetic));
-        const bi = f.state === 'attack' ? Math.min(list.length - 1, ai + 1) : (ai + 1) % list.length;
-        return { h, idx: list[ai], next: list[bi], mix: calm ? 0 : synthetic - Math.floor(synthetic) };
+    const profile = MOTION_PACKS[f.ch.id] || MOTION_PACKS.marcus;
+    const attacking = f.state === 'attack';
+    const moving = f.state === 'walk';
+    const recovering = f.state === 'hurt' || f.state === 'ko';
+    const phases = attacking ? 12 : moving ? 8 : recovering ? 8 : f.state === 'jump' ? 6 : 8;
+    if (list.length === 1) return { h, idx: list[0], mix: 0 };
+    let phase;
+    if (attacking) {
+      const m = MOVES[f.move], total = m.start + m.act + m.rec;
+      phase = clamp(f.t / total, 0, 0.9999);
+      // Punch and kick each retain four hand-authored keys; speed of strike is
+      // controlled by attack startup/active/recovery, not simply by frame count.
+      const keys = [0, m.start / total, (m.start + m.act) / total, 1];
+      const sampled = Math.min(phases - 1, Math.floor(phase * phases));
+      phase = (sampled + 0.5) / phases;
+      if (list.length >= 4) {
+        const segment = phase < keys[1] ? 0 : phase < keys[2] ? 1 : 2;
+        const lo = keys[segment], hi = keys[segment + 1];
+        const sub = clamp((phase - lo) / Math.max(0.001, hi - lo), 0, 1);
+        const smooth = sub * sub * (3 - 2 * sub);
+        return { h, idx: list[segment], next: list[segment + 1], mix: calm ? 0 : smooth };
       }
+    } else if (recovering) {
+      phase = f.state === 'ko' ? clamp(f.t / 0.65, 0, 0.9999) :
+        clamp(f.t / Math.max(0.1, f.stun), 0, 0.9999);
+      if (f.knockdown && f.state === 'hurt' && k === 'ko' && phase > 0.70) phase = Math.max(0, 1 - (phase - 0.70) / 0.30);
+    } else if (f.state === 'jump') {
+      // Use ascending/descending sprite keys where the character art contains them.
+      phase = clamp(0.5 + f.vy / 2200, 0, 0.9999);
+    } else {
+      phase = ((f.anim * (moving ? 1.36 : 0.68) * profile.cadence) % 1 + 1) % 1;
     }
-    // Blend the original painted poses in a small transition window so we keep
-    // each fighter's unique armor and silhouette without a full-frame ghost trail.
-    if (f.state === 'attack' && f.move !== 'special' && list.length === 4) {
-      const m = MOVES[f.move], t = f.t, cuts = [m.start * 0.5, m.start, m.start + m.act];
-      const ph = t < cuts[0] ? 0 : t < cuts[1] ? 1 : t < cuts[2] ? 2 : 3;
-      const at = cuts[ph - 1], window = ph > 0 ? Math.min(0.038, (ph === 1 ? cuts[0] : cuts[ph - 1] - cuts[ph - 2]) * 0.65) : 0;
-      const mix = window > 0 ? clamp((t - at) / window, 0, 1) : 1;
-      return { h, idx: list[ph], previous: ph > 0 && mix < 1 ? list[ph - 1] : null, mix };
-    }
-    const linear = f.state === 'attack' || f.state === 'ko';
-    const pos = linear ? clamp(frame * (list.length - 1), 0, list.length - 1) : ((frame % list.length) + list.length) % list.length;
-    const base = Math.floor(pos), frac = pos - base;
-    return { h, idx: list[base], next: list[(base + 1) % list.length],
-      mix: list.length > 1 && !calm && f.state !== 'hurt' ? frac : 0 };
+    const sample = (Math.floor(phase * phases) + 0.5) / phases;
+    const pos = sample * (recovering || attacking || f.state === 'jump' ? list.length - 1 : list.length);
+    const base = Math.min(list.length - 1, Math.floor(pos));
+    const nextIndex = moving || f.state === 'idle' ? (base + 1) % list.length : Math.min(list.length - 1, base + 1);
+    const rawMix = pos - Math.floor(pos);
+    return { h, idx: list[base], next: list[nextIndex], mix: calm ? 0 : rawMix };
   }
   function drawFighter(f) {
     const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('n') ? 1 : 1);
@@ -901,7 +926,8 @@
     // startup / active / recovery: lean back, lunge in, ease out (on top of the drawn pose)
     let lx = 0, rot = 0, sq = 1;
     const ease = (x) => 1 - (1 - clamp(x, 0, 1)) ** 3;
-    if (f.state === 'attack') { const m = MOVES[f.move], heavy = f.move === 'heavy' || f.move === 'hkick' || f.move === 'special', reach = heavy ? 26 : 16;
+    const motion = MOTION_PACKS[f.ch.id] || MOTION_PACKS.marcus;
+    if (f.state === 'attack') { const m = MOVES[f.move], heavy = f.move === 'heavy' || f.move === 'hkick' || f.move === 'special', reach = (heavy ? 26 : 16) * motion.power;
       if (f.t < m.start) { const w = ease(f.t / m.start); lx = -f.face * reach * 0.45 * w; rot = -0.06 * w * (heavy ? 1.4 : 1); sq = 1 - 0.03 * w; }
       else if (f.t < m.start + m.act) { const w = ease((f.t - m.start) / m.act); lx = f.face * reach * w; rot = 0.05 * w; sq = 1 + 0.02 * w; }
       else { const w = 1 - ease((f.t - m.start - m.act) / m.rec); lx = f.face * reach * w; rot = 0.05 * w; } }
@@ -914,12 +940,12 @@
         sq = 1 - 0.045 * Math.sin(Math.PI * p);
       }
     }
-    else if (f.state === 'walk') { const stride = f.anim * 10.5 * Math.PI * 2; rot = Math.sin(stride) * 0.026; sq = 1 + Math.sin(stride * 2) * 0.012; }
+    else if (f.state === 'walk') { const stride = f.anim * 10.5 * Math.PI * 2 * motion.cadence; rot = Math.sin(stride) * 0.026 * motion.lean; sq = 1 + Math.sin(stride * 2) * 0.012 * motion.bounce; }
     else if (f.state === 'idle') { sq = 1 + Math.sin(f.anim * 3.5) * 0.008; }
     else if (f.state === 'jump') { rot = f.vy < 0 ? -0.045 : 0.035; sq = f.vy < 0 ? 1.025 : 0.98; }
     const status = f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
     if (status && !(f.flash > 0)) ctx.filter = status;
-    const strideBob = f.state === 'walk' && f.onGround ? Math.abs(Math.sin(f.anim * 10.5 * Math.PI)) * 4 : 0;
+    const strideBob = f.state === 'walk' && f.onGround ? Math.abs(Math.sin(f.anim * 10.5 * Math.PI * motion.cadence)) * 4 * motion.bounce : 0;
     const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
     // Synthesized in-between animation poses: blend only adjacent source frames.
