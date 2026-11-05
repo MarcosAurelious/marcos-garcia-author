@@ -584,6 +584,20 @@
     return { ch, side, x: side === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: side === 0 ? 1 : -1, hp: ch.hp, maxHp: ch.hp, meter: 0, wins: 0,
       state: 'idle', t: 0, move: null, hit: false, stun: 0, block: 0, knockdown: false, onGround: true, anim: 0, strideTravel: 0, cool: 0, flash: 0, superOn: false, combo: 0, comboT: 0, cpu: null };
   }
+  // Special-move cinema uses separate transparent cut-in sprite sheets.
+  // It pauses gameplay briefly, then resumes the original attack intact.
+  const CUTIN_ATLAS = window.__ARENA_CUTIN_ATLAS || {};
+  const CUTIN_IMAGES = {};
+  const cutinImg = (id) => CUTIN_IMAGES[id] || (CUTIN_IMAGES[id] = img('cutins/' + id + '.webp'));
+  const CUTIN_THEMES = {
+    marcus: { symbol: '⚡', motif: 'lightning' }, mars: { symbol: '⚔', motif: 'blades' },
+    colossus: { symbol: '✦', motif: 'lightning' }, medusa: { symbol: '◉', motif: 'eyes' },
+    minotaur: { symbol: '◆', motif: 'horns' }, vulcan: { symbol: '⚒', motif: 'flames' },
+    chiron: { symbol: '✧', motif: 'stars' }, diana: { symbol: '☾', motif: 'moon' },
+    cerberus: { symbol: '♜', motif: 'fire' }, pegasus: { symbol: '✶', motif: 'winds' },
+    helios: { symbol: '☼', motif: 'sun' }, neptune: { symbol: '≈', motif: 'waves' },
+    hades: { symbol: '♠', motif: 'shadows' }
+  };
   let G = null;   // the match
   const STAGE_NAMES = { 'bg-battlefield': 'The Field of Mars', 'bg-colosseum': 'The Grand Colosseum', 'bg-sea': 'The Temple of the Tides', 'bg-gorgon': 'The Gorgon\'s Garden', 'bg-gate': 'The Abyssal Gate',
     'bg-hades': 'The Throne of Hades', 'bg-labyrinth': 'The Labyrinth of the Minotaur', 'bg-forge': 'The Forge of Vulcan', 'bg-chiron': 'Chiron\'s Grove', 'bg-diana': 'Diana\'s Moonlit Glade' };
@@ -608,7 +622,7 @@
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
   function newMatch(p1, p2, cpuLevel) {
-    [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); });
+    [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); });
     CZ = 1; CX = VW / 2;
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
@@ -618,7 +632,7 @@
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
-    G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
+    G.cutin = null; G.rings = []; G.p.forEach((f, i) => Object.assign(f, { took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -631,7 +645,11 @@
     if (!f.cpu) BUF[f.side ? 'p2' : 'p1'] = {};
     const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper;
     speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.3 ? 'jab' : '');
-    if (kind === 'special') { f.cool = isSuper ? 0.6 : 1.5; castSound(f, isSuper); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
+    if (kind === 'special') {
+      if (G && G.mode === 'play' && !G.cutin) {
+        G.cutin = { id: f.ch.id, side: f.side, t: 0, dur: calm ? 0.32 : isSuper ? 0.75 : 0.57, super: !!isSuper };
+      }
+      f.cool = isSuper ? 0.6 : 1.5; castSound(f, isSuper); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else FX.whoosh(kind === 'heavy' || kind === 'hkick');
     if (f.onGround) f.vx = 0;
     return m;
@@ -804,6 +822,12 @@
   let last = performance.now();
   function update(dt) {
     if (!G || G.pause) return;
+    if (G.cutin) {
+      G.cutin.t += dt;
+      if (G.cutin.t >= G.cutin.dur) G.cutin = null;
+      pressed.clear(); touchPressed.clear();
+      return; // Freeze inputs, timer and both fighters during the cinematic.
+    }
     G.t += dt; if (G.banner) G.banner.t += dt; if (G.comboMsg) G.comboMsg.t -= dt; G.flash = Math.max(0, (G.flash || 0) - dt); G.shake = Math.max(0, G.shake - dt);
     if (G.stop > 0) { G.stop -= dt; return; }   // hit-stop: freeze on impact
     if (G.slow > 0) { G.slow -= dt; dt *= 0.3; }
@@ -1108,7 +1132,67 @@
     if (G.flash > 0 && !calm) { ctx.fillStyle = `rgba(255,255,255,${G.flash * 0.6})`; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     else if (G.flash > 0) { ctx.fillStyle = 'rgba(10,6,20,0.35)'; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     ctx.restore(); drawHud();
+    if (G.cutin) drawSpecialCutin(G.cutin);
   }
+  function drawSpecialCutin(c) {
+    const fighter = G.p[c.side], primary = fighter.ch.special.col[0], secondary = fighter.ch.special.col[1] || '#fff';
+    const theme = CUTIN_THEMES[c.id] || CUTIN_THEMES.marcus;
+    const p = clamp(c.t / c.dur, 0, 1), entrance = clamp(p * 10, 0, 1), exit = clamp((1-p) * 10, 0, 1), alpha = Math.min(entrance, exit);
+    const w = SW, h = SH, centerX = w * 0.50, midY = h * 0.52;
+    ctx.save(); ctx.setTransform(RES, 0, 0, RES, 0, 0); ctx.globalAlpha = alpha;
+    // Cinematic darkens the arena while preserving enough action for orientation.
+    ctx.fillStyle = 'rgba(4,5,13,0.90)'; ctx.fillRect(0, 0, w, h);
+    ctx.save(); ctx.translate(centerX, midY);
+    const flare = Math.min(w, h) * (0.38 + p * 0.17);
+    const radial = ctx.createRadialGradient(0, 0, 0, 0, 0, flare);
+    radial.addColorStop(0, primary + '88'); radial.addColorStop(0.55, primary + '22'); radial.addColorStop(1, '#00000000');
+    ctx.fillStyle = radial; ctx.fillRect(-flare,-flare,flare*2,flare*2);
+    ctx.strokeStyle = primary; ctx.lineWidth = 3; ctx.globalAlpha *= 0.5;
+    for (let i=0;i<12;i++) { const a = i*Math.PI/6 + (calm ? 0 : p*0.28);
+      ctx.beginPath(); ctx.moveTo(Math.cos(a)*flare*0.55, Math.sin(a)*flare*0.55);
+      ctx.lineTo(Math.cos(a)*flare*1.07, Math.sin(a)*flare*1.07); ctx.stroke();
+    }
+    // Every legend has a distinct sigil and palette.
+    ctx.globalAlpha = alpha * 0.28; ctx.font = 'bold '+Math.round(Math.min(w,h)*0.55)+'px Georgia,serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = primary;
+    ctx.fillText(theme.symbol, 0, 0);
+    ctx.restore();
+    const frames = CUTIN_ATLAS[c.id], portrait = cutinImg(c.id);
+    if (frames && portrait.complete && portrait.naturalWidth && frames.length) {
+      const n = Math.min(frames.length-1,Math.floor(p*frames.length));
+      const [sx,sy,fw,fh,ax,ay] = frames[n];
+      const size = Math.min(h*0.75,w*0.65), scale = size/Math.max(fw,fh);
+      ctx.save(); ctx.translate(centerX, h*0.82);
+      if (c.side) ctx.scale(-1,1);
+      ctx.shadowColor = primary; ctx.shadowBlur = calm ? 0 : 26;
+      ctx.drawImage(portrait,sx,sy,fw,fh,-ax*scale,-ay*scale,fw*scale,fh*scale);
+      ctx.restore();
+    } else {
+      // Safe fallback: original special attack keyframe (works while art loads).
+      const key = fighter.ch.anims.special;
+      if (key) { ctx.save(); ctx.shadowColor=primary; ctx.shadowBlur=18;
+        const sourceFrame = frameOf(key.set,key.a,0);
+        if (sourceFrame) { const z = Math.min(h*0.66 / sourceFrame[3],w*0.6/sourceFrame[2]);
+          spr(ctx,key.set,key.a,0,centerX,h*0.82,c.side?-1:1,z); }
+        ctx.restore(); }
+    }
+    ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor = primary; ctx.shadowBlur = calm ? 0 : 16;
+    ctx.strokeStyle='#08070c'; ctx.lineWidth=6;
+    ctx.font='bold '+Math.round(Math.min(48,w*0.055))+'px Impact, sans-serif';
+    const label = fighter.ch.special.name.toUpperCase();
+    const titleY = h*0.16;
+    ctx.strokeText(label,centerX,titleY);
+    ctx.fillStyle='#fff3d4'; ctx.fillText(label,centerX,titleY);
+    ctx.shadowBlur=0; ctx.font='bold '+Math.round(Math.min(19,w*0.027))+'px Georgia,serif';
+    ctx.fillStyle=secondary; ctx.fillText(fighter.ch.name.toUpperCase(),centerX,h*0.09);
+    // Moving release line complements all projectile, dash, and wave specials.
+    const lineY=h*0.87; const length=w*0.40*Math.min(1,p*2);
+    ctx.strokeStyle=primary; ctx.lineWidth=Math.max(3,h*0.009); ctx.beginPath();
+    ctx.moveTo(centerX-length,lineY);ctx.lineTo(centerX+length,lineY);ctx.stroke();
+    ctx.restore();ctx.restore();
+  }
+
   function frame(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(dt / 2); update(dt / 2); render(); requestAnimationFrame(frame); }
 
   /* ================= screens ================= */
