@@ -104,3 +104,44 @@ for ident in IDS:
     print(ident, output.stat().st_size, 'bytes',len(parts),'frames')
 (OUT/'atlas-data.js').write_text('window.__ARENA_GENERATED_ATLAS = '+json.dumps(metadata,separators=(',',':'))+';\n',encoding='utf8')
 print('Generated',len(metadata),'fighters and',sum(len(v) for v in metadata.values()),'animation types')
+
+# Dedicated cinematic cut-in strips: transparent, centered characters enlarged
+# from the original illustrated SPECIAL poses. No captions are baked into art.
+CUTIN_DIR = ROOT / 'cutins'
+CUTIN_DIR.mkdir(exist_ok=True)
+CUT_W, CUT_H, CUT_COUNT = 384, 384, 6
+cutin_data = {}
+for ident in IDS:
+    source = Image.open(ROOT / 'atk' / (ident + '.webp')).convert('RGBA')
+    poses = ATTACK.get('a_' + ident, {}).get('special')
+    if not poses:
+        source = Image.open(ROOT / 'fighters.webp').convert('RGBA')
+        poses = FIGHT.get('f_' + ident, {}).get('special')
+    if not poses:
+        raise RuntimeError('Missing cinematic special pose: ' + ident)
+    strip = Image.new('RGBA', (CUT_W * CUT_COUNT, CUT_H), (0, 0, 0, 0))
+    sequence = []
+    for index in range(CUT_COUNT):
+        # Anticipation -> power buildup -> full release -> hold -> recover.
+        pos = [0, 0, min(1, len(poses)-1), len(poses)-1,
+               len(poses)-1, 0][index]
+        sx, sy, w, h, ax, ay = poses[pos]
+        crop = source.crop((sx, sy, sx+w, sy+h))
+        if crop.getbbox() is None:
+            raise RuntimeError('Empty cinematic art: ' + ident)
+        scale = min(1.6, 334/max(w,1), 340/max(h,1))
+        crop = crop.resize((round(w*scale), round(h*scale)), Image.Resampling.LANCZOS)
+        frame = Image.new('RGBA', (CUT_W, CUT_H), (0,0,0,0))
+        # Align every frame to the same ground baseline and center the anatomy.
+        dx = max(0, min(round(CUT_W/2-ax*scale), CUT_W-crop.width))
+        dy = max(0, min(round(365-ay*scale), CUT_H-crop.height))
+        frame.alpha_composite(crop,(dx,dy))
+        strip.alpha_composite(frame,(index*CUT_W,0))
+        sequence.append([index*CUT_W,0,CUT_W,CUT_H,CUT_W//2,365])
+    filename=CUTIN_DIR/(ident+'.webp')
+    strip.save(filename,'WEBP',quality=88,method=6)
+    cutin_data[ident]=sequence
+    print('Cinematic:',ident,filename.stat().st_size,'bytes')
+(CUTIN_DIR/'atlas-data.js').write_text('window.__ARENA_CUTIN_ATLAS = '+json.dumps(cutin_data,separators=(',',':'))+';\n',encoding='utf8')
+print('Generated cinematic special strips:',len(cutin_data))
+
