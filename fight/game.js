@@ -1078,7 +1078,7 @@
     drawFx(f);
   }
   function drawStatus(f) {
-    const tags = []; if (f.poison > 0) tags.push(['POISONED', '#d77bff']); if (f.burn > 0) tags.push(['BURNING', '#ff9b49']); if (f.slowT > 0) tags.push(['SLOWED', '#c4b1ff']);
+    const tags = []; if (f.petrified > 0) tags.push(['STONE '+f.petrified.toFixed(1)+'s', '#d8d6dc']); if (f.poison > 0) tags.push(['POISONED', '#d77bff']); if (f.burn > 0) tags.push(['BURNING', '#ff9b49']); if (f.slowT > 0) tags.push(['SLOWED', '#c4b1ff']);
     tags.forEach(([t, c], i) => { ctx.save(); ctx.font = '17px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#120c08'; const y = FLOOR + 22 + i * 15; ctx.strokeText(t, f.x, y); ctx.fillStyle = c; ctx.fillText(t, f.x, y); ctx.restore(); });
   }
   function drawFx(f) {
