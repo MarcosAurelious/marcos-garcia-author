@@ -1211,6 +1211,10 @@
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = primary;
     ctx.fillText(theme.symbol, 0, 0);
     ctx.restore();
+    // Use each fighter's animated eight-frame signature effect in the cinematic.
+    // c.t advances while the rest of the arena is paused.
+    if(window.ArenaSpecialFX)window.ArenaSpecialFX.draw(ctx,c.id,centerX,h*.54,
+      Math.min(w*.37,330),Math.min(h*.48,285),c.t,c.side?-1:1);
     const frames = CUTIN_ATLAS[c.id], portrait = cutinImg(c.id);
     if (frames && portrait.complete && portrait.naturalWidth && frames.length) {
       const n = Math.min(frames.length-1,Math.floor(p*frames.length));
