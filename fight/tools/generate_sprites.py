@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate transparent, foot-anchored transitional sprite frames for all 13 Arena fighters.
-Source artwork remains untouched; generated poses are raster-derived, not hand-drawn."""
+Source artwork remains untouched; generated poses are raster-derived, not hand-drawn.
+These transparent sprite sheets preserve source poses and do not change combat logic."""
 import json, re, math
 from pathlib import Path
 from PIL import Image
