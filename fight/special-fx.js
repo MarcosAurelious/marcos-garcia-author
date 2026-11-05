@@ -6,6 +6,21 @@
 const cache = new Map();
 const PAINTED_IDS = ['marcus','mars','colossus','medusa','minotaur','vulcan','chiron','diana','cerberus','pegasus','helios','neptune','hades'];
 const painted = new Map();
+// The new painterly pixel-art sheets are seven 256x144 frames each.
+// If not uploaded yet, the previous 8-frame vector sheets remain a safe fallback.
+const rasterPainted = new Map();
+function rasterSprite(id) {
+  if(!PAINTED_IDS.includes(id))return null;
+  if(!rasterPainted.has(id)) {
+    const im=new Image(),item={image:im,ready:false,failed:false};
+    rasterPainted.set(id,item);
+    im.onload=()=>{item.ready=im.naturalWidth===1792&&im.naturalHeight===144;};
+    im.onerror=()=>{item.failed=true;};
+    im.src='specials/painted/'+id+'_special.png';
+  }
+  const item=rasterPainted.get(id);
+  return item.ready?item.image:null;
+}
 function authoredSprite(id) {
   if(!PAINTED_IDS.includes(id))return null;
   if(!painted.has(id)){
@@ -82,11 +97,15 @@ function make(id, frame) {
 }
 function sprite(id,frame){const key=id+':'+(frame%8);if(!cache.has(key))cache.set(key,make(id,frame%8));return cache.get(key);}
 function draw(ctx,id,x,y,w,h,now,face=1){
- const f=((Math.floor(now*17)%8)+8)%8;
- const hand=authoredSprite(id);
+ const raster=rasterSprite(id);
+ const f=((Math.floor(now*12)%(raster?7:8))+(raster?7:8))%(raster?7:8);
  ctx.save();ctx.translate(x,y);ctx.scale(face,1);
- if(hand)ctx.drawImage(hand,192*f,0,192,192,-w/2,-h/2,w,h);
- else {const c=sprite(id,f);ctx.drawImage(c,-w/2,-h/2,w,h);}
+ if(raster)ctx.drawImage(raster,256*f,0,256,144,-w/2,-h/2,w,h);
+ else {
+   const vector=authoredSprite(id);
+   if(vector)ctx.drawImage(vector,192*f,0,192,192,-w/2,-h/2,w,h);
+   else {const c=sprite(id,f);ctx.drawImage(c,-w/2,-h/2,w,h);}
+ }
  ctx.restore();
 }
 function drawProjectile(ctx,shot,now){
@@ -127,5 +146,5 @@ function stone(ctx,f,time){if(!f.petrified||f.petrified<=0)return;
  const h=190*f.ch.size;ctx.fillRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);
  ctx.strokeStyle='#e5e2e0';ctx.lineWidth=3;ctx.strokeRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);ctx.restore();
 }
-window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw,authoredSprite,PAINTED_IDS};
+window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw,authoredSprite,rasterSprite,PAINTED_IDS};
 })();
