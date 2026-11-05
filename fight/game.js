@@ -849,12 +849,23 @@
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
-    if (f.state === 'attack' && f.move !== 'special' && list.length === 4) { const m = MOVES[f.move]; const ph = f.t < m.start ? (f.t < m.start * 0.5 ? 0 : 1) : f.t < m.start + m.act ? 2 : 3; return { h, idx: list[ph] }; }
-    const idx = (f.state === 'attack' || f.state === 'ko') ? list[Math.min(list.length - 1, Math.floor(frame * list.length))] : list[Math.floor(frame) % list.length];
-    return { h, idx };
+    // Blend the original painted poses in a small transition window so we keep
+    // each fighter's unique armor and silhouette without a full-frame ghost trail.
+    if (f.state === 'attack' && f.move !== 'special' && list.length === 4) {
+      const m = MOVES[f.move], t = f.t, cuts = [m.start * 0.5, m.start, m.start + m.act];
+      const ph = t < cuts[0] ? 0 : t < cuts[1] ? 1 : t < cuts[2] ? 2 : 3;
+      const at = cuts[ph - 1], window = ph > 0 ? Math.min(0.038, (ph === 1 ? cuts[0] : cuts[ph - 1] - cuts[ph - 2]) * 0.65) : 0;
+      const mix = window > 0 ? clamp((t - at) / window, 0, 1) : 1;
+      return { h, idx: list[ph], previous: ph > 0 && mix < 1 ? list[ph - 1] : null, mix };
+    }
+    const linear = f.state === 'attack' || f.state === 'ko';
+    const pos = linear ? clamp(frame * (list.length - 1), 0, list.length - 1) : ((frame % list.length) + list.length) % list.length;
+    const base = Math.floor(pos), frac = pos - base;
+    return { h, idx: list[base], next: list[(base + 1) % list.length],
+      mix: list.length > 1 && !calm && f.state !== 'hurt' ? frac : 0 };
   }
   function drawFighter(f) {
-    const { h, idx } = animFor(f), sc = f.ch.scale * (h.set.startsWith('n') ? 1 : 1);
+    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('n') ? 1 : 1);
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
@@ -879,7 +890,17 @@
     const strideBob = f.state === 'walk' && f.onGround ? Math.abs(Math.sin(f.anim * 10.5 * Math.PI)) * 4 : 0;
     const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
-    spr(ctx, h.set, h.a, idx, 0, 0, f.face, sc);
+    // Synthesized in-between animation poses: blend only adjacent source frames.
+    // Rendering both uses the same foot anchor, keeping hitboxes and collision unchanged.
+    if (previous != null && mix < 1 && !calm) {
+      spr(ctx, h.set, h.a, previous, 0, 0, f.face, sc, 1 - mix);
+      spr(ctx, h.set, h.a, idx, 0, 0, f.face, sc, mix);
+    } else if (next != null && mix > 0.12 && mix < 0.88 && !calm) {
+      spr(ctx, h.set, h.a, idx, 0, 0, f.face, sc, 1 - mix);
+      spr(ctx, h.set, h.a, next, 0, 0, f.face, sc, mix);
+    } else {
+      spr(ctx, h.set, h.a, next != null && mix >= 0.88 ? next : idx, 0, 0, f.face, sc);
+    }
     ctx.restore();
     if (f.state === 'block') { ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#8fd8ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, -1.1, 1.1); if (f.face < 0) { ctx.beginPath(); ctx.arc(f.x + f.face * 30, f.y - BODY_H * f.ch.size * 0.55, 60, Math.PI - 1.1, Math.PI + 1.1); } ctx.stroke(); ctx.restore(); }
     drawFx(f);
