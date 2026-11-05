@@ -905,7 +905,10 @@
             ? (((f.strideTravel || 0) / 106) % 1 + 1) % 1
             : ((f.anim * cadence * motion.cadence) % 1 + 1) % 1;
         }
-        return { h: { set: generatedSet, a: k }, idx: Math.min(count - 1, Math.floor(phase * count)), mix: 0 };
+        const spriteIndex = f.state === 'idle' ? 0 :
+          f.state === 'walk' && count === 8 ? Math.min(7, Math.floor(phase * 4) * 2) :
+          Math.min(count - 1, Math.floor(phase * count));
+        return { h: { set: generatedSet, a: k }, idx: spriteIndex, mix: 0 };
       }
     }
     const profile = MOTION_PACKS[f.ch.id] || MOTION_PACKS.marcus;
