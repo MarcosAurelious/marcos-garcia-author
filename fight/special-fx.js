@@ -4,6 +4,23 @@
 (() => {
 'use strict';
 const cache = new Map();
+const PAINTED_IDS = ['marcus','mars','colossus','medusa','minotaur','vulcan','chiron','diana','cerberus','pegasus','helios','neptune','hades'];
+const painted = new Map();
+function authoredSprite(id) {
+  if(!PAINTED_IDS.includes(id))return null;
+  if(!painted.has(id)){
+    const im = new Image();
+    const item = {image:im,ready:false,failed:false};
+    painted.set(id,item);
+    im.onload=()=>{item.ready=im.naturalWidth===1536&&im.naturalHeight===192;};
+    im.onerror=()=>{item.failed=true;};
+    im.src='specials/'+id+'.svg';
+  }
+  const item=painted.get(id);
+  return item.ready?item.image:null;
+}
+// Load attack art during character selection rather than waiting for first impact.
+PAINTED_IDS.forEach(authoredSprite);
 const TAU = Math.PI * 2;
 const colors = {
   marcus:['#e8ffff','#5de1ff','#2876ff'],
@@ -64,7 +81,14 @@ function make(id, frame) {
   return c;
 }
 function sprite(id,frame){const key=id+':'+(frame%8);if(!cache.has(key))cache.set(key,make(id,frame%8));return cache.get(key);}
-function draw(ctx,id,x,y,w,h,now,face=1){const f=Math.floor(now*17)%8;const c=sprite(id,f);ctx.save();ctx.translate(x,y);ctx.scale(face,1);ctx.drawImage(c,-w/2,-h/2,w,h);ctx.restore();}
+function draw(ctx,id,x,y,w,h,now,face=1){
+ const f=((Math.floor(now*17)%8)+8)%8;
+ const hand=authoredSprite(id);
+ ctx.save();ctx.translate(x,y);ctx.scale(face,1);
+ if(hand)ctx.drawImage(hand,192*f,0,192,192,-w/2,-h/2,w,h);
+ else {const c=sprite(id,f);ctx.drawImage(c,-w/2,-h/2,w,h);}
+ ctx.restore();
+}
 function drawProjectile(ctx,shot,now){
  const id=shot.kind||shot.a||'marcus',d=shot.face||1;
  ctx.save();ctx.globalCompositeOperation='lighter';
@@ -103,5 +127,5 @@ function stone(ctx,f,time){if(!f.petrified||f.petrified<=0)return;
  const h=190*f.ch.size;ctx.fillRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);
  ctx.strokeStyle='#e5e2e0';ctx.lineWidth=3;ctx.strokeRect(f.x-36*f.ch.size,f.y-h,72*f.ch.size,h);ctx.restore();
 }
-window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw};
+window.ArenaSpecialFX={drawProjectile,drawBeam,drawWave,drawCharge,stone,draw,authoredSprite,PAINTED_IDS};
 })();
