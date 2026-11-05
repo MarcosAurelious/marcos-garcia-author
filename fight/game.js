@@ -570,11 +570,11 @@
 
   /* ================= fighters ================= */
   const MOVES = {   // seconds: startup, active, recovery; reach in px; damage
-    light: { start: 0.05, act: 0.08, rec: 0.09, reach: 112, dmg: 5, stun: 0.21, push: 140, meter: 6 },     // tuned ~25% faster than launch for a snappier, arcade feel
-    heavy: { start: 0.15, act: 0.1, rec: 0.22, reach: 140, dmg: 11, stun: 0.36, push: 330, meter: 10 },
-    lkick: { start: 0.07, act: 0.09, rec: 0.12, reach: 132, dmg: 6, stun: 0.23, push: 170, meter: 7, low: true },
-    hkick: { start: 0.17, act: 0.11, rec: 0.24, reach: 160, dmg: 12, stun: 0.38, push: 360, meter: 11, low: true },
-    special: { start: 0.18, act: 0.11, rec: 0.27, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
+    light: { start: 0.04, act: 0.07, rec: 0.075, reach: 112, dmg: 5, stun: 0.21, push: 140, meter: 6 },     // tuned ~25% faster than launch for a snappier, arcade feel
+    heavy: { start: 0.12, act: 0.09, rec: 0.17, reach: 140, dmg: 11, stun: 0.36, push: 330, meter: 10 },
+    lkick: { start: 0.055, act: 0.08, rec: 0.10, reach: 132, dmg: 6, stun: 0.23, push: 170, meter: 7, low: true },
+    hkick: { start: 0.135, act: 0.10, rec: 0.19, reach: 160, dmg: 12, stun: 0.38, push: 360, meter: 11, low: true },
+    special: { start: 0.15, act: 0.10, rec: 0.23, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
   };
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
@@ -720,9 +720,9 @@
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
-        if (inp.up) { f.vy = -960; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.3; SFX.jump(); }
+        if (inp.up) { f.vy = -960; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.50; SFX.jump(); }
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
-        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.18 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
+        else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.42 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
     // physics
@@ -841,8 +841,8 @@
     ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(R.x, FLOOR, R.w, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(R.x, FLOOR, R.w, 2);
   }
   function animFor(f) {
-    const A = f.ch.anims; let k = 'idle', frame = f.anim * 5;
-    if (f.state === 'walk') { k = 'walk'; frame = f.anim * 7; }
+    const A = f.ch.anims; let k = 'idle', frame = f.anim * 6;
+    if (f.state === 'walk') { k = 'walk'; frame = f.anim * 10.5 * (f.slowT > 0 ? 0.65 : 1); }
     else if (f.state === 'jump') { k = 'jump'; frame = f.vy < 0 ? 0 : 1; }
     else if (f.state === 'attack') { const m = MOVES[f.move], prog = clamp(f.t / (m.start + m.act + m.rec), 0, 0.999); k = (f.move === 'lkick' || f.move === 'hkick') && !A[f.move] ? (f.move === 'lkick' ? 'light' : 'heavy') : f.move; if (f.move === 'heavy' && A.heavyHit && f.t >= m.start) k = 'heavyHit'; if (!f.onGround && f.move !== 'special') k = A.jump ? f.move : 'jump'; frame = prog; }
     else if (f.state === 'hurt' || f.state === 'block') { k = 'hurt'; frame = 0; }
@@ -871,10 +871,13 @@
       else if (f.t < m.start + m.act) { const w = ease((f.t - m.start) / m.act); lx = f.face * reach * w; rot = 0.05 * w; sq = 1 + 0.02 * w; }
       else { const w = 1 - ease((f.t - m.start - m.act) / m.rec); lx = f.face * reach * w; rot = 0.05 * w; } }
     else if (f.state === 'hurt') { const w = clamp(1 - f.t / Math.max(0.2, f.stun), 0, 1); lx = -f.face * 8 * w; rot = -0.08 * w; }
-    else if (f.state === 'walk') rot = Math.sin(f.anim * 9) * 0.02;
+    else if (f.state === 'walk') { const stride = f.anim * 10.5 * Math.PI * 2; rot = Math.sin(stride) * 0.026; sq = 1 + Math.sin(stride * 2) * 0.012; }
+    else if (f.state === 'idle') { sq = 1 + Math.sin(f.anim * 3.5) * 0.008; }
+    else if (f.state === 'jump') { rot = f.vy < 0 ? -0.045 : 0.035; sq = f.vy < 0 ? 1.025 : 0.98; }
     const status = f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
     if (status && !(f.flash > 0)) ctx.filter = status;
-    const fy = f.y + 2 - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
+    const strideBob = f.state === 'walk' && f.onGround ? Math.abs(Math.sin(f.anim * 10.5 * Math.PI)) * 4 : 0;
+    const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
     spr(ctx, h.set, h.a, idx, 0, 0, f.face, sc);
     ctx.restore();
@@ -899,7 +902,7 @@
     const ease = (x) => 1 - (1 - clamp(x, 0, 1)) ** 3;
     if (f.crouch) { sy = 0.78; sx = 1.06; rot = 0.05; }
     else if (f.state === 'idle') { sy = 1 + Math.sin(t * 3.2) * 0.012; sx = 1 - Math.sin(t * 3.2) * 0.006; }
-    else if (f.state === 'walk') { dy -= Math.abs(Math.sin(t * 9)) * 7; rot = Math.sin(t * 9) * 0.035; }
+    else if (f.state === 'walk') { dy -= Math.abs(Math.sin(t * 13)) * 7; rot = Math.sin(t * 13) * 0.045; sx = 1 + Math.sin(t * 26) * 0.014; sy = 2 - sx; }
     else if (f.state === 'jump') { rot = (f.vy < 0 ? -0.08 : 0.06); sy = f.vy < 0 ? 1.05 : 0.97; sx = 2 - sy; }
     else if (f.state === 'attack') {
       const m = MOVES[f.move], k = f.t;
