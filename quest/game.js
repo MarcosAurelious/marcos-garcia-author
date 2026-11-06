@@ -56,9 +56,11 @@
   const MARCUSIMG = img('img/marcus.webp');
   Object.assign(ATLAS, EATLAS, XATLAS, MATLAS);
   // Chapter I and II bosses: full redrawn sheets (weapon in every frame, real walk cycles, death falls)
-  const BOSS2 = { commander: img('img/boss-commander.webp'), engine: img('img/boss-engine.webp'), colossus: img('img/boss-colossus.webp'), techno: img('img/boss-medusa.webp') };
-  const BOSS2_SCALE = { colossus: 1 / 1.5, techno: 1 / 1.5 };   // packed at full boss size: the 1.5x boss draws 1:1 (sharp), regular ones shrink
+  const BOSS2 = { commander: img('img/boss-commander.webp'), engine: img('img/boss-engine.webp'), colossus: img('img/boss-colossus.webp'), techno: img('img/boss-medusa.webp'), leviathan: img('img/boss-leviathan.webp'), stormtaur: img('img/boss-stormtaur.webp') };
+  const BOSS2_SCALE = { colossus: 1 / 1.5, techno: 1 / 1.5, leviathan: 1 / 1.5, stormtaur: 1 / 1.5 };   // packed at full boss size: the 1.5x boss draws 1:1 (sharp), regular ones shrink
   ATLAS.techno = {"idle":[[2,2,76,97,36,97],[82,2,83,96,42,96],[169,2,82,96,40,96],[255,2,84,94,40,94]],"move":[[2,103,85,90,38,90],[91,103,94,89,44,89],[189,103,97,91,44,91],[290,103,97,84,46,84]],"gaze":[[2,198,80,94,38,94],[86,198,141,93,42,93],[231,198,139,93,38,93]],"summon":[[2,296,94,93,40,93],[100,296,125,93,52,93],[229,296,99,94,42,94]],"hurt":[[2,394,86,88,44,88],[92,394,86,84,43,84]],"die":[[2,486,74,101,35,101],[80,486,79,102,37,102],[163,486,77,100,39,100],[244,486,77,98,39,98],[325,486,113,49,55,49]]};
+  ATLAS.leviathan = {"idle":[[2,2,270,134,138,134],[276,2,268,140,134,140],[548,2,270,148,141,148],[822,2,269,136,138,136]],"emerge":[[2,154,268,124,137,124],[274,154,269,152,135,152],[547,154,275,181,138,181],[826,154,276,198,140,198]],"tent":[[2,356,257,147,125,147],[263,356,254,174,122,174],[521,356,304,150,132,150],[829,356,274,150,127,150]],"cannon":[[2,534,249,140,118,140],[255,534,252,142,129,142],[511,534,318,142,148,142],[833,534,289,142,136,142]],"hurt":[[2,680,252,160,126,160],[258,680,261,184,130,184]],"die":[[2,868,224,177,113,177],[230,868,223,168,109,168],[457,868,218,145,103,145],[679,868,218,121,100,121],[901,868,218,108,111,108]]};
+  ATLAS.stormtaur = {"idle":[[2,2,191,144,87,144],[197,2,188,148,86,148],[389,2,194,144,87,144],[587,2,189,141,86,141]],"walk":[[2,154,158,126,72,126],[164,154,155,124,71,124],[323,154,156,121,74,121],[483,154,155,123,72,123],[642,154,156,120,73,120],[802,154,156,122,71,122]],"wind":[[2,284,184,132,87,132],[190,284,149,174,71,174]],"attack":[[2,462,184,129,89,129],[190,462,181,165,95,165],[375,462,250,153,119,153],[629,462,191,126,92,126]],"special":[[2,631,181,132,85,132],[187,631,211,127,100,127],[402,631,253,132,109,132],[659,631,244,132,123,132]],"hurt":[[2,767,180,142,81,142],[186,767,175,137,86,137]],"die":[[2,913,162,132,73,132],[168,913,174,118,80,118],[346,913,181,104,85,104],[531,913,189,80,97,80],[724,913,205,61,105,61]]};
   ATLAS.colossus = {"idle":[[2,2,137,150,67,150],[143,2,130,150,62,150],[277,2,124,150,59,150],[405,2,130,150,59,150]],"walk":[[2,156,135,147,65,147],[141,156,128,147,62,147],[273,156,130,146,66,146],[407,156,128,147,62,147],[539,156,127,155,63,155],[670,156,128,153,63,153]],"throw":[[2,315,158,123,71,123],[164,315,137,150,69,150],[305,315,144,172,67,172],[453,315,175,143,78,143]],"slam":[[2,491,142,164,70,164],[148,491,159,135,72,135],[311,491,201,114,99,114],[516,491,188,128,95,128]],"hurt":[[2,659,148,140,73,140],[154,659,144,139,69,139]],"die":[[2,803,134,141,66,141],[140,803,139,138,69,138],[283,803,156,121,78,121],[443,803,187,91,98,91],[634,803,218,58,104,58]]};
   ATLAS.commander = {"idle":[[2,2,66,104,36,104],[72,2,66,104,36,104],[142,2,67,104,37,104],[213,2,67,104,38,104]],"walk":[[2,110,62,101,32,101],[68,110,65,101,35,101],[137,110,67,101,37,101],[208,110,70,99,40,99],[282,110,70,101,40,101],[356,110,70,101,40,101]],"attack":[[2,215,95,85,44,85],[101,215,129,83,48,83],[234,215,155,83,55,83],[393,215,123,84,62,84]],"throw":[[2,304,94,93,46,93],[100,304,160,92,54,92],[264,304,96,93,45,93]],"hurt":[[2,401,77,93,39,93],[83,401,93,90,42,90]],"die":[[2,498,77,86,37,86],[83,498,91,73,45,73],[178,498,124,50,58,50],[306,498,135,31,64,31]]};
   ATLAS.engine = {"idle":[[2,2,100,100,45,100],[106,2,99,100,45,100],[209,2,99,101,45,101],[312,2,99,99,44,99]],"walk":[[2,107,98,98,44,98],[104,107,94,99,43,99],[202,107,94,99,43,99],[300,107,88,96,40,96],[392,107,92,99,43,99],[488,107,84,99,38,99]],"wind":[[2,210,97,87,45,87],[103,210,103,82,48,82]],"charge":[[2,301,100,84,52,84],[106,301,103,84,55,84],[213,301,101,85,53,85],[318,301,110,79,62,79]],"sweep":[[2,390,85,104,45,104],[91,390,111,94,50,94],[206,390,114,80,53,80],[324,390,94,78,43,78]],"hurt":[[2,498,94,92,40,92],[100,498,93,88,41,88]],"die":[[2,594,94,94,44,94],[100,594,100,95,45,95],[204,594,99,95,46,95],[307,594,114,76,51,76],[425,594,124,52,64,52]]};
@@ -1066,7 +1068,8 @@
     king: { sc: 1.0, bsc: 1.5, spd: 55, hp: 7, bhp: 16, wide: 0.4, atk: 'front', sp: 'burst waves strikes', col: ['#ffd27a', '#fff', '#e7a227'], title: 'THE GOLDEN KING', wake: 'The Golden King draws his blazing sword. When he raises it high, lightning will fall.' },
     blackknight: { sc: 1.0, bsc: 1.55, spd: 62, hp: 8, bhp: 20, wide: 0.4, atk: 'front shot', sp: 'burst waves rocks', col: ['#ff4a3d', '#ffb0a0', '#5a0f0f'], title: 'THE BLACK KNIGHT', wake: 'The Black Knight, last of all. His blade splits the earth itself. Stand firm, Marcus.' },
   };
-  const xfr = (en, a) => ATLAS[en.type][a][0];
+  const xfr = (en, a) => { const k = BOSS2_SCALE[en.type]; if (!k) return ATLAS[en.type][a][0];   // redrawn multi-frame sheets: widest reach, scaled to game units
+    const f = ATLAS[en.type][a].reduce((m, g) => (g[2] - g[4] > m[2] - m[4] ? g : m)); return f.map((v, i) => (i < 2 ? v : Math.round(v * k))); };
   function xZone(en, a, mode, t, delay = 0) {
     const fr = xfr(en, a), sc = en.scale, feet = en.y + en.h, cx = en.x + en.w / 2;
     if (mode === 'front') { const fwd = (fr[2] - fr[4]) * sc * 0.9, h = fr[3] * sc * 0.7; L.zones.push({ x: en.face > 0 ? cx - 8 : cx - fwd, y: feet - h, w: fwd + 8, h, t, delay }); }
@@ -1120,7 +1123,7 @@
   }
   Object.keys(XK).forEach((k) => { NEW_AI[k] = xAI; });
   function makeX(kind, tx, ty, bossOpts) {
-    const K = XK[kind], sc = bossOpts ? K.bsc : K.sc, fr = ATLAS[kind].idle[0], w = Math.round(fr[2] * sc * K.wide), h = Math.round(fr[3] * sc * 0.85);
+    const K = XK[kind], sc = bossOpts ? K.bsc : K.sc, hk = sc * (BOSS2_SCALE[kind] || 1), fr = ATLAS[kind].idle[0], w = Math.round(fr[2] * hk * K.wide), h = Math.round(fr[3] * hk * 0.85);
     const en = { type: kind, scale: sc, x: tx * T + T / 2 - w / 2, y: (ty + 1) * T - h, w, h, vx: 0, vy: 0, hp: bossOpts ? K.bhp : K.hp, face: -1, hurt: 0, onGround: false, anim: Math.random() * 3, state: 'walk', st: rand(0.6, 1.4), n: 0 };
     if (K.fly) Object.assign(en, { fly: true, hx: en.x, hy: ty * T, y: ty * T });
     if (bossOpts) Object.assign(en, { big: true, maxHp: en.hp, title: K.title, wakeText: K.wake, awake: false, st: 1.2, minX: bossOpts.minX ? bossOpts.minX * T : 0 });
@@ -1460,8 +1463,13 @@
     const a = st === 'wind' ? 'wind' : st === 'attack' ? 'attack' : st === 'special' ? 'special' : st === 'recover' ? (en.fly && en.st <= 0 ? 'walk' : 'recover') : (moving && Math.floor(en.anim * 4) % 2 ? 'walk' : 'idle');
     const rage = en.big && en.hp <= en.maxHp / 2;
     if (rage) { ctx.save(); ctx.shadowColor = XK[en.type].col[0]; ctx.shadowBlur = 14 + Math.sin(L.t * 12) * 6; }
-    if (st === 'wind' && strobe(5)) { ctx.save(); ctx.filter = 'brightness(1.5)'; spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink); ctx.restore(); }
-    else spr(en.type, a, 0, x, feet + 2, en.face, en.scale, blink);
+    let A = a, f = 0;
+    if (en.type === 'stormtaur') {   // redrawn sheet: real cycles and multi-frame attacks
+      A = st === 'wind' ? (en.next === 'attack' ? 'attack' : 'wind') : st === 'attack' || st === 'special' ? st : en.hurt > 0.2 ? 'hurt' : moving && st === 'walk' ? 'walk' : 'idle';
+      f = st === 'wind' ? (en.st > (en.next === 'attack' ? 0.25 : 0.3) ? 0 : 1) : st === 'attack' ? (en.st > 0.3 ? 2 : 3) : st === 'special' ? (en.st > 0.75 ? 1 : en.st > 0.3 ? 2 : 3) : A === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : A === 'walk' ? en.anim * 8 : en.anim * 3;
+    }
+    if (st === 'wind' && strobe(5)) { ctx.save(); ctx.filter = 'brightness(1.5)'; spr(en.type, A, f, x, feet + 2, en.face, en.scale, blink); ctx.restore(); }
+    else spr(en.type, A, f, x, feet + 2, en.face, en.scale, blink);
     if (rage) ctx.restore();
   }
   function flashOn(cond) { return cond && strobe(5); }
@@ -1506,8 +1514,9 @@
       const a = st === 'throw' ? 'throw' : st === 'slam' ? 'slam' : en.hurt > 0.2 ? 'hurt' : st === 'walk' && Math.abs(en.vx) > 1 ? 'walk' : 'idle';
       const f = a === 'throw' ? (en.st > 0.65 ? 0 : en.st > 0.5 ? 1 : en.st > 0.35 ? 2 : 3) : a === 'slam' ? (en.st > 0.68 ? 0 : en.st > 0.45 ? 1 : en.st > 0.25 ? 2 : 3) : a === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : a === 'walk' ? en.anim * 6 : en.anim * 3;
       spr('colossus', a, f, x, feet + 1, en.face, en.scale || 1, blink); return; }
-    if (t === 'leviathan') { const a = st === 'sub' ? 'idle' : st === 'emerge' ? 'emerge' : st === 'tent' ? 'tent' : st === 'cannon' ? 'cannon' : 'emerge';
-      const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 200, 0, 400, 12 * T + 14); ctx.clip(); spr('leviathan', a, 0, x, 12 * T + 18 * (en.scale || 1) + sink, en.face, en.scale || 1, blink); ctx.restore(); return; }
+    if (t === 'leviathan') { const a = st === 'emerge' ? 'emerge' : st === 'tent' ? 'tent' : st === 'cannon' ? 'cannon' : en.hurt > 0.2 ? 'hurt' : 'idle';
+      const f = a === 'emerge' ? (0.6 - en.st) / 0.6 * 4 : a === 'tent' || a === 'cannon' ? (1 - en.st) * 4.4 : a === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : en.anim * 4;
+      const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 240, 0, 480, 12 * T + 14); ctx.clip(); spr('leviathan', a, Math.min(f, 3.99), x, 12 * T + 18 * (en.scale || 1) + sink, en.face, en.scale || 1, blink); ctx.restore(); return; }
   }
   function drawSpearAt(x, y, ang, scale) {
     const fr = ATLAS.bfx && ATLAS.bfx.spear; if (!fr || !BOSSIMG.complete) return;
@@ -1563,7 +1572,7 @@
     });
     L.corpses.forEach((c) => {
       const hasDie = ATLAS[c.set] && ATLAS[c.set].die, n = frames(c.set, 'die'), f = Math.min(n - 1, c.t * 6), a = c.t > (c.big ? 3 : 0.8) ? Math.max(0, 1 - (c.t - (c.big ? 3 : 0.8)) * 1.6) : 1;
-      if (hasDie) spr(c.set, 'die', f, c.x - L.cam, c.y + (c.eagle ? 0 : 1), c.face, c.scale, a);
+      if (hasDie) spr(c.set, 'die', f, c.x - L.cam, c.y + (c.eagle ? 0 : 1) + (c.set === 'leviathan' ? 18 * (c.scale || 1) : 0), c.face, c.scale, a);
       else { ctx.save(); ctx.filter = 'grayscale(0.7) brightness(0.8)'; spr(c.set, 'idle', 0, c.x - L.cam, c.y + 1, c.face, c.scale, Math.max(0, 1 - c.t * 0.9)); ctx.restore(); if (c.t < 1.2) spr('bfx', 'smoke', 0, c.x - L.cam, c.y - 30 - c.t * 20, 1, c.big ? 1 : 0.6, 1 - c.t / 1.2); }
       if (c.big && c.set === 'boss' && c.t < 2.5) spr('bfx', 'smoke', 0, c.x - L.cam + Math.sin(c.t * 3) * 20, c.y - 50 - c.t * 10, 1, 1, 1 - c.t / 2.5);
     });
