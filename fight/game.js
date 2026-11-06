@@ -1262,8 +1262,10 @@
     ctx.restore();
     // Use each fighter's animated eight-frame signature effect in the cinematic.
     // c.t advances while the rest of the arena is paused.
-    if(window.ArenaSpecialFX)window.ArenaSpecialFX.draw(ctx,c.id,centerX,h*.54,
-      Math.min(w*.59,530),Math.min(h*.62,340),c.t,c.side?-1:1,'special');
+    // The real roster fighter is drawn in the cut-in, so play only their energy effect,
+    // bursting out in front of them (the old 'special' pose sheets showed off-model characters).
+    if(window.ArenaSpecialFX){const fs=Math.min(h*.5,w*.34,300);
+      window.ArenaSpecialFX.draw(ctx,c.id,centerX+(c.side?-1:1)*Math.min(w*.2,190),h*.56,fs,fs,c.t,c.side?-1:1,'effect');}
     const frames = CUTIN_ATLAS[c.id], portrait = frames ? cutinImg(c.id) : null;   // only fetch cut-in art that actually exists
     if (frames && portrait.complete && portrait.naturalWidth && frames.length) {
       const n = Math.min(frames.length-1,Math.floor(p*frames.length));

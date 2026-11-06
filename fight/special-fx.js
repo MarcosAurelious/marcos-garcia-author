@@ -23,7 +23,7 @@ function rasterSprite(id,layer='special') {
   const item=rasterPainted.get(key);
   return item.ready?item.image:null;
 }
-function preload(id){rasterSprite(id,'special');rasterSprite(id,'effect');}
+function preload(id){rasterSprite(id,'effect');}   // cut-ins now use the effect sheet; pose sheets are no longer shown
 function authoredSprite(id) {
   if(!PAINTED_IDS.includes(id))return null;
   if(!painted.has(id)){
