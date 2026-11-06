@@ -9,7 +9,7 @@ const painted = new Map();
 // The new painterly pixel-art sheets are seven 256x144 frames each.
 // If not uploaded yet, the previous 8-frame vector sheets remain a safe fallback.
 const rasterPainted = new Map();
-function rasterSprite(id,layer='special') {
+function rasterSprite(id,layer='effect') {
   if(!PAINTED_IDS.includes(id))return null;
   const key=id+'_'+layer;
   if(!rasterPainted.has(key)) {

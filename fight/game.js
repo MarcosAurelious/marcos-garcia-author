@@ -693,7 +693,7 @@
     return m;
   }
   function say(f, text, col) {   // floating callouts: refresh duplicates, stack the rest so they never overlap
-    const list = (G.texts = G.texts || []), y0 = Math.max(130, f.y - BODY_H * f.ch.size - 20);
+    const list = (G.texts = G.texts || []), y0 = Math.max(175, f.y - BODY_H * f.ch.size - 20);
     const same = list.find((t) => t.who === f && t.text === text); if (same) { same.t = 1.1; same.x = f.x; return; }
     const mine = list.filter((t) => t.who === f).length;
     list.push({ text, x: f.x, y: y0 + mine * 30, col, t: 1.1, who: f });
@@ -870,7 +870,7 @@
       if (!w.hit && t.state !== 'ko' && t.onGround && overlap({ x: w.x - 26, y: FLOOR - 70, w: 52, h: 70 }, hurtbox(t))) { w.hit = true; damage(G.p[w.owner], t, w.dmg, 0.5, 320, w.x); } });
     G.waves = G.waves.filter((w) => w.life > 0 && !w.hit && w.x > -40 && w.x < VW + 40);
     (G.rings || []).forEach((r) => { r.t += dt; }); G.rings = (G.rings || []).filter((r) => r.t < r.max);
-    (G.texts || []).forEach((t) => { t.t -= dt; t.y = Math.max(120, t.y - 40 * dt); }); G.texts = (G.texts || []).filter((t) => t.t > 0);
+    (G.texts || []).forEach((t) => { t.t -= dt; t.y = Math.max(165, t.y - 40 * dt); }); G.texts = (G.texts || []).filter((t) => t.t > 0);
     G.fx.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.life -= dt; }); G.fx = G.fx.filter((p) => p.life > 0);
   }
 
@@ -1184,7 +1184,8 @@
     G.waves.forEach(w=>{if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawWave(ctx,w,G.t,FLOOR);
       else if(w.delay<=0)spr(ctx,'bfx','burst',0,w.x,FLOOR-30,Math.sign(w.vx),1);});
     (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
-    (G.texts || []).forEach((t) => { ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '24px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
+    (G.texts || []).forEach((t) => { const m = ctx.getTransform(), ty = m.d ? Math.max(t.y, (150 * (ctx.canvas.height / 540) - m.f) / m.d) : t.y; t = Object.assign({}, t, { y: ty });   // keep callouts below the HUD on screen, whatever the camera zoom
+      ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '24px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
