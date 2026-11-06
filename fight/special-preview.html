@@ -59,7 +59,7 @@ function paintedActor(id,progress,x,ground,face){
  const sc=Math.max(.1,Math.min(baseScale,maxWidth/b.w,(ground-topMargin)/b.h,(canvas.height-bottomMargin-topMargin)/b.h));
  const w=b.w*sc,h=b.h*sc;
  // Aim ahead of the character while keeping every visible pixel inside the stage.
- const left=Math.max(safeLeft,Math.min(x-w*.43,safeRight-w));
+ const left=id==='hades' ? (safeLeft+safeRight-w)/2 : Math.max(safeLeft,Math.min(x-w*.43,safeRight-w));
  const top=Math.max(topMargin,Math.min(ground-h,canvas.height-bottomMargin-h));
  ctx.save();
  if(face<0){ctx.translate(left+w,top);ctx.scale(-1,1);ctx.drawImage(image,index*384+b.x,b.y,b.w,b.h,0,0,w,h);}
@@ -88,7 +88,7 @@ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(280,461,100,12,0,0,7);ctx.fill
 const q=active?t/duration:0;const wind=Math.min(1,q/.22),hit=q>.38&&q<.73,recover=q>=.75;
 let atk=move.value;if(atk==='special'&&!atlas[fighter.value].special)atk='heavy';
 let x=280+(hit?40*Math.sin((q-.38)/.35*Math.PI):0);
-if(move.value==='special'&&fighter.value==='hades')x=330+(hit?40*Math.sin((q-.38)/.35*Math.PI):0);
+// Hades's painted special is centered independently of the idle-fighter anchor.
 if(active){
  const pose=q<.21?'idle':q<.40?'heavy':q<.8?atk:'idle';
  const fp=q<.21?wind*.75:q<.40?(q-.21)/.19:q<.8?(q-.4)/.4:(q-.8)/.2;
