@@ -429,7 +429,7 @@
   const FIGHTIMG = img('fighters.webp');
   // Hades' hand-painted 4 x 4 attack atlas (each source cell 192 x 176).
   // The visible character stays foot-anchored during the full attack cycle.
-  const HADESIMG = img('hades-sprites.png');
+  const HADESIMG = img('hades-sprites-aligned.png');
   const HADES_ATLAS = {hades16:{}};
   const HADES_KEYS = {
     idle:[0,10,11,0],walk:[1,2,3,2],jump:[2,3],
@@ -440,14 +440,14 @@
   // Pixel-measured opaque bounds: Hades' 16 painted poses have different
   // transparent margins and different foot baselines. Use each actual outline
   // instead of drawing every pose from an identical 192 x 176 rectangle.
-  const HADES_VISIBLE_BOUNDS = [[6,8,171,168],[7,7,167,168],[8,7,165,168],[8,8,159,168],[9,10,174,176],[4,11,187,165],[5,7,186,165],[3,1,190,165],[14,0,186,176],[15,4,181,176],[5,16,161,176],[9,7,168,176],[10,1,175,161],[4,1,170,161],[9,1,192,161],[0,1,189,161]];
+  const HADES_VISIBLE_BOUNDS = [[13,44,178,204],[16,43,176,204],[17,43,174,204],[20,44,171,204],[13,49,178,204],[4,50,187,204],[5,46,186,204],[2,40,189,204],[10,49,182,204],[13,57,179,204],[18,69,174,204],[16,59,175,204],[13,25,178,204],[13,21,179,204],[4,26,187,204],[1,25,190,204]];
   for (const [move,frames] of Object.entries(HADES_KEYS)) {
     HADES_ATLAS.hades16[move] = frames.map(n => {
       const [left,top,right,bottom] = HADES_VISIBLE_BOUNDS[n];
       const x = Math.max(0,left-3), y = Math.max(0,top-3);
-      const r = Math.min(192,right+3), b = Math.min(176,bottom+3);
+      const r = Math.min(192,right+3), b = Math.min(220,bottom+3);
       const w = r-x, h = b-y;
-      return [(n%4)*192+x,Math.floor(n/4)*176+y,w,h,w/2,h];
+      return [(n%4)*192+x,Math.floor(n/4)*220+y,w,h,w/2,h];
     });
   }
 
