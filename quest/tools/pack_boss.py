@@ -30,7 +30,8 @@ owner = {k: a for (a, _), ks in zip(spec, rowsets) for k in ks}
 groups = {k: [k] for k in bodies}
 for k in range(n):
     if k in groups or sizes[k] < 4: continue
-    near = min(bodies, key=lambda b: (cxf(b) - cxf(k)) ** 2 + (cy(b) - cy(k)) ** 2)
+    same_row = [b for b in bodies if objs[b][0].start - 6 <= cy(k) <= objs[b][0].stop + 6] or bodies   # never borrow bits from another row
+    near = min(same_row, key=lambda b: (cxf(b) - cxf(k)) ** 2 + (cy(b) - cy(k)) ** 2)
     bw = objs[near][1].stop - objs[near][1].start; gap = max(objs[near][1].start - objs[k][1].stop, objs[k][1].start - objs[near][1].stop)
     if owner[near] in SOLO and gap > 0.12 * bw: continue   # clearly separate from the body: a projectile the game spawns itself
     groups[near].append(k)
@@ -41,7 +42,12 @@ for (anim, count), ks in zip(spec, rowsets):
         keep = np.isin(lab, [g + 1 for g in groups[k]]); ys, xs = np.where(keep)
         x0, x1, ya, yb = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
         crop = A[ya:yb, x0:x1].copy(); crop[..., 3] = np.where(keep[ya:yb, x0:x1], crop[..., 3], 0)
-        body = (lab[ya:yb, x0:x1] == k + 1) & ~effect(crop); bys, bxs = np.where(body)
+        if anim in SOLO:   # cut away bright glowing effects (souls, bolts) the game draws itself, keep the main body
+            r_, g_, b_ = [crop[..., i].astype(int) for i in range(3)]
+            glow = (b_ > 170) & (b_ - g_ > 40) & (r_ > 110)
+            solid = (crop[..., 3] > 0) & ~glow; l2, n2 = ndimage.label(solid, np.ones((3, 3)))
+            if n2: big = np.argmax(ndimage.sum(solid, l2, range(1, n2 + 1))) + 1; crop[..., 3] = np.where(ndimage.binary_dilation(l2 == big, iterations=1) & (crop[..., 3] > 0), crop[..., 3], 0)
+        body = (lab[ya:yb, x0:x1] == k + 1) & ~effect(crop) & (crop[..., 3] > 0); bys, bxs = np.where(body)
         frames[anim].append({'img': crop, 'cx': bxs.mean(), 'feet': bys.max() + 1})
 
 scale = idle_h / np.median([f['img'].shape[0] for f in frames[spec[0][0]]])
