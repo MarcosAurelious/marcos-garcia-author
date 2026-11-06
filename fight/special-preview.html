@@ -50,13 +50,13 @@ function paintedActor(id,progress,x,ground,face){
  if(!image||!image.complete||image.naturalWidth!==2688||image.naturalHeight!==160)return false;
  const index=Math.min(5,Math.floor(Math.max(0,Math.min(.9999,progress))*6));
  const b=getPaintedFrameBounds(image,index);
- const frontMargin=id==='hades'?34:20,backMargin=16,topMargin=id==='hades'?62:80,bottomMargin=46;
+ const frontMargin=id==='hades'?52:20,backMargin=22,topMargin=id==='hades'?130:90,bottomMargin=58;
  const safeLeft=face>0?backMargin:frontMargin;
  const safeRight=canvas.width-(face>0?frontMargin:backMargin);
  const maxWidth=safeRight-safeLeft;
- const baseScale=id==='hades'?1.28:1.30;
+ const baseScale=id==='hades'?1.05:1.30;
  // Compute scale from painted pixels, not the 384x160 padded source.
- const sc=Math.max(.1,Math.min(baseScale,maxWidth/b.w,(ground-topMargin)/b.h));
+ const sc=Math.max(.1,Math.min(baseScale,maxWidth/b.w,(ground-topMargin)/b.h,(canvas.height-bottomMargin-topMargin)/b.h));
  const w=b.w*sc,h=b.h*sc;
  // Aim ahead of the character while keeping every visible pixel inside the stage.
  const left=Math.max(safeLeft,Math.min(x-w*.43,safeRight-w));
