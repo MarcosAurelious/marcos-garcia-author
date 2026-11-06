@@ -18,24 +18,54 @@ const images={};for(const [id,acts] of Object.entries(atlas))for(const data of O
 const bg=getImage('bg-colosseum.webp',true);
 const paintedSpecials={};
 ids.forEach(id=>{paintedSpecials[id]=getImage('specials/painted/'+id+'_special.png');});
+// Cache the visible (nontransparent) bounds of each special-animation frame.
+const paintedBoundsCache = new Map();
+function getPaintedFrameBounds(image, frameIndex) {
+ const key=image.src+'::'+frameIndex;
+ if(paintedBoundsCache.has(key))return paintedBoundsCache.get(key);
+ const sw=384,sh=160,sx=frameIndex*sw;
+ const scratch=document.createElement('canvas');
+ scratch.width=sw;scratch.height=sh;
+ const sc=scratch.getContext('2d',{willReadFrequently:true});
+ sc.drawImage(image,sx,0,sw,sh,0,0,sw,sh);
+ let pixels;
+ try{pixels=sc.getImageData(0,0,sw,sh).data;}
+ catch(error){console.warn('Could not inspect painted frame',error);return {x:0,y:0,w:sw,h:sh};}
+ let minX=sw,minY=sh,maxX=-1,maxY=-1;
+ for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+  if(pixels[(y*sw+x)*4+3]>8){
+   minX=Math.min(minX,x);minY=Math.min(minY,y);
+   maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+  }
+ }
+ if(maxX<minX)return {x:0,y:0,w:sw,h:sh};
+ minX=Math.max(0,minX-3);minY=Math.max(0,minY-3);
+ maxX=Math.min(sw-1,maxX+3);maxY=Math.min(sh-1,maxY+3);
+ const bounds={x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+ paintedBoundsCache.set(key,bounds);
+ return bounds;
+}
 function paintedActor(id,progress,x,ground,face){
  const image=paintedSpecials[id];
  if(!image||!image.complete||image.naturalWidth!==2688||image.naturalHeight!==160)return false;
- // Seven illustrated frames. Keep the *entire* source frame on screen:
- // the old 1.48x zoom centered at x=280 clipped Hades's wide void attack.
  const index=Math.min(5,Math.floor(Math.max(0,Math.min(.9999,progress))*6));
- const sx=index*384, sw=384, sh=160, margin=22;
- const bounds={left:margin,right:canvas.width-margin,top:80,bottom:492};
- const baseScale=id==='hades'?1.22:1.30;
- const maxW=(bounds.right-bounds.left)/sw, maxH=(bounds.bottom-bounds.top)/sh;
- const sc=Math.min(baseScale,maxW,maxH);
- const width=sw*sc,height=sh*sc;
- const drawX=Math.max(bounds.left,Math.min(x-width/2,bounds.right-width));
- const drawY=Math.max(bounds.top,Math.min(ground-height*.96,bounds.bottom-height));
+ const b=getPaintedFrameBounds(image,index);
+ const frontMargin=id==='hades'?34:20,backMargin=16,topMargin=id==='hades'?62:80,bottomMargin=46;
+ const safeLeft=face>0?backMargin:frontMargin;
+ const safeRight=canvas.width-(face>0?frontMargin:backMargin);
+ const maxWidth=safeRight-safeLeft;
+ const baseScale=id==='hades'?1.28:1.30;
+ // Compute scale from painted pixels, not the 384x160 padded source.
+ const sc=Math.max(.1,Math.min(baseScale,maxWidth/b.w,(ground-topMargin)/b.h));
+ const w=b.w*sc,h=b.h*sc;
+ // Aim ahead of the character while keeping every visible pixel inside the stage.
+ const left=Math.max(safeLeft,Math.min(x-w*.43,safeRight-w));
+ const top=Math.max(topMargin,Math.min(ground-h,canvas.height-bottomMargin-h));
  ctx.save();
- if(face<0){ctx.translate(drawX+width,drawY);ctx.scale(-1,1);ctx.drawImage(image,sx,0,sw,sh,0,0,width,height);}
- else ctx.drawImage(image,sx,0,sw,sh,drawX,drawY,width,height);
- ctx.restore();return true;
+ if(face<0){ctx.translate(left+w,top);ctx.scale(-1,1);ctx.drawImage(image,index*384+b.x,b.y,b.w,b.h,0,0,w,h);}
+ else ctx.drawImage(image,index*384+b.x,b.y,b.w,b.h,left,top,w,h);
+ ctx.restore();
+ return true;
 }
 let t=0,last=0,active=false,loop=true;const duration=1.5;
 function sprite(id,act,p,x,ground,face,scale=1){let d=atlas[id][act]||atlas[id].idle;if(!d)return false;const image=images[d.src];
@@ -58,6 +88,7 @@ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(280,461,100,12,0,0,7);ctx.fill
 const q=active?t/duration:0;const wind=Math.min(1,q/.22),hit=q>.38&&q<.73,recover=q>=.75;
 let atk=move.value;if(atk==='special'&&!atlas[fighter.value].special)atk='heavy';
 let x=280+(hit?40*Math.sin((q-.38)/.35*Math.PI):0);
+if(move.value==='special'&&fighter.value==='hades')x=330+(hit?40*Math.sin((q-.38)/.35*Math.PI):0);
 if(active){
  const pose=q<.21?'idle':q<.40?'heavy':q<.8?atk:'idle';
  const fp=q<.21?wind*.75:q<.40?(q-.21)/.19:q<.8?(q-.4)/.4:(q-.8)/.2;
