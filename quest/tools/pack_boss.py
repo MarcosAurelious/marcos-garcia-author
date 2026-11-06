@@ -9,9 +9,10 @@ from PIL import Image
 from scipy import ndimage
 
 src, out, idle_h = sys.argv[1], sys.argv[2], float(sys.argv[3])
-spec = [(a.split(':')[0], int(a.split(':')[1].rstrip('!~'))) for a in sys.argv[4:]]
+spec = [(a.split(':')[0], int(a.split(':')[1].rstrip('!~^'))) for a in sys.argv[4:]]
 MATCH = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('~')}   # anim:count~ -> rescale that row so the body matches the idle height (the generator drew it smaller)
-SOLO = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('!')}   # anim:count!  -> drop loose bits outside the body (e.g. a boulder the game spawns itself)
+SOLO = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('!')}
+GAP = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('^')}   # anim:count^ -> only drop bits floating clear of the body (no colour cut)   # anim:count!  -> drop loose bits outside the body (e.g. a boulder the game spawns itself)
 im = Image.open(src).convert('RGBA'); A = np.array(im); A[..., 3][A[..., 3] < 24] = 0
 alpha = A[..., 3] > 0
 
@@ -33,7 +34,7 @@ for k in range(n):
     same_row = [b for b in bodies if objs[b][0].start - 6 <= cy(k) <= objs[b][0].stop + 6] or bodies   # never borrow bits from another row
     near = min(same_row, key=lambda b: (cxf(b) - cxf(k)) ** 2 + (cy(b) - cy(k)) ** 2)
     bw = objs[near][1].stop - objs[near][1].start; gap = max(objs[near][1].start - objs[k][1].stop, objs[k][1].start - objs[near][1].stop)
-    if owner[near] in SOLO and gap > 0.12 * bw: continue   # clearly separate from the body: a projectile the game spawns itself
+    if owner[near] in SOLO | GAP and gap > 0.12 * bw: continue   # clearly separate from the body: a projectile the game spawns itself
     groups[near].append(k)
 frames = {}
 for (anim, count), ks in zip(spec, rowsets):
