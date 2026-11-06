@@ -948,16 +948,23 @@
     const c = document.createElement('canvas'); c.width = Math.round(W * 1.5); c.height = Math.round(Hh * 1.5); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
     g.drawImage(small, 0, 0, c.width, c.height); g.fillStyle = busy ? 'rgba(12,8,5,0.5)' : 'rgba(12,8,5,0.3)'; g.fillRect(0, 0, c.width, c.height);
     const v = g.createRadialGradient(c.width / 2, c.height * 0.62, c.height * 0.15, c.width / 2, c.height * 0.62, c.width * 0.6); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = v; g.fillRect(0, 0, c.width, c.height);
-    bgCache.set(im, c); return c;
+    c.meta = { W, Hh, w, h }; bgCache.set(im, c); return c;
+  }
+  function bgLife(c, dx, dy, dw, dh) {   // animated fire, smoke and water on top of the painted stage (bg-fx.js)
+    if (!window.ArenaBgFX || !c.meta) return;
+    const { W, Hh, w, h } = c.meta, key = (G.bg.src.match(/bg-[a-z]+/) || [''])[0];
+    const toWorld = (u, v) => [dx + ((W - w) / 2 + u * w) / W * dw, dy + ((Hh - h) / 2 + v * h) / Hh * dh]; toWorld.k = w / W * dw;
+    window.ArenaBgFX.draw(ctx, key, toWorld, performance.now() / 1000, calm);
   }
   function drawBg() {
     const im = G.bg, R = CAM ? { x: CAM.x0, y: CAM.top, w: CAM.w, h: CAM.h } : { x: 0, y: 0, w: VW, h: VH }; ctx.fillStyle = '#120c08'; ctx.fillRect(R.x, R.y, R.w, R.h);
     if (im.complete && im.naturalWidth && CAM) {   // upright phone: the whole backdrop scaled to the view's height, drifting gently with the fight
       const c = bakedBg(im), bw = c.width / 1.5, k = Math.max(R.h / VH, R.w / bw), dw = bw * k, dh = VH * k, mid = (G.p[0].x + G.p[1].x) / 2 - (R.x + R.w / 2), room = Math.max(0, (dw - R.w) / 2);
-      ctx.drawImage(c, R.x + R.w / 2 - dw / 2 - clamp(mid / Math.max(100, R.w / 2 - 50), -1, 1) * room * 0.35, R.y + (R.h - dh) * 0.7, dw, dh); }
+      const dx = R.x + R.w / 2 - dw / 2 - clamp(mid / Math.max(100, R.w / 2 - 50), -1, 1) * room * 0.35, dy = R.y + (R.h - dh) * 0.7;
+      ctx.drawImage(c, dx, dy, dw, dh); bgLife(c, dx, dy, dw, dh); }
     else if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2, bw = c.width / 1.5;
-      if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
-      else ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); }
+      if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); bgLife(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
+      else { ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); bgLife(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); } }
     const g = ctx.createLinearGradient(0, R.y, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(R.x, R.y, R.w, R.h);
     ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(R.x, FLOOR, R.w, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(R.x, FLOOR, R.w, 2);
   }
