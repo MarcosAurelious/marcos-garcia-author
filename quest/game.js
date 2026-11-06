@@ -56,7 +56,10 @@
   const MARCUSIMG = img('img/marcus.webp');
   Object.assign(ATLAS, EATLAS, XATLAS, MATLAS);
   // Chapter I and II bosses: full redrawn sheets (weapon in every frame, real walk cycles, death falls)
-  const BOSS2 = { commander: img('img/boss-commander.webp'), engine: img('img/boss-engine.webp') };
+  const BOSS2 = { commander: img('img/boss-commander.webp'), engine: img('img/boss-engine.webp'), colossus: img('img/boss-colossus.webp'), techno: img('img/boss-medusa.webp') };
+  const BOSS2_SCALE = { colossus: 1 / 1.5, techno: 1 / 1.5 };   // packed at full boss size: the 1.5x boss draws 1:1 (sharp), regular ones shrink
+  ATLAS.techno = {"idle":[[2,2,76,97,36,97],[82,2,83,96,42,96],[169,2,82,96,40,96],[255,2,84,94,40,94]],"move":[[2,103,85,90,38,90],[91,103,94,89,44,89],[189,103,97,91,44,91],[290,103,97,84,46,84]],"gaze":[[2,198,80,94,38,94],[86,198,141,93,42,93],[231,198,139,93,38,93]],"summon":[[2,296,94,93,40,93],[100,296,125,93,52,93],[229,296,99,94,42,94]],"hurt":[[2,394,86,88,44,88],[92,394,86,84,43,84]],"die":[[2,486,74,101,35,101],[80,486,79,102,37,102],[163,486,77,100,39,100],[244,486,77,98,39,98],[325,486,113,49,55,49]]};
+  ATLAS.colossus = {"idle":[[2,2,137,150,67,150],[143,2,130,150,62,150],[277,2,124,150,59,150],[405,2,130,150,59,150]],"walk":[[2,156,135,147,65,147],[141,156,128,147,62,147],[273,156,130,146,66,146],[407,156,128,147,62,147],[539,156,127,155,63,155],[670,156,128,153,63,153]],"throw":[[2,315,158,123,71,123],[164,315,137,150,69,150],[305,315,144,172,67,172],[453,315,175,143,78,143]],"slam":[[2,491,142,164,70,164],[148,491,159,135,72,135],[311,491,201,114,99,114],[516,491,188,128,95,128]],"hurt":[[2,659,148,140,73,140],[154,659,144,139,69,139]],"die":[[2,803,134,141,66,141],[140,803,139,138,69,138],[283,803,156,121,78,121],[443,803,187,91,98,91],[634,803,218,58,104,58]]};
   ATLAS.commander = {"idle":[[2,2,66,104,36,104],[72,2,66,104,36,104],[142,2,67,104,37,104],[213,2,67,104,38,104]],"walk":[[2,110,62,101,32,101],[68,110,65,101,35,101],[137,110,67,101,37,101],[208,110,70,99,40,99],[282,110,70,101,40,101],[356,110,70,101,40,101]],"attack":[[2,215,95,85,44,85],[101,215,129,83,48,83],[234,215,155,83,55,83],[393,215,123,84,62,84]],"throw":[[2,304,94,93,46,93],[100,304,160,92,54,92],[264,304,96,93,45,93]],"hurt":[[2,401,77,93,39,93],[83,401,93,90,42,90]],"die":[[2,498,77,86,37,86],[83,498,91,73,45,73],[178,498,124,50,58,50],[306,498,135,31,64,31]]};
   ATLAS.engine = {"idle":[[2,2,100,100,45,100],[106,2,99,100,45,100],[209,2,99,101,45,101],[312,2,99,99,44,99]],"walk":[[2,107,98,98,44,98],[104,107,94,99,43,99],[202,107,94,99,43,99],[300,107,88,96,40,96],[392,107,92,99,43,99],[488,107,84,99,38,99]],"wind":[[2,210,97,87,45,87],[103,210,103,82,48,82]],"charge":[[2,301,100,84,52,84],[106,301,103,84,55,84],[213,301,101,85,53,85],[318,301,110,79,62,79]],"sweep":[[2,390,85,104,45,104],[91,390,111,94,50,94],[206,390,114,80,53,80],[324,390,94,78,43,78]],"hurt":[[2,498,94,92,40,92],[100,498,93,88,41,88]],"die":[[2,594,94,94,44,94],[100,594,100,95,45,95],[204,594,99,95,46,95],[307,594,114,76,51,76],[425,594,124,52,64,52]]};
   const imgFor = (set) => BOSS2[set] || (set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
@@ -67,6 +70,7 @@
     const [x, y, w0, h, ax, ay] = fr[((Math.floor(i) % fr.length) + fr.length) % fr.length];
     const w = clip ? Math.min(w0, ax + clip) : w0;
     ctx.save(); if (alpha !== 1) ctx.globalAlpha *= alpha; ctx.translate(Math.round(sx), Math.round(sy)); if (face < 0) ctx.scale(-1, 1);
+    if (BOSS2_SCALE[set]) scale *= BOSS2_SCALE[set];
     ctx.drawImage(im, x, y, w, h, -ax * scale, -ay * scale, w * scale, h * scale); ctx.restore();
   }
   const frames = (set, anim) => (ATLAS[set] && ATLAS[set][anim] ? ATLAS[set][anim].length : 1);
@@ -1476,6 +1480,13 @@
       if (flashOn(st === 'wind')) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr(set, a, f, x, feet + 1, en.face, 1, blink); ctx.restore(); } else spr(set, a, f, x, feet + 1, en.face, 1, blink);
       return;
     }
+    if (t === 'techno') {   // Medusa the Technomancer: eyes glow, eye beam, summon, hurt, idle hover
+      const a = st === 'gazeWind' || st === 'gaze' ? 'gaze' : st === 'serp' ? 'summon' : en.hurt > 0.2 ? 'hurt' : 'idle';
+      const f = st === 'gazeWind' ? 0 : st === 'gaze' ? (en.st > 0.2 ? 1 : 2) : a === 'summon' ? (0.9 - en.st) * 3.3 : a === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : en.anim * 4;
+      if (flashOn(st === 'gazeWind')) { ctx.save(); ctx.shadowColor = '#e7c46a'; ctx.shadowBlur = 20; spr(t, a, f, x, feet + 1, en.face, en.scale || 1, blink); ctx.restore(); }
+      else spr(t, a, f, x, feet + 1, en.face, en.scale || 1, blink);
+      return;
+    }
     if (t === 'medusa' || t === 'techno') {
       const a = st === 'gaze' ? (t === 'medusa' ? 'gaze' : 'gaze') : st === 'serp' ? (t === 'medusa' ? 'serp' : 'sum') : 'idle';
       const f = st === 'gaze' && t === 'techno' ? 1 : st === 'serp' ? (0.9 - en.st) * 3 : en.anim * 3;
@@ -1491,7 +1502,10 @@
       spr('helios', st === 'orbs' ? 'orbs' : 'idle', en.anim * 4, cx, cy, 1, 1.05, blink); return; }
     if (t === 'chiron') { spr('chiron', en.hurt > 0 ? 'idle' : en.draw ? 'shoot' : 'idle', en.anim * 3, x, feet + 1, en.face, 1, blink); return; }
     if (t === 'chariot') { spr('chariot', 'move', 0, x, en.y + en.h / 2, en.face, 1, blink); return; }
-    if (t === 'colossus') { const a = st === 'throw' ? 'throw' : st === 'slam' ? 'slam' : 'idle', f = st === 'throw' ? (en.st < 0.35 ? 1 : 0) : st === 'slam' ? (0.9 - en.st) * 3.4 : en.anim * 3; spr('colossus', a, f, x, feet + 1, en.face, en.scale || 1, blink); return; }
+    if (t === 'colossus') {   // crouch, lift, overhead, release (boulder leaves at st 0.35) / raise, crouch, impact (st 0.45), recover
+      const a = st === 'throw' ? 'throw' : st === 'slam' ? 'slam' : en.hurt > 0.2 ? 'hurt' : st === 'walk' && Math.abs(en.vx) > 1 ? 'walk' : 'idle';
+      const f = a === 'throw' ? (en.st > 0.65 ? 0 : en.st > 0.5 ? 1 : en.st > 0.35 ? 2 : 3) : a === 'slam' ? (en.st > 0.68 ? 0 : en.st > 0.45 ? 1 : en.st > 0.25 ? 2 : 3) : a === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : a === 'walk' ? en.anim * 6 : en.anim * 3;
+      spr('colossus', a, f, x, feet + 1, en.face, en.scale || 1, blink); return; }
     if (t === 'leviathan') { const a = st === 'sub' ? 'idle' : st === 'emerge' ? 'emerge' : st === 'tent' ? 'tent' : st === 'cannon' ? 'cannon' : 'emerge';
       const sink = st === 'sub' ? 36 : 0; ctx.save(); ctx.beginPath(); ctx.rect(x - 200, 0, 400, 12 * T + 14); ctx.clip(); spr('leviathan', a, 0, x, 12 * T + 18 * (en.scale || 1) + sink, en.face, en.scale || 1, blink); ctx.restore(); return; }
   }

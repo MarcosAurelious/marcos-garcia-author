@@ -9,7 +9,8 @@ from PIL import Image
 from scipy import ndimage
 
 src, out, idle_h = sys.argv[1], sys.argv[2], float(sys.argv[3])
-spec = [(a.split(':')[0], int(a.split(':')[1])) for a in sys.argv[4:]]
+spec = [(a.split(':')[0], int(a.split(':')[1].rstrip('!'))) for a in sys.argv[4:]]
+SOLO = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('!')}   # anim:count!  -> drop loose bits outside the body (e.g. a boulder the game spawns itself)
 im = Image.open(src).convert('RGBA'); A = np.array(im); A[..., 3][A[..., 3] < 24] = 0
 alpha = A[..., 3] > 0
 
@@ -17,35 +18,29 @@ def effect(c):   # glowing energy / fire pixels: not part of the body
     r, g, b = [c[..., i].astype(int) for i in range(3)]
     return ((b > 150) & (r > 120) & (g < 140) & (b - g > 60)) | ((r > 200) & (g > 120) & (b < 90) & (r - b > 130))
 
-# 1) rows
-filled = alpha.sum(1) > 2; rows = []; y = 0
-while y < len(filled):
-    if filled[y]:
-        s = y
-        while y < len(filled) and (filled[y] or filled[y:y + 6].any()): y += 1
-        if y - s > 25: rows.append((s, y))
-    else: y += 1
-assert len(rows) == len(spec), f'found {len(rows)} rows, expected {len(spec)}: {rows}'
-
+# 1) figures: the N largest blobs are the N frames; sort by height on the sheet, then fill rows in order
+lab, n = ndimage.label(alpha, np.ones((3, 3))); sizes = ndimage.sum(alpha, lab, range(1, n + 1)); objs = ndimage.find_objects(lab)
+total = sum(c for _, c in spec); bodies = list(np.argsort(-sizes)[:total])
+assert sizes[bodies[-1]] > sizes[bodies[0]] * 0.12, 'the smallest "frame" looks like a fragment: check the frame counts'
+cy = lambda k: (objs[k][0].start + objs[k][0].stop) / 2; cxf = lambda k: (objs[k][1].start + objs[k][1].stop) / 2
+bodies.sort(key=cy); rowsets = []; i = 0
+for anim, count in spec: rowsets.append(sorted(bodies[i:i + count], key=cxf)); i += count
+owner = {k: a for (a, _), ks in zip(spec, rowsets) for k in ks}
+groups = {k: [k] for k in bodies}
+for k in range(n):
+    if k in groups or sizes[k] < 4: continue
+    near = min(bodies, key=lambda b: (cxf(b) - cxf(k)) ** 2 + (cy(b) - cy(k)) ** 2)
+    bw = objs[near][1].stop - objs[near][1].start; gap = max(objs[near][1].start - objs[k][1].stop, objs[k][1].start - objs[near][1].stop)
+    if owner[near] in SOLO and gap > 0.12 * bw: continue   # clearly separate from the body: a projectile the game spawns itself
+    groups[near].append(k)
 frames = {}
-for (y0, y1), (anim, count) in zip(rows, spec):
-    m = alpha[y0:y1]; lab, n = ndimage.label(m, np.ones((3, 3)))
-    sizes = ndimage.sum(m, lab, range(1, n + 1)); objs = ndimage.find_objects(lab)
-    order = np.argsort(-sizes); bodies = sorted(order[:count], key=lambda k: objs[k][1].start)
-    assert sizes[bodies[-1]] > sizes.max() * 0.15, f'{anim}: expected {count} figures, the smallest found looks like a fragment'
-    centers = [(objs[k][1].start + objs[k][1].stop) / 2 for k in bodies]
-    groups = {k: [k] for k in bodies}
-    for k in range(n):
-        if k in groups or sizes[k] < 4: continue
-        cx = (objs[k][1].start + objs[k][1].stop) / 2
-        groups[bodies[int(np.argmin([abs(cx - c) for c in centers]))]].append(k)
+for (anim, count), ks in zip(spec, rowsets):
     frames[anim] = []
-    for k in bodies:
+    for k in ks:
         keep = np.isin(lab, [g + 1 for g in groups[k]]); ys, xs = np.where(keep)
         x0, x1, ya, yb = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
-        crop = A[y0 + ya:y0 + yb, x0:x1].copy(); crop[..., 3] = np.where(keep[ya:yb, x0:x1], crop[..., 3], 0)
-        body = (lab[ya:yb, x0:x1] == k + 1) & ~effect(crop)
-        bys, bxs = np.where(body)
+        crop = A[ya:yb, x0:x1].copy(); crop[..., 3] = np.where(keep[ya:yb, x0:x1], crop[..., 3], 0)
+        body = (lab[ya:yb, x0:x1] == k + 1) & ~effect(crop); bys, bxs = np.where(body)
         frames[anim].append({'img': crop, 'cx': bxs.mean(), 'feet': bys.max() + 1})
 
 scale = idle_h / np.median([f['img'].shape[0] for f in frames[spec[0][0]]])
