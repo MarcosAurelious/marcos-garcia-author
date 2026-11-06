@@ -20,18 +20,36 @@ const paintedSpecials={};
 ids.forEach(id=>{paintedSpecials[id]=getImage('specials/painted/'+id+'_special.png');});
 function paintedActor(id,progress,x,ground,face){
  const image=paintedSpecials[id];
- if(!image.complete||image.naturalWidth!==2688||image.naturalHeight!==160)return false;
- // Seven 384px-wide frames; end before the collision tableau so the opponent
- // stays a separate entity rather than being drawn twice in the arena.
+ if(!image||!image.complete||image.naturalWidth!==2688||image.naturalHeight!==160)return false;
+ // Seven illustrated frames. Keep the *entire* source frame on screen:
+ // the old 1.48x zoom centered at x=280 clipped Hades's wide void attack.
  const index=Math.min(5,Math.floor(Math.max(0,Math.min(.9999,progress))*6));
- const sc=1.48, sx=index*384;
- ctx.save();ctx.translate(x,ground);if(face<0)ctx.scale(-1,1);
- ctx.drawImage(image,sx,0,384,160,-192*sc,-153*sc,384*sc,160*sc);
+ const sx=index*384, sw=384, sh=160, margin=22;
+ const bounds={left:margin,right:canvas.width-margin,top:80,bottom:492};
+ const baseScale=id==='hades'?1.22:1.30;
+ const maxW=(bounds.right-bounds.left)/sw, maxH=(bounds.bottom-bounds.top)/sh;
+ const sc=Math.min(baseScale,maxW,maxH);
+ const width=sw*sc,height=sh*sc;
+ const drawX=Math.max(bounds.left,Math.min(x-width/2,bounds.right-width));
+ const drawY=Math.max(bounds.top,Math.min(ground-height*.96,bounds.bottom-height));
+ ctx.save();
+ if(face<0){ctx.translate(drawX+width,drawY);ctx.scale(-1,1);ctx.drawImage(image,sx,0,sw,sh,0,0,width,height);}
+ else ctx.drawImage(image,sx,0,sw,sh,drawX,drawY,width,height);
  ctx.restore();return true;
 }
 let t=0,last=0,active=false,loop=true;const duration=1.5;
 function sprite(id,act,p,x,ground,face,scale=1){let d=atlas[id][act]||atlas[id].idle;if(!d)return false;const image=images[d.src];
-if(!image||!image.complete||!image.naturalWidth){ctx.save();ctx.fillStyle='#e5c580';ctx.font='14px Georgia';ctx.textAlign='center';ctx.fillText('Loading '+id.toUpperCase()+'…',x,ground-90);ctx.restore();return false;}const frame=d.frames[Math.min(d.frames.length-1,Math.max(0,Math.floor(p*d.frames.length)))], [sx,sy,w,h,ax,ay]=frame;ctx.save();ctx.translate(x,ground);if(face<0)ctx.scale(-1,1);ctx.drawImage(image,sx,sy,w,h,-ax*scale,-ay*scale,w*scale,h*scale);ctx.restore();return true;}
+if(!image||!image.complete||!image.naturalWidth){ctx.save();ctx.fillStyle='#e5c580';ctx.font='14px Georgia';ctx.textAlign='center';ctx.fillText('Loading '+id.toUpperCase()+'…',x,ground-90);ctx.restore();return false;}const frame=d.frames[Math.min(d.frames.length-1,Math.max(0,Math.floor(p*d.frames.length)))], [sx,sy,w,h,ax,ay]=frame;// Keep all original sprite rectangles inside the arena, including Hades's
+ // unusually wide KO and attack drawings, without stretching the artwork.
+ const margin=16,minY=80,maxY=494;
+ const maxScale=Math.min(scale,(canvas.width-2*margin)/w,(maxY-minY)/h);
+ const drawnLeft=x-ax*maxScale,drawnRight=drawnLeft+w*maxScale;
+ const lockedX=x+Math.max(margin-drawnLeft,0)-Math.max(drawnRight-(canvas.width-margin),0);
+ const top=ground-ay*maxScale, bottom=top+h*maxScale;
+ const lockedY=ground+Math.max(minY-top,0)-Math.max(bottom-maxY,0);
+ ctx.save();ctx.translate(lockedX,lockedY);if(face<0)ctx.scale(-1,1);
+ ctx.drawImage(image,sx,sy,w,h,-ax*maxScale,-ay*maxScale,w*maxScale,h*maxScale);
+ ctx.restore();return true;}
 // The painterly attack is part of the full character artwork; generic
 // geometric effects are deliberately not drawn on top of the fighters.
 function render(now){const dt=Math.min(.05,(now-last)/1000||0);last=now;if(active){t+=dt;if(t>=duration){if(loop)t=0;else{t=duration;active=false}}}
