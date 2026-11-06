@@ -43,7 +43,7 @@ if(!image||!image.complete||!image.naturalWidth){ctx.save();ctx.fillStyle='#e5c5
  // unusually wide KO and attack drawings, without stretching the artwork.
  const margin=16,minY=80,maxY=494;
  const maxScale=Math.min(scale,(canvas.width-2*margin)/w,(maxY-minY)/h);
- const drawnLeft=x-ax*maxScale,drawnRight=drawnLeft+w*maxScale;
+ const drawnLeft=x-(face<0?(w-ax):ax)*maxScale,drawnRight=drawnLeft+w*maxScale;
  const lockedX=x+Math.max(margin-drawnLeft,0)-Math.max(drawnRight-(canvas.width-margin),0);
  const top=ground-ay*maxScale, bottom=top+h*maxScale;
  const lockedY=ground+Math.max(minY-top,0)-Math.max(bottom-maxY,0);
