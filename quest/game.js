@@ -55,7 +55,11 @@
   const MATLAS = {"n2":{"idle":[[241,0,92,125,48,125],[1188,0,110,117,66,116]],"walk":[[1033,146,116,109,74,109],[1692,0,107,115,66,112]],"run":[[1033,146,116,109,74,109],[1692,0,107,115,66,112]],"jump":[[0,0,118,144,76,120]],"attack":[[241,0,92,125,48,125],[561,146,178,110,70,109],[561,146,178,110,70,109],[561,146,178,110,70,109]],"special":[[561,146,178,110,70,109]],"hurt":[[1188,0,110,117,66,116]]},"n5":{"idle":[[609,0,96,124,52,124],[950,0,118,120,68,120]],"walk":[[443,146,116,113,70,113],[111,146,110,115,61,112]],"run":[[443,146,116,113,70,113],[111,146,110,115,61,112]],"jump":[[120,0,119,143,78,119]],"attack":[[609,0,96,124,52,124],[1518,0,172,116,66,116],[1518,0,172,116,66,116],[1518,0,172,116,66,116]],"special":[[1518,0,172,116,66,116]],"hurt":[[950,0,118,120,68,120]]},"n4":{"idle":[[335,0,91,125,48,125],[0,146,109,115,66,115]],"walk":[[1331,146,121,109,80,108],[331,146,110,113,68,112]],"run":[[1331,146,121,109,80,108],[331,146,110,113,68,112]],"jump":[[823,0,125,121,82,121]],"attack":[[335,0,91,125,48,125],[1454,146,180,107,68,107],[1454,146,180,107,68,107],[1454,146,180,107,68,107]],"special":[[1454,146,180,107,68,107]],"hurt":[[0,146,109,115,66,115]]},"n1":{"idle":[[428,0,85,124,46,124],[1300,0,106,116,68,116]],"walk":[[741,146,115,109,74,109],[223,146,106,113,64,112]],"run":[[741,146,115,109,74,109],[223,146,106,113,64,112]],"jump":[[707,0,114,121,74,121]],"attack":[[428,0,85,124,46,124],[858,146,173,109,68,109],[858,146,173,109,68,109],[858,146,173,109,68,109]],"special":[[858,146,173,109,68,109]],"hurt":[[1300,0,106,116,68,116]]},"n3":{"idle":[[515,0,92,124,47,124],[1408,0,108,116,63,115]],"walk":[[1801,0,119,115,73,108],[1922,0,111,115,62,113]],"run":[[1801,0,119,115,73,108],[1922,0,111,115,62,113]],"jump":[[1070,0,116,119,75,118]],"attack":[[515,0,92,124,47,124],[1151,146,178,109,69,108],[1151,146,178,109,69,108],[1151,146,178,109,69,108]],"special":[[1151,146,178,109,69,108]],"hurt":[[1408,0,108,116,63,115]]}};   // Marcus, armor stages I-V (drawn at half size)
   const MARCUSIMG = img('img/marcus.webp');
   Object.assign(ATLAS, EATLAS, XATLAS, MATLAS);
-  const imgFor = (set) => (set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  // Chapter I and II bosses: full redrawn sheets (weapon in every frame, real walk cycles, death falls)
+  const BOSS2 = { commander: img('img/boss-commander.webp'), engine: img('img/boss-engine.webp') };
+  ATLAS.commander = {"idle":[[2,2,66,104,36,104],[72,2,66,104,36,104],[142,2,67,104,37,104],[213,2,67,104,38,104]],"walk":[[2,110,62,101,32,101],[68,110,65,101,35,101],[137,110,67,101,37,101],[208,110,70,99,40,99],[282,110,70,101,40,101],[356,110,70,101,40,101]],"attack":[[2,215,95,85,44,85],[101,215,129,83,48,83],[234,215,155,83,55,83],[393,215,123,84,62,84]],"throw":[[2,304,94,93,46,93],[100,304,160,92,54,92],[264,304,96,93,45,93]],"hurt":[[2,401,77,93,39,93],[83,401,93,90,42,90]],"die":[[2,498,77,86,37,86],[83,498,91,73,45,73],[178,498,124,50,58,50],[306,498,135,31,64,31]]};
+  ATLAS.engine = {"idle":[[2,2,100,100,45,100],[106,2,99,100,45,100],[209,2,99,101,45,101],[312,2,99,99,44,99]],"walk":[[2,107,98,98,44,98],[104,107,94,99,43,99],[202,107,94,99,43,99],[300,107,88,96,40,96],[392,107,92,99,43,99],[488,107,84,99,38,99]],"wind":[[2,210,97,87,45,87],[103,210,103,82,48,82]],"charge":[[2,301,100,84,52,84],[106,301,103,84,55,84],[213,301,101,85,53,85],[318,301,110,79,62,79]],"sweep":[[2,390,85,104,45,104],[91,390,111,94,50,94],[206,390,114,80,53,80],[324,390,94,78,43,78]],"hurt":[[2,498,94,92,40,92],[100,498,93,88,41,88]],"die":[[2,594,94,94,44,94],[100,594,100,95,45,95],[204,594,99,95,46,95],[307,594,114,76,51,76],[425,594,124,52,64,52]]};
+  const imgFor = (set) => BOSS2[set] || (set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   // spr: draw one frame with its anchor (feet, or centre for effects) at screen x,y. clip limits how far right of the anchor is drawn.
   function spr(set, anim, i, sx, sy, face = 1, scale = 1, alpha = 1, clip = 0) {
     const fr = ATLAS[set] && ATLAS[set][anim]; if (!fr) return;
@@ -980,9 +984,9 @@
       else if (en.state === 'wind') { en.vx = 0; if (en.st <= 0) { en.state = 'charge'; en.st = 1.1; SFX.boss(); } }
       else if (en.state === 'charge') { en.vx = en.face * 380 * fast; if (en.hitWall || en.st <= 0 || (en.face < 0 && en.x <= en.minX + 2) || (en.face > 0 && en.x >= (L.w - 4) * T - 2)) { en.state = 'rest'; en.st = 0.9 / fast; en.vx = 0; L.shake = 0.3;
           if (fast > 1) [-1, 1].forEach((d) => L.waves.push({ x: en.x + en.w / 2 + d * 30, y: en.y + en.h, vx: d * 320, life: 1.3 })); } }
-      else if (en.state === 'sweepWind') { if (en.st <= 0) { en.state = 'sweep'; en.st = 0.35; SFX.slash(); } }
+      else if (en.state === 'sweepWind') { if (en.st <= 0) { en.state = 'sweep'; en.st = 0.35; en.swept = true; SFX.slash(); } }
       else if (en.state === 'sweep') { const hb = { x: en.face > 0 ? en.x + en.w - 10 : en.x - 80, y: en.y + 20, w: 90, h: 70 }; if (!P.dead && overlap(P, hb)) hurtPlayer(en.x + en.w / 2); if (en.st <= 0) { en.state = 'rest'; en.st = 0.8 / fast; } }
-      else { en.vx = 0; if (en.st <= 0) { en.state = 'walk'; en.st = rand(0.8, 1.4); } }
+      else { en.vx = 0; if (en.st <= 0) { en.state = 'walk'; en.swept = false; en.st = rand(0.8, 1.4); } }
       en.vy = Math.min(MAXFALL, en.vy + GRAV * dt); moveX(en, en.vx * dt); moveY(en, en.vy * dt); en.x = clamp(en.x, en.minX, (L.w - 4) * T);
     },
     medusa(en, dt) {
@@ -1129,14 +1133,14 @@
       turnTo(b, dx); b.vx = b.hurt > 0 ? 0 : b.face * 70 * fast;
       if (b.st <= 0 && dist < 120) { b.state = 'wind'; b.st = 0.45 / fast; b.vx = 0; }
       else if (b.st <= 0 && fast > 1 && dist > 200) { b.state = 'throw'; b.st = 0.5; b.vx = 0; }
-    } else if (b.state === 'wind') { if (b.st <= 0) { b.state = 'swing'; b.st = 0.32; SFX.slash(); } }
+    } else if (b.state === 'wind') { if (b.st <= 0) { b.state = 'swing'; b.st = 0.32; b.swung = true; SFX.slash(); } }
     else if (b.state === 'swing') {
       const hb = { x: b.face > 0 ? b.x + b.w - 6 : b.x - 80, y: b.y + 20, w: 86, h: 60 };
       if (!P.dead && overlap(P, hb)) hurtPlayer(b.x + b.w / 2);
       if (b.st <= 0) { b.state = 'rest'; b.st = 0.7 / fast; }
     } else if (b.state === 'throw') {
       if (b.st <= 0) { L.orbs.push({ x: b.x + b.w / 2 + b.face * 30, y: b.y + 40, vx: b.face * 260, life: 3.5, swirl: true, face: b.face }); SFX.zap(); b.state = 'rest'; b.st = 0.6; }
-    } else if (b.state === 'rest') { b.vx = 0; if (b.st <= 0) { b.state = 'walk'; b.st = rand(0.6, 1.2); } }
+    } else if (b.state === 'rest') { b.vx = 0; if (b.st <= 0) { b.state = 'walk'; b.swung = false; b.st = rand(0.6, 1.2); } }
     b.vy = Math.min(MAXFALL, b.vy + GRAV * dt); moveX(b, b.vx * dt); moveY(b, b.vy * dt);
     b.x = clamp(b.x, b.minX, (L.w - 3) * T);
   }
@@ -1439,8 +1443,9 @@
       const anim = en.hurt > 0 ? 'hurt' : en.state === 'swoop' ? 'dive' : en.state === 'rise' ? 'fly' : 'glide';
       spr('eagle', anim, en.anim * 7, x, en.y + en.h / 2, en.face, 1, blink);
     } else if (en.type === 'commander') {
-      const anim = en.hurt > 0.2 ? 'hurt' : en.state === 'wind' || en.state === 'throw' ? 'attack' : en.state === 'swing' ? 'attack' : en.state === 'rest' ? 'idle' : 'walk';
-      const f = en.state === 'wind' || en.state === 'throw' || anim === 'idle' ? 0 : en.state === 'swing' ? 1 + (en.st < 0.16 ? 1 : 0) : en.anim * 5;   // idle: only frame 0 holds the spear
+      const st = en.state, moving = Math.abs(en.vx) > 1;
+      const anim = en.hurt > 0.2 ? 'hurt' : st === 'wind' || st === 'swing' || (st === 'rest' && en.swung && en.st > 0.4) ? 'attack' : st === 'throw' ? 'throw' : st === 'walk' && moving ? 'walk' : 'idle';
+      const f = anim === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : anim === 'attack' ? (st === 'wind' ? 0 : st === 'swing' ? (en.st > 0.16 ? 1 : 2) : 3) : anim === 'throw' ? (en.st > 0.3 ? 0 : en.st > 0.12 ? 1 : 2) : anim === 'walk' ? en.anim * 8 : en.anim * 3;
       spr('commander', anim, f, x, feet + 1, en.face, 1, blink);
     } else if (en.type === 'boss') drawAutomaton(en, x, feet, blink);
     else if (XK[en.type]) drawX(en, x, feet, blink);
@@ -1460,17 +1465,15 @@
     const t = en.type, st = en.state;
     if (t === 'pegasus') { spr('pegasus', en.state === 'swoop' ? 'dive' : en.cast > 0 ? 'sonic' : 'idle', en.anim * 7, x, en.y + en.h / 2, en.face, 1.05, blink); return; }
     if (t === 'minotaur' || t === 'engine') {
-      const set = t, a = t === 'minotaur' ? (st === 'charge' ? 'gore' : st === 'wind' ? 'idle' : st === 'walk' && Math.abs(en.vx) > 1 ? 'move' : 'idle') : (st === 'charge' ? 'charge' : st === 'sweep' || st === 'sweepWind' ? 'sweep' : 'idle');
-      const f = t === 'engine' && (st === 'sweep' || st === 'sweepWind') ? (st === 'sweepWind' ? 0 : 1 + (en.st < 0.18 ? 1 : 0)) : en.anim * (st === 'charge' ? 9 : 4);
-      let face = en.face, fy = feet + 1;
-      if (t === 'engine' && a === 'sweep' && Math.floor(f) % 3 === 2) face = -face;   // that sweep frame was drawn facing the other way
-      if (t === 'engine' && st === 'walk' && Math.abs(en.vx) > 1) {   // no walk cycle in the art: heavy stomping gait instead of sliding
-        const ph = en.anim * 7, lift = Math.abs(Math.sin(ph)); fy -= lift * 5;
-        if (lift < 0.12 && !en.stomped) { en.stomped = true; burst(en.x + en.w / 2 - en.face * 14, en.y + en.h, ['#c9b48c', '#9a8a74'], 4, 70); } else if (lift > 0.5) en.stomped = false;
-        ctx.save(); ctx.translate(x, fy); ctx.rotate(Math.sin(ph) * 0.035 * face); ctx.translate(-x, -fy);
-        spr(set, a, f, x, fy, face, 1, blink); ctx.restore(); return;
+      if (t === 'engine') {
+        const moving = Math.abs(en.vx) > 1, a = en.hurt > 0.2 && st !== 'charge' && st !== 'sweep' ? 'hurt' : st === 'charge' ? 'charge' : st === 'wind' ? 'wind' : st === 'sweepWind' || st === 'sweep' || (st === 'rest' && en.swept && en.st > 0.45) ? 'sweep' : st === 'walk' && moving ? 'walk' : 'idle';
+        const f = a === 'hurt' ? (en.hurt > 0.32 ? 0 : 1) : a === 'sweep' ? (st === 'sweepWind' ? 0 : st === 'sweep' ? (en.st > 0.17 ? 1 : 2) : 3) : a === 'wind' ? (en.st > 0.3 ? 0 : 1) : a === 'charge' ? en.anim * 10 : a === 'walk' ? en.anim * 7 : en.anim * 3;
+        if (flashOn(st === 'wind' || st === 'sweepWind')) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr('engine', a, f, x, feet + 1, en.face, 1, blink); ctx.restore(); } else spr('engine', a, f, x, feet + 1, en.face, 1, blink);
+        return;
       }
-      if (flashOn(st === 'wind' || st === 'sweepWind')) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr(set, a, f, x, fy, face, 1, blink); ctx.restore(); } else spr(set, a, f, x, fy, face, 1, blink);
+      const set = t, a = st === 'charge' ? 'gore' : st === 'wind' ? 'idle' : st === 'walk' && Math.abs(en.vx) > 1 ? 'move' : 'idle';
+      const f = en.anim * (st === 'charge' ? 9 : 4);
+      if (flashOn(st === 'wind')) { ctx.save(); ctx.filter = 'brightness(1.6)'; spr(set, a, f, x, feet + 1, en.face, 1, blink); ctx.restore(); } else spr(set, a, f, x, feet + 1, en.face, 1, blink);
       return;
     }
     if (t === 'medusa' || t === 'techno') {
@@ -1547,12 +1550,6 @@
     L.corpses.forEach((c) => {
       const hasDie = ATLAS[c.set] && ATLAS[c.set].die, n = frames(c.set, 'die'), f = Math.min(n - 1, c.t * 6), a = c.t > (c.big ? 3 : 0.8) ? Math.max(0, 1 - (c.t - (c.big ? 3 : 0.8)) * 1.6) : 1;
       if (hasDie) spr(c.set, 'die', f, c.x - L.cam, c.y + (c.eagle ? 0 : 1), c.face, c.scale, a);
-      else if (c.set === 'engine') {   // the Minotaur Engine topples backwards and crashes down, then cools and fades
-        const k = Math.min(1, c.t / 0.75), ease = k * k, x0 = c.x - L.cam, y0 = c.y + 1;
-        if (k >= 1 && !c.landed) { c.landed = true; L.shake = Math.max(L.shake, 0.35); burst(c.x, c.y, ['#c9b48c', '#9a8a74', '#ff9a3d'], 18, 200); }
-        ctx.save(); ctx.beginPath(); ctx.rect(x0 - 260, -2000, 520, y0 + 2000 + 3); ctx.clip(); ctx.translate(x0 - c.face * 30, y0 - ease * 22); ctx.rotate(-c.face * ease * 1.25); ctx.translate(c.face * 30, 0);
-        ctx.filter = `brightness(${1 - Math.min(0.45, c.t * 0.15)})`; spr('engine', 'idle', 0, 0, 0, c.face, 1, a); ctx.restore();
-        if (c.t < 2.4) spr('bfx', 'smoke', 0, x0 + Math.sin(c.t * 3) * 14, y0 - 40 - c.t * 14, 1, 1, Math.max(0, 1 - c.t / 2.4)); }
       else { ctx.save(); ctx.filter = 'grayscale(0.7) brightness(0.8)'; spr(c.set, 'idle', 0, c.x - L.cam, c.y + 1, c.face, c.scale, Math.max(0, 1 - c.t * 0.9)); ctx.restore(); if (c.t < 1.2) spr('bfx', 'smoke', 0, c.x - L.cam, c.y - 30 - c.t * 20, 1, c.big ? 1 : 0.6, 1 - c.t / 1.2); }
       if (c.big && c.set === 'boss' && c.t < 2.5) spr('bfx', 'smoke', 0, c.x - L.cam + Math.sin(c.t * 3) * 20, c.y - 50 - c.t * 10, 1, 1, 1 - c.t / 2.5);
     });
