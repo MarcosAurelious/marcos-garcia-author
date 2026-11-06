@@ -1206,7 +1206,12 @@
     ctx.textAlign = 'center'; ctx.font = '50px "Bebas Neue", Impact, sans-serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), HW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), HW / 2, 38);
     if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '34px "Metal Mania", Impact, sans-serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? HW - 30 : 30;
       ctx.lineWidth = 6; const cy = G.training && !G.comboMsg.side ? 372 : 130; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.restore(); }
-    if (G.training) { ctx.save(); ctx.fillStyle = 'rgba(12,8,5,0.78)'; ctx.fillRect(18, 96, 300, 250); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, 250);
+    if (G.training) { ctx.save();
+      {   // fade the move list to see-through while player 1 stands behind it
+        const me0 = G.p[0], k = CAM ? CAM.s / HS : 1, x0 = CAM ? CAM.x0 : 0, t0 = CAM ? CAM.top : 0, half = BODY_H * me0.ch.size * 0.35;
+        const L = (me0.x - half - x0) * k, R = (me0.x + half - x0) * k, T = (me0.y - BODY_H * me0.ch.size * 1.1 - t0) * k, Bm = (me0.y - t0) * k;
+        const behind = L < 318 && R > 18 && T < 346 && Bm > 96; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.22 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
+      ctx.fillStyle = 'rgba(12,8,5,0.78)'; ctx.fillRect(18, 96, 300, 250); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, 250);
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
       const me = G.p[0], pas = PASSIVE[me.ch.id];
@@ -1228,7 +1233,9 @@
     ctx.save(); if (G.shake > 0 && !calm) ctx.translate(rand(-8, 8) * G.shake * 2, rand(-8, 8) * G.shake * 2);
     {   // fighting-game camera: zooms in when the fighters close in, pulls back as they separate, always keeps both in view
       const [p, q] = G.p, mid = (p.x + q.x) / 2, want = clamp(BASE.w / (Math.abs(p.x - q.x) + (PORTRAIT ? 300 : 360)), 1, PORTRAIT ? 1.5 : 1.3);
-      CZ += (want - CZ) * 0.06; const Wv = BASE.w / CZ, Hv = BASE.h / CZ; CX += (clamp(mid, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2) - CX) * 0.12;
+      // ...and never crops a jumping fighter: keep the highest head about 95 units below the top (room for the HUD)
+      const head = Math.min(p.y - BODY_H * p.ch.size * 1.1, q.y - BODY_H * q.ch.size * 1.1), fit = Math.max(1, BASE.h / Math.max(1, VH - head + 95));
+      const goal = Math.min(want, fit); CZ += (goal - CZ) * (goal < CZ ? 0.3 : 0.06); const Wv = BASE.w / CZ, Hv = BASE.h / CZ; CX += (clamp(mid, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2) - CX) * 0.12;
       CX = clamp(CX, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2);
       CAM = { x0: CX - Wv / 2, s: SW / Wv, top: VH - Hv, w: Wv, h: Hv }; ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top);
     }
