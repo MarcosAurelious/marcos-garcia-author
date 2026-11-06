@@ -9,7 +9,8 @@ from PIL import Image
 from scipy import ndimage
 
 src, out, idle_h = sys.argv[1], sys.argv[2], float(sys.argv[3])
-spec = [(a.split(':')[0], int(a.split(':')[1].rstrip('!'))) for a in sys.argv[4:]]
+spec = [(a.split(':')[0], int(a.split(':')[1].rstrip('!~'))) for a in sys.argv[4:]]
+MATCH = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('~')}   # anim:count~ -> rescale that row so the body matches the idle height (the generator drew it smaller)
 SOLO = {a.split(':')[0] for a in sys.argv[4:] if a.endswith('!')}   # anim:count!  -> drop loose bits outside the body (e.g. a boulder the game spawns itself)
 im = Image.open(src).convert('RGBA'); A = np.array(im); A[..., 3][A[..., 3] < 24] = 0
 alpha = A[..., 3] > 0
@@ -44,14 +45,17 @@ for (anim, count), ks in zip(spec, rowsets):
         frames[anim].append({'img': crop, 'cx': bxs.mean(), 'feet': bys.max() + 1})
 
 scale = idle_h / np.median([f['img'].shape[0] for f in frames[spec[0][0]]])
+body_h = lambda a: np.median([f['img'].shape[0] for f in frames[a]])
+row_k = {a: body_h(spec[0][0]) / body_h(a) for a in MATCH}
+if row_k: print('row rescale', {a: round(v, 3) for a, v in row_k.items()}, file=sys.stderr)
 # 2) pack, scaled, into a sheet: one row per animation
 PAD = 2; tiles = []; W = 0; H = 0; atlas = {}
 for anim, _ in spec:
     x = 0; rowh = 0; atlas[anim] = []
     for f in frames[anim]:
-        img = Image.fromarray(f['img']); w, h = max(1, round(img.width * scale)), max(1, round(img.height * scale))
+        k = scale * row_k.get(anim, 1); img = Image.fromarray(f['img']); w, h = max(1, round(img.width * k)), max(1, round(img.height * k))
         tiles.append((img.resize((w, h), Image.LANCZOS), x + PAD, H + PAD))
-        atlas[anim].append([x + PAD, H + PAD, w, h, int(round(f['cx'] * scale)), int(round(f['feet'] * scale))])
+        atlas[anim].append([x + PAD, H + PAD, w, h, int(round(f['cx'] * k)), int(round(f['feet'] * k))])
         x += w + PAD * 2; rowh = max(rowh, h + PAD * 2)
     W = max(W, x); H += rowh
 sheet = Image.new('RGBA', (W, H), (0, 0, 0, 0))
