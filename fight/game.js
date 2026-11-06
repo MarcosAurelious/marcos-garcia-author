@@ -692,7 +692,12 @@
     if (f.onGround) f.vx = 0;
     return m;
   }
-  function say(f, text, col) { (G.texts = G.texts || []).push({ text, x: f.x, y: f.y - BODY_H * f.ch.size - 20, col, t: 1.1 }); }
+  function say(f, text, col) {   // floating callouts: refresh duplicates, stack the rest so they never overlap
+    const list = (G.texts = G.texts || []), y0 = Math.max(130, f.y - BODY_H * f.ch.size - 20);
+    const same = list.find((t) => t.who === f && t.text === text); if (same) { same.t = 1.1; same.x = f.x; return; }
+    const mine = list.filter((t) => t.who === f).length;
+    list.push({ text, x: f.x, y: y0 + mine * 30, col, t: 1.1, who: f });
+  }
   function passive(a, d, move, dmg) {   // returns extra damage; also applies effects
     const id = a.ch.id, heavyHit = move === 'heavy' || move === 'hkick'; let extra = 0;
     if (id === 'colossus' && heavyHit) { extra += 3; say(d, 'CHAIN LIGHTNING', '#9cdcff'); }
@@ -865,7 +870,7 @@
       if (!w.hit && t.state !== 'ko' && t.onGround && overlap({ x: w.x - 26, y: FLOOR - 70, w: 52, h: 70 }, hurtbox(t))) { w.hit = true; damage(G.p[w.owner], t, w.dmg, 0.5, 320, w.x); } });
     G.waves = G.waves.filter((w) => w.life > 0 && !w.hit && w.x > -40 && w.x < VW + 40);
     (G.rings || []).forEach((r) => { r.t += dt; }); G.rings = (G.rings || []).filter((r) => r.t < r.max);
-    (G.texts || []).forEach((t) => { t.t -= dt; t.y -= 40 * dt; }); G.texts = (G.texts || []).filter((t) => t.t > 0);
+    (G.texts || []).forEach((t) => { t.t -= dt; t.y = Math.max(120, t.y - 40 * dt); }); G.texts = (G.texts || []).filter((t) => t.t > 0);
     G.fx.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.life -= dt; }); G.fx = G.fx.filter((p) => p.life > 0);
   }
 
@@ -1259,7 +1264,7 @@
     // c.t advances while the rest of the arena is paused.
     if(window.ArenaSpecialFX)window.ArenaSpecialFX.draw(ctx,c.id,centerX,h*.54,
       Math.min(w*.59,530),Math.min(h*.62,340),c.t,c.side?-1:1,'special');
-    const frames = CUTIN_ATLAS[c.id], portrait = cutinImg(c.id);
+    const frames = CUTIN_ATLAS[c.id], portrait = frames ? cutinImg(c.id) : null;   // only fetch cut-in art that actually exists
     if (frames && portrait.complete && portrait.naturalWidth && frames.length) {
       const n = Math.min(frames.length-1,Math.floor(p*frames.length));
       const [sx,sy,fw,fh,ax,ay] = frames[n];

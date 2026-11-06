@@ -117,7 +117,7 @@ body.touchy .touch { display: flex; }
   .stage { padding-top: 4px; }
   body.touchy .stage { padding: 2px 0 0; }
   body.touchy .arena { box-shadow: none; }
-  body.touchy .gear { position: fixed; top: 46px; right: 10px; left: auto; bottom: auto; transform: none; width: 34px; height: 34px; font-size: 1.05rem; opacity: .85; }
+  body.touchy .gear { position: fixed; top: 84px; right: 10px; left: auto; bottom: auto; transform: none; width: 34px; height: 34px; font-size: 1.05rem; opacity: .85; }
 }
 /* short screens (phones sideways): a compact results card so the arena shows around it */
 @media (max-height: 520px) {
