@@ -1058,7 +1058,7 @@
     return { h, idx: list[base], next: list[nextIndex], mix: calm ? 0 : rawMix };
   }
   function drawFighter(f) {
-    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'hades16' ? 1.14 : 1);
+    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'hades16' ? 0.98 : 1);
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
@@ -1090,7 +1090,7 @@
     const status = f.petrified > 0 ? 'grayscale(1) brightness(.83) contrast(1.3)' : f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
     if (status && (f.petrified > 0 || !(f.flash > 0))) ctx.filter = status;
     const strideBob = 0; // no second bounce: feet stay aligned to FLOOR
-    const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
+    const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0) - (h.set === 'hades16' ? 24 : 0);
     ctx.translate(f.x + lx, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
     // Synthesized in-between animation poses: blend only adjacent source frames.
     // Rendering both uses the same foot anchor, keeping hitboxes and collision unchanged.
