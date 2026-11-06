@@ -15,6 +15,7 @@ function getImage(path,required=false){
 ids.forEach(id=>{const name=id==='colossus'?'Augustus Colossus':id.charAt(0).toUpperCase()+id.slice(1);for(const element of [fighter,opponent]){const o=document.createElement('option');o.value=id;o.textContent=name;element.append(o)}});
 fighter.value='mars';opponent.value='marcus';
 const images={};for(const [id,acts] of Object.entries(atlas))for(const data of Object.values(acts))if(!images[data.src])images[data.src]=getImage(data.src,true);
+const hadesSheet=getImage('hades-sprites.png'); // transparent 4 x 4 sheet, 768 x 704
 const bg=getImage('bg-colosseum.webp',true);
 const paintedSpecials={};
 ids.forEach(id=>{paintedSpecials[id]=getImage('specials/painted/'+id+'_special.png');});
@@ -68,18 +69,54 @@ function paintedActor(id,progress,x,ground,face){
  return true;
 }
 let t=0,last=0,active=false,loop=true;const duration=1.5;
-function sprite(id,act,p,x,ground,face,scale=1){let d=atlas[id][act]||atlas[id].idle;if(!d)return false;const image=images[d.src];
-if(!image||!image.complete||!image.naturalWidth){ctx.save();ctx.fillStyle='#e5c580';ctx.font='14px Georgia';ctx.textAlign='center';ctx.fillText('Loading '+id.toUpperCase()+'…',x,ground-90);ctx.restore();return false;}const frame=d.frames[Math.min(d.frames.length-1,Math.max(0,Math.floor(p*d.frames.length)))], [sx,sy,w,h,ax,ay]=frame;// Keep all original sprite rectangles inside the arena, including Hades's
- // unusually wide KO and attack drawings, without stretching the artwork.
- const margin=16,minY=80,maxY=494;
+function sprite(id,act,p,x,ground,face,scale=1){
+ const d=atlas[id][act]||atlas[id].idle;
+ if(!d)return false;
+ const sequence={idle:[0,10,11,0],walk:[1,2,3,2],heavy:[4,5,6,7],hkick:[8,9,12,13],light:[3,4,5,3],special:[12,13,14,15],hurt:[9,8],ko:[12,13,15]};
+ const newHades=id==='hades'&&hadesSheet.complete&&hadesSheet.naturalWidth===768&&hadesSheet.naturalHeight===704;
+ if(newHades){
+  const frames=sequence[act]||sequence.idle;
+  const index=frames[Math.min(frames.length-1,Math.max(0,Math.floor(p*frames.length)))];
+  const col=index%4,row=Math.floor(index/4);
+  const sx=col*192,sy=row*176,sw=192,sh=176;
+  const bounds={left:18,right:canvas.width-18,top:94,bottom:474};
+  const maxScale=Math.min(1.27,scale*1.25,(bounds.bottom-bounds.top)/sh,(bounds.right-bounds.left)/sw);
+  const width=sw*maxScale,height=sh*maxScale;
+  const center=face<0?708:canvas.width/2;
+  const left=Math.max(bounds.left,Math.min(center-width/2,bounds.right-width));
+  const top=Math.max(bounds.top,Math.min(ground-height,bounds.bottom-height));
+  ctx.save();
+  if(face<0){ctx.translate(left+width,top);ctx.scale(-1,1);ctx.drawImage(hadesSheet,sx,sy,sw,sh,0,0,width,height);}
+  else ctx.drawImage(hadesSheet,sx,sy,sw,sh,left,top,width,height);
+  ctx.restore();
+  return true;
+ }
+ const image=images[d.src];
+ if(!image||!image.complete||!image.naturalWidth){
+  ctx.save();ctx.fillStyle='#e5c580';ctx.font='14px Georgia';ctx.textAlign='center';
+  ctx.fillText('Loading '+id.toUpperCase()+'…',x,ground-90);ctx.restore();return false;
+ }
+ const frame=d.frames[Math.min(d.frames.length-1,Math.max(0,Math.floor(p*d.frames.length)))];
+ const [sx,sy,w,h,ax,ay]=frame;
+ const margin=18,minY=92,maxY=472;
  const maxScale=Math.min(scale,(canvas.width-2*margin)/w,(maxY-minY)/h);
+ if(id==='hades'){
+  const targetWidth=w*maxScale,targetHeight=h*maxScale;
+  const center=face<0?708:canvas.width/2;
+  const left=Math.max(margin,Math.min(center-targetWidth/2,canvas.width-margin-targetWidth));
+  const top=Math.max(minY,Math.min(ground-targetHeight,maxY-targetHeight));
+  ctx.save();if(face<0){ctx.translate(left+targetWidth,top);ctx.scale(-1,1);ctx.drawImage(image,sx,sy,w,h,0,0,targetWidth,targetHeight);}
+  else ctx.drawImage(image,sx,sy,w,h,left,top,targetWidth,targetHeight);
+  ctx.restore();return true;
+ }
  const drawnLeft=x-(face<0?(w-ax):ax)*maxScale,drawnRight=drawnLeft+w*maxScale;
  const lockedX=x+Math.max(margin-drawnLeft,0)-Math.max(drawnRight-(canvas.width-margin),0);
- const top=ground-ay*maxScale, bottom=top+h*maxScale;
+ const top=ground-ay*maxScale,bottom=top+h*maxScale;
  const lockedY=ground+Math.max(minY-top,0)-Math.max(bottom-maxY,0);
  ctx.save();ctx.translate(lockedX,lockedY);if(face<0)ctx.scale(-1,1);
  ctx.drawImage(image,sx,sy,w,h,-ax*maxScale,-ay*maxScale,w*maxScale,h*maxScale);
- ctx.restore();return true;}
+ ctx.restore();return true;
+}
 // The painterly attack is part of the full character artwork; generic
 // geometric effects are deliberately not drawn on top of the fighters.
 function render(now){const dt=Math.min(.05,(now-last)/1000||0);last=now;if(active){t+=dt;if(t>=duration){if(loop)t=0;else{t=duration;active=false}}}
@@ -93,7 +130,7 @@ if(active){
  const pose=q<.21?'idle':q<.40?'heavy':q<.8?atk:'idle';
  const fp=q<.21?wind*.75:q<.40?(q-.21)/.19:q<.8?(q-.4)/.4:(q-.8)/.2;
  const specialMode=move.value==='special'&&q>=.19&&q<.83;
- const hasPainted=specialMode&&paintedActor(fighter.value,(q-.19)/.64,x,455,1);
+ const hasPainted=specialMode&&!(fighter.value==='hades'&&hadesSheet.complete&&hadesSheet.naturalWidth===768)&&paintedActor(fighter.value,(q-.19)/.64,x,455,1);
  if(!hasPainted)sprite(fighter.value,pose,fp,x,455,1,.96);
 }else sprite(fighter.value,'idle',0,x,455,1,.96);
 const recoil=hit?.5*Math.sin((q-.38)/.35*Math.PI):0;sprite(opponent.value,recoil?'hurt':'idle',recoil,708+recoil*22,455,-1,.96);
