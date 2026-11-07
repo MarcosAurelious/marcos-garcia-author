@@ -78,9 +78,18 @@ if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that
                 gl, gn = ndimage.label(glow, np.ones((3, 3)))
                 for j, o in enumerate(ndimage.find_objects(gl)):
                     if o[1].start == 0 and o[1].stop < 70: keep &= ~(gl == j + 1)
+                kl, kn = ndimage.label(keep, np.ones((3, 3)))   # and any other thin scrap (fire, smoke, rock) cut off at the left edge
+                for j, o in enumerate(ndimage.find_objects(kl)):
+                    if o is not None and o[1].start == 0 and o[1].stop < 45 and (kl == j + 1).sum() < keep.sum() * 0.02: keep &= ~(kl == j + 1)
             c = A[sl].copy(); c[..., 3] = np.where(keep, c[..., 3], 0)
             bl, bn = ndimage.label(m[sl] & ~energy[sl]); bs = ndimage.sum(np.ones_like(bl), bl, range(1, bn + 1))
-            cells.append((c, bl == int(np.argmax(bs)) + 1))   # the caster is the biggest body blob in the cell
+            caster = bl == int(np.argmax(bs)) + 1   # the caster is the biggest body blob in the cell
+            F = 14; ramp = np.ones(c.shape[1])    # effects sliced by a cut line fade out instead of ending in a hard edge
+            if x0 > 0 and sl[1].start == x0: ramp[:F] = np.minimum(ramp[:F], np.linspace(0.15, 1, F))
+            if x1 < A.shape[1] and sl[1].stop == x1: ramp[-F:] = np.minimum(ramp[-F:], np.linspace(1, 0.15, F))
+            near = ndimage.binary_dilation(caster, iterations=3)
+            c[..., 3] = np.where(near, c[..., 3], (c[..., 3] * ramp[None, :]).astype(np.uint8))
+            cells.append((c, caster))
 else:
     cells = [cut(k) for r_ in rows for k in r_]
 
