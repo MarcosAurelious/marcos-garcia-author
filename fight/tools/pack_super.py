@@ -66,12 +66,24 @@ def cut(k):
 if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that pose
     rowsY = np.where(m.any(1))[0]; gaps = np.where(np.diff(rowsY) > 20)[0]; assert len(gaps) == len(CUTS) - 1, 'row count does not match CUTS'
     bands = np.split(rowsY, gaps + 1); cells = []
+    mxc, mnc = A[..., :3].max(2).astype(int), A[..., :3].min(2).astype(int)
+    glowAll = m & (energy | ((mxc > 200) & (mxc - mnc > 110) & (mnc > 90)) | ((mxc > 225) & (mnc > 110)))   # bright saturated light: arrows, arcs, beams
     for band, xs in zip(bands, CUTS):
         edges = [0] + xs + [A.shape[1]]
-        for x0, x1 in zip(edges, edges[1:]):
-            sub = m[band[0]:band[-1] + 1, x0:x1]; yy, xx = np.where(sub)
-            sl = (slice(band[0] + yy.min(), band[0] + yy.max() + 1), slice(x0 + xx.min(), x0 + xx.max() + 1))
-            keep = m[sl].copy()
+        # a glow streak that crosses a cut belongs to the pose holding most of it
+        y0b, y1b = band[0], band[-1] + 1; colcell = np.searchsorted(np.array(xs), np.arange(A.shape[1]), side='right')
+        own = np.broadcast_to(colcell, (y1b - y0b, A.shape[1])).copy()
+        gl, gn = ndimage.label(glowAll[y0b:y1b], np.ones((3, 3)))
+        for j, o in enumerate(ndimage.find_objects(gl)):
+            if o is None or o[1].stop - o[1].start < 6: continue
+            part = gl[o] == j + 1; cc = own[o][part]; cnt = np.bincount(cc)
+            if len(np.nonzero(cnt)[0]) > 1: own[o][part] = int(np.argmax(cnt))
+        ownFull = np.full(m.shape, -1); ownFull[y0b:y1b] = own
+        for ci, (x0, x1) in enumerate(zip(edges, edges[1:])):
+            sel = m & (ownFull == ci); yy, xx = np.where(sel)
+            sl = (slice(yy.min(), yy.max() + 1), slice(xx.min(), xx.max() + 1))
+            mcell = sel[sl]
+            keep = mcell.copy()
             if x0 > 0 and sl[1].start == x0:   # drop the tip of the previous pose's beam poking over the left cut line
                 rr, gg, bb = [A[sl][..., i].astype(int) for i in range(3)]
                 glow = keep & (energy[sl] | ((rr > 215) & (bb > 215)))
@@ -82,7 +94,12 @@ if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that
                 for j, o in enumerate(ndimage.find_objects(kl)):
                     if o is not None and o[1].start == 0 and o[1].stop < 45 and (kl == j + 1).sum() < keep.sum() * 0.02: keep &= ~(kl == j + 1)
             c = A[sl].copy(); c[..., 3] = np.where(keep, c[..., 3], 0)
-            bl, bn = ndimage.label(m[sl] & ~energy[sl]); bs = ndimage.sum(np.ones_like(bl), bl, range(1, bn + 1))
+            if x0 > 0:   # small scraps (arrowheads, sparks) just right of the cut belong to the previous shot
+                kl, kn = ndimage.label(keep, np.ones((3, 3)))
+                for j, o in enumerate(ndimage.find_objects(kl)):
+                    if o is not None and sl[1].start + o[1].stop <= x0 + 35 and (kl[o] == j + 1).sum() < keep.sum() * 0.012: keep[o] &= ~(kl[o] == j + 1)
+                c[..., 3] = np.where(keep, c[..., 3], 0)
+            bl, bn = ndimage.label(mcell & ~energy[sl]); bs = ndimage.sum(np.ones_like(bl), bl, range(1, bn + 1))
             caster = bl == int(np.argmax(bs)) + 1   # the caster is the biggest body blob in the cell
             F = 14; ramp = np.ones(c.shape[1])    # effects sliced by a cut line fade out instead of ending in a hard edge
             if x0 > 0 and sl[1].start == x0: ramp[:F] = np.minimum(ramp[:F], np.linspace(0.15, 1, F))
