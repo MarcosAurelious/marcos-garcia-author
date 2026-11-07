@@ -6,6 +6,7 @@ Usage (from the repo root):  python fight/tools/pack_super.py SHEET.png FIGHTER_
 - Frames are scaled so the first (standing) pose matches the fighter's in-game idle height.
 - Every frame is anchored on the fighter's feet, found from the body pixels only (the coloured energy is ignored),
   so flames, lightning and rocks can spill out without making him slide around.
+- Set WHOLE=1 for fighters whose effect is part of the body (Neptune's water): sizing and grounding then use every pixel.
 - RELEASE_FRAME (1-based, default 9) is the pose shown at the moment the super actually fires.
 Writes fight/supers/<id>.webp and updates fight/supers/super-data.js (window.__ARENA_SUPERS)."""
 import sys, os, json
@@ -41,6 +42,7 @@ A[..., 3][A[..., 3] < 60] = 0; A[..., 3][A[..., 3] >= 60] = 255; A = A.astype(np
 # energy = strongly coloured glow (red flame / blue lightning / magenta magic); body = everything else that's opaque
 r, g, b = [A[..., i].astype(int) for i in range(3)]
 energy = ((r - np.maximum(g, b) > 90) & (r > 200) & (g < 140)) | ((b - r > 60) & (b > 170)) | ((r > 190) & (b > 190) & (g < 160) & (r - g > 70))
+if os.environ.get('WHOLE') == '1': energy = np.zeros_like(energy)
 
 # ---- find the 16 poses, grouped into 2 rows of 8 ----
 m = A[..., 3] > 0; lab, n = ndimage.label(m, np.ones((3, 3)))
@@ -110,9 +112,15 @@ if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that
 else:
     cells = [cut(k) for r_ in rows for k in r_]
 
-def feet(body):
+WATER = None
+def feet(body, cell=None):
     ys, xs = np.where(body); bot = ys.max(); band = ys >= bot - max(8, (bot - ys.min()) * 0.1)
-    return float(np.median(xs[band])), bot, ys.max() - ys.min() + 1
+    fx = float(np.median(xs[band]))
+    if os.environ.get('WHOLE') == '1' and cell is not None:   # body wrapped in its effect: centre on the lower half of the creature itself
+        cr, cg, cb = [cell[..., i].astype(int) for i in range(3)]
+        own = body & ~((cb - cr > 60) & (cb > 170)) & ~((cr > 215) & (cg > 215) & (cb > 215)); oy, ox = np.where(own)
+        if len(oy) > 50: fx = float(np.median(ox[oy >= np.median(oy)]))
+    return fx, bot, ys.max() - ys.min() + 1
 scale = IDLE_H / feet(cells[0][1])[2]
 
 # ---- pack (two rows, like the source) ----
@@ -123,7 +131,7 @@ for row in ROWS:
     # the sheet's ground line: most poses stand on it, so a pose whose feet end well above it is airborne and keeps that height
     ground = np.median([top + feet(body)[1] for c, body, top in row])
     for c, body, top in row:
-        fx, fb, _ = feet(body)
+        fx, fb, _ = feet(body, c)
         if ground - (top + fb) > 15: fb = ground - top
         im = Image.fromarray(c); w, h = max(1, round(im.width * scale)), max(1, round(im.height * scale)); im = im.resize((w, h), Image.LANCZOS)
         tiles.append((im, x + PAD, H + PAD)); frames.append([x + PAD, H + PAD, w, h, int(round(fx * scale)), int(round(fb * scale))])
