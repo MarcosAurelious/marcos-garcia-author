@@ -775,7 +775,7 @@
         if ((sp.kind === 'dash'||f.ch.id==='colossus') && f.t >= m.start && f.t < m.start + 0.22) {
           const dist=sp.dist||(f.ch.id==='colossus'?315:340);
           f.vx=f.face*dist/.22*(f.superOn?1.22:1)*superPace(f);
-          if(f.ch.id==='pegasus') f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);
+          if(f.ch.id==='pegasus'&&superPace(f)===1) f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);   // a hand-drawn super leaps on its own
           dashHit(f);
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
       } else if (inAct && !f.hit) {

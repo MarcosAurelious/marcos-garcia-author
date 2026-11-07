@@ -62,7 +62,7 @@ def cut(k):
     sl = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
     c = A[sl].copy(); c[..., 3] = np.where(keep[sl], c[..., 3], 0)
     body = keep[sl] & ~energy[sl] & (lab[sl] == k + 1)
-    return c, body
+    return c, body, sl[0].start
 if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that pose
     rowsY = np.where(m.any(1))[0]; gaps = np.where(np.diff(rowsY) > 20)[0]; assert len(gaps) == len(CUTS) - 1, 'row count does not match CUTS'
     bands = np.split(rowsY, gaps + 1); cells = []
@@ -106,7 +106,7 @@ if CUTS:   # hand cuts: every opaque pixel between two cut lines belongs to that
             if x1 < A.shape[1] and sl[1].stop == x1: ramp[-F:] = np.minimum(ramp[-F:], np.linspace(1, 0.15, F))
             near = ndimage.binary_dilation(caster, iterations=3)
             c[..., 3] = np.where(near, c[..., 3], (c[..., 3] * ramp[None, :]).astype(np.uint8))
-            cells.append((c, caster))
+            cells.append((c, caster, sl[0].start))
 else:
     cells = [cut(k) for r_ in rows for k in r_]
 
@@ -120,8 +120,11 @@ PAD = 2; tiles, W, H, frames = [], 0, 0, []
 ROWN = [len(r_) + 1 for r_ in CUTS] if CUTS else [8, 8]; ROWS = [cells[sum(ROWN[:i]):sum(ROWN[:i + 1])] for i in range(len(ROWN))]
 for row in ROWS:
     x = 0; rh = 0
-    for c, body in row:
+    # the sheet's ground line: most poses stand on it, so a pose whose feet end well above it is airborne and keeps that height
+    ground = np.median([top + feet(body)[1] for c, body, top in row])
+    for c, body, top in row:
         fx, fb, _ = feet(body)
+        if ground - (top + fb) > 15: fb = ground - top
         im = Image.fromarray(c); w, h = max(1, round(im.width * scale)), max(1, round(im.height * scale)); im = im.resize((w, h), Image.LANCZOS)
         tiles.append((im, x + PAD, H + PAD)); frames.append([x + PAD, H + PAD, w, h, int(round(fx * scale)), int(round(fb * scale))])
         x += w + PAD * 2; rh = max(rh, h + PAD * 2)
