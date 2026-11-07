@@ -749,7 +749,7 @@
     const o=opp(f);
     if(f.petrified>0){f.petrified=Math.max(0,f.petrified-dt);f.vx=0;f.vy=0;f.onGround=true;f.y=FLOOR;
       if(f.petrified===0){f.petrifyOwner=null;f.state='idle';f.t=0;f.cool=Math.max(f.cool,.1);}return;}
-    f.anim += dt; f.t += dt; f.flash -= dt; f.cool -= dt; f.comboT -= dt;
+    f.anim += dt; f.t += dt * superPace(f); f.flash -= dt; f.cool -= dt; f.comboT -= dt;
     const toward = Math.sign(o.x - f.x) || f.face;
     f.holdBack = (toward > 0 && inp.left && !inp.right) || (toward < 0 && inp.right && !inp.left);
     // combo breaker: spend 40% meter to burst out of a combo
@@ -774,7 +774,7 @@
         if (!f.fired && f.t >= m.start) { f.fired = true; fireSpecial(f); }
         if ((sp.kind === 'dash'||f.ch.id==='colossus') && f.t >= m.start && f.t < m.start + 0.22) {
           const dist=sp.dist||(f.ch.id==='colossus'?315:340);
-          f.vx=f.face*dist/.22*(f.superOn?1.22:1);
+          f.vx=f.face*dist/.22*(f.superOn?1.22:1)*superPace(f);
           if(f.ch.id==='pegasus') f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);
           dashHit(f);
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
@@ -810,6 +810,9 @@
     if ((!a.onGround && a.vy < 0) || (!b.onGround && b.vy < 0)) return;   // rising jumpers pass over
     if (Math.abs(a.y - b.y) < 120 && Math.abs(a.x - b.x) < min) { const mid = (a.x + b.x) / 2, s = Math.sign(a.x - b.x) || (a.side ? 1 : -1); a.x = clamp(mid + s * min / 2, 50, VW - 50); b.x = clamp(mid - s * min / 2, 50, VW - 50); if (Math.abs(a.x - b.x) < min) (a.x <= 50 || a.x >= VW - 50 ? b : a).x += s * (min - Math.abs(a.x - b.x)) * (a.x <= 50 || a.x >= VW - 50 ? -1 : 1); }
   }
+  // fighters with a hand-drawn super sheet play their super at half speed so every pose reads
+  const SUPER_PACE = 0.5;
+  function superPace(f) { return f.state === 'attack' && f.move === 'special' && f.superOn && (window.__ARENA_SUPERS || {})[f.ch.id] ? SUPER_PACE : 1; }
   function fireSpecial(f) {
     const sp=f.ch.special,id=f.ch.id,sup=f.superOn,mul=sup?2.2:1,top=f.y-BODY_H*f.ch.size*.55;
     const power=Math.round(12*(sup?1.35:1));
@@ -1081,7 +1084,7 @@
     const rawMix = pos - Math.floor(pos);
     return { h, idx: list[base], next: list[nextIndex], mix: calm ? 0 : rawMix };
   }
-  const FLIPIMG = {};
+  const FLIPIMG = {}, SUPIMG = {};
   function drawFighter(f) {
     const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'hades16' ? 0.96 : 1);
     // shadow on the floor
@@ -1124,6 +1127,15 @@
         const half = width * 0.5 + 14;
         if (half*2 < CAM.w) visualX = clamp(visualX,CAM.x0+half,CAM.x0+CAM.w-half);
       }
+    }
+    const SU = f.state === 'attack' && f.move === 'special' && f.superOn && (window.__ARENA_SUPERS || {})[f.ch.id], SUI = SU && (SUPIMG[f.ch.id] || (SUPIMG[f.ch.id] = img('supers/' + f.ch.id + '.webp')));
+    if (SU && SUI.complete && SUI.naturalWidth) {   // hand-drawn super: wind-up poses lead into the release frame right as the super fires
+      const m = MOVES.special, n = SU.frames.length, R = SU.release, t = f.t;
+      const i = t < m.start ? Math.floor(clamp(t / m.start, 0, 0.999) * R) : Math.min(n - 1, R + Math.floor(clamp((t - m.start) / (m.act + m.rec), 0, 0.999) * (n - R)));
+      const [sx, sy, w, h, ax, ay] = SU.frames[i];
+      ctx.translate(Math.round(visualX), Math.round(fy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = false;
+      const ss = f.ch.scale; ctx.drawImage(SUI, sx, sy, w, h, -ax * ss, -ay * ss, w * ss, h * ss); ctx.restore();
+      drawFx(f); return;
     }
     const FL = (window.__ARENA_FLIPS || {})[f.ch.id], FLI = FL && (FLIPIMG[f.ch.id] || (FLIPIMG[f.ch.id] = img('flips/' + f.ch.id + '.webp')));
     if (f.state === 'jump' && f.flip && FL && FLI.complete && FLI.naturalWidth) {   // hand-drawn somersault frames, anchored on the body centre
