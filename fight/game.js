@@ -839,7 +839,8 @@
     else if(sp.kind==='wave')G.waves.push({owner:f.side,x:f.x+f.face*60,vx:f.face*470,dmg:power,life:1.6,col:sp.col,delay:0,kind:id});
     else if(sp.kind==='dash'){f.dashDmg=Math.round(15*mul);f.dashHit=false;}
   }
-  function dashHit(f) { const o = opp(f); if (!f.dashHit && overlap({ x: f.x - 50, y: f.y - BODY_H, w: 100, h: BODY_H }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
+  function dashHit(f) { const o = opp(f); const reach = 120 * f.ch.size;   // the rush hits in front of the charger: a centred box never touched anyone, since fighters are kept apart
+    if (!f.dashHit && overlap({ x: f.face > 0 ? f.x - 30 : f.x - reach, y: f.y - BODY_H * f.ch.size, w: reach + 30, h: BODY_H * f.ch.size }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
   function updateAttacks(dt) {
     G.shots.forEach(shot=>{
       shot.x+=shot.vx*dt;
