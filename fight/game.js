@@ -1081,6 +1081,7 @@
     const rawMix = pos - Math.floor(pos);
     return { h, idx: list[base], next: list[nextIndex], mix: calm ? 0 : rawMix };
   }
+  const FLIPIMG = {};
   function drawFighter(f) {
     const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'hades16' ? 0.96 : 1);
     // shadow on the floor
@@ -1123,6 +1124,15 @@
         const half = width * 0.5 + 14;
         if (half*2 < CAM.w) visualX = clamp(visualX,CAM.x0+half,CAM.x0+CAM.w-half);
       }
+    }
+    const FL = (window.__ARENA_FLIPS || {})[f.ch.id], FLI = FL && (FLIPIMG[f.ch.id] || (FLIPIMG[f.ch.id] = img('flips/' + f.ch.id + '.webp')));
+    if (f.state === 'jump' && f.flip && FL && FLI.complete && FLI.naturalWidth) {   // hand-drawn somersault frames, anchored on the body centre
+      const T = 2 * 1180 / 2860, frames = FL[f.flip > 0 ? 'front' : 'back'], n = frames.length, i = Math.min(n - 1, Math.floor(clamp((f.jt || 0) / T, 0, 0.999) * n));
+      const [sx, sy, w, h, ax, ay] = frames[i], cyy = fy - FL.dy * sc;
+      ctx.translate(Math.round(visualX), Math.round(cyy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(FLI, sx, sy, w, h, -ax * sc, -ay * sc, w * sc, h * sc); ctx.restore();
+      if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawCharge(ctx,f,G.t);
+      drawFx(f); return;
     }
     if (f.state === 'jump' && f.flip) {   // front flip (toward where you face) or back flip: one full turn, tucked, with a short trail
       const T = 2 * 1180 / 2860, p = clamp(((f.jt || 0) - 0.05) / (T - 0.17), 0, 1), e = p * p * (3 - 2 * p), ang = e * Math.PI * 2 * f.flip * f.face;
