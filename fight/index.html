@@ -29,9 +29,9 @@
     <div class="roster" id="roster"></div>
     <div class="go"><button type="button" class="btn ghost" id="sel-reset">Clear picks</button><button type="button" class="btn gold big" id="fight" disabled>Fight!</button></div>
     <div class="howto">
-      <div><b>Player 1</b><br><kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> crouch · hold <b>back</b> to block<br><kbd>J</kbd> punch · <kbd>K</kbd> heavy punch · <kbd>U</kbd> kick · <kbd>I</kbd> heavy kick<br><kbd>L</kbd> special · <kbd>Q</kbd> super · <kbd>Space</kbd> combo breaker</div>
-      <div><b>Player 2</b><br>Arrows move, jump and crouch · hold <b>back</b> to block<br>Numpad <kbd>1</kbd> <kbd>2</kbd> punches · <kbd>4</kbd> <kbd>5</kbd> kicks<br><kbd>3</kbd> special · <kbd>0</kbd> super · <kbd>6</kbd> breaker</div>
-      <div><b>The fight</b><br>Best of three rounds, 60 seconds each. Land hits to fill the blue <b>super meter</b>; when it flashes, unleash your super. Land a hit, then press a stronger attack to <b>chain</b> it: punch → kick → heavy → special. Caught in a combo? <b>Combo breaker</b> costs 40% meter. Crouch to duck projectiles; kicks hit low. Every fighter has a <b>passive power</b> (shown under their name). New to the arena? Try <b>Training</b> mode to practice combos on a dummy.</div>
+      <div><b>Player 1</b><br><kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump (with a direction: flip) · <kbd>S</kbd> crouch · hold <b>back</b> to block<br><kbd>J</kbd> punch · <kbd>K</kbd> heavy punch · <kbd>U</kbd> kick · <kbd>I</kbd> heavy kick<br><kbd>Q</kbd> super · <kbd>Space</kbd> combo breaker</div>
+      <div><b>Player 2</b><br>Arrows move, jump and crouch · hold <b>back</b> to block<br>Numpad <kbd>1</kbd> <kbd>2</kbd> punches · <kbd>4</kbd> <kbd>5</kbd> kicks<br><kbd>0</kbd> super · <kbd>6</kbd> breaker</div>
+      <div><b>The fight</b><br>Best of three rounds, 60 seconds each. Land hits to fill the blue <b>super meter</b>; when it flashes, unleash your super. Land a hit, then press a stronger attack to <b>chain</b> it: punch → kick → heavy → super. Caught in a combo? <b>Combo breaker</b> costs 40% meter. Crouch to duck projectiles; kicks hit low. Every fighter has a <b>passive power</b> (shown under their name). New to the arena? Try <b>Training</b> mode to practice combos on a dummy.</div>
     </div>
     <p class="safety"><b>Photosensitivity notice:</b> this game has flashes and screen shake. Turn on <b>Calm mode</b> in the ⚙ menu if you are sensitive to light.</p>
     <p class="links"><a href="../quest/">Play The Aurelious Quest</a> · <a href="../#apps">Back to Marcos Garcia's site</a></p>
@@ -62,7 +62,7 @@
     </div>
     <div class="touch" id="touch" aria-hidden="true">
       <div class="stick" id="stick"><span class="knob"></span></div>
-      <div class="plaques"><button type="button" data-k="special" class="plq" aria-label="Special">Special</button><button type="button" data-k="breaker" class="plq" aria-label="Combo breaker">Breaker</button><button type="button" data-k="super" class="plq red" aria-label="Super">Super</button></div>
+      <div class="plaques"><button type="button" data-k="breaker" class="plq" aria-label="Combo breaker">Breaker</button><button type="button" data-k="super" class="plq red" aria-label="Super">Super</button></div>
       <div class="medals"><button type="button" data-k="light" class="med" aria-label="Light punch"><b>LP</b><small>PUNCH</small></button><button type="button" data-k="heavy" class="med" aria-label="Heavy punch"><b>HP</b><small>PUNCH</small></button><button type="button" data-k="lkick" class="med" aria-label="Light kick"><b>LK</b><small>KICK</small></button><button type="button" data-k="hkick" class="med" aria-label="Heavy kick"><b>HK</b><small>KICK</small></button></div>
       <p class="hint">Drag the shield to move · turn sideways for a bigger arena</p>
     </div>
@@ -71,6 +71,6 @@
 <script src="generated/atlas-data.js"></script>
 <script src="bg-fx.js?v=1"></script>
 <script src="special-fx.js?v=58"></script>
-<script src="game.js?v=60"></script>
+<script src="game.js?v=61"></script>
 </body>
 </html>

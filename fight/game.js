@@ -565,8 +565,8 @@
 
   /* ================= input ================= */
   const KEYS = {
-    p1: { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'], light: ['KeyJ'], heavy: ['KeyK'], lkick: ['KeyU'], hkick: ['KeyI'], special: ['KeyL'], super: ['KeyQ'], breaker: ['Space'] },
-    p2: { left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'], light: ['Numpad1', 'Comma'], heavy: ['Numpad2', 'Period'], lkick: ['Numpad4', 'KeyM'], hkick: ['Numpad5', 'KeyN'], special: ['Numpad3', 'Slash'], super: ['Numpad0', 'Semicolon'], breaker: ['Numpad6', 'Quote'] },
+    p1: { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'], light: ['KeyJ'], heavy: ['KeyK'], lkick: ['KeyU'], hkick: ['KeyI'], special: [], super: ['KeyQ', 'KeyL'], breaker: ['Space'] },
+    p2: { left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'], light: ['Numpad1', 'Comma'], heavy: ['Numpad2', 'Period'], lkick: ['Numpad4', 'KeyM'], hkick: ['Numpad5', 'KeyN'], special: [], super: ['Numpad0', 'Semicolon'], breaker: ['Numpad6', 'Quote'] },
   };
   const held = new Set(), pressed = new Set();
   addEventListener('keydown', (e) => {
@@ -759,8 +759,8 @@
     f.poison = Math.max(0, (f.poison || 0) - dt); f.burn = Math.max(0, (f.burn || 0) - dt); f.slowT = Math.max(0, (f.slowT || 0) - dt);
     // chain: a landed hit can be cancelled into the next attack in the chain
     if (f.state === 'attack' && f.hit && f.move !== 'special' && G.mode === 'play') {
-      const want = inp.special && f.cool <= 0 ? 'special' : inp.hkick ? 'hkick' : inp.heavy ? 'heavy' : inp.lkick ? 'lkick' : inp.light ? 'light' : null;
-      if (want && CHAIN[f.move] && CHAIN[f.move].includes(want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * (f.ch.id === 'mars' ? 0.2 : 0.5)) startMove(f, want);
+      const want = inp.super && f.meter >= 100 ? 'super' : inp.hkick ? 'hkick' : inp.heavy ? 'heavy' : inp.lkick ? 'lkick' : inp.light ? 'light' : null;
+      if (want && CHAIN[f.move] && CHAIN[f.move].includes(want === 'super' ? 'special' : want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * (f.ch.id === 'mars' ? 0.2 : 0.5)) { if (want === 'super') startMove(f, 'special', true); else startMove(f, want); }
     }
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
@@ -787,17 +787,17 @@
     if (canAct && G.mode === 'play') {
       if (f.onGround) f.face = toward;
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
-      else if (inp.special && f.cool <= 0 && f.onGround) startMove(f, 'special');
       else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
-        if (inp.up) { f.vy = -960; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = (inp.right ? 1 : inp.left ? -1 : 0) * f.ch.speed * 1.50; SFX.jump(); }
+        if (inp.up) { const d = inp.right ? 1 : inp.left ? -1 : 0; f.vy = -1180; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = d * Math.max(430, f.ch.speed * 1.75); f.jt = 0; f.flip = d ? (d === f.face ? 1 : -1) : 0; SFX.jump(); }   // high arc: a forward jump carries clean over the opponent
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
         else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.42 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
+    if (f.state === 'jump') f.jt = (f.jt || 0) + dt; else f.flip = 0;   // an air attack cancels the flip
     // physics
     if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
     else if (f.state === 'hurt' || f.state === 'block' || f.state === 'ko') f.vx *= Math.pow(0.0009, dt);
@@ -807,6 +807,7 @@
   }
   function separate() {   // fighters push each other apart instead of overlapping
     const [a, b] = G.p, min = 88 * (a.ch.size + b.ch.size) / 2;
+    if ((!a.onGround && a.vy < 0) || (!b.onGround && b.vy < 0)) return;   // rising jumpers pass over
     if (Math.abs(a.y - b.y) < 120 && Math.abs(a.x - b.x) < min) { const mid = (a.x + b.x) / 2, s = Math.sign(a.x - b.x) || (a.side ? 1 : -1); a.x = clamp(mid + s * min / 2, 50, VW - 50); b.x = clamp(mid - s * min / 2, 50, VW - 50); if (Math.abs(a.x - b.x) < min) (a.x <= 50 || a.x >= VW - 50 ? b : a).x += s * (min - Math.abs(a.x - b.x)) * (a.x <= 50 || a.x >= VW - 50 ? -1 : 1); }
   }
   function fireSpecial(f) {
@@ -903,7 +904,7 @@
       case 'light': inp.light = true; c.plan = Math.random() < 0.4 + lvl * 0.1 ? 'light2' : 'wait'; break;
       case 'light2': if (f.state !== 'attack') { inp.light = true; c.plan = 'wait'; } break;
       case 'heavy': inp[pick(['heavy', 'hkick', 'lkick'])] = true; c.plan = 'wait'; break;
-      case 'special': inp.special = true; c.plan = 'wait'; break;
+      case 'special': if (f.meter >= 100) inp.super = true; else inp.heavy = true; c.plan = 'wait'; break;
       case 'super': inp.super = true; c.plan = 'wait'; break;
       default: break;
     }
@@ -1123,6 +1124,15 @@
         if (half*2 < CAM.w) visualX = clamp(visualX,CAM.x0+half,CAM.x0+CAM.w-half);
       }
     }
+    if (f.state === 'jump' && f.flip) {   // front flip (toward where you face) or back flip: one full turn, tucked, with a short trail
+      const T = 2 * 1180 / 2860, p = clamp(((f.jt || 0) - 0.05) / (T - 0.17), 0, 1), e = p * p * (3 - 2 * p), ang = e * Math.PI * 2 * f.flip * f.face;
+      const cy = fy - BODY_H * f.ch.size * 0.48, frm = next != null && mix >= 0.5 ? next : idx, tuck = 1 - 0.14 * Math.sin(Math.PI * e);
+      if (!calm && p > 0 && p < 1) for (let g = 2; g >= 1; g--) { ctx.save(); ctx.globalAlpha = 0.16 * (3 - g); ctx.translate(visualX - f.vx * 0.022 * g, cy - f.vy * 0.022 * g); ctx.rotate(ang - 0.35 * g * f.flip * f.face); ctx.scale(tuck, tuck); ctx.translate(0, fy - cy); spr(ctx, h.set, h.a, frm, 0, 0, f.face, sc); ctx.restore(); }
+      ctx.translate(visualX, cy); ctx.rotate(ang); ctx.scale(tuck, tuck); ctx.translate(0, fy - cy);
+      spr(ctx, h.set, h.a, frm, 0, 0, f.face, sc); ctx.restore();
+      if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawCharge(ctx,f,G.t);
+      drawFx(f); return;
+    }
     ctx.translate(visualX, fy); ctx.rotate(rot * f.face); ctx.scale(1 / sq, sq);
     // Preview-parity animation: one complete authored pose at a time.
     // Alpha-blending separate poses was producing blurry doubled limbs on mobile.
@@ -1222,7 +1232,7 @@
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
       const me = G.p[0], pas = PASSIVE[me.ch.id];
-      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'L / S  special: ' + me.ch.special.name, 'Q / ★  super (meter is always full here)', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → special', 'Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')]
+      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'Q / ★  super: ' + me.ch.special.name + ' (meter always full here)', 'W + ◀/▶  flip over or back', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → super', 'Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')]
         .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
       if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316); }
       ctx.restore(); }
