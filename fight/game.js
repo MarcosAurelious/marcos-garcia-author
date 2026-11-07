@@ -16,10 +16,30 @@
   const MATLAS = {"n2":{"idle":[[241,0,92,125,48,125],[1188,0,110,117,66,116]],"walk":[[1033,146,116,109,74,109],[1692,0,107,115,66,112]],"run":[[1033,146,116,109,74,109],[1692,0,107,115,66,112]],"jump":[[0,0,118,144,76,120]],"attack":[[241,0,92,125,48,125],[561,146,178,110,70,109],[561,146,178,110,70,109],[561,146,178,110,70,109]],"special":[[561,146,178,110,70,109]],"hurt":[[1188,0,110,117,66,116]]},"n5":{"idle":[[609,0,96,124,52,124],[950,0,118,120,68,120]],"walk":[[443,146,116,113,70,113],[111,146,110,115,61,112]],"run":[[443,146,116,113,70,113],[111,146,110,115,61,112]],"jump":[[120,0,119,143,78,119]],"attack":[[609,0,96,124,52,124],[1518,0,172,116,66,116],[1518,0,172,116,66,116],[1518,0,172,116,66,116]],"special":[[1518,0,172,116,66,116]],"hurt":[[950,0,118,120,68,120]]},"n4":{"idle":[[335,0,91,125,48,125],[0,146,109,115,66,115]],"walk":[[1331,146,121,109,80,108],[331,146,110,113,68,112]],"run":[[1331,146,121,109,80,108],[331,146,110,113,68,112]],"jump":[[823,0,125,121,82,121]],"attack":[[335,0,91,125,48,125],[1454,146,180,107,68,107],[1454,146,180,107,68,107],[1454,146,180,107,68,107]],"special":[[1454,146,180,107,68,107]],"hurt":[[0,146,109,115,66,115]]},"n1":{"idle":[[428,0,85,124,46,124],[1300,0,106,116,68,116]],"walk":[[741,146,115,109,74,109],[223,146,106,113,64,112]],"run":[[741,146,115,109,74,109],[223,146,106,113,64,112]],"jump":[[707,0,114,121,74,121]],"attack":[[428,0,85,124,46,124],[858,146,173,109,68,109],[858,146,173,109,68,109],[858,146,173,109,68,109]],"special":[[858,146,173,109,68,109]],"hurt":[[1300,0,106,116,68,116]]},"n3":{"idle":[[515,0,92,124,47,124],[1408,0,108,116,63,115]],"walk":[[1801,0,119,115,73,108],[1922,0,111,115,62,113]],"run":[[1801,0,119,115,73,108],[1922,0,111,115,62,113]],"jump":[[1070,0,116,119,75,118]],"attack":[[515,0,92,124,47,124],[1151,146,178,109,69,108],[1151,146,178,109,69,108],[1151,146,178,109,69,108]],"special":[[1151,146,178,109,69,108]],"hurt":[[1408,0,108,116,63,115]]}};
   const SFX = (() => {
     let ac = null, on = store.get('af-sound') !== false;
-    const ensure = () => { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { ac = null; } } if (ac && ac.state === 'suspended') ac.resume(); if (ac) SND.load(); };
+    const ensure = () => { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { ac = null; } } if (ac && ac.state === 'suspended') ac.resume(); };
+    function tone(f1, f2, dur, type = 'square', vol = 0.08, when = 0) {
+      if (!on || !ac) return;
+      const t0 = ac.currentTime + when, o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(Math.max(30, f2), t0 + dur);
+      g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+    }
+    function noise(dur, vol = 0.06, hp = 1200) {
+      if (!on || !ac) return;
+      const n = ac.createBufferSource(), b = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; const g = ac.createGain(); g.gain.value = vol;
+      n.buffer = b; n.connect(f).connect(g).connect(ac.destination); n.start();
+    }
     return {
-      ensure, get ac() { return ac; }, get on() { return on; }, toggle() { on = !on; store.set('af-sound', on); return on; },
-      coin: () => SND.play('menu_select', 0.7), win: () => SND.play('victory_stinger', 0.9), boss: () => SND.play('round_start', 0.9),
+      tone, noise, ensure, get ac() { return ac; }, get on() { return on; }, toggle() { on = !on; store.set('af-sound', on); return on; },
+      jump: () => tone(300, 620, 0.14, 'square', 0.05), coin: () => { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.12, 'square', 0.05, 0.06); },
+      slash: () => noise(0.12, 0.08, 2500), hit: () => tone(220, 90, 0.15, 'sawtooth', 0.07), stomp: () => tone(500, 120, 0.12, 'square', 0.07),
+      hurt: () => tone(330, 110, 0.35, 'sawtooth', 0.08), bump: () => tone(140, 90, 0.08, 'square', 0.06), zap: () => noise(0.18, 0.04, 4000),
+      scroll: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.12, 'triangle', 0.07, i * 0.08)),
+      power: () => [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.1, 'square', 0.05, i * 0.06)),
+      win: () => [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.08, i * 0.13)),
+      boss: () => tone(90, 60, 0.6, 'sawtooth', 0.09),
     };
   })();
   const MUSIC = (() => {
@@ -233,7 +253,23 @@
   })();
 
 
-  /* ================= fighter voice lines (synthesized speech) ================= */
+  /* ================= fighter sounds: every legend sounds different ================= */
+  const VOICE = {
+    marcus: { hit: () => { SFX.noise(0.08, 0.07, 3500); SFX.tone(900, 400, 0.08, 'square', 0.04); }, sp: () => { SFX.tone(300, 1400, 0.3, 'sawtooth', 0.05); SFX.noise(0.35, 0.05, 2500); } },
+    mars: { hit: () => { SFX.tone(1400, 1300, 0.12, 'square', 0.05); SFX.noise(0.06, 0.06, 4000); }, sp: () => { SFX.noise(0.3, 0.08, 900); SFX.tone(200, 90, 0.3, 'sawtooth', 0.07); } },
+    colossus: { hit: () => { SFX.noise(0.25, 0.09, 200); SFX.tone(110, 45, 0.3, 'sawtooth', 0.08); }, sp: () => { SFX.noise(0.7, 0.12, 120); SFX.tone(80, 30, 0.8, 'sawtooth', 0.1); SFX.noise(0.12, 0.08, 5000); } },
+    medusa: { hit: () => SFX.noise(0.22, 0.07, 6000), sp: () => { SFX.noise(0.5, 0.06, 7000); SFX.tone(600, 300, 0.5, 'triangle', 0.05); SFX.tone(640, 280, 0.5, 'triangle', 0.04); } },
+    minotaur: { hit: () => SFX.tone(140, 60, 0.22, 'sawtooth', 0.09), sp: () => { SFX.tone(160, 50, 0.5, 'sawtooth', 0.1); SFX.noise(0.5, 0.08, 150); } },
+    vulcan: { hit: () => { SFX.tone(1250, 1200, 0.25, 'triangle', 0.08); SFX.tone(1870, 1850, 0.2, 'triangle', 0.05); }, sp: () => { SFX.noise(0.6, 0.11, 100); SFX.tone(70, 35, 0.6, 'sawtooth', 0.1); } },
+    chiron: { hit: () => SFX.tone(700, 260, 0.12, 'triangle', 0.08), sp: () => [880, 1100, 1320, 1760].forEach((f, i) => SFX.tone(f, f, 0.12, 'triangle', 0.06, i * 0.06)) },
+    diana: { hit: () => { SFX.tone(820, 300, 0.1, 'triangle', 0.08); SFX.noise(0.05, 0.05, 5000); }, sp: () => { SFX.tone(400, 2200, 0.18, 'sine', 0.07); SFX.noise(0.2, 0.05, 6000); } },
+    cerberus: { hit: () => { SFX.tone(95, 70, 0.25, 'sawtooth', 0.09); SFX.noise(0.18, 0.06, 300); }, sp: () => { SFX.tone(120, 60, 0.7, 'sawtooth', 0.11); SFX.tone(180, 90, 0.7, 'sawtooth', 0.07); SFX.noise(0.6, 0.08, 400); } },
+    pegasus: { hit: () => SFX.tone(900, 1400, 0.1, 'square', 0.05), sp: () => { SFX.tone(700, 1500, 0.15, 'square', 0.05); SFX.tone(1500, 600, 0.25, 'square', 0.05, 0.15); SFX.noise(0.4, 0.05, 1500); } },
+    helios: { hit: () => SFX.tone(1200, 1700, 0.12, 'sine', 0.07), sp: () => { SFX.tone(200, 1200, 0.5, 'sawtooth', 0.07); SFX.tone(1600, 1600, 0.4, 'sine', 0.04); } },
+    neptune: { hit: () => SFX.noise(0.18, 0.09, 600), sp: () => { SFX.noise(0.9, 0.12, 300); SFX.tone(90, 60, 0.8, 'sine', 0.08); } },
+    hades: { hit: () => SFX.tone(320, 140, 0.25, 'sine', 0.09), sp: () => { SFX.tone(60, 30, 0.9, 'sawtooth', 0.11); [220, 207, 196].forEach((f, i) => SFX.tone(f, f * 0.7, 0.5, 'sine', 0.05, i * 0.12)); } },
+  };
+  /* ---- fighter voices: a small formant synthesizer (a glottal buzz shaped by vowel resonances), so every legend yells in their own voice ---- */
   const VOWEL = { a: [730, 1090, 2440], o: [570, 840, 2410], e: [530, 1840, 2480], i: [300, 2200, 3000], u: [330, 870, 2240] };
   // f0: pitch · fs: formant size (lower = bigger body) · rasp: growl · hiss/ring/echo: character colour · kind: how the lines are voiced
   const VOX = {
@@ -284,47 +320,104 @@
   }
 
   /* ---- impact sound design: bat-on-heavy-bag thuds, ringing metal, lasers, spell-casting; all synthesized, no files ---- */
-  /* ================= sound effects: recorded clips in fight/sfx (made by fight/tools/make_sfx.py) ================= */
-  const SND = (() => {
-    const NAMES = ['light_punch', 'heavy_punch', 'armor_hit', 'sword_swish', 'sword_clash', 'shield_block', 'ground_slam', 'jump', 'flip_whoosh', 'dash', 'landing',
-      'menu_select', 'round_start', 'victory_stinger', 'marcus_lightning_wave', 'mars_crimson_cleave', 'colossus_thunder_fist', 'medusa_hex_sigil', 'minotaur_gore_charge',
-      'vulcan_magma_hammer', 'chiron_star_arrow', 'diana_emerald_arrow', 'cerberus_hellfire_pounce', 'pegasus_heavenfall_strike', 'helios_supernova_beam', 'neptune_tsunami_surge', 'hades_void_seal'];
-    const bufs = {}, last = {}; let bus = null;
-    function load() {
-      const ac = SFX.ac; if (!ac || bus) return;
-      bus = ac.createGain(); bus.gain.value = 0.8;
-      const lim = ac.createDynamicsCompressor(); lim.threshold.value = -6; lim.knee.value = 4; lim.ratio.value = 12; lim.attack.value = 0.002; lim.release.value = 0.1;
-      bus.connect(lim).connect(ac.destination);
-      NAMES.forEach((n) => fetch('sfx/' + n + '.mp3?v=1').then((r) => r.arrayBuffer()).then((b) => new Promise((ok, no) => ac.decodeAudioData(b, ok, no))).then((b) => { bufs[n] = b; }).catch(() => { /* missing clip: stay quiet */ }));
+  const FX = (() => {
+    let bus = null, verb = null, nb = null;
+    const A = () => SFX.ac;
+    function init() {
+      const ac = A(); if (!ac) return false; if (bus) return true;
+      bus = ac.createDynamicsCompressor(); bus.threshold.value = -14; bus.ratio.value = 5; bus.attack.value = 0.002; bus.release.value = 0.12;
+      const trim = ac.createGain(); trim.gain.value = 0.55; const lim = ac.createDynamicsCompressor(); lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.08; bus.connect(trim).connect(lim).connect(ac.destination);
+      const len = ac.sampleRate * 1.6; nb = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      verb = ac.createConvolver(); const ir = ac.createBuffer(2, len, ac.sampleRate); for (let c = 0; c < 2; c++) { const x = ir.getChannelData(c); for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); } verb.buffer = ir;
+      const vg = A().createGain(); vg.gain.value = 0.5; verb.connect(vg).connect(bus); return true;
     }
-    function play(n, vol = 1, rate = 1, delay = 0) {
-      const ac = SFX.ac; if (!SFX.on || !ac) return; load(); const b = bufs[n]; if (!b) return;
-      const t = ac.currentTime + delay; if (last[n] && t - last[n] < 0.03) return; last[n] = t;   // the same clip twice in one instant just sounds louder
-      const src = ac.createBufferSource(), g = ac.createGain(); src.buffer = b;
-      src.playbackRate.value = rate * (1 + (Math.random() - 0.5) * 0.05);   // a touch of pitch spread so repeated hits never sound robotic
-      g.gain.value = vol; src.connect(g).connect(bus); src.start(t);
+    const ok = () => SFX.on && A() && init();
+    function env(g, t, a, peak, dec) { g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); }
+    function osc(type, f1, f2, t, dur, vol, wet = 0, a = 0.002, pan = 0) {
+      const ac = A(), o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f1, t); if (f2 !== f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t + dur);
+      env(g, t, a, vol, dur); o.connect(g); let n = g; if (pan && ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = pan; g.connect(p); n = p; }
+      n.connect(bus); if (wet) { const w = ac.createGain(); w.gain.value = wet; n.connect(w).connect(verb); } o.start(t); o.stop(t + a + dur + 0.05); return o;
     }
-    return { play, load };
+    function noise(t, dur, vol, type, f1, f2 = f1, q = 0.8, wet = 0, a = 0.001) {
+      const ac = A(), n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = nb; n.loop = true;
+      f.type = type; f.Q.value = q; f.frequency.setValueAtTime(f1, t); if (f2 !== f1) f.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      env(g, t, a, vol, dur); n.connect(f).connect(g).connect(bus); if (wet) { const w = ac.createGain(); w.gain.value = wet; g.connect(w).connect(verb); } n.start(t, Math.random() * 0.5); n.stop(t + a + dur + 0.05);
+    }
+    const now = () => A().currentTime + 0.003;
+    return {
+      // a bat on a heavy bag: a deep body thump, the leather slap, and a short dull smack
+      thud(heavy) { if (!ok()) return; const t = now(), k = heavy ? 1.35 : 1;
+        osc('sine', 150 * (heavy ? 0.8 : 1), 42, t, 0.22 * k, 0.75 * k);
+        osc('triangle', 95, 55, t, 0.12 * k, 0.35);
+        noise(t, 0.05, 0.55 * k, 'bandpass', 2600, 1500, 0.9);
+        noise(t, 0.16 * k, 0.6 * k, 'lowpass', 900, 220, 0.7);
+        if (heavy) noise(t + 0.01, 0.35, 0.18, 'lowpass', 400, 120, 0.5, 0.25); },
+      // steel on steel: inharmonic ringing partials over a bright scrape
+      clang(big) { if (!ok()) return; const t = now(), base = 520 + Math.random() * 140, k = big ? 1.2 : 0.85;
+        [1, 2.31, 3.17, 4.53, 5.96].forEach((r, i) => osc('sine', base * r, base * r * 0.995, t, (0.55 - i * 0.07) * k, 0.22 / (1 + i * 0.5), 0.35, 0.001, (i % 2 ? 0.25 : -0.25)));
+        noise(t, 0.09, 0.7, 'highpass', 3500, 3500, 0.7, 0.2); noise(t, 0.04, 0.6, 'bandpass', 1800, 1800, 2); },
+      // a shield block: a dull clank, then a little ring
+      block() { if (!ok()) return; const t = now(); noise(t, 0.06, 0.45, 'bandpass', 1200, 900, 1.5); osc('sine', 880, 870, t, 0.25, 0.16, 0.25); osc('sine', 1320, 1310, t, 0.18, 0.1, 0.25); osc('sine', 120, 60, t, 0.08, 0.4); },
+      // the swing whoosh before a hit
+      whoosh(heavy) { if (!ok()) return; const t = now(); noise(t, heavy ? 0.22 : 0.13, heavy ? 0.9 : 0.6, 'bandpass', 600, 2800, 1.6, 0, 0.04); },
+      // a sci-fi laser: a falling FM zap with a bright tail
+      laser(big) { if (!ok()) return; const ac = A(), t = now(), dur = big ? 0.5 : 0.3;
+        const o = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain(); o.type = 'sawtooth'; m.type = 'square';
+        o.frequency.setValueAtTime(big ? 2200 : 1800, t); o.frequency.exponentialRampToValueAtTime(big ? 140 : 220, t + dur); m.frequency.setValueAtTime(big ? 90 : 60, t); mg.gain.value = big ? 600 : 300;
+        m.connect(mg).connect(o.frequency); const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000; env(g, t, 0.004, big ? 0.45 : 0.34, dur);
+        o.connect(lp).connect(g).connect(bus); const w = ac.createGain(); w.gain.value = 0.3; g.connect(w).connect(verb); o.start(t); m.start(t); o.stop(t + dur + 0.05); m.stop(t + dur + 0.05);
+        osc('sine', 3200, 900, t, 0.08, 0.12); if (big) noise(t, 0.4, 0.15, 'bandpass', 4000, 800, 3, 0.3); },
+      // electric crackle for lightning
+      zap() { if (!ok()) return; const t = now(); for (let i = 0; i < 6; i++) noise(t + i * 0.03 + Math.random() * 0.02, 0.03, 0.3, 'highpass', 2500 + Math.random() * 3000, 2500, 0.7, 0.15); osc('square', 90, 60, t, 0.2, 0.1); },
+      // a spell: a breath of air rising into a shimmering chord of bells
+      spell(big, root = 440) { if (!ok()) return; const t = now(), k = big ? 1.5 : 1;
+        noise(t, 0.45 * k, 0.45, 'bandpass', 300, 5000, 4, 0.5, 0.15);
+        [1, 1.25, 1.5, 2, 2.5, 3].forEach((r, i) => { osc('sine', root * r, root * r * 1.003, t + 0.12 + i * 0.05 * k, 0.6 * k, 0.15, 0.8, 0.02, i % 2 ? 0.4 : -0.4); osc('triangle', root * r * 2.01, root * r * 2.01, t + 0.12 + i * 0.05 * k, 0.3 * k, 0.05, 0.8); });
+        if (big) osc('sine', root / 2, root / 2, t, 1.2, 0.12, 0.6, 0.3); },
+      // fire and fury: a rumbling roar
+      fire(big) { if (!ok()) return; const t = now(); noise(t, big ? 0.9 : 0.5, 0.9, 'lowpass', 300, 1800, 0.6, 0.3, 0.05); noise(t + 0.05, big ? 0.7 : 0.4, 0.4, 'bandpass', 2500, 900, 1, 0.2, 0.05); osc('sawtooth', 70, 45, t, big ? 0.8 : 0.4, 0.12); },
+      // water: a crashing wash
+      wave(big) { if (!ok()) return; const t = now(); noise(t, big ? 1.1 : 0.7, 0.75, 'bandpass', 400, 1500, 0.5, 0.4, 0.15); noise(t + 0.2, 0.6, 0.35, 'highpass', 3000, 6000, 0.5, 0.3, 0.1); },
+      // a lightning strike: a split-second white crack, a buzzing sizzle, a few branching snaps
+      lightning(big) { if (!ok()) return; const t = now(), k = big ? 1.3 : 1;
+        noise(t, 0.05, 1.1 * k, 'highpass', 1200, 1200, 0.5, 0.4);
+        noise(t, 0.12 * k, 0.6 * k, 'bandpass', 5000, 2000, 1.2, 0.35);
+        for (let i = 0; i < (big ? 7 : 4); i++) noise(t + 0.03 + i * 0.022 + Math.random() * 0.015, 0.02, 0.45, 'highpass', 3000 + Math.random() * 4000, 3000, 0.7, 0.3);
+        const ac = A(), o = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.value = 120; m.type = 'square'; m.frequency.value = 37; mg.gain.value = 90; m.connect(mg).connect(o.frequency);
+        env(g, t, 0.002, 0.18 * k, 0.35 * k); const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 400; o.connect(hp).connect(g).connect(bus); o.start(t); m.start(t); o.stop(t + 0.45 * k); m.stop(t + 0.45 * k); },
+      // thunder: a sharp clap, then a deep roll that rumbles unevenly and fades, delayed like the real thing
+      thunder(big, delay = 0.12) { if (!ok()) return; const ac = A(), t = now() + delay, dur = big ? 2.4 : 1.5;
+        noise(t, 0.18, 0.9, 'lowpass', 2400, 600, 0.6, 0.5);
+        const n = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain(), am = ac.createGain(); n.buffer = nb; n.loop = true; lp.type = 'lowpass'; lp.Q.value = 0.7;
+        lp.frequency.setValueAtTime(700, t); lp.frequency.exponentialRampToValueAtTime(90, t + dur);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(big ? 1.4 : 1.0, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        am.gain.setValueAtTime(1, t); let x = t + 0.1; while (x < t + dur) { am.gain.linearRampToValueAtTime(0.35 + Math.random() * 0.9, x); x += 0.08 + Math.random() * 0.18; }   // the uneven rolls
+        n.connect(lp).connect(am).connect(g).connect(bus); const w = ac.createGain(); w.gain.value = 0.6; g.connect(w).connect(verb); n.start(t, Math.random() * 0.4); n.stop(t + dur + 0.05);
+        osc('sine', 55, 32, t, dur * 0.7, big ? 0.5 : 0.35, 0.3, 0.05); },
+      // the knockout: a huge body slam with a metal crash tail
+      ko() { if (!ok()) return; const t = now(); osc('sine', 120, 30, t, 0.6, 0.9); noise(t, 0.4, 0.6, 'lowpass', 1200, 150, 0.7, 0.4); this.clang(true); },
+    };
   })();
-  const SPECIAL_SND = { marcus: 'marcus_lightning_wave', mars: 'mars_crimson_cleave', colossus: 'colossus_thunder_fist', medusa: 'medusa_hex_sigil', minotaur: 'minotaur_gore_charge',
-    vulcan: 'vulcan_magma_hammer', chiron: 'chiron_star_arrow', diana: 'diana_emerald_arrow', cerberus: 'cerberus_hellfire_pounce', pegasus: 'pegasus_heavenfall_strike',
-    helios: 'helios_supernova_beam', neptune: 'neptune_tsunami_surge', hades: 'hades_void_seal' };
-  const BLADE = ['marcus', 'mars', 'hades'], METAL = ['vulcan', 'colossus', 'minotaur'];
-  function strikeSound(f, heavy) {   // what a landed hit sounds like
-    const punch = f.move === 'light' || f.move === 'heavy';
-    SND.play(heavy ? 'heavy_punch' : 'light_punch', heavy ? 1 : 0.85);
-    if (BLADE.includes(f.ch.id) && punch) SND.play('sword_clash', heavy ? 0.55 : 0.4);
-    else if (METAL.includes(f.ch.id) && heavy) SND.play('armor_hit', 0.5);
-  }
-  function castSound(f, big) {   // the special or super going off: each legend has their own; a super is bigger and deeper
-    SND.play(SPECIAL_SND[f.ch.id] || 'dash', big ? 1 : 0.8, big ? 0.9 : 1.04);
-  }
-  const FX = {
-    whoosh: (heavy) => SND.play('sword_swish', heavy ? 0.7 : 0.5, heavy ? 0.85 : 1.12),
-    block: () => SND.play('shield_block', 0.9),
-    clang: () => SND.play('sword_clash', 0.8),
-    ko: () => { SND.play('ground_slam', 1, 0.9); SND.play('armor_hit', 0.6, 0.8, 0.04); },
+  // each legend's sound palette: what their strikes and specials sound like
+  const STYLE = {
+    marcus: { hit: 'blade', sp: 'zap' }, mars: { hit: 'blade', sp: 'clang' }, colossus: { hit: 'thud', sp: 'zap' }, medusa: { hit: 'thud', sp: 'spell', root: 370 },
+    minotaur: { hit: 'thud', sp: 'fire' }, vulcan: { hit: 'hammer', sp: 'fire' }, chiron: { hit: 'thud', sp: 'spell', root: 523 }, diana: { hit: 'thud', sp: 'spell', root: 587 },
+    cerberus: { hit: 'thud', sp: 'fire' }, pegasus: { hit: 'thud', sp: 'laser' }, helios: { hit: 'tech', sp: 'laser' }, neptune: { hit: 'thud', sp: 'wave' }, hades: { hit: 'blade', sp: 'spell', root: 220 },
   };
+  function strikeSound(f, heavy) {   // what a landed hit sounds like
+    const S = STYLE[f.ch.id] || { hit: 'thud' }, punch = f.move === 'light' || f.move === 'heavy';
+    FX.thud(heavy);
+    if ((S.hit === 'blade' && punch) || S.hit === 'hammer') FX.clang(heavy || S.hit === 'hammer');
+    else if (S.hit === 'tech') FX.laser(false);
+  }
+  const STORM = ['marcus', 'colossus', 'helios', 'pegasus', 'mars', 'hades'];   // legends who call the storm on every special
+  function castSound(f, big) {   // the special or super going off: every special cracks lightning, every super rolls thunder
+    const S = STYLE[f.ch.id] || { sp: 'laser' };
+    FX.lightning(big); if (big || STORM.includes(f.ch.id)) FX.thunder(big, big ? 0.15 : 0.22);
+    if (S.sp === 'spell') FX.spell(big, S.root); else if (S.sp === 'laser') FX.laser(big); else if (S.sp === 'zap') { FX.zap(); FX.laser(big); }
+    else if (S.sp === 'fire') FX.fire(big); else if (S.sp === 'wave') FX.wave(big); else if (S.sp === 'clang') { FX.whoosh(true); FX.clang(true); }
+  }
+  const voice = (f, k) => { const v = VOICE[f.ch.id]; if (v) v[k](); else (k === 'hit' ? SFX.hit() : SFX.zap()); };
 
   /* ================= art ================= */
   const Q = '../quest/img/';
@@ -594,7 +687,7 @@
       if (G && G.mode === 'play' && !G.cutin) {
         G.cutin = { id: f.ch.id, side: f.side, t: 0, dur: calm ? 0.32 : isSuper ? 0.75 : 0.57, super: !!isSuper };
       }
-      f.cool = isSuper ? 0.6 : 1.5; castSound(f, isSuper); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; } }
+      f.cool = isSuper ? 0.6 : 1.5; castSound(f, isSuper); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else FX.whoosh(kind === 'heavy' || kind === 'hkick');
     if (f.onGround) f.vx = 0;
     return m;
@@ -660,7 +753,7 @@
     const toward = Math.sign(o.x - f.x) || f.face;
     f.holdBack = (toward > 0 && inp.left && !inp.right) || (toward < 0 && inp.right && !inp.left);
     // combo breaker: spend 40% meter to burst out of a combo
-    if (inp.breaker && f.state === 'hurt' && f.meter >= 40 && G.mode === 'play') { f.meter -= 40; f.state = 'idle'; f.stun = 0; f.inv = 0.5; o.vx = o.face * -0; o.state = o.state === 'ko' ? 'ko' : 'hurt'; o.t = 0; o.stun = 0.35; o.vx = toward * 520; spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#8fe6ff', '#ffffff', '#ffd27a'], 30); G.shake = 0.3; G.banner = { text: 'COMBO BREAKER!', sub: '', t: 0, small: true }; SND.play('dash', 0.9); }
+    if (inp.breaker && f.state === 'hurt' && f.meter >= 40 && G.mode === 'play') { f.meter -= 40; f.state = 'idle'; f.stun = 0; f.inv = 0.5; o.vx = o.face * -0; o.state = o.state === 'ko' ? 'ko' : 'hurt'; o.t = 0; o.stun = 0.35; o.vx = toward * 520; spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#8fe6ff', '#ffffff', '#ffd27a'], 30); G.shake = 0.3; G.banner = { text: 'COMBO BREAKER!', sub: '', t: 0, small: true }; SFX.power(); }
     f.inv = (f.inv || 0) - dt;
     if (f.poison > 0 || f.burn > 0) { f.dotT = (f.dotT || 0) + dt; if (f.dotT >= 0.5) { f.dotT = 0; if (f.state !== 'ko' && G.mode === 'play') { f.hp = Math.max(0, f.hp - (f.burn > 0 ? 2 : 1)); spark(f.x, f.y - BODY_H * f.ch.size * 0.6, f.burn > 0 ? ['#ff9b49', '#ffd27a'] : ['#d77bff', '#ffffff'], 4); if (f.hp <= 0) knockout(opp(f), f); } } }
     f.poison = Math.max(0, (f.poison || 0) - dt); f.burn = Math.max(0, (f.burn || 0) - dt); f.slowT = Math.max(0, (f.slowT || 0) - dt);
@@ -699,14 +792,14 @@
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
-        if (inp.up) { const d = inp.right ? 1 : inp.left ? -1 : 0; f.vy = -1180; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = d * Math.max(430, f.ch.speed * 1.75); f.jt = 0; f.flip = d ? (d === f.face ? 1 : -1) : 0; SND.play(f.flip ? 'flip_whoosh' : 'jump', f.flip ? 0.85 : 0.6); }   // high arc: a forward jump carries clean over the opponent
+        if (inp.up) { const d = inp.right ? 1 : inp.left ? -1 : 0; f.vy = -1180; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = d * Math.max(430, f.ch.speed * 1.75); f.jt = 0; f.flip = d ? (d === f.face ? 1 : -1) : 0; SFX.jump(); }   // high arc: a forward jump carries clean over the opponent
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
         else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.42 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
     if (f.state === 'jump') f.jt = (f.jt || 0) + dt; else f.flip = 0;   // an air attack cancels the flip
     // physics
-    if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') { f.state = 'idle'; SND.play('landing', 0.6); } if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
+    if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
     else if (f.state === 'hurt' || f.state === 'block' || f.state === 'ko') f.vx *= Math.pow(0.0009, dt);
     const priorX = f.x;
     f.x += f.vx * dt; f.x = clamp(f.x, WALL_L, WALL_R);
@@ -755,7 +848,7 @@
       const t=G.p[1-shot.owner],attacker=G.p[shot.owner];
       G.shots.forEach(o=>{if(o===shot||o.owner===shot.owner||o.dead||shot.dead)return;
         if(Math.abs(o.x-shot.x)<36&&Math.abs(o.y-shot.y)<40){
-          shot.dead=o.dead=true;spark(shot.x,shot.y,shot.col.concat(o.col),15);FX.clang();
+          shot.dead=o.dead=true;spark(shot.x,shot.y,shot.col.concat(o.col),15);FX.clang(true);
         }
       });
       if(shot.kind==='hades'&&!shot.dead&&t.state!=='ko'&&t.petrified<=0&&Math.abs(shot.x-t.x)<250)
