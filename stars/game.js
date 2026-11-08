@@ -171,6 +171,7 @@ const touch = { id: null, sx: 0, sy: 0, px: 0, py: 0, active: false };
 function toLogical(e) { const r = C.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
 C.addEventListener('pointerdown', e => {
   initAudio(); C.focus();
+  if (G.state === 'cut') return;
   if (G.state !== 'play' || G.paused) { goFull(); hit.e = true; G.paused = false; return; }
   if (e.pointerType === 'mouse') return;
   const q = toLogical(e); touch.id = e.pointerId; touch.sx = q.x; touch.sy = q.y; touch.px = P.x; touch.py = P.y; touch.active = true;
@@ -209,6 +210,7 @@ function resize() {
   C.style.width = Math.floor(W * s) + 'px'; C.style.height = Math.floor(H * s) + 'px';
 }
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 120)); document.addEventListener('fullscreenchange', resize);
+addEventListener('resize', () => setTimeout(placeCut, 0));
 
 // ---------- backgrounds ----------
 const stars = Array.from({ length: 160 }, () => ({ x: Math.random() * W, y: Math.random() * H, z: rnd(0.2, 1), a: Math.random() * 6.28 }));
@@ -603,6 +605,7 @@ function playerHit() {
 function update(dt) {
   G.t += dt;
   if (G.state === 'title') { if (hit.e || hit.f) { newGame(); } return; }
+  if (G.state === 'cut') { G.stateT += dt; if ((hit.e || hit.f || hit.p) && G.stateT > 0.4) endCutscene(); return; }
   if (G.state === 'promo' || G.state === 'interlude' || G.state === 'over' || G.state === 'victory') { G.stateT += dt; if ((hit.e || hit.f) && G.stateT > 1.2) advanceFromScreen(); return; }
   if (G.state !== 'play') return;
   if (hit.p) G.paused = !G.paused;
@@ -909,14 +912,43 @@ function phaseCleared() {
 function gameOver() { saveHi(); G.state = 'over'; G.stateT = 0; }
 function saveHi() { if (G.score >= G.hi) { G.hi = G.score; lsSet('legio_hi', String(G.hi)); } }
 function advanceFromScreen() {
-  if (G.state === 'promo' || G.state === 'interlude') { startPhase(G.phase + 1); }
+  if (G.state === 'promo') { const n = G.phase + 1; playCutscene(n >> 1, () => startPhase(n)); }
+  else if (G.state === 'interlude') { startPhase(G.phase + 1); }
   else if (G.state === 'over') { // continue from the same view, score resets
     G.lives = 3; G.score = 0; G.nextLife = 50000; G.tempPow = 0; G.shield = 0; for (const s of SPECIALS) G.sp[s.id] = Math.max(G.sp[s.id], s.start); startPhase(G.phase);
   } else { G.state = 'title'; ST = null; }
 }
+// ---------- cutscenes: one anime cutscene before each level ----------
+const CUTS = [1, 2, 3, 4, 5, 6, 7, 8].map(n => 'cut/level' + n + '.mp4');
+const cutWrap = document.getElementById('cutWrap'), cutVid = document.getElementById('cutVid');
+let cutDone = null, cutGuard = 0;
+function placeCut() {
+  if (cutWrap.hidden) return;
+  const st = document.getElementById('stage').getBoundingClientRect(), r = C.getBoundingClientRect();
+  cutWrap.style.left = (r.left - st.left) + 'px'; cutWrap.style.top = (r.top - st.top) + 'px';
+  cutWrap.style.width = r.width + 'px'; cutWrap.style.height = r.height + 'px';
+}
+function playCutscene(level, then) {
+  const src = CUTS[level];
+  if (!src) { then(); return; }
+  G.state = 'cut'; G.stateT = 0; cutDone = then; cutWrap.hidden = false; placeCut();
+  cutVid.src = src; cutVid.muted = muted; cutVid.currentTime = 0;
+  const p = cutVid.play();
+  if (p && p.catch) p.catch(() => { cutVid.muted = true; cutVid.play().catch(endCutscene); });
+  clearTimeout(cutGuard); cutGuard = setTimeout(endCutscene, 20000);
+}
+function endCutscene() {
+  if (!cutDone) return;
+  const f = cutDone; cutDone = null; clearTimeout(cutGuard);
+  cutVid.pause(); cutVid.removeAttribute('src'); cutVid.load(); cutWrap.hidden = true;
+  f();
+}
+cutVid.addEventListener('ended', endCutscene);
+cutVid.addEventListener('error', endCutscene);
+cutWrap.addEventListener('pointerdown', e => { e.preventDefault(); if (G.stateT > 0.4) endCutscene(); });
 function newGame() {
   Object.assign(G, { score: 0, lives: 3, rank: 0, sp: freshSpecials(), rollT: 0, tempPow: 0, rapidT: 0, missileT: 0, shield: 0, nextLife: 50000, kills: 0, shots: 0, hits: 0, paused: false });
-  startPhase(0);
+  playCutscene(0, () => startPhase(0));
 }
 
 // ---------- render ----------
@@ -926,6 +958,7 @@ function render(dt) {
   ctx.fillStyle = '#000'; ctx.fillRect(-20, -20, W + 40, H + 40);
   drawBackground(dt);
   if (G.state === 'title' || G.state === 'loading') { ctx.restore(); drawTitle(); return; }
+  if (G.state === 'cut') { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
   if (ST) {
     const side = ST.view === 'side';
     for (const p of pickups) { if (p.k === 'arsenal') drawArsenal(p); else draw((side ? PU_SPR_S : PU_SPR_F)[p.k], p.x, p.y, 0.55 * (1 + Math.sin(p.t * 6) * 0.06)); }
@@ -1159,7 +1192,7 @@ let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.033, (now - last) / 1000); last = now;
   if (G.state === 'loading' && loadedCount >= assetTotal) G.state = 'title';
-  if (hit.m) { muted = !muted; lsSet('legio_mute', muted ? '1' : '0'); }
+  if (hit.m) { muted = !muted; lsSet('legio_mute', muted ? '1' : '0'); cutVid.muted = muted; }
   try { update(dt); render(dt); } catch (err) { console.error(err); }
   for (const k in hit) hit[k] = false;
   if (coarse) {
@@ -1174,4 +1207,4 @@ resize(); C.focus();
 if (document.fonts) { document.fonts.load('600 20px "Cormorant Garamond"'); document.fonts.load('12px "Space Mono"'); }
 requestAnimationFrame(frame);
 // test hook (used for automated playtesting)
-window.__legio = { G, get ST() { return ST; }, get P() { return P; }, startPhase, skip(t) { if (ST) ST.t = t; }, get enemies() { return enemies; }, kill(e) { damageEnemy(e, 1e6); } };
+window.__legio = { G, get ST() { return ST; }, get P() { return P; }, startPhase, playCutscene, endCutscene, skip(t) { if (ST) ST.t = t; }, get enemies() { return enemies; }, kill(e) { damageEnemy(e, 1e6); } };

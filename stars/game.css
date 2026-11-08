@@ -70,4 +70,7 @@ body{background:var(--bg);color:var(--fg);margin:0;display:flex;flex-direction:c
   50%{box-shadow:0 0 6px rgba(90,210,255,.6),0 0 16px rgba(60,140,255,.3)}
   52%{box-shadow:0 0 16px rgba(220,250,255,1),0 0 40px rgba(90,180,255,.85)}
   56%{box-shadow:0 0 8px rgba(90,210,255,.75),0 0 22px rgba(60,140,255,.4)}}
+#cutWrap{position:absolute;z-index:5;background:#000;overflow:hidden}
+#cutWrap video{display:block;width:100%;height:100%;object-fit:cover}
+#cutSkip{position:absolute;right:12px;bottom:12px;padding:8px 14px;border:1px solid rgba(227,179,71,.8);border-radius:6px;background:rgba(6,4,10,.6);color:var(--gold);font:11px var(--pixel);letter-spacing:.12em;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.sbtn,.sbtn::before{animation:none}}
