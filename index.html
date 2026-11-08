@@ -27,6 +27,8 @@
 
   <link rel="stylesheet" href="featured-book.css">
 
+  <link rel="stylesheet" href="hero-immersive.css?v=1">
+
 </head>
 
 <body>
@@ -48,8 +50,6 @@
     </a>
 
     <nav class="primary-nav" id="primary-nav">
-      <a href="#window">The Window</a>
-      <a href="#book">The Book</a>
       <a href="#about">About</a>
       <a href="#library">All Books</a>
       <a href="#apps">Apps &amp; Games</a>
@@ -62,26 +62,27 @@
   </div>
 </header>
 
-<section class="hero" id="top">
+<section class="hero hero--immersive" id="top">
+  <div class="hero-stage" id="hero-stage">
+    <div class="hero-layer hero-layer--back" aria-hidden="true">
+      <img src="marcus-specimen.jpg" alt="" class="hero-bg-image">
+    </div>
+    <div class="hero-layer hero-layer--aura" aria-hidden="true"></div>
+    <div class="hero-layer hero-layer--figure">
+      <img src="marcus-specimen.jpg" alt="Illustrated portrait of Marcus Aurelius rendered as a cosmic, circuit-veined figure" class="hero-figure-image">
+    </div>
+    <div class="hero-layer hero-layer--shade" aria-hidden="true"></div>
+  </div>
+
   <div class="wrap hero-inner">
     <div class="hero-text">
-      <p class="eyebrow">Author · Storyteller · Independent Creator</p>
+      <p class="eyebrow">Independent Creator</p>
       <h1 class="hero-title">Where stoic reason<br>meets <em>strange science.</em></h1>
       <p class="hero-sub">I write and illustrate books for readers drawn to philosophy, curiosity, and the unexplained corners of the universe — where careful thought meets wonderfully weird ideas.</p>
-      <div class="hero-actions">
-        <a href="#book" class="btn btn-primary">Explore the Book</a>
-        <a href="#about" class="btn btn-ghost">Meet the Author</a>
-      </div>
-    </div>
-
-    <div class="hero-figure">
-      <div class="specimen-frame">
-        <div class="specimen-glow" aria-hidden="true"></div>
-        <img src="marcus-specimen.jpg" alt="Illustrated portrait of Marcus Aurelius rendered as a cosmic, circuit-veined figure" class="specimen-image">
-      </div>
-      <p class="specimen-caption">Reason meets the unexplained</p>
     </div>
   </div>
+
+  <p class="hero-caption">Reason meets the unexplained</p>
 </section>
 
 <section class="portal-section" id="window">
@@ -393,6 +394,7 @@
 <script src="script.js"></script>
 <script type="module" src="window-portal.js?v=3"></script>
 <script src="flash.js?v=2"></script>
+<script src="hero-depth.js?v=1"></script>
 
 <script src="book-flip.js?v=2"></script>
 
