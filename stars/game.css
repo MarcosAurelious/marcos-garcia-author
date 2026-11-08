@@ -18,6 +18,12 @@ body{background:var(--bg);color:var(--fg);margin:0;display:flex;flex-direction:c
 #game:focus-visible{border-color:var(--gold)}
 #help{position:fixed;left:0;right:0;bottom:0;z-index:4;pointer-events:none;display:flex;flex-wrap:wrap;gap:4px 18px;justify-content:center;padding:18px 12px 8px;background:linear-gradient(transparent,rgba(6,4,10,.85));transition:opacity .4s;font-size:11px;color:var(--muted);letter-spacing:.04em}
 body.playing #help{opacity:0}
+#home{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);z-index:6;display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;
+  border:1.5px solid var(--gold);background:rgba(8,7,13,.82);color:var(--gold);font:700 12px var(--pixel);letter-spacing:.1em;text-decoration:none;text-transform:uppercase;
+  box-shadow:0 0 0 1px #000,0 0 14px rgba(227,179,71,.35);transition:opacity .4s,background .2s}
+#home:hover,#home:focus-visible{background:rgba(227,179,71,.22);outline:none}
+body.playing #home{opacity:0;pointer-events:none}
+@media (pointer:coarse){ #home{bottom:max(10px,env(safe-area-inset-bottom,0px));font-size:11px;padding:8px 14px} }
 #help b{color:var(--gold);font-weight:400}
 .pad,#turn{display:none}
 /* Touch screens: the game fills the phone, with electric special buttons in columns at both sides. */
