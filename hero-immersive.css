@@ -1,0 +1,239 @@
+/* =====================================================
+   Marcos Garcia — Immersive hero
+   "Reason meets the unexplained" fills the whole screen,
+   the headline floats in front of it with 3D depth.
+   hero-depth.js feeds --px / --py (pointer or idle drift,
+   -1..1) and --scroll (0..1 through the hero).
+   ===================================================== */
+
+.hero.hero--immersive {
+  --px: 0;
+  --py: 0;
+  --scroll: 0;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin-top: -76px;              /* slide under the see-through header */
+  padding: 76px 0 0 !important;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  perspective: 1200px;
+  background: #05070d !important;
+}
+
+/* ---------- picture layers ---------- */
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* Deep layer: the painting stretched edge to edge, softened so it never looks pixelated */
+.hero-layer--back {
+  transform:
+    translate3d(calc(var(--px) * -14px), calc(var(--py) * -10px + var(--scroll) * 90px), 0)
+    scale(1.18);
+}
+.hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  filter: blur(16px) brightness(0.62) saturate(1.25);
+}
+
+/* Glowing rings behind Marcus */
+.hero-layer--aura {
+  left: auto;
+  right: max(2vw, calc(50% - 640px));
+  width: min(70vh, 58vw);
+  transform:
+    translate3d(calc(var(--px) * -22px), calc(var(--py) * -16px + var(--scroll) * 120px), 0);
+}
+.hero-layer--aura::before,
+.hero-layer--aura::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 120%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+.hero-layer--aura::before {
+  background:
+    repeating-radial-gradient(circle,
+      transparent 0 9%,
+      rgba(75, 225, 255, 0.22) 9.6% 10.4%,
+      transparent 11% 16%,
+      rgba(243, 211, 107, 0.18) 16.5% 17.2%,
+      transparent 17.8% 23%);
+  mask-image: radial-gradient(circle, #000 35%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, #000 35%, transparent 70%);
+  animation: hero-rings 5s ease-in-out infinite;
+}
+.hero-layer--aura::after {
+  background:
+    radial-gradient(circle, rgba(255, 236, 170, 0.28) 0 6%, rgba(69, 217, 255, 0.16) 16%, rgba(178, 103, 255, 0.12) 28%, transparent 48%);
+  filter: blur(10px);
+  animation: hero-glow 6s ease-in-out infinite;
+}
+
+/* Middle layer: Marcus himself, sharp, full height, edges melting into the backdrop */
+.hero-layer--figure {
+  left: auto;
+  right: max(2vw, calc(50% - 640px));
+  width: min(72vh, 60vw);
+  transform:
+    translate3d(calc(var(--px) * -30px), calc(var(--py) * -20px + var(--scroll) * 150px), 0);
+}
+.hero-figure-image {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  animation: hero-breathe 6s ease-in-out infinite;
+}
+
+/* Shade: keeps the words readable and fades into the next section */
+.hero-layer--shade {
+  background:
+    linear-gradient(90deg, rgba(5, 7, 13, 0.8) 0%, rgba(5, 7, 13, 0.5) 38%, rgba(5, 7, 13, 0.05) 70%),
+    linear-gradient(to bottom, rgba(5, 7, 13, 0.55) 0, transparent 18%, transparent 72%, #05070d 100%);
+}
+
+/* ---------- floating words ---------- */
+.hero.hero--immersive .hero-inner {
+  position: relative;
+  z-index: 2;
+  display: block !important;
+  width: min(1180px, calc(100% - 64px)) !important;
+  margin: 0 auto !important;
+  padding: 60px 0 90px;
+  transform-style: preserve-3d;
+  perspective: 900px;
+}
+
+.hero.hero--immersive .hero-text {
+  max-width: 800px;
+  transform-style: preserve-3d;
+  transform:
+    translate3d(calc(var(--px) * 16px), calc(var(--py) * 10px - var(--scroll) * 70px), 0)
+    rotateY(calc(var(--px) * 7deg))
+    rotateX(calc(var(--py) * -6deg));
+  opacity: calc(1 - var(--scroll) * 1.3);
+  will-change: transform, opacity;
+}
+
+/* each line sits at its own depth, so they slide past each other as you move */
+.hero.hero--immersive .eyebrow   { translate: 0 0 30px; }
+.hero.hero--immersive .hero-title { translate: 0 0 80px; }
+.hero.hero--immersive .hero-sub   { translate: 0 0 40px; }
+
+.hero.hero--immersive .eyebrow {
+  color: var(--copper-bright);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.hero.hero--immersive .hero-title {
+  font-size: clamp(42px, 6vw, 86px);
+  line-height: 1.02;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.4),
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    0 6px 14px rgba(0, 0, 0, 0.7),
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(243, 211, 107, 0.18);
+}
+
+/* the shimmering gradient words are see-through, so they glow instead of casting a dark shadow */
+.hero.hero--immersive .hero-title em {
+  text-shadow: none;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 22px rgba(243, 211, 107, 0.35));
+}
+
+.hero.hero--immersive .hero-sub {
+  max-width: 46ch;
+  font-size: clamp(17px, 1.5vw, 20px);
+  color: rgba(245, 240, 228, 0.86);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  margin-bottom: 0;
+}
+
+.hero-caption {
+  position: absolute;
+  z-index: 2;
+  right: max(4vw, calc(50% - 600px));
+  bottom: 28px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+  opacity: calc(0.9 - var(--scroll) * 1.5);
+}
+
+@keyframes hero-rings {
+  0%, 100% { opacity: 0.45; scale: 0.97; }
+  50%      { opacity: 0.9;  scale: 1.04; }
+}
+@keyframes hero-glow {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.95; }
+}
+@keyframes hero-breathe {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  50%      { filter: brightness(1.12) saturate(1.18); }
+}
+
+/* ---------- tablets and phones: Marcus centred behind the words ---------- */
+@media (max-width: 760px) {
+  .hero-layer--figure,
+  .hero-layer--aura {
+    right: 50%;
+    width: min(100vw, 70vh);
+    margin-right: calc(min(100vw, 70vh) / -2);
+  }
+  .hero-figure-image { opacity: 0.7; }
+  .hero-layer--shade {
+    background:
+      linear-gradient(to bottom, rgba(5, 7, 13, 0.55) 0, rgba(5, 7, 13, 0.25) 30%, rgba(5, 7, 13, 0.7) 62%, #05070d 100%);
+  }
+  .hero.hero--immersive {
+    align-items: flex-end;
+  }
+  .hero.hero--immersive .hero-inner {
+    width: calc(100% - 32px) !important;
+    padding: 40px 0 72px;
+  }
+  .hero.hero--immersive .hero-text { text-align: center !important; margin: 0 auto; }
+  .hero-caption { right: 50%; translate: 50% 0; bottom: 22px; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-layer, .hero.hero--immersive .hero-text { transform: none !important; }
+  .hero-layer--aura::before, .hero-layer--aura::after, .hero-figure-image { animation: none !important; }
+}
