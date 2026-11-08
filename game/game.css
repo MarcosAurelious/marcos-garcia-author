@@ -171,3 +171,17 @@ h3 { font-size: 1.55rem; }
   .cell .bonus { font-size: 18px; }
   .map-wrap { padding: 6px; }
 }
+
+/* Return to the author page: a command-console key with targeting brackets and a radar sweep. It sits in the page flow, so it never covers text. */
+.home-row { margin: 1.2rem 0 0; }
+.home { position: relative; display: inline-flex; align-items: center; min-height: 48px; padding: .7rem 1.4rem; overflow: hidden; isolation: isolate; text-decoration: none;
+  font: 700 .8rem/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--teal-2); background: rgba(10, 30, 32, .85);
+  border: 1px solid rgba(95, 184, 163, .55); box-shadow: 0 0 0 1px #000, 0 0 18px rgba(95, 184, 163, .22); animation: home-pulse 2.8s ease-in-out infinite; transition: color .2s, background .2s; }
+.home::before, .home::after { content: ""; position: absolute; width: 10px; height: 10px; border: 2px solid var(--gold-2); pointer-events: none; }
+.home::before { top: 3px; left: 3px; border-right: 0; border-bottom: 0; }
+.home::after { bottom: 3px; right: 3px; border-left: 0; border-top: 0; }
+.home span::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, transparent, rgba(143, 230, 210, .28), transparent); width: 40%; animation: home-sweep 3.2s linear infinite; }
+.home:hover, .home:focus-visible { color: #fff; background: rgba(20, 60, 58, .95); outline: none; box-shadow: 0 0 0 1px #000, 0 0 0 2px var(--teal-2), 0 0 26px rgba(95, 184, 163, .45); }
+@keyframes home-pulse { 0%, 100% { box-shadow: 0 0 0 1px #000, 0 0 12px rgba(95, 184, 163, .18); } 50% { box-shadow: 0 0 0 1px #000, 0 0 24px rgba(95, 184, 163, .4); } }
+@keyframes home-sweep { from { transform: translateX(-110%); } to { transform: translateX(260%); } }
+@media (max-width: 520px) { .home { font-size: .72rem; padding: .7rem 1rem; letter-spacing: .08em; } }
