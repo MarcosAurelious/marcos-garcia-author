@@ -182,3 +182,83 @@
     min-height: 380px;
   }
 }
+
+/* ---------- blurred album art fills the frame; player sits on the right ---------- */
+.music-section .music-player {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+  align-items: stretch;
+  gap: 6px;
+}
+.music-section .music-player::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  z-index: -1;
+  background: url(album-modern-stoic.webp) center / cover no-repeat;
+  filter: blur(30px) brightness(0.9) saturate(1.5);
+  transform: scale(1.15);
+  pointer-events: none;
+}
+.music-section .music-player::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 30% 50%, transparent 0, rgba(5, 7, 13, 0.35) 95%);
+  pointer-events: none;
+}
+
+.music-album {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 24px;
+  text-align: center;
+}
+.music-album-cover {
+  width: clamp(140px, 16vw, 230px);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 18px rgba(255, 150, 60, 0.45),
+    0 0 50px rgba(185, 139, 255, 0.35),
+    0 24px 50px rgba(0, 0, 0, 0.6);
+  margin-bottom: 10px;
+}
+.music-album-by {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--volt);
+  text-shadow: 0 0 10px rgba(25, 184, 255, 0.7);
+}
+.music-album-title {
+  margin: 0;
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 46px);
+  line-height: 1.1;
+  color: #fff3e6;
+  text-shadow: 0 0 4px #fff, 0 0 12px #ff9a3c, 0 0 28px #ff7a1a, 0 0 54px rgba(185, 139, 255, 0.6);
+}
+
+.music-section .music-player iframe {
+  align-self: center;
+}
+
+@media (max-width: 860px) {
+  .music-section .music-player {
+    grid-template-columns: 1fr;
+  }
+  .music-album { padding: 24px 16px 8px; }
+}
