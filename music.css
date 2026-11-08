@@ -160,3 +160,22 @@
 @media (prefers-reduced-motion: reduce) {
   .music-section .music-title, .music-player, .music-cta-dot { animation: none !important; }
 }
+
+/* ---------- full-width player, like the 3D window: small even cushion all round ---------- */
+.music-section {
+  --cushion: clamp(12px, 2vw, 28px);
+}
+.music-section .music-player {
+  width: calc(100vw - 2 * var(--cushion));
+  max-width: none;
+}
+.music-section .music-player iframe {
+  height: calc(100svh - 76px - 2 * var(--cushion) - 16px);
+  min-height: 420px;
+}
+@media (max-width: 600px) {
+  .music-section .music-player iframe {
+    height: min(78svh, 640px);
+    min-height: 380px;
+  }
+}
