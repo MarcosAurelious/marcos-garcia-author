@@ -158,11 +158,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .music-section .music-title, .music-player, .music-cta--alt {
-  border-color: var(--plasma);
-  background: rgba(185, 139, 255, 0.08);
-  text-shadow: 0 0 4px var(--plasma), 0 0 12px #8a5cff;
-  box-shadow: 0 0 6px var(--plasma), 0 0 18px rgba(138, 92, 255, 0.55), inset 0 0 12px rgba(185, 139, 255, 0.35);
-}
-.music-cta-dot { animation: none !important; }
+  .music-section .music-title, .music-player, .music-cta-dot { animation: none !important; }
 }
