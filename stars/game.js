@@ -171,7 +171,7 @@ const touch = { id: null, sx: 0, sy: 0, px: 0, py: 0, active: false };
 function toLogical(e) { const r = C.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
 C.addEventListener('pointerdown', e => {
   initAudio(); C.focus();
-  if (G.state !== 'play' || G.paused) { hit.e = true; G.paused = false; return; }
+  if (G.state !== 'play' || G.paused) { goFull(); hit.e = true; G.paused = false; return; }
   if (e.pointerType === 'mouse') return;
   const q = toLogical(e); touch.id = e.pointerId; touch.sx = q.x; touch.sy = q.y; touch.px = P.x; touch.py = P.y; touch.active = true;
   C.setPointerCapture(e.pointerId);
@@ -182,21 +182,33 @@ C.addEventListener('pointermove', e => {
 });
 const endTouch = e => { if (e.pointerId === touch.id) { touch.active = false; touch.id = null; if (P) { P.tx = null; P.ty = null; } } };
 C.addEventListener('pointerup', endTouch); C.addEventListener('pointercancel', endTouch);
-const spBar = document.getElementById('spBar'), bCharge = document.getElementById('bCharge');
+const spBtns = [...document.querySelectorAll('.sbtn[data-sp]')], bCharge = document.getElementById('bCharge');
 const coarse = matchMedia('(pointer:coarse)').matches;
-spBar.querySelectorAll('.sbtn').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); initAudio(); useSpecial(b.dataset.sp); }));
-bCharge.addEventListener('pointerdown', e => { e.preventDefault(); keys.c = true; });
-bCharge.addEventListener('pointerup', () => { keys.c = false; }); bCharge.addEventListener('pointercancel', () => { keys.c = false; });
+const zap = b => { b.classList.add('zap'); setTimeout(() => b.classList.remove('zap'), 160); };
+spBtns.forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); initAudio(); if (G.state === 'play' && !G.paused) { zap(b); useSpecial(b.dataset.sp); } }));
+// on phones, the first taps also ask for full screen in landscape so the game can use the whole display
+function goFull() {
+  const d = document.documentElement, rq = d.requestFullscreen || d.webkitRequestFullscreen;
+  if (!coarse || !rq || document.fullscreenElement || document.webkitFullscreenElement) return;
+  try { const p = rq.call(d, { navigationUI: 'hide' }); const lock = () => { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); };
+    if (p && p.then) p.then(lock).catch(() => {}); else lock(); } catch (err) {}
+}
+bCharge.addEventListener('pointerdown', e => { e.preventDefault(); keys.c = true; bCharge.classList.add('held'); });
+const chargeUp = () => { keys.c = false; bCharge.classList.remove('held'); };
+bCharge.addEventListener('pointerup', chargeUp); bCharge.addEventListener('pointercancel', chargeUp); bCharge.addEventListener('pointerleave', chargeUp);
 
 // ---------- sizing ----------
 function resize() {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   C.width = W * dpr; C.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingQuality = 'high';
-  const st = document.getElementById('stage'), s = Math.min(st.clientWidth / W, st.clientHeight / H);
+  const st = document.getElementById('stage'); let aw = st.clientWidth, ah = st.clientHeight;
+  // phones: leave room for the button columns at the sides (landscape) or the button panel below (portrait)
+  if (coarse) { if (aw >= ah) aw -= 2 * 84; else ah -= Math.min(ah * 0.45, 360); }
+  const s = Math.min(aw / W, ah / H);
   C.style.width = Math.floor(W * s) + 'px'; C.style.height = Math.floor(H * s) + 'px';
 }
-addEventListener('resize', resize);
+addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 120)); document.addEventListener('fullscreenchange', resize);
 
 // ---------- backgrounds ----------
 const stars = Array.from({ length: 160 }, () => ({ x: Math.random() * W, y: Math.random() * H, z: rnd(0.2, 1), a: Math.random() * 6.28 }));
@@ -1150,9 +1162,12 @@ function frame(now) {
   if (hit.m) { muted = !muted; lsSet('legio_mute', muted ? '1' : '0'); }
   try { update(dt); render(dt); } catch (err) { console.error(err); }
   for (const k in hit) hit[k] = false;
-  spBar.hidden = bCharge.hidden = !(coarse && G.state === 'play');
-  if (!spBar.hidden && G.sp) spBar.querySelectorAll('.sbtn').forEach(b => { const n = G.sp[b.dataset.sp]; const t = b.dataset.sp.toUpperCase().slice(0, 3) + ' ' + n; if (b.textContent !== t) b.textContent = t; b.disabled = n <= 0; });
-  if (G.rank < 3) bCharge.hidden = true;
+  if (coarse) {
+    const live = G.state === 'play' && !G.paused && G.sp;
+    for (const b of spBtns) { const n = G.sp ? G.sp[b.dataset.sp] : 0, c = b.lastElementChild, t = String(n);
+      if (c.textContent !== t) c.textContent = t; const off = !live || n <= 0; if (b.disabled !== off) b.disabled = off; }
+    const ch = !(G.rank >= 3); if (bCharge.hidden !== ch) bCharge.hidden = ch; bCharge.disabled = !live;
+  }
   requestAnimationFrame(frame);
 }
 resize(); C.focus();

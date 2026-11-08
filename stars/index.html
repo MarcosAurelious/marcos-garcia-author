@@ -9,21 +9,28 @@
   <title>Legio Stellaris · A Roman Space Shooter by Marcos Garcia</title>
   <meta name="description" content="Rise from lowly Star Fighter to Imperator. A Roman space shooter in eight levels, each a side-scrolling assault followed by a Galaga-style forward assault. Free, in your browser.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=1">
+  <link rel="stylesheet" href="game.css?v=2">
 </head>
 <body>
 <div id="stage">
   <canvas id="game" width="960" height="540" tabindex="0" aria-label="Legio Stellaris game screen"></canvas>
-  <div id="spBar" hidden>
-    <button class="sbtn" data-sp="roll" type="button">ROLL</button><button class="sbtn" data-sp="missile" type="button">MSL</button><button class="sbtn" data-sp="drone" type="button">DRN</button><button class="sbtn" data-sp="emp" type="button">EMP</button><button class="sbtn" data-sp="chain" type="button">ARC</button>
+  <div class="pad" id="padL">
+    <button class="sbtn" data-sp="roll" type="button" aria-label="ROLL"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12a6 6 0 1 1 2 4.5"/><path d="M4 18v-4h4"/><path d="M12 9v6M10 11l2-2 2 2"/></svg><span>ROLL</span><span class="cnt">0</span></button>
+    <button class="sbtn" data-sp="missile" type="button" aria-label="MISSILE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l5-5"/><path d="M9 15l-2-2 8-8 4-1-1 4-8 8z"/><path d="M6 13l-2 1M11 18l-1 2"/></svg><span>MISSILE</span><span class="cnt">0</span></button>
+    <button class="sbtn" data-sp="drone" type="button" aria-label="DRONE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 9V5M12 15v4M9 12H5M15 12h4"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg><span>DRONE</span><span class="cnt">0</span></button>
   </div>
-  <div class="tbtn" id="bCharge" hidden>CHARGE</div>
+  <div class="pad" id="padR">
+    <button class="sbtn charge" id="bCharge" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg><span>CHARGE</span><span class="cnt">HOLD</span></button>
+    <button class="sbtn" data-sp="emp" type="button" aria-label="EMP"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M7.5 7.5a6.4 6.4 0 0 0 0 9M16.5 7.5a6.4 6.4 0 0 1 0 9M4.6 4.6a10.5 10.5 0 0 0 0 14.8M19.4 4.6a10.5 10.5 0 0 1 0 14.8"/></svg><span>EMP</span><span class="cnt">0</span></button>
+    <button class="sbtn" data-sp="chain" type="button" aria-label="TESLA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg><span>TESLA</span><span class="cnt">0</span></button>
+  </div>
+  <p id="turn">Turn your phone sideways for the full screen</p>
 </div>
 <div id="help">
   <span><b>Arrows/WASD</b> fly</span><span><b>Space/Z</b> fire (hold)</span><span><b>C</b> hold to charge (Centurio+)</span>
   <span><b>1/Shift</b> barrel roll</span><span><b>2</b> missile strike</span><span><b>3</b> drone attack</span><span><b>4/X</b> EMP</span><span><b>5</b> Tesla chain strike</span>
   <span><b>P</b> pause</span><span><b>M</b> sound</span>
 </div>
-<script src="game.js?v=1"></script>
+<script src="game.js?v=2"></script>
 </body>
 </html>
