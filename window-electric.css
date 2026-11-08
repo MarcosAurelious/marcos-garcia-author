@@ -1,0 +1,151 @@
+/* =====================================================
+   Marcos Garcia — "Look Through the Window", electric
+   Centred heading and controls, neon lettering (Tilt Neon,
+   self-hosted) with a buzzing glow and a live-wire underline.
+   ===================================================== */
+
+.portal-section {
+  --volt: #6ff3ff;
+  --volt-deep: #19b8ff;
+  --plasma: #b98bff;
+  scroll-margin-top: 76px;   /* land below the sticky header */
+}
+
+/* ---------- everything centred ---------- */
+.portal-section .portal-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 30px;
+}
+.portal-section .portal-head > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.portal-section .portal-lede {
+  margin: 0 auto;
+  max-width: 640px;
+  color: rgba(225, 245, 255, 0.82);
+}
+.portal-section .portal-controls { align-items: center; }
+.portal-section .portal-status { text-align: center; max-width: 360px; }
+
+/* ---------- neon heading ---------- */
+.portal-section .section-title {
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(36px, 5.6vw, 68px);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin: 0 0 32px !important;
+  /* undo the gold shimmer used elsewhere so the tube colour shows */
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #effdff;
+  filter: none;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 6px var(--volt),
+    0 0 14px var(--volt),
+    0 0 28px var(--volt-deep),
+    0 0 52px var(--volt-deep),
+    0 0 90px var(--plasma);
+  animation: volt-flicker 6s linear infinite, volt-hum 2.4s ease-in-out infinite;
+}
+
+/* live-wire underline, centred, with a spark running along it */
+.portal-section h2.animated-heading::after,
+.portal-section .section-title::after {
+  left: 8% !important;
+  width: 84% !important;
+  height: 2px !important;
+  bottom: -10px !important;
+  transform-origin: center !important;
+  background:
+    linear-gradient(90deg, transparent, var(--volt) 20%, #fff 50%, var(--plasma) 80%, transparent) !important;
+  box-shadow: 0 0 8px var(--volt), 0 0 18px var(--volt-deep) !important;
+}
+.portal-section .section-title::before {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 8%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px #fff, 0 0 14px var(--volt), 0 0 26px var(--volt-deep);
+  animation: volt-spark 3.2s cubic-bezier(.6, 0, .4, 1) infinite;
+  pointer-events: none;
+}
+
+/* ---------- neon button ---------- */
+.portal-section .portal-btn {
+  font-family: "Tilt Neon", var(--font-mono), sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  padding: 15px 28px;
+  border: 1.5px solid var(--volt);
+  border-radius: 999px;
+  background: rgba(25, 184, 255, 0.08);
+  color: #effdff;
+  text-shadow: 0 0 4px var(--volt), 0 0 12px var(--volt-deep);
+  box-shadow:
+    0 0 6px var(--volt),
+    0 0 18px rgba(25, 184, 255, 0.55),
+    inset 0 0 12px rgba(111, 243, 255, 0.35);
+  animation: volt-btn 2.8s ease-in-out infinite;
+}
+.portal-section .portal-btn:hover {
+  background: rgba(111, 243, 255, 0.18);
+  color: #fff;
+  box-shadow:
+    0 0 8px #fff,
+    0 0 22px var(--volt),
+    0 0 46px var(--volt-deep),
+    inset 0 0 18px rgba(111, 243, 255, 0.5);
+}
+.portal-section .portal-btn .portal-dot {
+  background: var(--volt);
+  box-shadow: 0 0 8px var(--volt);
+  opacity: 1;
+}
+.portal-section .portal-btn[aria-pressed="true"] {
+  border-color: var(--plasma);
+  background: rgba(185, 139, 255, 0.14);
+  box-shadow: 0 0 8px var(--plasma), 0 0 24px rgba(185, 139, 255, 0.55), inset 0 0 12px rgba(185, 139, 255, 0.35);
+}
+.portal-section .portal-status {
+  color: rgba(170, 236, 255, 0.7);
+  text-shadow: 0 0 8px rgba(25, 184, 255, 0.45);
+}
+
+/* ---------- motion ---------- */
+@keyframes volt-hum {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.9; }
+}
+/* the occasional stutter of a real neon tube */
+@keyframes volt-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { filter: none; color: #effdff; }
+  20%, 24%, 55% { color: rgba(239, 253, 255, 0.45); text-shadow: 0 0 4px var(--volt-deep); }
+}
+@keyframes volt-spark {
+  0%   { left: 8%;  opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: calc(92% - 10px); opacity: 0; }
+}
+@keyframes volt-btn {
+  0%, 100% { box-shadow: 0 0 6px var(--volt), 0 0 18px rgba(25, 184, 255, 0.55), inset 0 0 12px rgba(111, 243, 255, 0.35); }
+  50%      { box-shadow: 0 0 10px var(--volt), 0 0 32px rgba(25, 184, 255, 0.8), inset 0 0 16px rgba(111, 243, 255, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-section .section-title,
+  .portal-section .section-title::before,
+  .portal-section .portal-btn { animation: none !important; }
+  .portal-section .section-title::before { display: none; }
+}
