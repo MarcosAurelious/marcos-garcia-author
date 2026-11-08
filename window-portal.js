@@ -58,8 +58,11 @@ function init() {
     return t;
   };
 
-  /* ---------- the room: gold grid walls fading into the dark ---------- */
-  const gridMat = new THREE.LineBasicMaterial({ color: 0xc9a227, transparent: true, opacity: 0.38 });
+  /* ---------- the room: neon grid walls fading into the dark ---------- */
+  const gridMat = new THREE.LineBasicMaterial({
+    color: 0x6ff3ff, transparent: true, opacity: 0.55,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
   let grid = null;
 
   function buildGrid() {
@@ -158,10 +161,10 @@ function init() {
   bust.position.set(0, 0.03, BUST_Z);
   art.add(bust);
 
-  // Gold orbit ring around the bust (echoes the site logo)
+  // Neon orbit ring around the bust (echoes the site logo)
   const orbit = new THREE.Mesh(
     new THREE.TorusGeometry(0.42, 0.004, 8, 160),
-    new THREE.MeshBasicMaterial({ color: 0xd9b54a, transparent: true, opacity: 0.85 })
+    new THREE.MeshBasicMaterial({ color: 0xb98bff, transparent: true, opacity: 0.9 })
   );
   orbit.position.copy(bust.position).add(new THREE.Vector3(0, 0.02, 0.18));
   orbit.rotation.set(1.2, 0.25, -0.4);
@@ -416,6 +419,12 @@ function init() {
     raf = requestAnimationFrame(frame);
     const t = clock.getElapsedTime();
     trackFace();
+
+    // the neon grid hums, with the odd flicker
+    if (!reduceMotion) {
+      const flick = (t % 7.3) > 7.15 ? 0.45 : 1;
+      gridMat.opacity = (0.5 + Math.sin(t * 2.2) * 0.1) * flick;
+    }
 
     // gentle idle drift so the depth is obvious before anyone interacts
     if (mode !== "camera" && performance.now() - lastInput > 2500 && !reduceMotion) {
