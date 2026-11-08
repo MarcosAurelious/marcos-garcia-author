@@ -1,7 +1,7 @@
 
 "use strict";
 const ASSETS = {"batS0":"img/batS0.webp","batS1":"img/batS1.webp","batS2":"img/batS2.webp","bg_ruins":"img/bg_ruins.webp","bigboom":"img/bigboom.webp","bigufo0":"img/bigufo0.webp","bigufo1":"img/bigufo1.webp","bomber0":"img/bomber0.webp","bomber1":"img/bomber1.webp","bomber2":"img/bomber2.webp","bomber3":"img/bomber3.webp","boom0":"img/boom0.webp","boom1":"img/boom1.webp","boom2":"img/boom2.webp","boom3":"img/boom3.webp","boom4":"img/boom4.webp","dive0":"img/dive0.webp","dive1":"img/dive1.webp","dive2":"img/dive2.webp","dive3":"img/dive3.webp","drone0":"img/drone0.webp","drone1":"img/drone1.webp","drone2":"img/drone2.webp","elite0":"img/elite0.webp","elite1":"img/elite1.webp","elite2":"img/elite2.webp","elite3":"img/elite3.webp","eshot0":"img/eshot0.webp","eshot1":"img/eshot1.webp","eshot2":"img/eshot2.webp","eshot3":"img/eshot3.webp","fighter0":"img/fighter0.webp","fighter1":"img/fighter1.webp","fighter2":"img/fighter2.webp","fighter3":"img/fighter3.webp","hbolt":"img/hbolt.webp","hcharge":"img/hcharge.webp","hlight":"img/hlight.webp","hshot0":"img/hshot0.webp","hshot1":"img/hshot1.webp","hshot2":"img/hshot2.webp","l1f":"img/l1f.webp","l1f_sky":"img/l1f_sky.webp","l1s_b":"img/l1s_b.webp","l1s_far":"img/l1s_far.webp","l1s_near":"img/l1s_near.webp","l2f":"img/l2f.webp","l2f_sky":"img/l2f_sky.webp","l2s_b":"img/l2s_b.webp","l2s_far":"img/l2s_far.webp","l2s_near":"img/l2s_near.webp","l3f":"img/l3f.webp","l3f_sky":"img/l3f_sky.webp","l3s_a":"img/l3s_a.webp","l3s_b":"img/l3s_b.webp","l4f_a":"img/l4f_a.webp","l4f_b":"img/l4f_b.webp","l4s_a":"img/l4s_a.webp","l4s_b":"img/l4s_b.webp","lv4f_panel":"img/lv4f_panel.webp","lv4s_panel":"img/lv4s_panel.webp","lv5f_panel":"img/lv5f_panel.webp","lv5s_panel":"img/lv5s_panel.webp","lv6f_panel":"img/lv6f_panel.webp","lv6s_panel":"img/lv6s_panel.webp","lv7f_panel":"img/lv7f_panel.webp","lv7s_panel":"img/lv7s_panel.webp","lv8f_panel":"img/lv8f_panel.webp","lv8s_panel":"img/lv8s_panel.webp","mother0":"img/mother0.webp","mother1":"img/mother1.webp","mother2":"img/mother2.webp","mother3":"img/mother3.webp","motherbeam":"img/motherbeam.webp","mothership":"img/mothership.webp","ps0":"img/ps0.webp","ps1":"img/ps1.webp","ps2":"img/ps2.webp","ps3":"img/ps3.webp","psa0":"img/psa0.webp","psa1":"img/psa1.webp","psa2":"img/psa2.webp","psa3":"img/psa3.webp","psa4":"img/psa4.webp","psa5":"img/psa5.webp","pshot0":"img/pshot0.webp","pshot1":"img/pshot1.webp","pshot2":"img/pshot2.webp","pshot3":"img/pshot3.webp","pshot4":"img/pshot4.webp","pu0":"img/pu0.webp","pu1":"img/pu1.webp","pu2":"img/pu2.webp","pu3":"img/pu3.webp","pu4":"img/pu4.webp","pub0":"img/pub0.webp","pub1":"img/pub1.webp","pub2":"img/pub2.webp","pub3":"img/pub3.webp","pub4":"img/pub4.webp","pv0":"img/pv0.webp","pv1":"img/pv1.webp","pv2":"img/pv2.webp","pv3":"img/pv3.webp","pv4":"img/pv4.webp","pv5":"img/pv5.webp","pv6":"img/pv6.webp","pv7":"img/pv7.webp","pvhit":"img/pvhit.webp","pvwreck":"img/pvwreck.webp","ring0":"img/ring0.webp","ring1":"img/ring1.webp","ring2":"img/ring2.webp","ring3":"img/ring3.webp","scout0":"img/scout0.webp","scout1":"img/scout1.webp","scout2":"img/scout2.webp","scout3":"img/scout3.webp","spawn0":"img/spawn0.webp","spawn1":"img/spawn1.webp","spawn2":"img/spawn2.webp","spider0":"img/spider0.webp","spider1":"img/spider1.webp","spider2":"img/spider2.webp","strafe0":"img/strafe0.webp","strafe1":"img/strafe1.webp","strafe2":"img/strafe2.webp","strafe3":"img/strafe3.webp","tbeam0":"img/tbeam0.webp","tbeam1":"img/tbeam1.webp","tbeam2":"img/tbeam2.webp","tbeam3":"img/tbeam3.webp","tbeam4":"img/tbeam4.webp","ufoS0":"img/ufoS0.webp","ufoS1":"img/ufoS1.webp","ufoS2":"img/ufoS2.webp","ufoS3":"img/ufoS3.webp"};
-const W = 960, H = 540;
+let W = 960; const H = 540;
 const PHASE_DUR = 180; // seconds of play per view (3 minutes)
 const C = document.getElementById('game');
 const ctx = C.getContext('2d');
@@ -201,11 +201,18 @@ bCharge.addEventListener('pointerup', chargeUp); bCharge.addEventListener('point
 // ---------- sizing ----------
 function resize() {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  C.width = W * dpr; C.height = H * dpr;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingQuality = 'high';
   const st = document.getElementById('stage'); let aw = st.clientWidth, ah = st.clientHeight;
   // phones: leave room for the button columns at the sides (landscape) or the button panel below (portrait)
-  if (coarse) { if (aw >= ah) aw -= 2 * 84; else ah -= Math.min(ah * 0.45, 360); }
+  if (coarse) { if (aw >= ah) aw -= 2 * 84; else ah -= Math.min(ah * 0.4, 330); }
+  // stretch the play area to the shape of the space instead of letterboxing a fixed 16:9 screen
+  const nw = Math.round(Math.max(720, Math.min(1280, H * aw / Math.max(1, ah))));
+  if (nw !== W) {
+    const k = nw / W; W = nw; skyCache = {};
+    if (typeof stars !== 'undefined') for (const p of stars) p.x *= k;
+    if (typeof P !== 'undefined' && P) { P.x = Math.min(P.x, W - 30); }
+  }
+  C.width = Math.round(W * dpr); C.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingQuality = 'high';
   const s = Math.min(aw / W, ah / H);
   C.style.width = Math.floor(W * s) + 'px'; C.style.height = Math.floor(H * s) + 'px';
 }
@@ -1195,6 +1202,7 @@ function frame(now) {
   if (hit.m) { muted = !muted; lsSet('legio_mute', muted ? '1' : '0'); cutVid.muted = muted; }
   try { update(dt); render(dt); } catch (err) { console.error(err); }
   for (const k in hit) hit[k] = false;
+  const playing = G.state === 'play' && !G.paused; if (document.body.classList.contains('playing') !== playing) document.body.classList.toggle('playing', playing);
   if (coarse) {
     const live = G.state === 'play' && !G.paused && G.sp;
     for (const b of spBtns) { const n = G.sp ? G.sp[b.dataset.sp] : 0, c = b.lastElementChild, t = String(n);
