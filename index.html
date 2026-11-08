@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://marcosaurelious.github.io; media-src 'self' blob:; connect-src 'self' https://storage.googleapis.com/mediapipe-models/; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://marcosaurelious.github.io; media-src 'self' blob:; frame-src https://open.spotify.com; connect-src 'self' https://storage.googleapis.com/mediapipe-models/; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Marcos Garcia — Author</title>
@@ -26,6 +26,8 @@
 
 
   <link rel="stylesheet" href="featured-book.css">
+
+  <link rel="stylesheet" href="music.css?v=1">
 
   <link rel="stylesheet" href="hero-immersive.css?v=2">
 
@@ -52,6 +54,7 @@
     </a>
 
     <nav class="primary-nav" id="primary-nav">
+      <a href="#music">Music</a>
       <a href="#about">About</a>
       <a href="#library">All Books</a>
       <a href="#apps">Apps &amp; Games</a>
@@ -112,50 +115,32 @@
   </div>
 </section>
 
-<section class="book-section" id="book">
-  <div class="wrap">
-    <p class="eyebrow eyebrow--light">A Field Guide to the Unexplained</p>
-    <h2 class="section-title">Featured Book</h2>
+<section class="music-section" id="music">
+  <div class="wrap music-inner">
+    <p class="eyebrow music-eyebrow">Music</p>
+    <h2 class="section-title music-title">Marcos Aurelious</h2>
+    <p class="music-lede">Original music by Marcos Aurelious. Press play on the featured album, or follow on Spotify to hear every new release first.</p>
 
-    <div class="book-card">
-      <div class="book-cover enhanced-book-cover">
-        <div class="book-glow" aria-hidden="true"></div>
+    <p class="music-kicker">Featured Album</p>
+    <div class="music-player">
+      <iframe
+        src="https://open.spotify.com/embed/album/1BE1tf3SqHEXKRqOhWeZSw?utm_source=generator&amp;theme=0"
+        title="Featured album by Marcos Aurelious on Spotify"
+        width="100%"
+        height="452"
+        loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
 
-        <div class="book-flip-shell" id="featured-book-card">
-          <div class="book-flip-inner">
-
-            <div class="book-face book-face--front">
-              <div class="cover-frame interactive-cover">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-
-                <div class="cover-art">
-                  <img
-                    src="book-cover.jpg"
-                    alt="Marcus Aurelius' Guide to Weird Science — coffee-table edition"
-                    class="cover-image"
-                  >
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-      <div class="book-details">
-        <p class="book-kicker">An Illustrated Journey</p>
-        <h3 class="book-title">Marcus Aurelius' Guide<br>to Weird Science</h3>
-        <p class="book-desc">A fascinating and imaginative exploration of the strange, the unexplained, and the unconventional corners of science. Blending curiosity with creativity, the book dives into bizarre theories, unusual experiments, and mind-bending ideas that challenge traditional understanding.</p>
-        <p class="book-desc">With a playful yet thought-provoking tone, it invites readers to question what they know and embrace the wonder of the unknown.</p>
-        <p class="book-byline">Marcos Garcia</p>
-        <div class="book-actions premium-book-actions">
-          <a href="https://www.amazon.com/dp/B0H9NY7N8P" target="_blank" rel="noopener" class="btn btn-primary launch-button">Amazon — Out Now</a>
-        </div>
-      </div>
+    <div class="music-links">
+      <a class="music-cta" href="https://open.spotify.com/artist/3ezefZtehYiNv2ZC5q8LxF" target="_blank" rel="noopener">
+        <span class="music-cta-dot" aria-hidden="true"></span>
+        Follow on Spotify
+      </a>
+      <a class="music-cta music-cta--alt" href="https://open.spotify.com/album/1BE1tf3SqHEXKRqOhWeZSw" target="_blank" rel="noopener">
+        Open the Album
+      </a>
     </div>
   </div>
 </section>
@@ -316,29 +301,6 @@
       <figcaption>Stoic thought meets the infinite.</figcaption>
     </figure>
 
-  </div>
-</section>
-
-<section class="future-section" id="future">
-  <div class="wrap future-inner future-book-layout">
-    <div class="future-book-image">
-      <div class="future-cover-frame">
-        <img
-          src="universe-grand-mysteries-cover.webp"
-          alt="Marcus Aurelius' Guide to the Universe's Grand Mysteries book cover"
-          loading="lazy"
-        >
-      </div>
-      <p class="future-status">Now Available on Kindle</p>
-    </div>
-
-    <div class="future-book-copy">
-      <p class="eyebrow eyebrow--light">New Release</p>
-      <h2 class="section-title">Marcus Aurelius' Guide to the Universe's Grand Mysteries</h2>
-      <p class="future-copy">An illustrated journey through the cosmos, time, matter, consciousness, destiny, and the enduring questions connecting Stoic philosophy with the mysteries of the universe.</p>
-      <p class="future-copy">Now available on Amazon Kindle. Follow Marcos Garcia for new artwork, previews, and behind-the-scenes updates.</p>
-      <a href="https://www.amazon.com/s?k=Marcus+Aurelius+Guide+to+the+Universe%27s+Grand+Mysteries+Marcos+Garcia" target="_blank" rel="noopener" class="btn btn-ghost btn-ghost--light">Get It on Amazon</a>
-    </div>
   </div>
 </section>
 
