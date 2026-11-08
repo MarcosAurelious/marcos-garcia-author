@@ -149,3 +149,86 @@
   .portal-section .portal-btn { animation: none !important; }
   .portal-section .section-title::before { display: none; }
 }
+
+/* =====================================================
+   The window itself: full width with a small cushion,
+   framed by a glowing neon tube
+   ===================================================== */
+.portal-section {
+  --cushion: clamp(12px, 2vw, 28px);
+}
+.portal-section .portal-frame {
+  width: calc(100vw - 2 * var(--cushion));
+  margin-left: calc(50% - 50vw + var(--cushion));
+  aspect-ratio: auto;
+  height: calc(100svh - 76px - 2 * var(--cushion));
+  min-height: 420px;
+  max-height: none;
+  padding: 6px;
+  border: 2px solid var(--volt);
+  border-radius: 14px;
+  background: rgba(5, 7, 13, 0.9);
+  box-shadow:
+    0 0 4px #fff,
+    0 0 12px var(--volt),
+    0 0 30px var(--volt-deep),
+    0 0 70px rgba(185, 139, 255, 0.45),
+    inset 0 0 14px rgba(111, 243, 255, 0.55),
+    inset 0 0 40px rgba(25, 184, 255, 0.25);
+  animation: volt-frame 3s ease-in-out infinite, volt-frame-flicker 9s linear infinite;
+}
+.portal-section .portal-canvas-wrap {
+  border-radius: 9px;
+}
+
+/* corner brackets become little violet sparks */
+.portal-section .portal-frame::before,
+.portal-section .portal-frame::after {
+  width: 34px;
+  height: 34px;
+  border-color: var(--plasma);
+  filter: drop-shadow(0 0 4px var(--plasma)) drop-shadow(0 0 10px var(--plasma));
+}
+.portal-section .portal-frame::before { top: -9px; left: -9px; border-width: 3px 0 0 3px; border-top-left-radius: 18px; }
+.portal-section .portal-frame::after  { bottom: -9px; right: -9px; border-width: 0 3px 3px 0; border-bottom-right-radius: 18px; }
+
+.portal-section .portal-hint {
+  border-color: rgba(111, 243, 255, 0.45);
+  color: #dffbff;
+  box-shadow: 0 0 10px rgba(25, 184, 255, 0.35);
+}
+.portal-section .portal-privacy {
+  text-align: center;
+  margin-top: calc(var(--cushion) + 6px);
+  color: rgba(170, 236, 255, 0.55);
+}
+
+@keyframes volt-frame {
+  0%, 100% {
+    box-shadow:
+      0 0 4px #fff, 0 0 12px var(--volt), 0 0 30px var(--volt-deep), 0 0 70px rgba(185, 139, 255, 0.45),
+      inset 0 0 14px rgba(111, 243, 255, 0.55), inset 0 0 40px rgba(25, 184, 255, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 6px #fff, 0 0 18px var(--volt), 0 0 44px var(--volt-deep), 0 0 100px rgba(185, 139, 255, 0.6),
+      inset 0 0 20px rgba(111, 243, 255, 0.7), inset 0 0 60px rgba(25, 184, 255, 0.35);
+  }
+}
+@keyframes volt-frame-flicker {
+  0%, 61%, 63%, 65%, 100% { border-color: var(--volt); }
+  62%, 64% { border-color: rgba(111, 243, 255, 0.35); }
+}
+
+@media (max-width: 760px) {
+  .portal-section .portal-frame {
+    height: min(78svh, 640px);
+    min-height: 0;
+    padding: 4px;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-section .portal-frame { animation: none !important; }
+}
