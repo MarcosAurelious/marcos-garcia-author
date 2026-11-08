@@ -1,7 +1,8 @@
 /* =====================================================
    Marcos Garcia — Immersive hero
-   "Reason meets the unexplained" fills the whole screen,
-   the headline floats in front of it with 3D depth.
+   Marcus stands centred and full height, his auras glowing
+   across the whole screen; the headline floats out in front
+   of him with 3D depth.
    hero-depth.js feeds --px / --py (pointer or idle drift,
    -1..1) and --scroll (0..1 through the hero).
    ===================================================== */
@@ -10,6 +11,7 @@
   --px: 0;
   --py: 0;
   --scroll: 0;
+  --fig-w: min(100vw, 82svh);     /* the painting is 623 x 756 */
   position: relative;
   isolation: isolate;
   min-height: 100vh;
@@ -17,7 +19,7 @@
   margin-top: -76px;              /* slide under the see-through header */
   padding: 76px 0 0 !important;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   overflow: hidden;
   perspective: 1200px;
   background: #05070d !important;
@@ -37,25 +39,22 @@
   will-change: transform;
 }
 
-/* Deep layer: the painting stretched edge to edge, softened so it never looks pixelated */
+/* Deep layer: the painting stretched edge to edge so its colours fill the screen */
 .hero-layer--back {
   transform:
     translate3d(calc(var(--px) * -14px), calc(var(--py) * -10px + var(--scroll) * 90px), 0)
-    scale(1.18);
+    scale(1.15);
 }
 .hero-bg-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 30%;
-  filter: blur(16px) brightness(0.62) saturate(1.25);
+  object-position: 50% 35%;
+  filter: blur(9px) brightness(0.7) saturate(1.45);
 }
 
-/* Glowing rings behind Marcus */
+/* Auras: rings and glow spread across the whole screen, centred on Marcus */
 .hero-layer--aura {
-  left: auto;
-  right: max(2vw, calc(50% - 640px));
-  width: min(70vh, 58vw);
   transform:
     translate3d(calc(var(--px) * -22px), calc(var(--py) * -16px + var(--scroll) * 120px), 0);
 }
@@ -64,8 +63,8 @@
   content: "";
   position: absolute;
   left: 50%;
-  top: 46%;
-  width: 120%;
+  top: 40%;
+  width: max(130vw, 150svh);
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
@@ -73,54 +72,58 @@
 .hero-layer--aura::before {
   background:
     repeating-radial-gradient(circle,
-      transparent 0 9%,
-      rgba(75, 225, 255, 0.22) 9.6% 10.4%,
-      transparent 11% 16%,
-      rgba(243, 211, 107, 0.18) 16.5% 17.2%,
-      transparent 17.8% 23%);
-  mask-image: radial-gradient(circle, #000 35%, transparent 70%);
-  -webkit-mask-image: radial-gradient(circle, #000 35%, transparent 70%);
-  animation: hero-rings 5s ease-in-out infinite;
+      transparent 0 6%,
+      rgba(75, 225, 255, 0.30) 6.4% 6.9%,
+      transparent 7.4% 10.5%,
+      rgba(243, 211, 107, 0.26) 10.9% 11.4%,
+      transparent 11.9% 14.5%,
+      rgba(178, 103, 255, 0.24) 14.9% 15.4%,
+      transparent 15.9% 19%);
+  mask-image: radial-gradient(circle, transparent 4%, #000 14%, #000 34%, transparent 50%);
+  -webkit-mask-image: radial-gradient(circle, transparent 4%, #000 14%, #000 34%, transparent 50%);
+  mix-blend-mode: screen;
+  animation: hero-rings 4.5s ease-in-out infinite;
 }
 .hero-layer--aura::after {
   background:
-    radial-gradient(circle, rgba(255, 236, 170, 0.28) 0 6%, rgba(69, 217, 255, 0.16) 16%, rgba(178, 103, 255, 0.12) 28%, transparent 48%);
-  filter: blur(10px);
-  animation: hero-glow 6s ease-in-out infinite;
+    radial-gradient(circle,
+      rgba(255, 236, 170, 0.34) 0 4%,
+      rgba(69, 217, 255, 0.22) 11%,
+      rgba(178, 103, 255, 0.18) 22%,
+      rgba(211, 138, 84, 0.10) 32%,
+      transparent 46%);
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  animation: hero-glow 5.5s ease-in-out infinite;
 }
 
-/* Middle layer: Marcus himself, sharp, full height, edges melting into the backdrop */
+/* Marcus himself: centred, full height, sharp, edges melting into the glow */
 .hero-layer--figure {
-  left: auto;
-  right: max(2vw, calc(50% - 640px));
-  width: min(72vh, 60vw);
+  left: 50%;
+  right: auto;
+  width: var(--fig-w);
+  margin-left: calc(var(--fig-w) / -2);
   transform:
     translate3d(calc(var(--px) * -30px), calc(var(--py) * -20px + var(--scroll) * 150px), 0);
 }
 .hero-figure-image {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 20%;
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
-  mask-composite: intersect;
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  animation: hero-breathe 6s ease-in-out infinite;
+  object-position: 50% 15%;
+  mask-image: radial-gradient(ellipse 52% 60% at 50% 46%, #000 62%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 52% 60% at 50% 46%, #000 62%, transparent 100%);
+  animation: hero-breathe 5s ease-in-out infinite;
 }
 
-/* Shade: keeps the words readable and fades into the next section */
+/* Shade: dark corners, a soft pool behind the words, and a fade into the next section */
 .hero-layer--shade {
   background:
-    linear-gradient(90deg, rgba(5, 7, 13, 0.8) 0%, rgba(5, 7, 13, 0.5) 38%, rgba(5, 7, 13, 0.05) 70%),
-    linear-gradient(to bottom, rgba(5, 7, 13, 0.55) 0, transparent 18%, transparent 72%, #05070d 100%);
+    radial-gradient(ellipse 60% 34% at 50% 80%, rgba(5, 7, 13, 0.62), transparent 100%),
+    radial-gradient(ellipse 85% 80% at 50% 42%, transparent 55%, rgba(5, 7, 13, 0.7) 100%),
+    linear-gradient(to bottom, rgba(5, 7, 13, 0.5) 0, transparent 14%, transparent 78%, #05070d 100%);
 }
 
 /* ---------- floating words ---------- */
@@ -130,107 +133,96 @@
   display: block !important;
   width: min(1180px, calc(100% - 64px)) !important;
   margin: 0 auto !important;
-  padding: 60px 0 90px;
+  padding: 40px 0 clamp(48px, 9svh, 110px);
   transform-style: preserve-3d;
   perspective: 900px;
 }
 
 .hero.hero--immersive .hero-text {
-  max-width: 800px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center !important;
   transform-style: preserve-3d;
   transform:
-    translate3d(calc(var(--px) * 16px), calc(var(--py) * 10px - var(--scroll) * 70px), 0)
-    rotateY(calc(var(--px) * 7deg))
-    rotateX(calc(var(--py) * -6deg));
+    translate3d(calc(var(--px) * 18px), calc(var(--py) * 12px - var(--scroll) * 80px), 0)
+    rotateY(calc(var(--px) * 9deg))
+    rotateX(calc(var(--py) * -7deg));
   opacity: calc(1 - var(--scroll) * 1.3);
   will-change: transform, opacity;
 }
 
-/* each line sits at its own depth, so they slide past each other as you move */
-.hero.hero--immersive .eyebrow   { translate: 0 0 30px; }
-.hero.hero--immersive .hero-title { translate: 0 0 80px; }
-.hero.hero--immersive .hero-sub   { translate: 0 0 40px; }
+/* each line sits at its own depth, so they slide past each other (and Marcus) as you move */
+.hero.hero--immersive .eyebrow    { translate: 0 0 40px; }
+.hero.hero--immersive .hero-title { translate: 0 0 130px; }
+.hero.hero--immersive .hero-sub   { translate: 0 0 60px; }
 
 .hero.hero--immersive .eyebrow {
-  color: var(--copper-bright);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  color: #f0b07a;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-shadow: 0 1px 2px #000, 0 0 12px rgba(0, 0, 0, 0.95), 0 0 24px rgba(0, 0, 0, 0.8);
 }
 
+/* a carved, extruded headline: stacked shadows give it thickness */
 .hero.hero--immersive .hero-title {
-  font-size: clamp(42px, 6vw, 86px);
-  line-height: 1.02;
+  font-size: clamp(44px, 7vw, 104px);
+  line-height: 1;
+  margin-bottom: 26px;
+  color: #fbf6ea;
   text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.45),
-    0 2px 0 rgba(0, 0, 0, 0.4),
-    0 3px 0 rgba(0, 0, 0, 0.35),
-    0 6px 14px rgba(0, 0, 0, 0.7),
-    0 18px 40px rgba(0, 0, 0, 0.55),
-    0 0 40px rgba(243, 211, 107, 0.18);
+    0 1px 0 #c9b48a,
+    0 2px 0 #b39c70,
+    0 3px 0 #9a845b,
+    0 4px 0 #806c48,
+    0 5px 0 #665536,
+    0 6px 1px rgba(0, 0, 0, 0.6),
+    0 10px 18px rgba(0, 0, 0, 0.75),
+    0 24px 50px rgba(0, 0, 0, 0.7),
+    0 0 60px rgba(243, 211, 107, 0.25);
 }
 
 /* the shimmering gradient words are see-through, so they glow instead of casting a dark shadow */
 .hero.hero--immersive .hero-title em {
   text-shadow: none;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 22px rgba(243, 211, 107, 0.35));
+  filter:
+    drop-shadow(0 3px 0 rgba(60, 40, 20, 0.9))
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 24px rgba(243, 211, 107, 0.45));
 }
 
 .hero.hero--immersive .hero-sub {
-  max-width: 46ch;
-  font-size: clamp(17px, 1.5vw, 20px);
-  color: rgba(245, 240, 228, 0.86);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
-  margin-bottom: 0;
-}
-
-.hero-caption {
-  position: absolute;
-  z-index: 2;
-  right: max(4vw, calc(50% - 600px));
-  bottom: 28px;
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ivory-muted);
-  opacity: calc(0.9 - var(--scroll) * 1.5);
+  max-width: 50ch;
+  margin: 0 auto;
+  font-size: clamp(17px, 1.45vw, 20px);
+  color: rgba(245, 240, 228, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 4px 18px rgba(0, 0, 0, 0.9);
 }
 
 @keyframes hero-rings {
-  0%, 100% { opacity: 0.45; scale: 0.97; }
-  50%      { opacity: 0.9;  scale: 1.04; }
+  0%, 100% { opacity: 0.5;  scale: 0.97; }
+  50%      { opacity: 1;    scale: 1.05; }
 }
 @keyframes hero-glow {
-  0%, 100% { opacity: 0.5; }
-  50%      { opacity: 0.95; }
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
 }
 @keyframes hero-breathe {
   0%, 100% { filter: brightness(1) saturate(1); }
-  50%      { filter: brightness(1.12) saturate(1.18); }
+  50%      { filter: brightness(1.15) saturate(1.22); }
 }
 
-/* ---------- tablets and phones: Marcus centred behind the words ---------- */
+/* ---------- phones ---------- */
 @media (max-width: 760px) {
-  .hero-layer--figure,
-  .hero-layer--aura {
-    right: 50%;
-    width: min(100vw, 70vh);
-    margin-right: calc(min(100vw, 70vh) / -2);
-  }
-  .hero-figure-image { opacity: 0.7; }
-  .hero-layer--shade {
-    background:
-      linear-gradient(to bottom, rgba(5, 7, 13, 0.55) 0, rgba(5, 7, 13, 0.25) 30%, rgba(5, 7, 13, 0.7) 62%, #05070d 100%);
-  }
-  .hero.hero--immersive {
-    align-items: flex-end;
-  }
+  .hero.hero--immersive { --fig-w: min(118vw, 82svh); }
+  .hero-figure-image { opacity: 0.85; }
   .hero.hero--immersive .hero-inner {
     width: calc(100% - 32px) !important;
-    padding: 40px 0 72px;
+    padding-bottom: 64px;
   }
-  .hero.hero--immersive .hero-text { text-align: center !important; margin: 0 auto; }
-  .hero-caption { right: 50%; translate: 50% 0; bottom: 22px; white-space: nowrap; }
+  .hero-layer--shade {
+    background:
+      linear-gradient(to bottom, rgba(5, 7, 13, 0.5) 0, transparent 20%, rgba(5, 7, 13, 0.25) 45%, rgba(5, 7, 13, 0.78) 72%, #05070d 100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
