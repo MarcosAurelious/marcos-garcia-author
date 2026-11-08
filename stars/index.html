@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self'; media-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08070d">
+  <title>Legio Stellaris · A Roman Space Shooter by Marcos Garcia</title>
+  <meta name="description" content="Rise from lowly Star Fighter to Imperator. A Roman space shooter in eight levels, each a side-scrolling assault followed by a Galaga-style forward assault. Free, in your browser.">
+  <link rel="stylesheet" href="../fonts.css">
+  <link rel="stylesheet" href="game.css?v=1">
+</head>
+<body>
+<div id="stage">
+  <canvas id="game" width="960" height="540" tabindex="0" aria-label="Legio Stellaris game screen"></canvas>
+  <div id="spBar" hidden>
+    <button class="sbtn" data-sp="roll" type="button">ROLL</button><button class="sbtn" data-sp="missile" type="button">MSL</button><button class="sbtn" data-sp="drone" type="button">DRN</button><button class="sbtn" data-sp="emp" type="button">EMP</button><button class="sbtn" data-sp="chain" type="button">ARC</button>
+  </div>
+  <div class="tbtn" id="bCharge" hidden>CHARGE</div>
+</div>
+<div id="help">
+  <span><b>Arrows/WASD</b> fly</span><span><b>Space/Z</b> fire (hold)</span><span><b>C</b> hold to charge (Centurio+)</span>
+  <span><b>1/Shift</b> barrel roll</span><span><b>2</b> missile strike</span><span><b>3</b> drone attack</span><span><b>4/X</b> EMP</span><span><b>5</b> Tesla chain strike</span>
+  <span><b>P</b> pause</span><span><b>M</b> sound</span>
+</div>
+<script src="game.js?v=1"></script>
+</body>
+</html>
