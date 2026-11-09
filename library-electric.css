@@ -114,3 +114,26 @@
 @media (prefers-reduced-motion: reduce) {
   :is(#library, #apps) .section-title { animation: none !important; }
 }
+
+/* ---------- same side margins as THE LOUNGE ----------
+   THE LOUNGE, THE LIBRARY and THE ARCADE all span the width of the music
+   player (about 3/4 of the screen, nearly full width on phones), with the
+   heading sitting on its left edge. */
+:is(#music, #library, #apps) {
+  --cushion: clamp(12px, 2vw, 28px);
+}
+:is(#music, #library, #apps) > .wrap {
+  width: max(75vw, min(100vw - 2 * var(--cushion), 760px));
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  :is(#music, #library, #apps) > .wrap { width: calc(100vw - 2 * var(--cushion)); }
+  :is(#library, #apps) .library-head { text-align: left; align-items: flex-start; }
+  :is(#library, #apps) .library-head .section-title,
+  :is(#library, #apps) .library-head .library-lede { margin-left: 0; margin-right: 0; }
+}
