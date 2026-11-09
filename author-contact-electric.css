@@ -1,0 +1,149 @@
+/* =====================================================
+   Marcos Garcia — THE AUTHOR and CONTACT, electric
+   Dark space background, left-aligned Tilt Neon heading and
+   the same width and margins as THE LOUNGE, THE LIBRARY and THE ARCADE.
+   ===================================================== */
+
+:is(#about, #contact) {
+  --volt: #6ff3ff;
+  --volt-deep: #19b8ff;
+  --plasma: #b98bff;
+  --amber: #ffb35c;
+  --cushion: clamp(12px, 2vw, 28px);
+  background: transparent !important;
+  color: rgba(225, 245, 255, 0.86);
+  scroll-margin-top: 76px;
+}
+#about { padding: clamp(64px, 9vw, 120px) 0 !important; }
+#contact { padding: clamp(64px, 9vw, 110px) 0 40px !important; border-top: 0 !important; }
+
+/* same width as the other sections */
+:is(#about, #contact) > .wrap {
+  width: max(75vw, min(100vw - 2 * var(--cushion), 760px)) !important;
+  max-width: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box;
+  text-align: left !important;
+}
+
+/* ---------- neon heading (same as THE LIBRARY) ---------- */
+:is(#about, #contact) .library-head { margin-bottom: clamp(28px, 4vw, 48px); text-align: left; }
+:is(#about, #contact) .section-title {
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 62px);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin: 0 0 26px;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #effdff;
+  filter: none;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 6px var(--volt),
+    0 0 14px var(--volt),
+    0 0 28px var(--volt-deep),
+    0 0 52px var(--volt-deep),
+    0 0 90px var(--plasma) !important;
+  animation: ac-flicker 7s linear infinite;
+}
+:is(#about, #contact) h2.animated-heading::after {
+  background: linear-gradient(90deg, var(--volt), #fff 45%, var(--plasma) 80%, transparent) !important;
+  box-shadow: 0 0 8px var(--volt), 0 0 18px var(--volt-deep) !important;
+}
+#about .author-name {
+  margin: 0;
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-size: clamp(26px, 3.6vw, 44px);
+  letter-spacing: 0.04em;
+  color: #f6efff;
+  text-shadow: 0 0 2px #fff, 0 0 6px var(--plasma), 0 0 14px var(--plasma), 0 0 30px #8a5cff;
+}
+
+/* ---------- THE AUTHOR: photo, biography, cosmic Marcus ---------- */
+#about .wrap .about-balanced {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+#about .about-text p {
+  font-family: "Tilt Neon", var(--font-body), sans-serif;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: rgba(225, 245, 255, 0.86) !important;
+  text-shadow: 0 0 10px rgba(25, 184, 255, 0.25);
+}
+#about .about-author-photo .photo-frame {
+  border-color: rgba(111, 243, 255, 0.55) !important;
+  background: #05070d;
+  box-shadow: 0 0 6px var(--volt), 0 0 22px rgba(25, 184, 255, 0.45), 0 22px 44px rgba(0, 0, 0, 0.55) !important;
+}
+#about .about-cosmic-image {
+  border: 2px solid var(--plasma) !important;
+  border-radius: 6px;
+  box-shadow: 0 0 6px var(--plasma), 0 0 24px rgba(138, 92, 255, 0.5), 0 22px 44px rgba(0, 0, 0, 0.55) !important;
+}
+#about .about-cosmic-card { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+#about .about-cosmic-card figcaption {
+  font-family: "Tilt Neon", var(--font-mono), sans-serif !important;
+  color: var(--plasma);
+  opacity: 1 !important;
+  text-shadow: 0 0 8px rgba(185, 139, 255, 0.75);
+}
+
+/* ---------- CONTACT ---------- */
+#contact .contact-inner { text-align: left !important; }
+#contact .contact-block { max-width: none !important; margin: 0 !important; text-align: left !important; }
+#contact .contact-email {
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-style: normal;
+  font-size: clamp(20px, 2.6vw, 30px);
+  color: #fff1de;
+  border-bottom: 1px solid var(--amber);
+  text-shadow: 0 0 6px rgba(255, 179, 92, 0.85), 0 0 18px rgba(255, 122, 26, 0.5);
+  word-break: break-word;
+}
+#contact .contact-email:hover { color: #fff; border-color: #fff; }
+#contact .social-list { justify-content: flex-start !important; flex-wrap: wrap; gap: 14px !important; }
+#contact .social-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1.5px solid var(--volt);
+  border-radius: 999px;
+  background: rgba(25, 184, 255, 0.08);
+  font-family: "Tilt Neon", var(--font-mono), sans-serif;
+  letter-spacing: 0.08em;
+  color: #effdff !important;
+  text-shadow: 0 0 4px var(--volt), 0 0 12px var(--volt-deep);
+  box-shadow: 0 0 6px var(--volt), 0 0 18px rgba(25, 184, 255, 0.45), inset 0 0 10px rgba(111, 243, 255, 0.3);
+}
+#contact .social-list a:hover { background: rgba(111, 243, 255, 0.18); }
+#contact .social-icon { stroke: currentColor; color: var(--volt); fill: none; }
+#contact .footer-note {
+  text-align: left !important;
+  color: rgba(170, 236, 255, 0.55) !important;
+  border-top-color: rgba(111, 243, 255, 0.18) !important;
+}
+
+@keyframes ac-flicker {
+  0%, 30%, 32%, 34%, 100% { opacity: 1; }
+  31%, 33% { opacity: 0.55; }
+}
+
+@media (max-width: 600px) {
+  :is(#about, #contact) > .wrap { width: calc(100vw - 2 * var(--cushion)) !important; }
+  #about .wrap .about-balanced,
+  #about .wrap .about-text,
+  #about .wrap .about-text p { text-align: left !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(#about, #contact) .section-title { animation: none !important; }
+}
