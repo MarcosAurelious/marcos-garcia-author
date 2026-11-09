@@ -38,6 +38,10 @@
   const stage = el("div", "peek-stage");
   const pageImg = el("img", "peek-page");
   pageImg.alt = "";
+  const zoomBtn = el("button", "peek-zoom-btn");
+  zoomBtn.type = "button";
+  zoomBtn.setAttribute("aria-label", "Zoom in on this page");
+  zoomBtn.append(el("span", "peek-zoom-icon", "⌕"), el("span", null, "Zoom"));
   stage.append(pageImg);
   const nav = el("div", "peek-nav");
   const prev = el("button", "peek-arrow", "‹");
@@ -48,7 +52,7 @@
   const next = el("button", "peek-arrow", "›");
   next.type = "button";
   next.setAttribute("aria-label", "Next page");
-  nav.append(prev, counter, next);
+  nav.append(prev, counter, next, zoomBtn);
   viewer.append(stage, nav);
 
   /* excerpt */
@@ -62,8 +66,21 @@
   buy.rel = "noopener";
   foot.append(buy);
 
+  /* full-screen zoom layer */
+  const zoom = el("div", "peek-zoomer");
+  zoom.hidden = true;
+  const zoomScroll = el("div", "peek-zoom-scroll");
+  const zoomImg = el("img", "peek-zoom-img");
+  zoomImg.alt = "";
+  zoomScroll.append(zoomImg);
+  const zoomClose = el("button", "peek-close peek-zoom-close", "×");
+  zoomClose.type = "button";
+  zoomClose.setAttribute("aria-label", "Close zoom");
+  const zoomHint = el("p", "peek-zoom-hint", "Click or tap to zoom closer · drag to move");
+  zoom.append(zoomScroll, zoomClose, zoomHint);
+
   shell.append(close, head, body, foot);
-  dlg.append(shell);
+  dlg.append(shell, zoom);
   document.body.append(dlg);
 
   /* ---------- state ---------- */
@@ -81,7 +98,7 @@
     pageImg.src = p.src;
     pageImg.alt = p.alt || "";
     counter.textContent = pages.length > 1 ? `${index + 1} / ${pages.length}` : "";
-    nav.hidden = pages.length < 2;
+    prev.hidden = next.hidden = pages.length < 2;
   }
 
   function open(book) {
@@ -128,9 +145,61 @@
     close.focus();
   }
 
+  /* ---------- zoom ---------- */
+  let deep = false;
+  function setDeep(on, cx, cy) {
+    const r = zoomScroll.getBoundingClientRect();
+    const fx = cx == null ? 0.5 : (cx - r.left + zoomScroll.scrollLeft) / zoomScroll.scrollWidth;
+    const fy = cy == null ? 0.5 : (cy - r.top + zoomScroll.scrollTop) / zoomScroll.scrollHeight;
+    deep = on;
+    zoom.classList.toggle("is-deep", on);
+    zoomScroll.scrollLeft = fx * zoomScroll.scrollWidth - r.width / 2;
+    zoomScroll.scrollTop = fy * zoomScroll.scrollHeight - r.height / 2;
+  }
+  function openZoom() {
+    const p = pages[index];
+    if (!p) return;
+    zoomImg.src = p.src;
+    zoomImg.alt = p.alt || "";
+    zoom.hidden = false;
+    setDeep(false);
+    zoomScroll.scrollTop = 0;
+    zoomClose.focus();
+  }
+  function closeZoom() {
+    if (zoom.hidden) return false;
+    zoom.hidden = true;
+    zoomBtn.focus();
+    return true;
+  }
+  zoomBtn.addEventListener("click", openZoom);
+  pageImg.addEventListener("click", openZoom);
+  zoomClose.addEventListener("click", closeZoom);
+
+  /* drag to pan; a click without dragging toggles the closer zoom */
+  let drag = null;
+  zoomScroll.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse") return;
+    drag = { x: e.clientX, y: e.clientY, l: zoomScroll.scrollLeft, t: zoomScroll.scrollTop, moved: false };
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    zoomScroll.scrollLeft = drag.l - dx;
+    zoomScroll.scrollTop = drag.t - dy;
+  });
+  window.addEventListener("pointerup", () => { setTimeout(() => { drag = null; }, 0); });
+  zoomScroll.addEventListener("click", (e) => {
+    if (drag && drag.moved) return;
+    setDeep(!deep, e.clientX, e.clientY);
+  });
+
   function shut() { if (dlg.open) dlg.close(); }
 
+  dlg.addEventListener("cancel", (e) => { if (closeZoom()) e.preventDefault(); });
   dlg.addEventListener("close", () => {
+    zoom.hidden = true;
     document.documentElement.classList.remove("peek-open");
     if (opener && opener.focus) opener.focus();
   });
@@ -139,7 +208,7 @@
   prev.addEventListener("click", () => showPage(index - 1));
   next.addEventListener("click", () => showPage(index + 1));
   dlg.addEventListener("keydown", (e) => {
-    if (pages.length < 2) return;
+    if (pages.length < 2 || !zoom.hidden) return;
     if (e.key === "ArrowLeft") { e.preventDefault(); showPage(index - 1); }
     if (e.key === "ArrowRight") { e.preventDefault(); showPage(index + 1); }
   });
