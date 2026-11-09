@@ -12,7 +12,7 @@
    "coming soon" placeholder instead.
    ===================================================== */
 window.SNEAK_PEEKS = {
-  "cover-weird-science.jpg": {
+  "covers/weird-science.webp": {
     note: "From Chapter 01 · Potato AM Radios",
     pages: [
       { src: "sneak-peek/weird-science-1.webp", alt: "Plate: The Digital Temple of Inquiry" },
@@ -29,7 +29,7 @@ window.SNEAK_PEEKS = {
     ]
   },
 
-  "universe-grand-mysteries-cover.webp": {
+  "covers/grand-mysteries.webp": {
     note: "From the Introduction",
     pages: [
       { src: "sneak-peek/grand-mysteries-1.webp", alt: "Opening quote: You have power over your mind, not outside events" },
@@ -45,7 +45,7 @@ window.SNEAK_PEEKS = {
     ]
   },
 
-  "cover-anunnaki.jpg": {
+  "covers/anunnaki.webp": {
     note: "From Chapter 1 · Before the Arrival",
     pages: [
       { src: "sneak-peek/anunnaki-1.webp", alt: "A Letter to the Reader" },
@@ -68,7 +68,7 @@ window.SNEAK_PEEKS = {
     excerpt: []
   },
 
-  "cover-gramma-shunis.jpg": {
+  "covers/gramma-shunis.webp": {
     note: "A Letter From Gramma Shunis",
     pages: [
       { src: "sneak-peek/gramma-shunis-1.webp", alt: "A Letter From Gramma Shunis and her Kitchen Rules" },
