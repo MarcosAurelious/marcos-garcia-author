@@ -1,0 +1,60 @@
+/* =====================================================
+   Marcos Garcia — header in the electric neon style
+   The name and the menu use the same Tilt Neon glow as the section headings.
+   ===================================================== */
+
+.site-header {
+  --volt: #6ff3ff;
+  --volt-deep: #19b8ff;
+  --plasma: #b98bff;
+  --amber: #ffb35c;
+  border-bottom: 1px solid rgba(111, 243, 255, 0.28) !important;
+  box-shadow: 0 1px 14px rgba(25, 184, 255, 0.18);
+}
+
+/* the name */
+.site-header .brand-name {
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-style: normal;
+  font-size: 23px;
+  letter-spacing: 0.05em;
+  color: #effdff;
+  text-shadow: 0 0 2px #fff, 0 0 6px var(--volt), 0 0 14px var(--volt-deep), 0 0 30px var(--plasma);
+}
+
+/* the little atom mark, in neon */
+.site-header .mark svg { filter: drop-shadow(0 0 3px var(--volt)) drop-shadow(0 0 8px rgba(185, 139, 255, 0.7)); }
+.site-header .mark-leaf { stroke: var(--plasma); }
+.site-header .mark-core { fill: #05070d; stroke: var(--volt); }
+.site-header .mark-orbit { stroke: var(--volt); }
+.site-header .mark-electron { fill: #fff; }
+
+/* the menu */
+.site-header .primary-nav a {
+  font-family: "Tilt Neon", var(--font-mono), sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d8f9ff;
+  text-shadow: 0 0 4px var(--volt), 0 0 12px var(--volt-deep);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.site-header .primary-nav a:hover,
+.site-header .primary-nav a:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 2px #fff, 0 0 8px var(--volt), 0 0 18px var(--volt), 0 0 34px var(--plasma);
+}
+.site-header .primary-nav a::after {
+  background: linear-gradient(90deg, var(--volt), var(--plasma)) !important;
+  box-shadow: 0 0 6px var(--volt);
+}
+
+/* the phone menu */
+.site-header .nav-toggle span { background: var(--volt) !important; box-shadow: 0 0 6px var(--volt); }
+@media (max-width: 720px) {
+  .site-header .primary-nav {
+    background: rgba(5, 7, 13, 0.97) !important;
+    border-bottom: 1px solid rgba(111, 243, 255, 0.28) !important;
+  }
+  .site-header .primary-nav a { border-top-color: rgba(111, 243, 255, 0.14) !important; font-size: 17px; }
+}

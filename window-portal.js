@@ -63,13 +63,13 @@ function init() {
      behind the glass. They are sized so that, from straight ahead, they line
      up into the original picture; move and the near layers slide past the far ones. */
   const PIC_CENTER_Y = 0.42;     // which height of the painting sits in the middle of the window
-  const MAX_EYE_X = 0.32;        // how far the eye may roam, as a share of the window width
-  const MAX_EYE_Y = 0.25;
+  const MAX_EYE_X = 0.27;        // how far the eye may roam, as a share of the window width
+  const MAX_EYE_Y = 0.2;
   const layers = [
-    { src: "window/arrival-back.webp",  depth: 0.80, opaque: true },   // sky, giant planet, beam
-    { src: "window/arrival-ship.webp",  depth: 0.58, float: 0.010 },   // the mothership
-    { src: "window/arrival-city.webp",  depth: 0.42 },                 // the city and river
-    { src: "window/arrival-front.webp", depth: 0.12 },                 // the watchers and the wall
+    { src: "window/arrival-back.webp?v=2",  depth: 0.80, opaque: true },   // sky, giant planet, beam
+    { src: "window/arrival-ship.webp?v=2",  depth: 0.58, float: 0.010 },   // the mothership
+    { src: "window/arrival-city.webp?v=2",  depth: 0.42 },                 // the city and river
+    { src: "window/arrival-front.webp?v=2", depth: 0.17 },                 // the watchers and the wall
   ].map((L, i) => {
     const mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
@@ -89,7 +89,10 @@ function init() {
     const far = layers[0].depth;
     const shiftX = MAX_EYE_X * screenW * far / (BASE_Z + far);
     const shiftY = MAX_EYE_Y * SCREEN_H * far / (BASE_Z + far);
-    const A = Math.max(screenW + 2 * shiftX, SCREEN_H + 2 * shiftY) * 1.02;   // the painting is square
+    // the painting is square; it sits off-centre by PIC_CENTER_Y, so the short side must still
+    // reach past the top and bottom of the window when the eye looks up or down
+    const edge = Math.min(PIC_CENTER_Y, 1 - PIC_CENTER_Y);
+    const A = Math.max(screenW + 2 * shiftX, (SCREEN_H / 2 + shiftY) / edge) * 1.03;
     for (const L of layers) {
       const k = (BASE_Z + L.depth) / BASE_Z;            // bigger the farther back it sits
       L.mesh.scale.set(A * k, A * k, 1);
