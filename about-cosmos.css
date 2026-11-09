@@ -34,14 +34,18 @@
     radial-gradient(ellipse 40% 45% at 18% 35%, rgba(111, 243, 255, 0.06), transparent 70%),
     radial-gradient(ellipse 36% 36% at 40% 55%, rgba(185, 139, 255, 0.07), transparent 70%);
 }
+#about .cosmos-scene { container-type: size; }
+/* the art is a wide panorama (Marcus on the right, open starry sky on the left)
+   that covers the whole section, like a background image set to "cover" */
 #about .cosmos-art {
   position: absolute;
-  top: -4%;
-  right: -2vw;
-  height: 110%;
-  aspect-ratio: 1122 / 1402;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10%, #000 68%, transparent 91%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 10%, #000 68%, transparent 91%);
+  right: 0;
+  top: 50%;
+  width: max(100cqw, 171.2cqh);
+  aspect-ratio: 2400 / 1402;
+  translate: 0 -50%;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 88%, transparent 100%);
 }
 #about .cosmos-layer {
   position: absolute;
@@ -52,19 +56,17 @@
 }
 /* farthest: the starry sky, the Milky Way and the sunset */
 #about .cosmos-sky {
-  background-image: url("cosmos/about-cosmos-sky.webp");
-  -webkit-mask-image: linear-gradient(to right, transparent 0, rgba(0, 0, 0, 0.6) 18%, #000 40%);
-  mask-image: linear-gradient(to right, transparent 0, rgba(0, 0, 0, 0.6) 18%, #000 40%);
+  background-image: url("cosmos/cosmos-wide-sky.webp");
   transform: translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px + var(--sy) * 22px), 0) scale(1.06);
 }
 /* middle: the columns and the dome of Rome */
 #about .cosmos-ruins {
-  background-image: url("cosmos/about-cosmos-ruins.webp");
+  background-image: url("cosmos/cosmos-wide-ruins.webp");
   transform: translate3d(calc(var(--px) * -18px), calc(var(--py) * -12px + var(--sy) * 12px), 0) scale(1.05);
 }
 /* nearest of the art: Marcus himself, full of galaxies */
 #about .cosmos-bust {
-  background-image: url("cosmos/about-cosmos-bust.webp");
+  background-image: url("cosmos/cosmos-wide-bust.webp");
   filter: drop-shadow(0 0 28px rgba(111, 243, 255, 0.14)) drop-shadow(0 0 60px rgba(185, 139, 255, 0.16));
   transform: translate3d(calc(var(--px) * -32px), calc(var(--py) * -20px), 0) scale(1.04);
 }
@@ -72,7 +74,9 @@
 #about .cosmos-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(3, 5, 10, 0.62) 0%, rgba(3, 5, 10, 0.34) 38%, rgba(3, 5, 10, 0) 62%);
+  background:
+    linear-gradient(90deg, rgba(3, 5, 10, 0.72) 0%, rgba(3, 5, 10, 0.5) 40%, rgba(3, 5, 10, 0.12) 72%, rgba(3, 5, 10, 0) 100%),
+    linear-gradient(to bottom, rgba(3, 5, 10, 0.35), rgba(3, 5, 10, 0) 30%, rgba(3, 5, 10, 0) 70%, rgba(3, 5, 10, 0.5));
 }
 
 /* ---------- the floating front: heading, photo, biography ---------- */
@@ -152,7 +156,6 @@
 
 /* ---------- tablets ---------- */
 @media (max-width: 900px) {
-  #about .cosmos-art { right: -18vw; opacity: 0.9; }
   #about.about-cosmos .wrap .about-balanced {
     grid-template-columns: minmax(170px, 230px) minmax(0, 1fr) !important;
   }
@@ -161,18 +164,7 @@
 /* ---------- phones: Marcus stands behind, the photo and biography stack in front ---------- */
 @media (max-width: 680px) {
   #about.about-cosmos { display: block; min-height: 0; }
-  #about .cosmos-art {
-    top: 70px;
-    right: -42vw;
-    width: 135vw;
-    height: auto;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 55%, transparent 92%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 55%, transparent 92%);
-  }
-  #about .cosmos-sky {
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%);
-    mask-image: linear-gradient(to right, transparent 0, #000 30%);
-  }
+  #about .cosmos-art { right: auto; left: 0; translate: -63% -50%; }
   #about .cosmos-shade {
     background: linear-gradient(90deg, rgba(3, 5, 10, 0.55) 0%, rgba(3, 5, 10, 0.15) 60%, rgba(3, 5, 10, 0) 100%);
   }
