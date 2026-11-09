@@ -262,3 +262,44 @@
   }
   .music-album { padding: 24px 16px 8px; }
 }
+
+/* ---------- THE LOUNGE: same neon heading as THE LIBRARY and THE ARCADE ---------- */
+.music-section .lounge-title {
+  font-family: "Tilt Neon", var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 62px);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin: 0 0 30px;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #effdff;
+  filter: none;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 6px var(--volt),
+    0 0 14px var(--volt),
+    0 0 28px var(--volt-deep),
+    0 0 52px var(--volt-deep),
+    0 0 90px var(--plasma) !important;
+  animation: lounge-flicker 7s linear infinite;
+}
+.music-section h2.lounge-title.animated-heading::after {
+  left: 8% !important;
+  width: 84% !important;
+  transform-origin: center !important;
+  background: linear-gradient(90deg, transparent, var(--volt) 15%, #fff 45%, var(--plasma) 85%, transparent) !important;
+  box-shadow: 0 0 8px var(--volt), 0 0 18px var(--volt-deep) !important;
+}
+/* the artist name steps down to a violet neon sign under the title */
+.music-section .music-artist {
+  font-size: clamp(26px, 3.6vw, 44px);
+  margin: 0 0 14px;
+}
+@keyframes lounge-flicker {
+  0%, 30%, 32%, 34%, 100% { opacity: 1; }
+  31%, 33% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .music-section .lounge-title { animation: none !important; }
+}
