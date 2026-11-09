@@ -43,7 +43,7 @@ function init() {
   /* The screen (the window opening) is the plane z = 0.
      Its height is 1 unit; its width follows the canvas aspect. */
   const SCREEN_H = 1;
-  const DEPTH = 3.2;
+  const DEPTH = 0.8;            // how far back the farthest picture layer sits
   const BASE_Z = 1.7;            // how far the eye sits from the glass, in screen-heights
   let screenW = 16 / 9;
 
@@ -58,147 +58,45 @@ function init() {
     return t;
   };
 
-  /* ---------- the room: neon grid walls fading into the dark ---------- */
-  const gridMat = new THREE.LineBasicMaterial({
-    color: 0x6ff3ff, transparent: true, opacity: 0.55,
-    blending: THREE.AdditiveBlending, depthWrite: false
+  /* ---------- the picture: "The Arrival" from ANUNNAKI, cut into depth layers ----------
+     Each layer is a cut-out of the same painting placed at its own distance
+     behind the glass. They are sized so that, from straight ahead, they line
+     up into the original picture; move and the near layers slide past the far ones. */
+  const PIC_CENTER_Y = 0.42;     // which height of the painting sits in the middle of the window
+  const MAX_EYE_X = 0.32;        // how far the eye may roam, as a share of the window width
+  const MAX_EYE_Y = 0.25;
+  const layers = [
+    { src: "window/arrival-back.webp",  depth: 0.80, opaque: true },   // sky, giant planet, beam
+    { src: "window/arrival-ship.webp",  depth: 0.58, float: 0.010 },   // the mothership
+    { src: "window/arrival-city.webp",  depth: 0.42 },                 // the city and river
+    { src: "window/arrival-front.webp", depth: 0.12 },                 // the watchers and the wall
+  ].map((L, i) => {
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({
+        map: loadTex(L.src), transparent: !L.opaque, depthWrite: !!L.opaque, fog: false,
+      })
+    );
+    mesh.position.z = -L.depth;
+    mesh.renderOrder = i;
+    room.add(mesh);
+    return Object.assign(L, { mesh });
   });
-  let grid = null;
 
-  function buildGrid() {
-    if (grid) { room.remove(grid); grid.geometry.dispose(); }
-    const w = screenW / 2, h = SCREEN_H / 2;
-    const pts = [];
-    const steps = 10;
-    // depth rings
-    for (let i = 0; i <= steps; i++) {
-      const z = -DEPTH * (i / steps);
-      pts.push(-w, -h, z, w, -h, z,  w, -h, z, w, h, z,  w, h, z, -w, h, z,  -w, h, z, -w, -h, z);
-    }
-    // lines running into depth
-    const across = 8;
-    for (let i = 0; i <= across; i++) {
-      const x = -w + (2 * w * i) / across;
-      pts.push(x, -h, 0, x, -h, -DEPTH,  x, h, 0, x, h, -DEPTH);
-    }
-    const down = 5;
-    for (let i = 1; i < down; i++) {
-      const y = -h + (2 * h * i) / down;
-      pts.push(-w, y, 0, -w, y, -DEPTH,  w, y, 0, w, y, -DEPTH);
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    grid = new THREE.LineSegments(geo, gridMat);
-    room.add(grid);
-  }
-
-  /* dark wall panels behind the grid so the room reads as solid */
-  const wallMat = new THREE.MeshBasicMaterial({ color: 0x0a0e18, side: THREE.BackSide });
-  let walls = null;
-  function buildWalls() {
-    if (walls) { room.remove(walls); walls.geometry.dispose(); }
-    const geo = new THREE.BoxGeometry(screenW * 1.001, SCREEN_H * 1.001, DEPTH);
-    walls = new THREE.Mesh(geo, wallMat);
-    walls.position.z = -DEPTH / 2 - 0.001;
-    room.add(walls);
-  }
-
-  /* ---------- back wall: deep nebula ---------- */
-  const nebulaCanvas = document.createElement("canvas");
-  nebulaCanvas.width = 1024; nebulaCanvas.height = 576;
-  {
-    const g = nebulaCanvas.getContext("2d");
-    g.fillStyle = "#05070d"; g.fillRect(0, 0, 1024, 576);
-    const blobs = [
-      [300, 220, 360, "rgba(80,120,220,0.35)"],
-      [760, 380, 320, "rgba(180,90,220,0.28)"],
-      [620, 140, 260, "rgba(70,200,210,0.22)"],
-      [180, 460, 240, "rgba(201,162,39,0.16)"],
-    ];
-    for (const [x, y, r, c] of blobs) {
-      const grd = g.createRadialGradient(x, y, 0, x, y, r);
-      grd.addColorStop(0, c); grd.addColorStop(1, "rgba(0,0,0,0)");
-      g.fillStyle = grd; g.fillRect(0, 0, 1024, 576);
-    }
-    for (let i = 0; i < 900; i++) {
-      const a = Math.random() * 0.8 + 0.2;
-      g.fillStyle = `rgba(255,250,235,${a})`;
-      const s = Math.random() < 0.06 ? 2 : 1;
-      g.fillRect(Math.random() * 1024, Math.random() * 576, s, s);
+  function placeLayers() {
+    // apparent size (on the glass, seen from straight ahead) that still covers the
+    // window when the eye roams to its limit and looks past the farthest layer
+    const far = layers[0].depth;
+    const shiftX = MAX_EYE_X * screenW * far / (BASE_Z + far);
+    const shiftY = MAX_EYE_Y * SCREEN_H * far / (BASE_Z + far);
+    const A = Math.max(screenW + 2 * shiftX, SCREEN_H + 2 * shiftY) * 1.02;   // the painting is square
+    for (const L of layers) {
+      const k = (BASE_Z + L.depth) / BASE_Z;            // bigger the farther back it sits
+      L.mesh.scale.set(A * k, A * k, 1);
+      L.baseY = -(0.5 - PIC_CENTER_Y) * A * k;
+      L.mesh.position.y = L.baseY;
     }
   }
-  const nebulaTex = new THREE.CanvasTexture(nebulaCanvas);
-  nebulaTex.colorSpace = THREE.SRGBColorSpace;
-  const backWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshBasicMaterial({ map: nebulaTex, fog: false })
-  );
-  backWall.position.z = -DEPTH;
-  room.add(backWall);
-
-  /* soft round mask so the cosmic bust melts into the nebula */
-  const maskCanvas = document.createElement("canvas");
-  maskCanvas.width = maskCanvas.height = 256;
-  {
-    const g = maskCanvas.getContext("2d");
-    const grd = g.createRadialGradient(128, 118, 30, 128, 128, 128);
-    grd.addColorStop(0, "#fff"); grd.addColorStop(0.62, "#fff"); grd.addColorStop(1, "#000");
-    g.fillStyle = grd; g.fillRect(0, 0, 256, 256);
-  }
-  const softMask = new THREE.CanvasTexture(maskCanvas);
-
-  /* ---------- the art ---------- */
-  const art = new THREE.Group();
-  room.add(art);
-
-  // Cosmic Marcus — brought forward into the room, floating well in front of the nebula back wall
-  const bustH = 1.0;
-  const BUST_Z = -0.9;
-  const bust = new THREE.Mesh(
-    new THREE.PlaneGeometry(bustH * (1122 / 1402), bustH),
-    new THREE.MeshBasicMaterial({ map: loadTex("marcus-cosmic-bust.webp"), alphaMap: softMask, transparent: true, fog: false })
-  );
-  bust.position.set(0, 0.03, BUST_Z);
-  art.add(bust);
-
-  // Neon orbit ring around the bust (echoes the site logo)
-  const orbit = new THREE.Mesh(
-    new THREE.TorusGeometry(0.42, 0.004, 8, 160),
-    new THREE.MeshBasicMaterial({ color: 0xb98bff, transparent: true, opacity: 0.9 })
-  );
-  orbit.position.copy(bust.position).add(new THREE.Vector3(0, 0.02, 0.18));
-  orbit.rotation.set(1.2, 0.25, -0.4);
-  art.add(orbit);
-  const electron = new THREE.Mesh(
-    new THREE.SphereGeometry(0.014, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0x8fe6d2 })
-  );
-  orbit.add(electron);
-
-  // A line of Marcus floating just behind the glass
-  const quoteCanvas = document.createElement("canvas");
-  quoteCanvas.width = 2000; quoteCanvas.height = 160;
-  const quoteTex = new THREE.CanvasTexture(quoteCanvas);
-  quoteTex.colorSpace = THREE.SRGBColorSpace;
-  function drawQuote() {
-    const g = quoteCanvas.getContext("2d");
-    g.clearRect(0, 0, 2000, 160);
-    g.textAlign = "center";
-    g.fillStyle = "rgba(245,240,228,0.92)";
-    g.font = 'italic 500 58px "Cormorant Garamond", Georgia, serif';
-    g.fillText("“The universe is change; our life is what our thoughts make it.”", 1000, 80);
-    g.fillStyle = "rgba(201,162,39,0.95)";
-    g.font = '700 22px "Space Mono", monospace';
-    g.fillText("—  MARCUS AURELIUS, MEDITATIONS IV.3", 1000, 138);
-    quoteTex.needsUpdate = true;
-  }
-  drawQuote();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawQuote);
-  const quote = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 0.08),
-    new THREE.MeshBasicMaterial({ map: quoteTex, transparent: true, depthWrite: false })
-  );
-  art.add(quote);
 
   /* ---------- star dust that fills the room (and spills out of it) ---------- */
   const dotCanvas = document.createElement("canvas");
@@ -250,23 +148,8 @@ function init() {
     screenW = (w / h) * SCREEN_H;
     const portrait = screenW < 1;
 
-    buildWalls();
-    buildGrid();
-    backWall.scale.set(screenW, SCREEN_H, 1);
+    placeLayers();
     placeDust();
-
-    // keep Marcus inside the window on narrow (phone) screens
-    const seen = BASE_Z / (BASE_Z - BUST_Z);          // how big something at BUST_Z looks on the glass
-    const fit = Math.min(1, (screenW * 0.9) / (bustH * (1122 / 1402) * seen));
-    bust.scale.setScalar(fit);
-    orbit.scale.setScalar(fit);
-    if (portrait) {
-      quote.scale.setScalar(screenW * 0.92);
-      quote.position.set(0, 0.4, -0.25);
-    } else {
-      quote.scale.setScalar(Math.min(screenW * 0.62, 1.15));
-      quote.position.set(0, -0.4, -0.2);
-    }
   }
 
   /* ---------- the viewer's eye position (the whole trick) ---------- */
@@ -420,24 +303,19 @@ function init() {
     const t = clock.getElapsedTime();
     trackFace();
 
-    // the neon grid hums, with the odd flicker
-    if (!reduceMotion) {
-      const flick = (t % 7.3) > 7.15 ? 0.45 : 1;
-      gridMat.opacity = (0.5 + Math.sin(t * 2.2) * 0.1) * flick;
-    }
-
     // gentle idle drift so the depth is obvious before anyone interacts
     if (mode !== "camera" && performance.now() - lastInput > 2500 && !reduceMotion) {
       target.set(Math.sin(t * 0.35) * screenW * 0.32, Math.sin(t * 0.23) * SCREEN_H * 0.18, BASE_Z);
     }
     const ease = mode === "camera" ? 0.35 : 0.08;
+    target.x = THREE.MathUtils.clamp(target.x, -MAX_EYE_X * screenW, MAX_EYE_X * screenW);
+    target.y = THREE.MathUtils.clamp(target.y, -MAX_EYE_Y * SCREEN_H, MAX_EYE_Y * SCREEN_H);
+    target.z = Math.max(target.z, BASE_Z * 0.85);
     eye.lerp(target, ease);
     applyOffAxis();
 
     if (!reduceMotion) {
-      bust.position.y = 0.03 + Math.sin(t * 0.6) * 0.012;   // slow float
-      orbit.rotation.z = t * 0.25;
-      electron.position.set(Math.cos(t * 1.4) * 0.42, Math.sin(t * 1.4) * 0.42, 0);
+      for (const L of layers) if (L.float) L.mesh.position.y = L.baseY + Math.sin(t * 0.6) * L.float;   // the ship hovers
       for (let i = 0; i < DUST; i++) {
         const k = i * 3 + 1;
         dustPos[k] += 0.00025 + dustSeed[i] * 0.0004;
