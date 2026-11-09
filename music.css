@@ -285,9 +285,6 @@
   animation: lounge-flicker 7s linear infinite;
 }
 .music-section h2.lounge-title.animated-heading::after {
-  left: 8% !important;
-  width: 84% !important;
-  transform-origin: center !important;
   background: linear-gradient(90deg, transparent, var(--volt) 15%, #fff 45%, var(--plasma) 85%, transparent) !important;
   box-shadow: 0 0 8px var(--volt), 0 0 18px var(--volt-deep) !important;
 }
@@ -302,4 +299,16 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .music-section .lounge-title { animation: none !important; }
+}
+
+/* heading block sits on the left, like THE LIBRARY and THE ARCADE */
+.music-section .lounge-title,
+.music-section .music-artist,
+.music-section .music-lede {
+  align-self: flex-start;
+  text-align: left;
+}
+.music-section .music-lede {
+  margin-left: 0;
+  max-width: 640px;
 }
