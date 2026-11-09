@@ -232,3 +232,21 @@
 @media (prefers-reduced-motion: reduce) {
   .portal-section .portal-frame { animation: none !important; }
 }
+
+/* ---------- same size as THE LOUNGE's player frame ----------
+   about 3/4 of the screen wide and 3/4 of the screen tall on desktop,
+   nearly full width on phones */
+.portal-section .portal-frame {
+  --lounge-w: max(75vw, min(100vw - 2 * var(--cushion), 760px));
+  width: var(--lounge-w);
+  margin-left: calc(50% - var(--lounge-w) / 2);
+  height: calc((100svh - 76px) * 0.75 + 16px);
+  min-height: 436px;
+}
+@media (max-width: 760px) {
+  .portal-section .portal-frame {
+    --lounge-w: calc(100vw - 2 * var(--cushion));
+    height: min(78svh, 640px);
+    min-height: 0;
+  }
+}
