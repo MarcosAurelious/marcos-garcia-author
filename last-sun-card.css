@@ -1,0 +1,13 @@
+/* The Last Sun library card. These rules used to be inline style="" attributes,
+   which the page's Content-Security-Policy (style-src 'self') blocks, so the card
+   rendered unstyled. Keeping them here keeps the CSP strict. */
+.ls-card{position:relative;height:100%;aspect-ratio:3/4;max-width:100%;overflow:hidden;background:#102c22}
+/* a background, not an <img>, so the holographic cover script and the
+   .library-cover img rules leave it alone */
+.ls-bg{position:absolute;inset:0;background:url('https://marcosaurelious.github.io/LAST-SUN/asset-08.webp') 49% center/cover no-repeat}
+.ls-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,13,.76),transparent 24%,transparent 65%,rgba(3,12,9,.84))}
+.ls-title{position:absolute;left:4%;right:4%;top:5%;text-align:center;font-family:Georgia,serif;color:#ffdc8a;font-weight:700;letter-spacing:.11em;font-size:clamp(12px,1.5vw,19px);text-shadow:0 2px 5px #000}
+.ls-hero{position:absolute;bottom:15%;width:43%;aspect-ratio:192/175.5;background-size:400% 400%;background-position:0 0;filter:drop-shadow(0 3px 3px #0009)}
+.ls-hero-a{left:8%;background-image:url('https://marcosaurelious.github.io/LAST-SUN/asset-01.webp');image-rendering:auto}
+.ls-hero-b{right:5%;background-image:url('https://marcosaurelious.github.io/LAST-SUN/asset-02.webp')}
+.ls-hud{position:absolute;bottom:4%;left:6%;right:6%;font-size:10px;color:#f7e3b0;text-shadow:0 1px 3px #000;display:flex;justify-content:space-between}

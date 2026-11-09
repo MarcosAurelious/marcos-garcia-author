@@ -1,0 +1,9 @@
+# Keeps the GitHub Actions used by this repo's workflows up to date.
+# The site itself has no package manager dependencies; vendored libraries
+# (vendor/three, vendor/mediapipe) are pinned by VENDOR-CHECKSUMS.txt.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
