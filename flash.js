@@ -134,7 +134,7 @@
     spot.className = "fx-spotlight";
     spot.setAttribute("aria-hidden", "true");
     document.body.appendChild(spot);
-    const lightSections = Array.from(document.querySelectorAll(".about-section, .contact-section"));
+    const lightSections = [];   // every section is dark now
 
     /* ---------- sparkle trail ---------- */
     const canvas = document.createElement("canvas");
@@ -166,23 +166,7 @@
       });
       spot.classList.toggle("on-light", overLight);
 
-      if (lastX !== null) {
-        const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-        const n = Math.min(Math.floor(dist / 14), 3);
-        for (let i = 0; i < n; i++) {
-          parts.push({
-            x: e.clientX + (Math.random() - 0.5) * 6,
-            y: e.clientY + (Math.random() - 0.5) * 6,
-            vx: (Math.random() - 0.5) * 0.6,
-            vy: Math.random() * 0.6 + 0.2,
-            life: 1,
-            size: Math.random() * 2.2 + 0.8,
-            c: colors[(Math.random() * colors.length) | 0],
-            star: Math.random() < 0.25,
-          });
-        }
-        if (parts.length > 140) parts.splice(0, parts.length - 140);
-      }
+      // (the sparkle trail that used to follow the cursor was removed at the author's request)
       lastX = e.clientX; lastY = e.clientY;
       if (!running) { running = true; requestAnimationFrame(draw); }
     }, { passive: true });
