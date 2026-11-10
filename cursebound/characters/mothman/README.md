@@ -1,13 +1,16 @@
-# Mothman — corrected original-art sprite sheets (v2.8)
+# Mothman — approved sharper sprite release
 
-**Asset status:** Prepared and QA checked locally; **PNG files not yet uploaded to this repository**.
+**Status:** PUBLISHED in the live Cursebound Arcade roster. No new character design was generated for this release.
 
-Required upload paths:
-- `Mothman_Motion_Combat_8x12_Transparent.png` — 2560 × 3984, 96 frames, 320 × 332 each.
-- `Mothman_OmenDive_4x2_Transparent.png` — 1280 × 664, 8 frames, 320 × 332 each.
+Game assets:
+- `mothman_motion.webp`: 8 × 12 uniform transparent atlas (96 frames, 240 × 240 cells), repacked from the previously approved sharper Mothman animation sheet.
+- `mothman_special.webp`: 4 × 2 transparent Omen Dive atlas (8 frames, 320 × 280 cells), repacked from the previously approved special sheet.
+- `mothman_portrait.webp`: selection image extracted from the approved animation art.
 
-Rows: idle, walk, run, jump, crouch, guard, light punch, melee punch, heavy punch, light kick, melee kick, heavy kick.
+Source artwork is preserved. The approved sheets were aligned, sharpened lightly for sprite playback, and given safe transparent padding. No further Mothman art revisions are authorized without user request.
 
-Original art characteristics are preserved: bright red eyes, dark gray muscular body, antennae, orange-red moth wing eyespots. 104 alpha cells pass the 15-pixel border margin test. Several base poses are reused; fully redrawn in-betweens may be needed to eliminate remaining stiffness.
+**Special:** Omen Dive — down → forward + Heavy Punch.
 
-Special: Omen Dive (down → forward + Heavy Punch).
+**Release commit:** `8209067ca71bb40d23008f9ccbea051c37a5e2d8`.
+
+Automated alpha-margin checks pass. Physical-device gameplay review remains useful for movement transitions.
