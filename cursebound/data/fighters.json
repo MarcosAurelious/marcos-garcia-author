@@ -127,7 +127,7 @@
         "hurt": [28,30],
         "ko": [31]
       },
-      "jump": {"crouch": 4, "rise": 20, "apex": 24, "fall": 25, "land": 4},
+      "jump": {"sheet": "characters/wendigo/wendigo_jump.webp", "cols": 5, "rows": 1, "crouch": 0, "rise": 1, "apex": 2, "fall": 3, "land": 4, "art": true},
       "style": {"tempo": 0.96, "reach": 1.14, "power": 0.96, "hurtW": 42, "hurtH": 155, "cancelBonus": 2},
       "specialMove": {"name": "SOUL STEALER", "total": 56, "cost": 40, "cast": 20, "type": "drain", "reach": 330},
       "signature": {"name": "HUNGER SPIRAL", "moves": ["lk", "mp", "hk"]},
