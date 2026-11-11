@@ -96,13 +96,39 @@ const roster=[
  {id:'captain',name:'HUNTER CAPTAIN',epithet:'The Executioner',cols:6,rows:4,h:281,weight:1.16,speed:4.45,power:1.12,col:'#e4bd88',idle:[0,1,2,3],walk:[4,5,6,7,8,9],run:[10,11,12,13,14,15],jump:[14,15,16],light:[18,19,20,21],heavy:[19,20,21,22],special:[19,20,21,22],hurt:[21,22],ko:[23]}
 ];
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
-const ASSET_URLS={"captain":"assets/asset_01.webp","captain_portrait":"assets/asset_02.webp","chupacabra":"assets/asset_03.webp","chupacabra_portrait":"assets/asset_04.webp","hunter":"assets/asset_05.webp","hunter_portrait":"assets/asset_06.webp","skinwalker":"assets/asset_07.webp","skinwalker_portrait":"assets/asset_08.webp","stage0":"assets/asset_09.webp","stage1":"assets/asset_10.webp","stage2":"assets/asset_11.webp","stage3":"assets/asset_12.webp","stage4":"assets/asset_13.webp","stage5":"assets/asset_14.webp","title":"assets/asset_15.webp","wendigo":"assets/asset_16.webp","wendigo_portrait":"assets/asset_17.webp","wolf":"assets/asset_18.webp","wolf_portrait":"assets/asset_19.webp","yeti":"assets/asset_20.webp","yeti_portrait":"assets/asset_21.webp","yucca":"assets/asset_22.webp","yucca_portrait":"assets/asset_23.webp","llorona":"characters/la-llorona/llorona_motion_v31.webp","mothman":"characters/mothman/mothman_motion_approved.webp","slender":"characters/slender-man/slender_motion.webp","slender_portrait":"characters/slender-man/slender_portrait.webp","occultist":"characters/occultist/occultist_motion_v31.webp","occultist_portrait":"characters/occultist/occultist_portrait_v31.webp","llorona_portrait":"characters/la-llorona/llorona_portrait_v31.webp"};
+const ASSET_URLS={"captain":"assets/asset_01.webp","captain_portrait":"assets/asset_02.webp","chupacabra":"assets/asset_03_v40.webp","chupacabra_portrait":"assets/asset_04.webp","hunter":"assets/asset_05.webp","hunter_portrait":"assets/asset_06.webp","skinwalker":"assets/asset_07_v40.webp","skinwalker_portrait":"assets/asset_08.webp","stage0":"assets/asset_09.webp","stage1":"assets/asset_10.webp","stage2":"assets/asset_11.webp","stage3":"assets/asset_12.webp","stage4":"assets/asset_13.webp","stage5":"assets/asset_14.webp","title":"assets/asset_15.webp","wendigo":"assets/asset_16_v40.webp","wendigo_portrait":"assets/asset_17.webp","wolf":"assets/asset_18.webp","wolf_portrait":"assets/asset_19.webp","yeti":"assets/asset_20_v40.webp","yeti_portrait":"assets/asset_21.webp","yucca":"assets/asset_22_v40.webp","yucca_portrait":"assets/asset_23.webp","llorona":"characters/la-llorona/llorona_motion_v31.webp","mothman":"characters/mothman/mothman_motion_approved.webp","slender":"characters/slender-man/slender_motion.webp","slender_portrait":"characters/slender-man/slender_portrait.webp","occultist":"characters/occultist/occultist_motion_v31.webp","occultist_portrait":"characters/occultist/occultist_portrait_v31.webp","llorona_portrait":"characters/la-llorona/llorona_portrait_v31.webp"};
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
-const ATTACK_URLS={"wolf":"assets/asset_24.webp","wendigo":"assets/asset_25.webp","yucca":"assets/asset_26.webp","yeti":"assets/asset_27.webp","skinwalker":"assets/asset_28.webp","chupacabra":"assets/asset_29.webp","llorona":"characters/la-llorona/llorona_attack_v31.webp","mothman":"characters/mothman/mothman_motion_approved.webp","slender":"characters/slender-man/slender_motion.webp","occultist":"characters/occultist/occultist_attack_v31.webp"};
+const ATTACK_URLS={"wolf":"assets/asset_24.webp","wendigo":"assets/asset_25.webp","yucca":"assets/asset_26_v40.webp","yeti":"assets/asset_27_v40.webp","skinwalker":"assets/asset_28_v40.webp","chupacabra":"assets/asset_29.webp","llorona":"characters/la-llorona/llorona_attack_v31.webp","mothman":"characters/mothman/mothman_motion_approved.webp","slender":"characters/slender-man/slender_motion.webp","occultist":"characters/occultist/occultist_attack_v31.webp"};
 const attackImgs={};for(const [key,url] of Object.entries(ATTACK_URLS)){const im=new Image();im.src=url;attackImgs[key]=im;}
 const SPECIAL_ASSET_URLS={"wolf":"assets/asset_30.webp","wendigo":"assets/asset_31.webp","yeti":"assets/asset_32.webp","chupacabra":"assets/asset_33.webp","skinwalker":"assets/asset_34.webp","yucca":"assets/asset_35.webp","llorona":"characters/la-llorona/llorona_special_v31.webp","mothman":"characters/mothman/mothman_special.webp","slender":"characters/slender-man/slender_special.webp","occultist":"characters/occultist/occultist_special_v31.webp"};
 const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){const im=new Image();im.src=url;specialImgs[key]=im;}
 
+// v4.0 jump system: crouch (takeoff) -> rise -> apex -> fall -> land.
+// Werewolf and Mothman use dedicated jump art; the others use their closest airborne poses until jump sheets exist.
+const JUMP_POSES={
+ wolf:{sheet:'characters/werewolf/werewolf_jump.webp',cols:4,rows:4,crouch:0,rise:1,riseFwd:5,apex:2,apexFwd:6,fall:3,land:4,art:true},
+ mothman:{crouch:24,rise:25,apex:26,fall:27,land:30,art:true},
+ wendigo:{crouch:4,rise:20,apex:24,fall:25,land:4},
+ yucca:{crouch:13,rise:10,apex:11,fall:9,land:13},
+ yeti:{crouch:13,rise:9,apex:10,fall:12,land:13},
+ skinwalker:{crouch:13,rise:9,apex:10,fall:8,land:13},
+ chupacabra:{crouch:13,rise:10,apex:9,fall:12,land:13},
+ llorona:{crouch:24,rise:26,apex:27,fall:29,land:24},
+ slender:{crouch:28,rise:27,apex:26,fall:29,land:28},
+ occultist:{crouch:25,rise:27,apex:29,fall:30,land:25},
+ hunter:{crouch:16,rise:12,apex:13,fall:14,land:16},
+ captain:{crouch:13,rise:17,apex:18,fall:19,land:13}
+};
+const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=new Image();im.src=j.sheet;jumpImgs[id]=im;}
+const JUMP_CROUCH_TICKS=5,LAND_TICKS=7;
+function jumpPose(f){const j=JUMP_POSES[f.r.id];if(!j)return null;
+ if(f.grounded)return j.land;
+ if((f.airTicks||0)<JUMP_CROUCH_TICKS)return j.crouch;
+ const fwd=Math.sign(f.vx)===f.face&&Math.abs(f.vx)>1.5;
+ if(f.vy<-5)return fwd&&j.riseFwd!=null?j.riseFwd:j.rise;
+ if(f.vy<5)return fwd&&j.apexFwd!=null?j.apexFwd:j.apex;
+ return j.fall;}
+function faceOpponent(f,o){if(!o||f.ko)return;const dx=o.x-f.x;if(Math.abs(dx)>6)f.face=dx>0?1:-1;}
 const imgs={},backgrounds=[];
 for(const r of roster){const img=new Image();img.src=ASSET_URLS[r.id];imgs[r.id]=img;}
 for(let i=0;i<6;i++){const im=new Image();im.src=ASSET_URLS['stage'+i];backgrounds[i]=im;}
@@ -409,7 +435,7 @@ function drawSpecialFX(){
  }
 }
 function showSpecialGuide(){const f=fighters[0],sp=f&&SPECIAL_INFO[f.r.id];$('specialGuide').textContent=sp?`${sp.name} ↓↘→+HP · FINISH ↓↘→+HK`:'SPECIAL ↓↘→+HP · FINISH ↓↘→+HK';}
-function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null};}
+function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null,airTicks:0,landTicks:0};}
 function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);}
 function openRoster(){phase='menu';cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
 function togglePause(){if(phase==='menu'||phase==='matchover')return;paused=!paused;$('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';clearInput();}
@@ -439,7 +465,7 @@ function pressed(side,action){
  if(action==='hp'&&motionReady&&SPECIAL_INFO[f.r.id]&&specialImgs[f.r.id]?.complete)action='super';
  if(action==='dash'){requestDash(side,f.face);return;}
  if(action==='jump'){
-  if(f.grounded&&!f.stun&&!f.action){f.grounded=false;f.vy=-15.6;f.y-=4;f.animation='jump';f.animTime=0;blip(260,.065,'sine');}
+  if(f.grounded&&!f.stun&&!f.action){f.grounded=false;f.vy=-15.6;f.y-=4;f.airTicks=0;f.landTicks=0;f.animation='jump';f.animTime=0;blip(260,.065,'sine');}
   return;
  }
  if(action==='guard'){f.input.guard=true;return;}
@@ -496,7 +522,7 @@ function cpuThink(f,foe){
   f.input.right=travel>0;f.input.left=travel<0;
  }else if(!f.action&&f.aiClock<=4&&Math.random()<.12)pressed(1,Math.random()<.5?'lp':'lk');
 }
-function accelerate(f,delta,friction=.7){const desired=(f.input.right?1:0)-(f.input.left?1:0);const max=f.r.speed*(f.grounded?1:.8);const target=desired*max;f.vx+=(target-f.vx)*(f.grounded?.21:.12);if(!desired){f.vx*=friction;if(Math.abs(f.vx)<.12)f.vx=0;}if(desired&&!f.action&&!f.stun&&f.dash<=0)f.face=desired;}
+function accelerate(f,delta,friction=.7){const desired=(f.input.right?1:0)-(f.input.left?1:0);const max=f.r.speed*(f.grounded?1:.8);const target=desired*max;f.vx+=(target-f.vx)*(f.grounded?.21:.12);if(!desired){f.vx*=friction;if(Math.abs(f.vx)<.12)f.vx=0;}}
 function updateFighter(f,opponent,side){
  if(f.health<=0){f.ko=true;f.action=null;f.animation='ko';f.animTime=(f.animTime||0)+1;f.vx*=.87;f.y=Math.min(f.y+Math.max(0,f.vy),GROUND);return;}
  if(f.signatureTicks>0)f.signatureTicks--;
@@ -508,7 +534,10 @@ function updateFighter(f,opponent,side){
   else if(f.guard){f.vx*=.55;}
   else{accelerate(f);if(f.action)f.vx*=.72;}
  }
- if(!f.grounded){f.vy+=.78;f.y+=f.vy;if(f.y>=GROUND){f.y=GROUND;f.vy=0;f.grounded=true;spawnDust(f.x,GROUND,f.face);}}
+ if(!f.grounded){f.airTicks=(f.airTicks||0)+1;f.vy+=.78;f.y+=f.vy;if(f.y>=GROUND){f.y=GROUND;f.vy=0;f.grounded=true;f.landTicks=LAND_TICKS;spawnDust(f.x,GROUND,f.face);}}
+ else if(f.landTicks>0)f.landTicks--;
+ // Fighters always turn to face the enemy once they are on the ground and free to act (fixes jump-turn lock).
+ if(f.grounded&&!f.action&&!f.stun&&f.dash<=0)faceOpponent(f,opponent);
  const prev=f.x;const edgePad=Math.max(112,Math.min(205,f.r.h*.55));f.x=Math.max(edgePad,Math.min(W-edgePad,f.x+f.vx));const delta=Math.abs(f.x-prev);if(f.grounded&&f.dash<=0&&f.stun<=0&&delta>.01)f.gait+=delta;
  if(f.action){const a=f.action==='super'?SPECIAL_INFO[f.r.id]:attackFor(f,f.action);f.actionTick++;
   if(f.action==='super')specialPulse(f,opponent);
@@ -520,8 +549,21 @@ function updateFighter(f,opponent,side){
    if(next&&phase==='fight'&&!f.stun)pressed(side,next);
   }
  }
- const anim=f.ko?'ko':f.stun?'hurt':f.action||(!f.grounded?'jump':f.dash>0?'run':f.guard?'guard':f.crouch?'idle':Math.abs(f.vx)>(f.animation==='run'?2.85:3.6)?'run':Math.abs(f.vx)>.44?'walk':'idle');
+ const anim=f.ko?'ko':f.stun?'hurt':f.action||(!f.grounded?'jump':f.landTicks>0&&!f.guard&&Math.abs(f.vx)<2.5?'land':f.dash>0?'run':f.guard?'guard':f.crouch?'idle':Math.abs(f.vx)>(f.animation==='run'?2.85:3.6)?'run':Math.abs(f.vx)>.44?'walk':'idle');
  if(anim!==f.animation){f.animation=anim;f.animTime=0;}else f.animTime++;
+}
+// Pushbox: keep bodies apart without shoving anyone through the arena walls.
+function wallPad(f){return Math.max(112,Math.min(205,f.r.h*.55));}
+function separate(a,b,minDist){
+ let left=a,right=b;
+ if(a.x===b.x){const aw=a.grounded?0:1,bw=b.grounded?0:1;/* airborne fighter lands on the side it came from */ if(aw!==bw){const air=aw?a:b,gr=aw?b:a;left=air.vx>0?gr:air;right=left===gr?air:gr;}else{left=a.face>=0?a:b;right=left===a?b:a;}}
+ else if(a.x>b.x){left=b;right=a;}
+ const need=minDist-(right.x-left.x);if(need<=0)return;
+ let lx=left.x-need/2,rx=right.x+need/2;
+ const lmin=wallPad(left),rmax=W-wallPad(right);
+ if(lx<lmin){rx+=lmin-lx;lx=lmin;}
+ if(rx>rmax){lx-=rx-rmax;rx=rmax;}
+ left.x=Math.max(lmin,lx);right.x=Math.min(rmax,rx);
 }
 function hit(attacker,defender,a){
  if(defender.inv>0||defender.health<=0)return {landed:false,guarded:false,damage:0};
@@ -550,7 +592,7 @@ function step(){frameNo++;if(paused||phase==='menu'||phase==='matchover')return;
  if(phase==='finisher'){stepFinisher();updateEffects();return;}
  if(hitFreeze>0){hitFreeze--;updateEffects();return;}
  if(phase==='intro'){introTimer--;if(introTimer<=0)phase='fight';}
- if(phase==='fight'){if(mode==='cpu')cpuThink(fighters[1],fighters[0]);let f0=fighters[0],f1=fighters[1];updateFighter(f0,f1,0);updateFighter(f1,f0,1);updateSpecials();const dist=Math.abs(f0.x-f1.x);const minDist=Math.min(185,Math.max(155,(f0.r.h+f1.r.h)*.31));if(dist<minDist&&Math.abs(f0.y-f1.y)<125){const overlap=(minDist-dist)/2;f0.x+=(f0.x<f1.x?-overlap:overlap);f1.x+=(f1.x>f0.x?overlap:-overlap);}if(++subframes>=60){subframes=0;clock=Math.max(0,clock-1);}if(clock===0||fighters.some(f=>f.health<=0))finishRound();}
+ if(phase==='fight'){if(mode==='cpu')cpuThink(fighters[1],fighters[0]);let f0=fighters[0],f1=fighters[1];updateFighter(f0,f1,0);updateFighter(f1,f0,1);updateSpecials();const dist=Math.abs(f0.x-f1.x);const minDist=Math.min(185,Math.max(155,(f0.r.h+f1.r.h)*.31));if(dist<minDist&&Math.abs(f0.y-f1.y)<125)separate(f0,f1,minDist);if(++subframes>=60){subframes=0;clock=Math.max(0,clock-1);}if(clock===0||fighters.some(f=>f.health<=0))finishRound();}
  if(phase==='roundover'){roundTimer--;if(roundTimer<=0){if(fighters[0].wins>=2||fighters[1].wins>=2)showResult();else startNewRound();}}
  updateEffects();}
 
@@ -565,7 +607,7 @@ function drawStage(){const b=backgrounds[stage];ctx.fillStyle='#071015';ctx.fill
  // Original static arena background: no moving fog or atmospheric overlays.
 }
 function drawShadow(f){ctx.save();ctx.fillStyle='rgba(0,0,0,.58)';ctx.beginPath();const radius=Math.max(29,Math.min(72,f.r.h*.19)-(GROUND-f.y)*.09);ctx.ellipse(f.x,GROUND+2,radius,13,0,0,Math.PI*2);ctx.fill();ctx.restore();}
-function currentFrame(f){const r=f.r,arr=r[f.animation]||r.idle;if(!arr.length)return 0;
+function currentFrame(f){const r=f.r;if((f.animation==='jump'||f.animation==='land')&&!f.action){const jp=jumpPose(f);if(jp!=null)return jp;}const arr=r[f.animation]||r.idle;if(!arr.length)return 0;
  if(f.animation==='walk'||f.animation==='run'){const stride=f.animation==='run'?10:12;return arr[Math.floor(f.gait/stride)%arr.length];}
  if(f.action==='super'||f.action==='finisher')return r.idle[0];
  if(f.action){const cfg=attackFor(f,f.action);return arr[Math.min(arr.length-1,Math.floor(f.actionTick/cfg.total*arr.length))];}
@@ -663,9 +705,14 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
  }else if(f.action&&ACTION_ROW[f.action]!==undefined&&attackAtlas?.complete&&attackAtlas.naturalWidth){
    const extended=['mothman','slender'].includes(r.id),row=r.id==='mothman'?({lp:6,mp:7,hp:8,lk:9,mk:10,hk:10}[f.action]):ACTION_ROW[f.action]+(extended?6:0),cfg=attackFor(f,f.action);
    const pose=Math.min(7,Math.floor(f.actionTick/cfg.total*8));
-   if(r.id==='mothman')drawApprovedMothmanPose(attackAtlas,8,12,row*8+pose,h,squat);else drawOriginalPose(attackAtlas,8,extended?12:6,row*8+pose,-h*.48,-h*.96+squat,h,h,f.action,f);
+   if(r.id==='mothman')drawApprovedMothmanPose(attackAtlas,8,12,row*8+pose,h,squat);else{const arows=extended?12:6,aw=h*(attackAtlas.naturalWidth/8)/(attackAtlas.naturalHeight/arows);drawOriginalPose(attackAtlas,8,arows,row*8+pose,-h*.48-(aw-h)/2,-h*.96+squat,aw,h,f.action,f);}
  }else{
-   if(r.id==='mothman')drawApprovedMothmanPose(img,8,12,frame,h,squat);else drawOriginalPose(img,r.cols,r.rows,frame,-w*.48,-h*.96+squat,w,h,f.animation,f);
+   const jp=JUMP_POSES[r.id],jimg=jumpImgs[r.id],airborne=f.animation==='jump'||f.animation==='land';
+   if(airborne&&jimg?.complete&&jimg.naturalWidth){const jw=h*(jimg.naturalWidth/jp.cols)/(jimg.naturalHeight/jp.rows);drawOriginalPose(jimg,jp.cols,jp.rows,frame,-jw*.48,-h*.96+squat,jw,h,'jump',f);}
+   else{
+    if(f.animation==='jump'&&jp&&!jp.art){const tilt=Math.max(-.09,Math.min(.11,-f.vy*.006));ctx.translate(0,-h*.45);ctx.rotate(tilt);ctx.translate(0,h*.45);}
+    if(r.id==='mothman')drawApprovedMothmanPose(img,8,12,frame,h,squat);else drawOriginalPose(img,r.cols,r.rows,frame,-w*.48,-h*.96+squat,w,h,f.animation,f);
+   }
  }
  if(f.guard&&f.health>0){ctx.strokeStyle=r.col+'aa';ctx.lineWidth=4;ctx.beginPath();ctx.arc(w*.20,-h*.48,56,-1.3,.95);ctx.stroke();}
  if(f.action&&attackDefs[f.action]&&f.actionTick>=attackDefs[f.action].start-3&&f.actionTick<=attackDefs[f.action].end+1){let a=f.action;ctx.lineCap='round';ctx.globalAlpha*=.5;const power=(a==='hp'||a==='hk')?3:(a==='mp'||a==='mk')?2:1;ctx.strokeStyle=a[0]==='h'?r.col:a[0]==='m'?'#e1d9c7':'#d9aca5';ctx.lineWidth=power*2+3;ctx.beginPath();ctx.arc(w*.36,-h*(a.endsWith('k')?.33:.56),power*13+58,-1.1,1.12);ctx.stroke();}
