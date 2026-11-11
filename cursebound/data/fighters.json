@@ -1,0 +1,397 @@
+{
+  "version": "4.1",
+  "title": "assets/asset_15.webp",
+  "stages": [
+    {"name": "Blackwood Forest", "image": "assets/asset_09.webp"},
+    {"name": "Starved Woods", "image": "assets/asset_10.webp"},
+    {"name": "Forgotten Desert", "image": "assets/asset_11.webp"},
+    {"name": "Frozen Crown", "image": "assets/asset_12.webp"},
+    {"name": "Shattered Veil", "image": "assets/asset_13.webp"},
+    {"name": "Crimson Valley", "image": "assets/asset_14.webp"}
+  ],
+  "moves": {
+    "lp": {"start": 4, "end": 7, "total": 15, "damage": 5, "reach": 178, "push": 3, "energy": 6, "cost": 0, "shake": 3, "stun": 9, "category": "punch"},
+    "mp": {"start": 7, "end": 11, "total": 24, "damage": 9, "reach": 189, "push": 7, "energy": 8, "cost": 0, "shake": 5, "stun": 14, "category": "punch"},
+    "hp": {"start": 12, "end": 17, "total": 35, "damage": 16, "reach": 168, "push": 14, "energy": 10, "cost": 0, "shake": 10, "stun": 19, "category": "punch"},
+    "lk": {"start": 6, "end": 9, "total": 19, "damage": 6, "reach": 187, "push": 4, "energy": 7, "cost": 0, "shake": 4, "stun": 10, "category": "kick"},
+    "mk": {"start": 9, "end": 14, "total": 28, "damage": 11, "reach": 187, "push": 9, "energy": 9, "cost": 0, "shake": 7, "stun": 15, "category": "kick"},
+    "hk": {"start": 14, "end": 19, "total": 38, "damage": 17, "reach": 206, "push": 17, "energy": 12, "cost": 0, "shake": 12, "stun": 21, "category": "kick"}
+  },
+  "comboRoutes": {
+    "lp": ["mp","hp","lk","mk","super"],
+    "mp": ["hp","mk","hk","super"],
+    "lk": ["mk","hk","mp","super"],
+    "mk": ["hk","hp","super"],
+    "hp": ["super"],
+    "hk": ["super"]
+  },
+  "fighters": [
+    {
+      "id": "wolf",
+      "name": "WEREWOLF",
+      "epithet": "The Lament",
+      "color": "#c45b55",
+      "stats": {"height": 258, "weight": 1.08, "speed": 5.25, "power": 1.06},
+      "sheets": {
+        "motion": "assets/asset_18.webp",
+        "cols": 6,
+        "rows": 4,
+        "portrait": "assets/asset_19.webp",
+        "attack": "assets/asset_24.webp",
+        "special": "assets/asset_30.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7,8,9,10,11],
+        "run": [10,11,12,13,14,15,16,17],
+        "jump": [14,15,16],
+        "light": [18,19,20,21,22],
+        "heavy": [13,14,15,16,17],
+        "special": [19,20,21,22,23],
+        "hurt": [19,20],
+        "ko": [23]
+      },
+      "jump": {
+        "sheet": "characters/werewolf/werewolf_jump.webp",
+        "cols": 4,
+        "rows": 4,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 5,
+        "apex": 2,
+        "apexFwd": 6,
+        "fall": 3,
+        "land": 4,
+        "art": true
+      },
+      "style": {"tempo": 0.95, "reach": 1.02, "power": 1, "hurtW": 46, "hurtH": 146, "cancelBonus": 1},
+      "specialMove": {"name": "MAUL ATTACK", "total": 39, "cost": 40, "cast": 14, "type": "maul", "reach": 204},
+      "signature": {"name": "RAVAGER CHAIN", "moves": ["lp", "mp", "hp"]},
+      "finisher": {"name": "LAST HUNT", "caption": "THE CURSE UNLEASHED", "color": "#cb746b", "type": "maul"}
+    },
+    {
+      "id": "wendigo",
+      "name": "WENDIGO",
+      "epithet": "The Hunger",
+      "color": "#9bbed0",
+      "stats": {"height": 292, "weight": 0.86, "speed": 5.75, "power": 0.96},
+      "sheets": {
+        "motion": "assets/asset_16_v40.webp",
+        "cols": 8,
+        "rows": 4,
+        "portrait": "assets/asset_17.webp",
+        "attack": "assets/asset_25.webp",
+        "special": "assets/asset_31.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23,24,25,26,27],
+        "jump": [22,23,24,25],
+        "light": [25,26,27,28,29],
+        "heavy": [26,27,28,29,30],
+        "special": [27,28,29,30,31],
+        "hurt": [28,30],
+        "ko": [31]
+      },
+      "jump": {"crouch": 4, "rise": 20, "apex": 24, "fall": 25, "land": 4},
+      "style": {"tempo": 0.96, "reach": 1.14, "power": 0.96, "hurtW": 42, "hurtH": 155, "cancelBonus": 2},
+      "specialMove": {"name": "SOUL STEALER", "total": 56, "cost": 40, "cast": 20, "type": "drain", "reach": 330},
+      "signature": {"name": "HUNGER SPIRAL", "moves": ["lk", "mp", "hk"]},
+      "finisher": {"name": "HUNGER’S END", "caption": "THE LOST SOULS CALL", "color": "#b9d5db", "type": "drain"}
+    },
+    {
+      "id": "yucca",
+      "name": "YUCCA MAN",
+      "epithet": "The Rootbound",
+      "color": "#c2a66b",
+      "stats": {"height": 280, "weight": 1, "speed": 4.8, "power": 1.05},
+      "sheets": {
+        "motion": "assets/asset_22_v40.webp",
+        "cols": 4,
+        "rows": 4,
+        "portrait": "assets/asset_23.webp",
+        "attack": "assets/asset_26_v40.webp",
+        "special": "assets/asset_35.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7],
+        "run": [6,7,8,9],
+        "jump": [8,9,10],
+        "light": [9,10,11],
+        "heavy": [11,12,13],
+        "special": [10,11,12,13],
+        "hurt": [13,14],
+        "ko": [15]
+      },
+      "jump": {"crouch": 13, "rise": 10, "apex": 11, "fall": 9, "land": 13},
+      "style": {"tempo": 1.11, "reach": 1.13, "power": 1.01, "hurtW": 49, "hurtH": 158, "cancelBonus": 0},
+      "specialMove": {"name": "VINE ATTACK", "total": 53, "cost": 40, "cast": 23, "type": "vine", "reach": 635},
+      "signature": {"name": "ROOTBREAKER", "moves": ["lp", "mk", "hp"]},
+      "finisher": {"name": "ROOT OF REDEMPTION", "caption": "THE EARTH REMEMBERS", "color": "#aac17c", "type": "vine"}
+    },
+    {
+      "id": "yeti",
+      "name": "YETI",
+      "epithet": "The Exile",
+      "color": "#a8d3e1",
+      "stats": {"height": 300, "weight": 1.24, "speed": 4.4, "power": 1.15},
+      "sheets": {
+        "motion": "assets/asset_20_v40.webp",
+        "cols": 4,
+        "rows": 4,
+        "portrait": "assets/asset_21.webp",
+        "attack": "assets/asset_27_v40.webp",
+        "special": "assets/asset_32.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7],
+        "run": [5,6,7,8],
+        "jump": [9,10,11],
+        "light": [8,9,10,11],
+        "heavy": [9,10,11,12],
+        "special": [10,11,12,13],
+        "hurt": [13,14],
+        "ko": [15]
+      },
+      "jump": {"crouch": 13, "rise": 9, "apex": 10, "fall": 12, "land": 13},
+      "style": {"tempo": 1.15, "reach": 1.08, "power": 1.08, "hurtW": 55, "hurtH": 166, "cancelBonus": 0},
+      "specialMove": {"name": "YELLOW SNOWBALL", "total": 51, "cost": 40, "cast": 25, "type": "snow", "reach": 900},
+      "signature": {"name": "AVALANCHE COMBO", "moves": ["mp", "hp", "hk"]},
+      "finisher": {"name": "FROSTFALL", "caption": "WINTER CLAIMS THE ARENA", "color": "#d6eaf1", "type": "snow"}
+    },
+    {
+      "id": "skinwalker",
+      "name": "SKINWALKER",
+      "epithet": "The Unmasked",
+      "color": "#c47a78",
+      "stats": {"height": 272, "weight": 0.89, "speed": 5.7, "power": 0.98},
+      "sheets": {
+        "motion": "assets/asset_07_v40.webp",
+        "cols": 4,
+        "rows": 4,
+        "portrait": "assets/asset_08.webp",
+        "attack": "assets/asset_28_v40.webp",
+        "special": "assets/asset_34.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7],
+        "run": [5,6,7,8],
+        "jump": [9,10,11],
+        "light": [8,9,10,11],
+        "heavy": [9,10,11,12],
+        "special": [9,10,11,12],
+        "hurt": [13,14],
+        "ko": [15]
+      },
+      "jump": {"crouch": 13, "rise": 9, "apex": 10, "fall": 8, "land": 13},
+      "style": {"tempo": 0.9, "reach": 1.1, "power": 0.94, "hurtW": 44, "hurtH": 150, "cancelBonus": 2},
+      "specialMove": {"name": "SPIRIT ATTACK", "total": 50, "cost": 40, "cast": 23, "type": "spirit", "reach": 940},
+      "signature": {"name": "PHANTOM DANCE", "moves": ["lk", "mp", "mk", "hk"]},
+      "finisher": {"name": "VEIL BREAKER", "caption": "THE SPIRITS ANSWER", "color": "#c7a4c9", "type": "spirit"}
+    },
+    {
+      "id": "chupacabra",
+      "name": "CHUPACABRA",
+      "epithet": "The Feral",
+      "color": "#da6d66",
+      "stats": {"height": 236, "weight": 0.78, "speed": 6.15, "power": 0.9},
+      "sheets": {
+        "motion": "assets/asset_03_v40.webp",
+        "cols": 4,
+        "rows": 4,
+        "portrait": "assets/asset_04.webp",
+        "attack": "assets/asset_29.webp",
+        "special": "assets/asset_33.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7],
+        "run": [6,7,8,9],
+        "jump": [8,9,10],
+        "light": [9,10,11],
+        "heavy": [10,11,12],
+        "special": [9,10,11,12],
+        "hurt": [13,14],
+        "ko": [15]
+      },
+      "jump": {"crouch": 13, "rise": 10, "apex": 9, "fall": 12, "land": 13},
+      "style": {"tempo": 0.84, "reach": 0.95, "power": 0.91, "hurtW": 41, "hurtH": 107, "cancelBonus": 2},
+      "specialMove": {"name": "BLOOD SPRAY", "total": 41, "cost": 40, "cast": 16, "type": "spray", "reach": 620},
+      "signature": {"name": "FERAL RUSH", "moves": ["lp", "lk", "mp", "hk"]},
+      "finisher": {"name": "CRIMSON ECLIPSE", "caption": "THE NIGHT STRIKES BACK", "color": "#ce526a", "type": "spray"}
+    },
+    {
+      "id": "llorona",
+      "name": "LA LLORONA",
+      "epithet": "The Weeping Mother",
+      "color": "#8ad2e9",
+      "stats": {"height": 264, "weight": 0.84, "speed": 5.2, "power": 0.95},
+      "sheets": {
+        "motion": "characters/la-llorona/llorona_motion_v31.webp",
+        "cols": 8,
+        "rows": 12,
+        "portrait": "characters/la-llorona/llorona_portrait_v31.webp",
+        "attack": "characters/la-llorona/llorona_attack_v31.webp",
+        "special": "characters/la-llorona/llorona_special_v31.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23],
+        "jump": [24,25,26,27,28,29,30,31],
+        "light": [48,49,50,51],
+        "heavy": [64,65,66,67],
+        "special": [48,49,50,51],
+        "hurt": [32,33,34,35],
+        "ko": [40,41,42,43]
+      },
+      "jump": {"crouch": 24, "rise": 26, "apex": 27, "fall": 29, "land": 24},
+      "style": {"tempo": 0.92, "reach": 1.08, "power": 0.94, "hurtW": 43, "hurtH": 150, "cancelBonus": 2},
+      "specialMove": {"name": "WAILING FLOOD", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 650},
+      "signature": {"name": "WEEPING CHAIN", "moves": ["lp", "mp", "hk"]},
+      "finisher": {"name": "LOST SOULS", "caption": "THE WATER REMEMBERS", "color": "#86cfe7", "type": "spray"}
+    },
+    {
+      "id": "mothman",
+      "name": "MOTHMAN",
+      "epithet": "The Omen",
+      "color": "#d36a61",
+      "stats": {"height": 280, "weight": 0.93, "speed": 5.85, "power": 1},
+      "sheets": {
+        "motion": "characters/mothman/mothman_motion_approved.webp",
+        "cols": 8,
+        "rows": 12,
+        "attack": "characters/mothman/mothman_motion_approved.webp",
+        "special": "characters/mothman/mothman_special.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23],
+        "jump": [24,25,26,27,28,29,30,31],
+        "light": [48,49,50,51],
+        "heavy": [64,65,66,67],
+        "special": [48,49,50,51],
+        "hurt": [32,33,34,35],
+        "ko": [40,41,42,43]
+      },
+      "jump": {"crouch": 24, "rise": 25, "apex": 26, "fall": 27, "land": 30, "art": true},
+      "style": {"tempo": 0.85, "reach": 1.12, "power": 1, "hurtW": 48, "hurtH": 165, "cancelBonus": 2},
+      "specialMove": {"name": "OMEN DIVE", "total": 42, "cost": 40, "cast": 13, "type": "maul", "reach": 225},
+      "signature": {"name": "OMEN RUSH", "moves": ["lk", "mp", "hp"]},
+      "finisher": {"name": "NIGHT TERROR", "caption": "THE OMEN DESCENDS", "color": "#db6768", "type": "maul"}
+    },
+    {
+      "id": "slender",
+      "name": "SLENDER MAN",
+      "epithet": "The Faceless",
+      "color": "#ac76c8",
+      "stats": {"height": 292, "weight": 0.83, "speed": 5.65, "power": 0.98},
+      "sheets": {
+        "motion": "characters/slender-man/slender_motion.webp",
+        "cols": 8,
+        "rows": 12,
+        "portrait": "characters/slender-man/slender_portrait.webp",
+        "attack": "characters/slender-man/slender_motion.webp",
+        "special": "characters/slender-man/slender_special.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23],
+        "jump": [24,25,26,27,28,29,30,31],
+        "light": [48,49,50,51],
+        "heavy": [64,65,66,67],
+        "special": [80,81,82,83],
+        "hurt": [88,89,90,91],
+        "ko": [92,93,94,95]
+      },
+      "jump": {"crouch": 28, "rise": 27, "apex": 26, "fall": 29, "land": 28},
+      "style": {"tempo": 0.89, "reach": 1.2, "power": 0.95, "hurtW": 43, "hurtH": 164, "cancelBonus": 2},
+      "specialMove": {"name": "NIGHTMARE REACH", "total": 52, "cost": 40, "cast": 19, "type": "shadow", "reach": 730},
+      "signature": {"name": "FACELESS GRASP", "moves": ["lp", "mk", "hp"]},
+      "finisher": {"name": "THE EMPTY", "caption": "THE VOID ANSWERS", "color": "#b985e4", "type": "shadow"}
+    },
+    {
+      "id": "occultist",
+      "name": "OCCULTIST",
+      "epithet": "The Profane Scholar",
+      "color": "#ab63d5",
+      "stats": {"height": 283, "weight": 0.91, "speed": 5, "power": 1.04},
+      "sheets": {
+        "motion": "characters/occultist/occultist_motion_v31.webp",
+        "cols": 8,
+        "rows": 12,
+        "portrait": "characters/occultist/occultist_portrait_v31.webp",
+        "attack": "characters/occultist/occultist_attack_v31.webp",
+        "special": "characters/occultist/occultist_special_v31.webp"
+      },
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23],
+        "jump": [24,25,26,27,28,29,30,31],
+        "light": [48,49,50,51],
+        "heavy": [64,65,66,67],
+        "special": [64,65,66,67],
+        "hurt": [32,33,34,35],
+        "ko": [32,33,34,35]
+      },
+      "jump": {"crouch": 25, "rise": 27, "apex": 29, "fall": 30, "land": 25},
+      "style": {"tempo": 1.05, "reach": 1.12, "power": 1.04, "hurtW": 45, "hurtH": 158, "cancelBonus": 1},
+      "specialMove": {"name": "OCCULT SIGIL", "total": 49, "cost": 40, "cast": 21, "type": "shadow", "reach": 720},
+      "signature": {"name": "PROFANE RITUAL", "moves": ["lp", "mp", "hp"]},
+      "finisher": {"name": "ABYSSAL RITUAL", "caption": "THE SIGIL OPENS", "color": "#b37bdf", "type": "shadow"}
+    },
+    {
+      "id": "hunter",
+      "name": "BLACKWOOD HUNTER",
+      "epithet": "The Pursuer",
+      "hidden": true,
+      "color": "#dec5a4",
+      "stats": {"height": 252, "weight": 1, "speed": 4.95, "power": 0.92},
+      "sheets": {"motion": "assets/asset_05.webp", "cols": 6, "rows": 4, "portrait": "assets/asset_06.webp"},
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7,8,9],
+        "run": [10,11,12,13,14,15],
+        "jump": [14,15,16],
+        "light": [18,19,20,21],
+        "heavy": [19,20,21,22],
+        "special": [19,20,21,22],
+        "hurt": [21,22],
+        "ko": [23]
+      },
+      "jump": {"crouch": 16, "rise": 12, "apex": 13, "fall": 14, "land": 16},
+      "style": {"tempo": 1, "reach": 1, "power": 0.97, "hurtW": 45, "hurtH": 143, "cancelBonus": 0},
+      "specialMove": {"name": "SILVER CHARGE", "total": 41, "cost": 40, "cast": 16, "type": "maul", "reach": 205}
+    },
+    {
+      "id": "captain",
+      "name": "HUNTER CAPTAIN",
+      "epithet": "The Executioner",
+      "hidden": true,
+      "color": "#e4bd88",
+      "stats": {"height": 281, "weight": 1.16, "speed": 4.45, "power": 1.12},
+      "sheets": {"motion": "assets/asset_01.webp", "cols": 6, "rows": 4, "portrait": "assets/asset_02.webp"},
+      "frames": {
+        "idle": [0,1,2,3],
+        "walk": [4,5,6,7,8,9],
+        "run": [10,11,12,13,14,15],
+        "jump": [14,15,16],
+        "light": [18,19,20,21],
+        "heavy": [19,20,21,22],
+        "special": [19,20,21,22],
+        "hurt": [21,22],
+        "ko": [23]
+      },
+      "jump": {"crouch": 13, "rise": 17, "apex": 18, "fall": 19, "land": 13},
+      "style": {"tempo": 1.12, "reach": 1.07, "power": 1.09, "hurtW": 51, "hurtH": 161, "cancelBonus": 0},
+      "specialMove": {"name": "EXECUTIONER STRIKE", "total": 45, "cost": 40, "cast": 20, "type": "maul", "reach": 210}
+    }
+  ]
+}
