@@ -278,10 +278,10 @@
         "cols": 8,
         "rows": 12,
         "portrait": "characters/la-llorona/llorona_portrait_v31.webp",
-        "attack": "characters/la-llorona/llorona_motion_v31.webp",
+        "attack": "characters/la-llorona/llorona_attack_v46.webp",
         "special": "characters/la-llorona/llorona_special_v31.webp",
-        "attackGridRows": 12,
-        "attackRows": {"lp": 6, "mp": 7, "hp": 8, "lk": 9, "mk": 10, "hk": 8}
+        "attackGridRows": 6,
+        "attackRows": {"lp": 0, "mp": 1, "hp": 2, "lk": 3, "mk": 4, "hk": 5}
       },
       "frames": {
         "idle": [0,1,2,3,4,5,6,7],
