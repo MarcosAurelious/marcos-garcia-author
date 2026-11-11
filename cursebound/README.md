@@ -18,6 +18,7 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 - **New jump art:** set `jump.sheet`, `jump.cols`, `jump.rows`, the five frame numbers and `"art": true`.
 - **Move timing or damage:** `moves.lp` … `moves.hk`.
 - **Knockdown art:** `ko.sheet` (its own strip) or `ko.frames` from the motion sheet; `"topple": true` tips the hurt pose over when there is no knockdown art.
+- **Cutscenes:** `cutscene.sheet` is a 2×3 comic sheet in `cutscenes/` (panels numbered 0–5, left to right, top to bottom). `intro` panels play before round 1 for both fighters, then a VS card; `win` panels play for the match winner (the last one holds with “NAME WINS”). Any button skips. Fighters without a `cutscene` are skipped. Sheets load only when a match with that fighter starts.
 - **Which sprite row each button uses:** `sheets.attackRows` (lp, mp, hp, lk, mk, hk).
 - **Jump height and distance:** the top-level `jump` block.
 

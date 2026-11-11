@@ -1,5 +1,5 @@
 {
-  "version": "4.4",
+  "version": "4.5",
   "title": "assets/asset_15.webp",
   "selectScreen": {
     "art": "assets/character_select_gothic_v43.webp",
@@ -99,7 +99,8 @@
       "specialMove": {"name": "MAUL ATTACK", "total": 39, "cost": 40, "cast": 14, "type": "maul", "reach": 204},
       "signature": {"name": "RAVAGER CHAIN", "moves": ["lp", "mp", "hp"]},
       "finisher": {"name": "LAST HUNT", "caption": "THE CURSE UNLEASHED", "color": "#cb746b", "type": "maul"},
-      "ko": {"sheet": "characters/ko/wolf_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]}
+      "ko": {"sheet": "characters/ko/wolf_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]},
+      "cutscene": {"sheet": "cutscenes/wolf.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "wendigo",
@@ -131,7 +132,8 @@
       "specialMove": {"name": "SOUL STEALER", "total": 56, "cost": 40, "cast": 20, "type": "drain", "reach": 330},
       "signature": {"name": "HUNGER SPIRAL", "moves": ["lk", "mp", "hk"]},
       "finisher": {"name": "HUNGER’S END", "caption": "THE LOST SOULS CALL", "color": "#b9d5db", "type": "drain"},
-      "ko": {"sheet": "characters/ko/wendigo_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]}
+      "ko": {"sheet": "characters/ko/wendigo_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]},
+      "cutscene": {"sheet": "cutscenes/wendigo.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "yucca",
@@ -163,7 +165,8 @@
       "specialMove": {"name": "VINE ATTACK", "total": 53, "cost": 40, "cast": 23, "type": "vine", "reach": 635},
       "signature": {"name": "ROOTBREAKER", "moves": ["lp", "mk", "hp"]},
       "finisher": {"name": "ROOT OF REDEMPTION", "caption": "THE EARTH REMEMBERS", "color": "#aac17c", "type": "vine"},
-      "ko": {"frames": [13, 14, 15]}
+      "ko": {"frames": [13, 14, 15]},
+      "cutscene": {"sheet": "cutscenes/yucca.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "yeti",
@@ -195,7 +198,8 @@
       "specialMove": {"name": "YELLOW SNOWBALL", "total": 51, "cost": 40, "cast": 25, "type": "snow", "reach": 900},
       "signature": {"name": "AVALANCHE COMBO", "moves": ["mp", "hp", "hk"]},
       "finisher": {"name": "FROSTFALL", "caption": "WINTER CLAIMS THE ARENA", "color": "#d6eaf1", "type": "snow"},
-      "ko": {"frames": [13, 14, 15]}
+      "ko": {"frames": [13, 14, 15]},
+      "cutscene": {"sheet": "cutscenes/yeti.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "skinwalker",
@@ -227,7 +231,8 @@
       "specialMove": {"name": "SPIRIT ATTACK", "total": 50, "cost": 40, "cast": 23, "type": "spirit", "reach": 940},
       "signature": {"name": "PHANTOM DANCE", "moves": ["lk", "mp", "mk", "hk"]},
       "finisher": {"name": "VEIL BREAKER", "caption": "THE SPIRITS ANSWER", "color": "#c7a4c9", "type": "spirit"},
-      "ko": {"frames": [13, 14, 15]}
+      "ko": {"frames": [13, 14, 15]},
+      "cutscene": {"sheet": "cutscenes/skinwalker.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "chupacabra",
@@ -259,7 +264,8 @@
       "specialMove": {"name": "BLOOD SPRAY", "total": 41, "cost": 40, "cast": 16, "type": "spray", "reach": 620},
       "signature": {"name": "FERAL RUSH", "moves": ["lp", "lk", "mp", "hk"]},
       "finisher": {"name": "CRIMSON ECLIPSE", "caption": "THE NIGHT STRIKES BACK", "color": "#ce526a", "type": "spray"},
-      "ko": {"frames": [13, 14, 15]}
+      "ko": {"frames": [13, 14, 15]},
+      "cutscene": {"sheet": "cutscenes/chupacabra.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "llorona",
@@ -293,7 +299,8 @@
       "specialMove": {"name": "WAILING FLOOD", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 650},
       "signature": {"name": "WEEPING CHAIN", "moves": ["lp", "mp", "hk"]},
       "finisher": {"name": "LOST SOULS", "caption": "THE WATER REMEMBERS", "color": "#86cfe7", "type": "spray"},
-      "ko": {"frames": [88, 89, 90, 91]}
+      "ko": {"frames": [88, 89, 90, 91]},
+      "cutscene": {"sheet": "cutscenes/llorona.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "mothman",
@@ -326,7 +333,8 @@
       "specialMove": {"name": "OMEN DIVE", "total": 42, "cost": 40, "cast": 13, "type": "maul", "reach": 225},
       "signature": {"name": "OMEN RUSH", "moves": ["lk", "mp", "hp"]},
       "finisher": {"name": "NIGHT TERROR", "caption": "THE OMEN DESCENDS", "color": "#db6768", "type": "maul"},
-      "ko": {"frames": [32, 33, 34, 35], "topple": true}
+      "ko": {"frames": [32, 33, 34, 35], "topple": true},
+      "cutscene": {"sheet": "cutscenes/mothman.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "slender",
@@ -360,7 +368,8 @@
       "specialMove": {"name": "NIGHTMARE REACH", "total": 52, "cost": 40, "cast": 19, "type": "shadow", "reach": 730},
       "signature": {"name": "FACELESS GRASP", "moves": ["lp", "mk", "hp"]},
       "finisher": {"name": "THE EMPTY", "caption": "THE VOID ANSWERS", "color": "#b985e4", "type": "shadow"},
-      "ko": {"sheet": "characters/ko/slender_ko.webp", "cols": 6, "rows": 1, "frames": [0, 1, 2, 3, 4, 5]}
+      "ko": {"sheet": "characters/ko/slender_ko.webp", "cols": 6, "rows": 1, "frames": [0, 1, 2, 3, 4, 5]},
+      "cutscene": {"sheet": "cutscenes/slender.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "occultist",
@@ -394,7 +403,8 @@
       "specialMove": {"name": "OCCULT SIGIL", "total": 49, "cost": 40, "cast": 21, "type": "shadow", "reach": 720},
       "signature": {"name": "PROFANE RITUAL", "moves": ["lp", "mp", "hp"]},
       "finisher": {"name": "ABYSSAL RITUAL", "caption": "THE SIGIL OPENS", "color": "#b37bdf", "type": "shadow"},
-      "ko": {"frames": [88, 89, 90, 91]}
+      "ko": {"frames": [88, 89, 90, 91]},
+      "cutscene": {"sheet": "cutscenes/occultist.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
       "id": "hunter",

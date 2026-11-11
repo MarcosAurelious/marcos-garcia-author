@@ -48,6 +48,8 @@ def referenced(data):
             refs.add(f['jump']['sheet'])
         if (f.get('ko') or {}).get('sheet'):
             refs.add(f['ko']['sheet'])
+        if (f.get('cutscene') or {}).get('sheet'):
+            refs.add(f['cutscene']['sheet'])
     # images named directly in the HTML/CSS/JS
     for p in ['index.html', 'css/cursebound.css', 'js/game.js']:
         text = (ROOT / p).read_text(encoding='utf-8')
@@ -96,6 +98,16 @@ def check():
         if ko and ko.get('sheet') and not (ROOT / ko['sheet']).exists():
             errors.append(f'{fid}: knockdown sheet missing: {ko["sheet"]}')
         if not ko: warnings.append(f'{fid}: no knockdown frames')
+        cs = f.get('cutscene')
+        if cs:
+            if not (ROOT / cs['sheet']).exists():
+                errors.append(f'{fid}: cutscene sheet missing: {cs["sheet"]}')
+            cells = cs.get('cols', 2) * cs.get('rows', 3)
+            for key in ('intro', 'win'):
+                bad = [p for p in cs.get(key, []) if not 0 <= p < cells]
+                if bad: errors.append(f'{fid}: cutscene {key} panels out of range: {bad}')
+        elif not f.get('hidden'):
+            warnings.append(f'{fid}: no cutscene')
         if 'specialMove' not in f: warnings.append(f'{fid}: no special move')
     sel = data.get('selectScreen')
     if sel:
