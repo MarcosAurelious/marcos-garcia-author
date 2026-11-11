@@ -294,7 +294,7 @@
         "hurt": [32,33,34,35],
         "ko": [88,89,90,91]
       },
-      "jump": {"crouch": 24, "rise": 26, "apex": 27, "fall": 29, "land": 24},
+      "jump": {"sheet": "characters/la-llorona/llorona_jump.webp", "cols": 7, "rows": 1, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 3, "apexFwd": 4, "fall": 5, "land": 6, "art": true},
       "style": {"tempo": 0.92, "reach": 1.08, "power": 0.94, "hurtW": 43, "hurtH": 150, "cancelBonus": 2},
       "specialMove": {"name": "WAILING FLOOD", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 650},
       "signature": {"name": "WEEPING CHAIN", "moves": ["lp", "mp", "hk"]},
