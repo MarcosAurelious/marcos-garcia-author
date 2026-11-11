@@ -160,7 +160,7 @@
         "hurt": [13,14],
         "ko": [13,14,15]
       },
-      "jump": {"crouch": 13, "rise": 10, "apex": 11, "fall": 9, "land": 13},
+      "jump": {"sheet": "characters/yucca/yucca_jump.webp", "cols": 8, "rows": 1, "padTop": 70, "crouch": 2, "rise": 3, "apex": 4, "fall": 5, "land": 7, "art": true},
       "style": {"tempo": 1.11, "reach": 1.13, "power": 1.01, "hurtW": 49, "hurtH": 158, "cancelBonus": 0},
       "specialMove": {"name": "VINE ATTACK", "total": 53, "cost": 40, "cast": 23, "type": "vine", "reach": 635},
       "signature": {"name": "ROOTBREAKER", "moves": ["lp", "mk", "hp"]},
