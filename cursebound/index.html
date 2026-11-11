@@ -14,47 +14,50 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 @media(max-width:950px){.roster{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:720px) and (orientation:portrait){.roster{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
-/* Approved gothic artwork is displayed only after the real repo asset loads.
-   Existing roster remains usable while artwork upload is pending. */
-#gothicSelectArt{display:block;width:100%;height:auto;aspect-ratio:1672/941;max-height:47vh;object-fit:contain;object-position:center;margin:2px auto 5px;filter:drop-shadow(0 3px 18px #250c31)}
+/* Gothic selection artwork IS the character selection screen, not a banner. */
+#menu.gothic-ready{background:#07040d;overflow-y:auto}
+#menu.gothic-ready .menu-inner{width:100%;max-width:1480px;padding:0 0 max(12px,env(safe-area-inset-bottom));margin:auto;display:flex;align-items:stretch}
+#menu.gothic-ready .eyebrow,#menu.gothic-ready h1,#menu.gothic-ready .subtitle,#menu.gothic-ready .menu-intro,#menu.gothic-ready .select-heading{display:none}
+#selectStage{position:relative;width:100%;margin:0 auto}
+#gothicSelectArt{display:block;width:100%;height:auto;aspect-ratio:1672/941;object-fit:contain}
 #gothicSelectArt[hidden]{display:none!important}
-#menu.gothic-ready{background:radial-gradient(ellipse at 45% 15%,#2b102ed9,#08070df2 77%),url("assets/asset_00.webp") center/cover no-repeat}
-#menu.gothic-ready .menu-inner{max-width:1600px;padding:6px 16px 16px}
-#menu.gothic-ready .eyebrow,#menu.gothic-ready h1,#menu.gothic-ready .subtitle,#menu.gothic-ready .menu-intro{display:none}
-#menu.gothic-ready .select-heading{font:700 12px Georgia;letter-spacing:.22em;color:#efcbb4;margin:0 0 5px}
-#menu.gothic-ready .roster{grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
-#menu.gothic-ready .fighter-card{min-height:115px;padding:3px 2px 5px;border:1px solid #785566;background:linear-gradient(165deg,#302032cb,#0a0712e9)}
-#menu.gothic-ready .fighter-card img{height:76px}
-#menu.gothic-ready .fighter-card span{font-size:clamp(8px,.75vw,11px);letter-spacing:0}
-#menu.gothic-ready .fighter-card em{display:none}
-#menu.gothic-ready .fighter-card.selected{border:2px solid #db75ff;box-shadow:0 0 15px #ac43e4, inset 0 0 18px #481e66;background:linear-gradient(135deg,#4f2159e0,#0e0814e9)}
-#menu.gothic-ready .fighter-card.selected::after{background:#8c35aa}
-#menu.gothic-ready .menu-bottom{margin-top:8px}
-@media (max-height:520px) and (orientation:landscape){
-#gothicSelectArt{max-height:42dvh}
-#menu.gothic-ready .select-heading{font-size:10px;margin-bottom:2px}
-#menu.gothic-ready .fighter-card{min-height:76px;padding:1px}
-#menu.gothic-ready .fighter-card img{height:53px}
-#menu.gothic-ready .fighter-card span{font-size:8px}
-#menu.gothic-ready .menu-bottom{margin-top:4px}
-}
+#menu.gothic-ready #roster{position:absolute;left:2.8%;right:2.8%;top:75.5%;height:15.5%;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:.5%;z-index:2}
+#menu.gothic-ready .fighter-card{height:100%;min-height:0;padding:0;background:transparent;border:1px solid transparent;border-radius:3px;box-shadow:none;overflow:visible;transform:none;touch-action:manipulation}
+#menu.gothic-ready .fighter-card img,#menu.gothic-ready .fighter-card span,#menu.gothic-ready .fighter-card em{display:none}
+#menu.gothic-ready .fighter-card.selected{background:rgba(141,43,189,.12);border:2px solid #d779ff;box-shadow:0 0 15px #a626d8,inset 0 0 12px #862ab8}
+#menu.gothic-ready .fighter-card.selected::after{display:none}
+#menu.gothic-ready .fighter-card:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#menu.gothic-ready .fighter-card:hover{border-color:#c78ad6}
+#menu.gothic-ready .menu-bottom{width:min(100%,1020px);margin:0 auto;padding:10px 14px;align-items:center;gap:10px}
+#menu.gothic-ready .menu-buttons .primary{border-color:#d77af1;background:linear-gradient(125deg,#642474,#2b102e)}
+#menu.gothic-ready .hint{margin:0 12px 8px}
+#selectedFighterName{display:none}
+#menu.gothic-ready #selectedFighterName{display:block;position:absolute;top:60%;left:34%;width:32%;z-index:3;pointer-events:none;text-align:center;color:#f4d6fc;text-shadow:0 2px 5px #000,0 0 9px #7d1fb5;font:bold clamp(8px,1.15vw,15px) Georgia;letter-spacing:.12em}
 @media(max-width:750px) and (orientation:portrait){
-#gothicSelectArt{max-height:32dvh}
-#menu.gothic-ready .roster{grid-template-columns:repeat(3,minmax(0,1fr))}
-#menu.gothic-ready .fighter-card img{height:94px}
-#menu.gothic-ready .fighter-card span{font-size:10px}
+#menu.gothic-ready .menu-inner{padding-top:8px}
+#menu.gothic-ready .menu-bottom{flex-direction:column;gap:9px;padding:14px 10px}
+#menu.gothic-ready .menu-controls{flex-wrap:wrap}
+#menu.gothic-ready .menu-buttons{width:100%;justify-content:center}
+#menu.gothic-ready .menu-buttons button{flex:1;max-width:175px}
+#menu.gothic-ready #roster{top:74%;height:18%}
+}
+@media(max-height:520px) and (orientation:landscape){
+#menu.gothic-ready .menu-inner{max-width:min(100vw,calc(100dvh * 1.95))}
+#menu.gothic-ready .menu-bottom{padding:4px 8px;margin:0 auto}
+#menu.gothic-ready .hint{display:none}
+#menu.gothic-ready .menu-controls select{padding:4px}
+#menu.gothic-ready .menu-buttons button{min-height:30px}
 }
 </style></head>
 <body>
 <canvas id="game" width="1280" height="720" aria-label="Cursebound side-view versus fighting game"></canvas>
 <section id="menu" aria-label="Fighter select">
   <div class="menu-inner">
-    <img id="gothicSelectArt" src="assets/character_select_gothic.webp" alt="Approved Cursebound gothic cathedral character-select artwork" hidden decoding="async">
+    <div id="selectStage"><img id="gothicSelectArt" src="assets/character_select_gothic.webp" alt="Approved Cursebound gothic cathedral character-select artwork" hidden decoding="async"><div id="selectedFighterName" aria-live="polite">WEREWOLF</div><div id="roster" class="roster"></div></div>
     <div class="eyebrow">THE CURSE IS YOUR WEAPON</div>
     <h1>CURSEBOUND</h1><div class="subtitle">DUEL OF REDEMPTION <span>•</span> ARCADE FIGHTER</div>
     <p class="menu-intro">Ten cursed fighters. Ten paths to redemption.</p>
     <div class="select-heading">CHOOSE YOUR FIGHTER <small>TEN PLAYABLE CREATURES</small></div>
-    <div id="roster" class="roster"></div>
     <div class="menu-bottom">
       <div class="menu-controls"><label for="enemySelect">OPPONENT</label><select id="enemySelect"></select><label for="stageSelect">ARENA</label><select id="stageSelect"></select></div>
       <div class="menu-buttons"><button class="primary" id="fightCpu">FIGHT CPU <span>▶</span></button><button id="fightLocal">2 PLAYERS</button></div>
@@ -113,8 +116,9 @@ if(gothicSelectArt){
  if(gothicSelectArt.complete&&gothicSelectArt.naturalWidth){gothicSelectArt.hidden=false;menu.classList.add('gothic-ready');}
 }
 const grid=$('roster');
+const selectedFighterName=$('selectedFighterName');
 for(const r of roster.slice(0,10)){
- const btn=document.createElement('button');btn.className='fighter-card'+(r.id===selected?' selected':'');btn.dataset.id=r.id;
+ const btn=document.createElement('button');btn.className='fighter-card'+(r.id===selected?' selected':'');btn.dataset.id=r.id;btn.setAttribute('aria-label','Select '+r.name);btn.setAttribute('aria-pressed',String(r.id===selected));
  btn.innerHTML=`<img src="${ASSET_URLS[r.id+'_portrait']||ASSET_URLS[r.id]}" alt="${r.name} original character sprite"><span>${r.name}</span><em>${r.epithet}</em>`;
  if(r.id==='mothman'){
    const thumb=btn.querySelector('img'),source=new Image();
@@ -124,7 +128,7 @@ for(const r of roster.slice(0,10)){
      g.drawImage(source,0,0,cw,ch,20,5,180,158);thumb.src=c.toDataURL('image/png');
    };source.src=ASSET_URLS[r.id];
  }
- btn.addEventListener('click',()=>{selected=r.id;grid.querySelectorAll('.fighter-card').forEach(x=>x.classList.toggle('selected',x.dataset.id===selected));if(opponent===selected){opponent=roster.slice(0,10).find(x=>x.id!==selected).id;$('enemySelect').value=opponent;} stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
+ btn.addEventListener('click',()=>{selected=r.id;grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});selectedFighterName.textContent=r.name;if(opponent===selected){opponent=roster.slice(0,10).find(x=>x.id!==selected).id;$('enemySelect').value=opponent;} stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
 }
 for(const r of roster){let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
 $('enemySelect').value=opponent;$('enemySelect').addEventListener('change',e=>opponent=e.target.value);
