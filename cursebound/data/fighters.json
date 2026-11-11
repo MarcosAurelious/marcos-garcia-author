@@ -431,7 +431,7 @@
         "mk": [3,7,11],
         "hk": [9,11,10]
       },
-      "jump": {"crouch": 3, "rise": 7, "apex": 9, "fall": 8, "land": 3},
+      "jump": {"sheet": "characters/hunter/hunter_jump.webp", "cols": 8, "rows": 1, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 5, "land": 7, "art": true},
       "style": {"tempo": 1, "reach": 1, "power": 0.97, "hurtW": 45, "hurtH": 143, "cancelBonus": 0},
       "specialMove": {"name": "SILVER CHARGE", "total": 41, "cost": 40, "cast": 16, "type": "maul", "reach": 205},
       "ko": {"frames": [12, 13, 14, 15]}
