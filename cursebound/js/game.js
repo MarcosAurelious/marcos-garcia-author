@@ -2,7 +2,7 @@
 // Game data (fighters, sprites, frames, moves, stages) lives in data/fighters.json.
 let DATA;
 try{const res=await fetch('data/fighters.json',{cache:'no-cache'});if(!res.ok)throw new Error('HTTP '+res.status);DATA=await res.json();}
-catch(err){document.body.insertAdjacentHTML('beforeend','<p style="position:fixed;inset:auto 0 40% 0;text-align:center;font:16px system-ui;color:#f0d9c4">Cursebound could not load its game data ('+err.message+'). Play it from the website, or run a local server.</p>');throw err;}
+catch(err){const msg=document.createElement('p');msg.className='load-error';msg.textContent='Cursebound could not load its game data ('+err.message+'). Play it from the website, or run a local server.';document.body.appendChild(msg);throw err;}
 const FIGHTERS=DATA.fighters;
 const byFighter=(key)=>Object.fromEntries(FIGHTERS.filter(f=>f[key]!=null).map(f=>[f.id,f[key]]));
 
