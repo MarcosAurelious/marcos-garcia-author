@@ -14,17 +14,18 @@
     <div id="selectStage"><img id="gothicSelectArt" src="assets/character_select_gothic_v43.webp" alt="Approved Cursebound gothic cathedral character-select artwork" hidden decoding="async"><div id="selectedFighterName" aria-live="polite">WEREWOLF</div><div id="roster" class="roster"></div></div>
     <div class="eyebrow">THE CURSE IS YOUR WEAPON</div>
     <h1>CURSEBOUND</h1><div class="subtitle">DUEL OF REDEMPTION <span>•</span> ARCADE FIGHTER</div>
-    <p class="menu-intro">Ten cursed fighters. Ten paths to redemption.</p>
+    <p class="menu-intro">Ten cursed fighters. Ten paths to redemption. Two hunters waiting at the end.</p>
     <div class="select-heading">CHOOSE YOUR FIGHTER <small>TEN PLAYABLE CREATURES</small></div>
     <div class="menu-bottom">
       <div class="menu-controls"><label for="enemySelect">OPPONENT</label><select id="enemySelect"></select><label for="stageSelect">ARENA</label><select id="stageSelect"></select></div>
-      <div class="menu-buttons"><button class="primary" id="fightCpu">FIGHT CPU <span>▶</span></button><button id="fightLocal">2 PLAYERS</button></div>
+      <div class="menu-buttons"><button class="primary" id="arcadeBtn">ARCADE <span>▶</span></button><button id="fightCpu">VS CPU</button><button id="fightLocal">2 PLAYERS</button><button id="practiceBtn">PRACTICE</button></div>
     </div>
     <div class="hint">ARCADE: A/D move · W jump · hold back to block · J/K/L punch · U/I/O kick · ↓↘→ + HP special · ↓↘→ + HK finisher</div>
   </div>
 </section>
 <div id="battleUi" hidden>
   <div id="specialGuide" aria-live="polite"></div>
+  <div id="practiceBar" hidden><button id="dummyBtn">DUMMY: BLACKWOOD HUNTER</button><button id="stanceBtn">STANCE: STAND</button><button id="resetBtn">↺ RESET</button></div>
   <div id="pauseBar"><button id="pauseBtn">Ⅱ PAUSE</button><button id="soundBtn">♪ SOUND ON</button><button id="rosterBtn">✕ EXIT</button></div>
   <div id="mobileControls" aria-label="Arcade touch controls">
     <div class="left-controls"><div id="joystick" aria-label="Directional arcade stick"><div class="joy-ring"><div class="joy-inner" id="joyKnob"></div></div></div><span>↑ JUMP · BACK BLOCK · →→ DASH</span></div>
