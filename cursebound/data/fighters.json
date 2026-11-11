@@ -259,7 +259,7 @@
         "hurt": [13,14],
         "ko": [13,14,15]
       },
-      "jump": {"crouch": 13, "rise": 10, "apex": 9, "fall": 12, "land": 13},
+      "jump": {"sheet": "characters/chupacabra/chupacabra_jump.webp", "cols": 8, "rows": 1, "padTop": 40, "crouch": 1, "rise": 2, "apex": 3, "fall": 4, "land": 7, "art": true},
       "style": {"tempo": 0.84, "reach": 0.95, "power": 0.91, "hurtW": 41, "hurtH": 107, "cancelBonus": 2},
       "specialMove": {"name": "BLOOD SPRAY", "total": 41, "cost": 40, "cast": 16, "type": "spray", "reach": 620},
       "signature": {"name": "FERAL RUSH", "moves": ["lp", "lk", "mp", "hk"]},
