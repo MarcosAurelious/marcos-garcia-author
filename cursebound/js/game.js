@@ -72,7 +72,20 @@ if(SEL){const stageEl=$('selectStage');
   btn.addEventListener('pointerenter',()=>glow.classList.add('hover'));btn.addEventListener('pointerleave',()=>glow.classList.remove('hover'));
   btn.addEventListener('focus',()=>glow.classList.add('hover'));btn.addEventListener('blur',()=>glow.classList.remove('hover'));}
 }
-function markSelected(){grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
+// v4.3 center portrait + name banner follow the selected fighter
+const centerPanels={};let centerName=null;
+if(SEL&&SEL.centerPanel){const stageEl=$('selectStage'),cp=SEL.centerPanel,nb=SEL.nameBanner;
+ for(const [id,src] of Object.entries(SEL.panels||{})){const im=document.createElement('img');im.src=src;im.alt='';im.className='center-panel';im.decoding='async';
+  Object.assign(im.style,{left:cp.x+'%',top:cp.y+'%',width:cp.w+'%',height:cp.h+'%'});stageEl.insertBefore(im,grid);centerPanels[id]=im;}
+ centerName=document.createElement('div');centerName.id='centerName';centerName.setAttribute('aria-live','polite');
+ Object.assign(centerName.style,{left:nb.x+'%',top:nb.y+'%',width:nb.w+'%',height:nb.h+'%'});
+ centerName.innerHTML='<span></span>';stageEl.insertBefore(centerName,grid);
+ addEventListener('resize',()=>fitCenterName());
+}
+function fitCenterName(){if(!centerName)return;const sp=centerName.firstChild;sp.style.transform='';const room=centerName.clientWidth*.94,need=sp.scrollWidth;sp.style.transform=need>room?`scaleX(${(room/need).toFixed(3)})`:'';}
+function showCenter(id){if(!centerName)return;for(const [pid,im] of Object.entries(centerPanels))im.classList.toggle('on',pid===id);
+ const r=rosterById[id];centerName.firstChild.textContent=r?r.name.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):'';requestAnimationFrame(fitCenterName);if(document.fonts)document.fonts.ready.then(fitCenterName);}
+function markSelected(){showCenter(selected);grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
 markSelected();
 for(const r of roster){let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
 $('enemySelect').value=opponent;$('enemySelect').addEventListener('change',e=>opponent=e.target.value);

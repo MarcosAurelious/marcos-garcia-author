@@ -1,10 +1,23 @@
 {
-  "version": "4.2",
+  "version": "4.3",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v42.webp",
+    "art": "assets/character_select_gothic_v43.webp",
     "glow": "assets/select_glow.webp",
-    "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover).",
+    "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
+    "centerPanel": {"x": 38.278, "y": 18.704, "w": 24.88, "h": 32.094},
+    "nameBanner": {"x": 43.541, "y": 47.396, "w": 13.158, "h": 4.676},
+    "panels": {
+      "wolf": "assets/select_panels/wolf.webp",
+      "wendigo": "assets/select_panels/wendigo.webp",
+      "yeti": "assets/select_panels/yeti.webp",
+      "chupacabra": "assets/select_panels/chupacabra.webp",
+      "skinwalker": "assets/select_panels/skinwalker.webp",
+      "yucca": "assets/select_panels/yucca.webp",
+      "llorona": "assets/select_panels/llorona.webp",
+      "mothman": "assets/select_panels/mothman.webp",
+      "slender": "assets/select_panels/slender.webp"
+    },
     "glowSize": {"w": 12.022, "h": 34.113},
     "cards": [
       {"id": "wolf", "x": 2.811, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 1.316, "glowY": 48.353},

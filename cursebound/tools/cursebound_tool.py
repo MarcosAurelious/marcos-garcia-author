@@ -41,6 +41,7 @@ def referenced(data):
     refs = {data.get('title')} | {s['image'] for s in data['stages']}
     sel = data.get('selectScreen') or {}
     refs |= {sel.get('art'), sel.get('glow')}
+    refs |= set((sel.get('panels') or {}).values())
     for f in data['fighters']:
         refs |= {v for k, v in f['sheets'].items() if isinstance(v, str)}
         if f.get('jump', {}).get('sheet'):
