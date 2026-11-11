@@ -46,6 +46,8 @@ def referenced(data):
         refs |= {v for k, v in f['sheets'].items() if isinstance(v, str)}
         if f.get('jump', {}).get('sheet'):
             refs.add(f['jump']['sheet'])
+        if (f.get('ko') or {}).get('sheet'):
+            refs.add(f['ko']['sheet'])
     # images named directly in the HTML/CSS/JS
     for p in ['index.html', 'css/cursebound.css', 'js/game.js']:
         text = (ROOT / p).read_text(encoding='utf-8')
@@ -90,6 +92,10 @@ def check():
                 size = webp_size(ROOT / sh[key])
                 if size and r and abs((size[0] / c) / (size[1] / r) - 1) > 0.6:
                     warnings.append(f'{fid}: {key} sheet {size} looks unusual for a {c}x{r} grid')
+        ko = f.get('ko')
+        if ko and ko.get('sheet') and not (ROOT / ko['sheet']).exists():
+            errors.append(f'{fid}: knockdown sheet missing: {ko["sheet"]}')
+        if not ko: warnings.append(f'{fid}: no knockdown frames')
         if 'specialMove' not in f: warnings.append(f'{fid}: no special move')
     sel = data.get('selectScreen')
     if sel:
