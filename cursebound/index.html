@@ -48,8 +48,6 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 #menu.gothic-ready .menu-controls select{padding:4px}
 #menu.gothic-ready .menu-buttons button{min-height:30px}
 }
-
-/* Window perspective stays behind fighters; optional tracking controls removed. */
 </style></head>
 <body>
 <canvas id="game" width="1280" height="720" aria-label="Cursebound side-view versus fighting game"></canvas>
@@ -556,32 +554,15 @@ function step(){frameNo++;if(paused||phase==='menu'||phase==='matchover')return;
  if(phase==='roundover'){roundTimer--;if(roundTimer<=0){if(fighters[0].wins>=2||fighters[1].wins>=2)showResult();else startNewRound();}}
  updateEffects();}
 
-function drawGame(){resizeStageForSharpness();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.save();ctx.clearRect(0,0,W,H);drawStage();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.55);
+function drawGame(){ctx.save();ctx.clearRect(0,0,W,H);drawStage();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.55);
  for(const f of fighters){drawShadow(f);}for(const f of fighters){drawFighter(f);}drawSpecialFX();drawFinisherFX();drawEffects();ctx.restore();drawHud();if(phase==='finisher')drawFinisherCinema();
  if(phase==='intro'){overlayWords(introTimer>87?'ROUND '+(fighters[0].wins+fighters[1].wins+1):'FIGHT!',introTimer>87?'PROVE YOUR REDEMPTION':'');}
  if(phase==='roundover'){const word=champion?champion===fighters[0]?'ROUND WON':'ROUND LOST':'DRAW';overlayWords(lastFinisher&&champion&&lastFinisher.owner===champion.r.name?'FINISHER!':word,champion?champion.r.name+' PREVAILS':'NEITHER SOUL YIELDS');}
  if(paused){ctx.fillStyle='#05050ab9';ctx.fillRect(0,0,W,H);overlayWords('PAUSED','PRESS P OR TAP RESUME');}}
-
-// Static original arena paintings. No parallax, layered copies, particles, blur or fog.
-let stageRenderScale=0;
-function resizeStageForSharpness(){
- const r=canvas.getBoundingClientRect();
- const scale=Math.min(2,Math.max(1,Math.min(r.width/W,r.height/H)*(window.devicePixelRatio||1)));
- const pw=Math.round(W*scale),ph=Math.round(H*scale);
- if(canvas.width===pw&&canvas.height===ph)return;
- canvas.width=pw;canvas.height=ph;
- ctx.setTransform(scale,0,0,scale,0,0);
- ctx.imageSmoothingEnabled=true;
- ctx.imageSmoothingQuality='high';
- stageRenderScale=scale;
-}
-window.addEventListener('resize',resizeStageForSharpness,{passive:true});
-resizeStageForSharpness();
-function drawStage(){
- const b=backgrounds[stage];
- ctx.fillStyle='#071015';
- ctx.fillRect(0,0,W,H);
- if(b&&b.complete&&b.naturalWidth)ctx.drawImage(b,0,0,W,H);
+function drawStage(){const b=backgrounds[stage];ctx.fillStyle='#071015';ctx.fillRect(0,0,W,H);if(b.complete&&b.naturalWidth){ctx.drawImage(b,0,0,W,H);}const sh=ctx.createLinearGradient(0,0,0,H);sh.addColorStop(0,'rgba(0,0,0,.10)');sh.addColorStop(.58,'rgba(5,7,12,.03)');sh.addColorStop(.80,'rgba(1,3,6,.12)');sh.addColorStop(1,'rgba(0,0,0,.68)');ctx.fillStyle=sh;ctx.fillRect(0,0,W,H);
+ const ground=ctx.createLinearGradient(0,GROUND-8,0,H);ground.addColorStop(0,'#080d11a0');ground.addColorStop(.3,'#080b0fa8');ground.addColorStop(1,'#030406dd');ctx.fillStyle=ground;ctx.fillRect(0,GROUND-8,W,H-GROUND+8);
+ ctx.strokeStyle='#8b74613f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
+ // Original static arena background: no moving fog or atmospheric overlays.
 }
 function drawShadow(f){ctx.save();ctx.fillStyle='rgba(0,0,0,.58)';ctx.beginPath();const radius=Math.max(29,Math.min(72,f.r.h*.19)-(GROUND-f.y)*.09);ctx.ellipse(f.x,GROUND+2,radius,13,0,0,Math.PI*2);ctx.fill();ctx.restore();}
 function currentFrame(f){const r=f.r,arr=r[f.animation]||r.idle;if(!arr.length)return 0;
@@ -690,7 +671,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
  if(f.action&&attackDefs[f.action]&&f.actionTick>=attackDefs[f.action].start-3&&f.actionTick<=attackDefs[f.action].end+1){let a=f.action;ctx.lineCap='round';ctx.globalAlpha*=.5;const power=(a==='hp'||a==='hk')?3:(a==='mp'||a==='mk')?2:1;ctx.strokeStyle=a[0]==='h'?r.col:a[0]==='m'?'#e1d9c7':'#d9aca5';ctx.lineWidth=power*2+3;ctx.beginPath();ctx.arc(w*.36,-h*(a.endsWith('k')?.33:.56),power*13+58,-1.1,1.12);ctx.stroke();}
  ctx.restore();if(f.blockFlash>0){ctx.save();ctx.globalAlpha=f.blockFlash/12*.7;ctx.fillStyle='#e6d9c7';ctx.beginPath();ctx.arc(f.x+f.face*40,f.y-132,19,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawEffects(){for(const s of sparks){ctx.globalAlpha=Math.min(1,s.life/14);ctx.fillStyle=s.col;ctx.fillRect(s.x,s.y,s.size,s.size)}ctx.globalAlpha=1;for(const e of effects){if(e.type==='ring'){ctx.strokeStyle=e.col;ctx.globalAlpha=e.life/13;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,60+(13-e.life)*4,0,7);ctx.stroke();}}ctx.globalAlpha=1;}
-window.CurseboundQA={stageRenderer:()=>({mode:'static',stage,renderScale:stageRenderScale}),spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
+window.CurseboundQA={spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
 function drawHud(){if(fighters.length!==2)return;ctx.save();ctx.font='700 13px system-ui';ctx.textBaseline='middle';const f0=fighters[0],f1=fighters[1];const w=405,barY=44;
  ctx.fillStyle='#04050acb';ctx.fillRect(24,14,510,105);ctx.fillRect(746,14,510,105);
  ctx.strokeStyle='#776353af';ctx.strokeRect(24,14,510,105);ctx.strokeRect(746,14,510,105);
