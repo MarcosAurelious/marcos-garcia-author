@@ -562,42 +562,7 @@ function drawGame(){resizeStageForSharpness();ctx.imageSmoothingEnabled=true;ctx
  if(phase==='roundover'){const word=champion?champion===fighters[0]?'ROUND WON':'ROUND LOST':'DRAW';overlayWords(lastFinisher&&champion&&lastFinisher.owner===champion.r.name?'FINISHER!':word,champion?champion.r.name+' PREVAILS':'NEITHER SOUL YIELDS');}
  if(paused){ctx.fillStyle='#05050ab9';ctx.fillRect(0,0,W,H);overlayWords('PAUSED','PRESS P OR TAP RESUME');}}
 
-// CURSEBOUND background-window effect: passive, no webcam/head tracking.
-const windowDepth={enabled:true,x:0,y:0,tx:0,ty:0,mode:'idle',lastInput:0,baseTilt:null,
- reduced:!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)};
-const clampDepth=(n,a,b)=>Math.min(b,Math.max(a,n));
-function depthMove(x,y,source){
- if(windowDepth.reduced||phase==='menu')return;
- windowDepth.tx=clampDepth(x,-1,1);windowDepth.ty=clampDepth(y,-1,1);
- windowDepth.mode=source;windowDepth.lastInput=performance.now();
-}
-window.addEventListener('pointermove',function(e){
- if(phase==='menu'||e.pointerType!=='mouse')return;
- const r=canvas.getBoundingClientRect();
- if(!r.width||!r.height||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return;
- depthMove((e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1,'mouse');
-},{passive:true});
-function onWindowTilt(e){
- if(phase==='menu'||e.gamma==null||e.beta==null)return;
- if(!windowDepth.baseTilt)windowDepth.baseTilt={g:e.gamma,b:e.beta};
- depthMove((e.gamma-windowDepth.baseTilt.g)/24,(e.beta-windowDepth.baseTilt.b)/26,'tilt');
-}
-if('DeviceOrientationEvent' in window&&typeof window.DeviceOrientationEvent.requestPermission!=='function'){
- window.addEventListener('deviceorientation',onWindowTilt,{passive:true});
-}
-// True multi-plane 2.5D treatment of the existing painted arena art.
-// Preserve original art, but isolate top, middle and near portions into masked
-// layers; each tracks at a different rate as if seen through a moving window.
-function updateWindowDepth(){
- if(windowDepth.reduced){windowDepth.tx=0;windowDepth.ty=0;}
- else if(performance.now()-windowDepth.lastInput>2800){
-  windowDepth.tx=Math.sin(frameNo*.010)*.74;
-  windowDepth.ty=Math.sin(frameNo*.0065)*.42;
- }
- const ease=.065;
- windowDepth.x+=(windowDepth.tx-windowDepth.x)*ease;
- windowDepth.y+=(windowDepth.ty-windowDepth.y)*ease;
-}
+// Static original arena paintings. No parallax, layered copies, particles, blur or fog.
 let stageRenderScale=0;
 function resizeStageForSharpness(){
  const r=canvas.getBoundingClientRect();
@@ -606,110 +571,17 @@ function resizeStageForSharpness(){
  if(canvas.width===pw&&canvas.height===ph)return;
  canvas.width=pw;canvas.height=ph;
  ctx.setTransform(scale,0,0,scale,0,0);
- ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ ctx.imageSmoothingEnabled=true;
+ ctx.imageSmoothingQuality='high';
  stageRenderScale=scale;
 }
 window.addEventListener('resize',resizeStageForSharpness,{passive:true});
 resizeStageForSharpness();
-
-// Crop the original full painting into three smooth masked planes.
-// Slight overdraw avoids hard seams while the planes move separately.
-const depthLayerCache={image:null,planes:null};
-function buildStageDepthPlanes(image){
- if(depthLayerCache.image===image&&depthLayerCache.planes)return depthLayerCache.planes;
- const planes=[];
- const transitions=[
-  [[0,1],[.38,1],[.54,0],[1,0]], // skyline, far mountains, tall silhouettes
-  [[0,0],[.29,0],[.45,1],[.72,1],[.88,0],[1,0]], // architecture and trees
-  [[0,0],[.58,0],[.77,1],[1,1]] // foreground rocks, paths, ground
- ];
- for(let i=0;i<3;i++){
-  const c=document.createElement('canvas');c.width=W;c.height=H;
-  const g=c.getContext('2d',{alpha:true});
-  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
-  g.drawImage(image,0,0,W,H);
-  g.globalCompositeOperation='destination-in';
-  const grad=g.createLinearGradient(0,0,0,H);
-  for(const pair of transitions[i])grad.addColorStop(pair[0],'rgba(255,255,255,'+pair[1]+')');
-  g.fillStyle=grad;g.fillRect(0,0,W,H);
-  g.globalCompositeOperation='source-over';
-  planes.push(c);
- }
- depthLayerCache.image=image;depthLayerCache.planes=planes;
- return planes;
-}
-function drawWindowBackdrop(image){
- updateWindowDepth();
- if(!image||!image.complete||!image.naturalWidth)return;
- const px=windowDepth.reduced?0:windowDepth.x;
- const py=windowDepth.reduced?0:windowDepth.y;
- const t=frameNo;
- ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
- // High-quality full image is the seamless base. The three partially transparent
- // planes above it move by 10, 30 and 62 pixels, with distinct horizontal drift.
- const zoom=1.10,ow=W*zoom,oh=H*zoom;
- ctx.drawImage(image,(W-ow)/2-px*8,(H-oh)/2-py*6,ow,oh);
- if(!windowDepth.reduced){
-  const planes=buildStageDepthPlanes(image);
-  const shifts=[[-px*11,-py*5,1.04,.65],[px*32,py*13,1.055,.76],[-px*63,-py*23,1.12,.88]];
-  for(let i=0;i<3;i++){
-   const [mx,my,z,opacity]=shifts[i];
-   const sw=W*z,sh=H*z;
-   ctx.globalAlpha=opacity;
-   ctx.drawImage(planes[i],(W-sw)/2+mx,(H-sh)/2+my,sw,sh);
-  }
-  ctx.globalAlpha=1;
- }
- // Scene-specific movement visible even without mouse/tilt.
- const particleColor=['#c4e8c0','#c2beb0','#d9a66c','#e9f2ff','#bf88e8','#ee9874'][stage]||'#dad5d1';
- const count=stage===3?78:stage===2?50:stage===5?55:42;
- for(let i=0;i<count;i++){
-  const seed=(i*71.27)%997;
-  const speed=stage===3?.84+((i*11)%5)*.21:.30+((i*7)%6)*.1;
-  const x=((seed*3.9+t*(stage===2?speed*1.65:speed))%(W+110)+(W+110))%(W+110)-55+px*(8+(i%4)*4);
-  const y=((i*93.3+t*(stage===3?speed*.8:stage===5?-speed*.48:.2))%(GROUND+80)+(GROUND+80))%(GROUND+80)-35;
-  const rad=stage===3?1.6+i%4*.65:stage===2?1.1+i%3*.55:1+i%3*.7;
-  ctx.globalAlpha=.24+(i%5)*.065;
-  ctx.fillStyle=particleColor;
-  ctx.beginPath();ctx.arc(x,y+py*(i%3)*6,rad,0,Math.PI*2);ctx.fill();
- }
- ctx.globalAlpha=1;
- // Drifting translucent ground mist, clearly separated from the arena artwork.
- for(let i=0;i<6;i++){
-  const x=((i*265-t*(.35+(i%3)*.19))%(W+510)+(W+510))%(W+510)-255;
-  const y=GROUND-70+(i%3)*41+py*13;
-  const radius=170+(i%3)*45;
-  const fog=ctx.createRadialGradient(x,y,8,x,y,radius);
-  const fogColor=stage===4?'168,142,206':stage===5?'203,128,112':stage===2?'200,180,142':'177,190,199';
-  fog.addColorStop(0,'rgba('+fogColor+',.15)');
-  fog.addColorStop(.60,'rgba('+fogColor+',.055)');
-  fog.addColorStop(1,'rgba('+fogColor+',0)');
-  ctx.fillStyle=fog;ctx.beginPath();ctx.ellipse(x,y,radius,58+i%2*20,0,0,Math.PI*2);ctx.fill();
- }
- // Nearby branches appear only in wooded arenas, not the desert or snowfield.
- if(stage===0||stage===1){
-  ctx.globalAlpha=.40;ctx.strokeStyle='#0a0c0d';ctx.lineCap='round';
-  for(let side=0;side<2;side++){
-   const root=side?W+22:-22,dir=side?-1:1;
-   const shift=px*48*dir;
-   ctx.lineWidth=14;
-   ctx.beginPath();ctx.moveTo(root+shift,GROUND-160);
-   ctx.bezierCurveTo(root+dir*90+shift,GROUND-220,root+dir*22+shift,GROUND-380,root+dir*110+shift,185);ctx.stroke();
-   ctx.lineWidth=6;
-   for(let j=0;j<3;j++){
-    ctx.beginPath();ctx.moveTo(root+dir*(35+j*16)+shift,GROUND-245-j*44);
-    ctx.lineTo(root+dir*(118+j*24)+shift,GROUND-286-j*43);ctx.stroke();
-   }
-  }
- }
- ctx.restore();
-}
-
-function drawStage(){const b=backgrounds[stage];ctx.fillStyle='#071015';ctx.fillRect(0,0,W,H);drawWindowBackdrop(b);const sh=ctx.createLinearGradient(0,0,0,H);sh.addColorStop(0,'rgba(0,0,0,.10)');sh.addColorStop(.58,'rgba(5,7,12,.03)');sh.addColorStop(.80,'rgba(1,3,6,.12)');sh.addColorStop(1,'rgba(0,0,0,.68)');ctx.fillStyle=sh;ctx.fillRect(0,0,W,H);
- const ground=ctx.createLinearGradient(0,GROUND-8,0,H);ground.addColorStop(0,'#080d11a0');ground.addColorStop(.3,'#080b0fa8');ground.addColorStop(1,'#030406dd');ctx.fillStyle=ground;ctx.fillRect(0,GROUND-8,W,H-GROUND+8);
- ctx.strokeStyle='#8b74613f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
- // Slow moving ground fog. All atmosphere is drawn separately from the original paintings.
- ctx.save();for(let i=0;i<7;i++){const x=((i*259-frameNo*(i%2?.31:.20))%1600+1600)%1600-130,y=GROUND+12+(i%3)*35;ctx.fillStyle='rgba(178,191,202,'+(.025+i%3*.010)+')';ctx.beginPath();ctx.ellipse(x,y,160+i%3*60,27+i%2*10,0,0,Math.PI*2);ctx.fill();}ctx.restore();
+function drawStage(){
+ const b=backgrounds[stage];
+ ctx.fillStyle='#071015';
+ ctx.fillRect(0,0,W,H);
+ if(b&&b.complete&&b.naturalWidth)ctx.drawImage(b,0,0,W,H);
 }
 function drawShadow(f){ctx.save();ctx.fillStyle='rgba(0,0,0,.58)';ctx.beginPath();const radius=Math.max(29,Math.min(72,f.r.h*.19)-(GROUND-f.y)*.09);ctx.ellipse(f.x,GROUND+2,radius,13,0,0,Math.PI*2);ctx.fill();ctx.restore();}
 function currentFrame(f){const r=f.r,arr=r[f.animation]||r.idle;if(!arr.length)return 0;
@@ -818,7 +690,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
  if(f.action&&attackDefs[f.action]&&f.actionTick>=attackDefs[f.action].start-3&&f.actionTick<=attackDefs[f.action].end+1){let a=f.action;ctx.lineCap='round';ctx.globalAlpha*=.5;const power=(a==='hp'||a==='hk')?3:(a==='mp'||a==='mk')?2:1;ctx.strokeStyle=a[0]==='h'?r.col:a[0]==='m'?'#e1d9c7':'#d9aca5';ctx.lineWidth=power*2+3;ctx.beginPath();ctx.arc(w*.36,-h*(a.endsWith('k')?.33:.56),power*13+58,-1.1,1.12);ctx.stroke();}
  ctx.restore();if(f.blockFlash>0){ctx.save();ctx.globalAlpha=f.blockFlash/12*.7;ctx.fillStyle='#e6d9c7';ctx.beginPath();ctx.arc(f.x+f.face*40,f.y-132,19,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawEffects(){for(const s of sparks){ctx.globalAlpha=Math.min(1,s.life/14);ctx.fillStyle=s.col;ctx.fillRect(s.x,s.y,s.size,s.size)}ctx.globalAlpha=1;for(const e of effects){if(e.type==='ring'){ctx.strokeStyle=e.col;ctx.globalAlpha=e.life/13;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,60+(13-e.life)*4,0,7);ctx.stroke();}}ctx.globalAlpha=1;}
-window.CurseboundQA={windowDepth:()=>({enabled:true,mode:windowDepth.mode,x:windowDepth.x,y:windowDepth.y,stage,renderScale:stageRenderScale}),spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
+window.CurseboundQA={stageRenderer:()=>({mode:'static',stage,renderScale:stageRenderScale}),spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
 function drawHud(){if(fighters.length!==2)return;ctx.save();ctx.font='700 13px system-ui';ctx.textBaseline='middle';const f0=fighters[0],f1=fighters[1];const w=405,barY=44;
  ctx.fillStyle='#04050acb';ctx.fillRect(24,14,510,105);ctx.fillRect(746,14,510,105);
  ctx.strokeStyle='#776353af';ctx.strokeRect(24,14,510,105);ctx.strokeRect(746,14,510,105);
