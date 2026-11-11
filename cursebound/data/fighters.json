@@ -398,7 +398,7 @@
         "hurt": [32,33,34,35],
         "ko": [88,89,90,91]
       },
-      "jump": {"crouch": 25, "rise": 27, "apex": 29, "fall": 30, "land": 25},
+      "jump": {"sheet": "characters/occultist/occultist_jump.webp", "cols": 8, "rows": 1, "crouch": 1, "rise": 2, "riseFwd": 3, "apex": 4, "fall": 5, "land": 6, "art": true},
       "style": {"tempo": 1.05, "reach": 1.12, "power": 1.04, "hurtW": 45, "hurtH": 158, "cancelBonus": 1},
       "specialMove": {"name": "OCCULT SIGIL", "total": 49, "cost": 40, "cast": 21, "type": "shadow", "reach": 720},
       "signature": {"name": "PROFANE RITUAL", "moves": ["lp", "mp", "hp"]},
