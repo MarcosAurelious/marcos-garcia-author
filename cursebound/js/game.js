@@ -673,7 +673,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
    if(f.ko&&kd&&kimg?.complete&&kimg.naturalWidth){const kw=h*(kimg.naturalWidth/kd.cols)/(kimg.naturalHeight/kd.rows);drawOriginalPose(kimg,kd.cols,kd.rows,frame,-kw*.48,-h*.96,kw,h,'ko',f);ctx.restore();return drawAfterFighter(f);}
    if(f.ko&&kd&&kd.topple){const t=Math.min(1,f.animTime/26);ctx.rotate(-t*t*1.38);ctx.translate(-t*h*.12,t*h*.05);}
    const jp=JUMP_POSES[r.id],jimg=jumpImgs[r.id],airborne=f.animation==='jump'||f.animation==='land';
-   if(airborne&&jimg?.complete&&jimg.naturalWidth){const jw=h*(jimg.naturalWidth/jp.cols)/(jimg.naturalHeight/jp.rows);drawOriginalPose(jimg,jp.cols,jp.rows,frame,-jw*.48,-h*.96+squat,jw,h,'jump',f);}
+   if(airborne&&jimg?.complete&&jimg.naturalWidth){const jch=jimg.naturalHeight/jp.rows,E=jp.padTop||0,u=h/(jch-E),jh=jch*u,jw=u*jimg.naturalWidth/jp.cols;drawOriginalPose(jimg,jp.cols,jp.rows,frame,-jw*.48,-h*.96-E*u+squat,jw,jh,'jump',f);}
    else{
     if(f.animation==='jump'&&jp&&!jp.art){const tilt=Math.max(-.09,Math.min(.11,-f.vy*.006));ctx.translate(0,-h*.45);ctx.rotate(tilt);ctx.translate(0,h*.45);}
     if(r.id==='mothman')drawApprovedMothmanPose(img,8,12,frame,h,squat);else drawOriginalPose(img,r.cols,r.rows,frame,-w*.48,-h*.96+squat,w,h,f.animation,f);

@@ -193,7 +193,7 @@
         "hurt": [13,14],
         "ko": [13,14,15]
       },
-      "jump": {"crouch": 13, "rise": 9, "apex": 10, "fall": 12, "land": 13},
+      "jump": {"sheet": "characters/yeti/yeti_jump.webp", "cols": 8, "rows": 1, "padTop": 60, "crouch": 1, "rise": 2, "apex": 4, "apexFwd": 3, "fall": 5, "land": 7, "art": true},
       "style": {"tempo": 1.15, "reach": 1.08, "power": 1.08, "hurtW": 55, "hurtH": 166, "cancelBonus": 0},
       "specialMove": {"name": "YELLOW SNOWBALL", "total": 51, "cost": 40, "cast": 25, "type": "snow", "reach": 900},
       "signature": {"name": "AVALANCHE COMBO", "moves": ["mp", "hp", "hk"]},
@@ -226,7 +226,7 @@
         "hurt": [13,14],
         "ko": [13,14,15]
       },
-      "jump": {"crouch": 13, "rise": 9, "apex": 10, "fall": 8, "land": 13},
+      "jump": {"sheet": "characters/skinwalker/skinwalker_jump.webp", "cols": 8, "rows": 1, "crouch": 1, "rise": 2, "riseFwd": 3, "apex": 4, "fall": 5, "land": 7, "art": true},
       "style": {"tempo": 0.9, "reach": 1.1, "power": 0.94, "hurtW": 44, "hurtH": 150, "cancelBonus": 2},
       "specialMove": {"name": "SPIRIT ATTACK", "total": 50, "cost": 40, "cast": 23, "type": "spirit", "reach": 940},
       "signature": {"name": "PHANTOM DANCE", "moves": ["lk", "mp", "mk", "hk"]},
