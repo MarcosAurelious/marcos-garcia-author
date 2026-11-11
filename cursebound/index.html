@@ -620,7 +620,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
    const specialW=h*(sw/sh),specialH=h;
    if(r.id==='mothman')drawApprovedMothmanPose(img2,4,2,pose,h,squat);else drawOriginalPose(img2,4,2,pose,-specialW*.47,-specialH*.94+squat,specialW,specialH,'super',f);
  }else if(f.action&&ACTION_ROW[f.action]!==undefined&&attackAtlas?.complete&&attackAtlas.naturalWidth){
-   const extended=['llorona','mothman','slender','occultist'].includes(r.id),row=r.id==='mothman'?({lp:6,mp:7,hp:8,lk:9,mk:10,hk:10}[f.action]):ACTION_ROW[f.action]+(extended?6:0),cfg=attackFor(f,f.action);
+   const extended=['mothman','slender'].includes(r.id),row=r.id==='mothman'?({lp:6,mp:7,hp:8,lk:9,mk:10,hk:10}[f.action]):ACTION_ROW[f.action]+(extended?6:0),cfg=attackFor(f,f.action);
    const pose=Math.min(7,Math.floor(f.actionTick/cfg.total*8));
    if(r.id==='mothman')drawApprovedMothmanPose(attackAtlas,8,12,row*8+pose,h,squat);else drawOriginalPose(attackAtlas,8,extended?12:6,row*8+pose,-h*.48,-h*.96+squat,h,h,f.action,f);
  }else{
