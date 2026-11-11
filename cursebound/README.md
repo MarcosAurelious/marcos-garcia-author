@@ -17,6 +17,9 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 - **Faster or stronger fighter:** `stats.speed`, `stats.power`, `stats.weight`.
 - **New jump art:** set `jump.sheet`, `jump.cols`, `jump.rows`, the five frame numbers and `"art": true`.
 - **Move timing or damage:** `moves.lp` … `moves.hk`.
+- **Knockdown art:** `ko.sheet` (its own strip) or `ko.frames` from the motion sheet; `"topple": true` tips the hurt pose over when there is no knockdown art.
+- **Which sprite row each button uses:** `sheets.attackRows` (lp, mp, hp, lk, mk, hk).
+- **Jump height and distance:** the top-level `jump` block.
 
 ## Python helper
 ```
