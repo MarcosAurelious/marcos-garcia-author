@@ -49,12 +49,7 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 #menu.gothic-ready .menu-buttons button{min-height:30px}
 }
 
-/* Window-like stage perspective, independent of the fighter collision camera. */
-#pauseBar #depthBtn,#pauseBar #headTrackBtn{font-size:clamp(9px,1.1vw,12px);padding:7px 9px;white-space:nowrap}
-#pauseBar #depthBtn[aria-pressed="true"]{color:#c4d9ec;border-color:#738bb5}
-#pauseBar #headTrackBtn[aria-pressed="true"]{color:#c5f4de;border-color:#7aaf9b}
-@media(max-width:700px){#pauseBar #depthBtn,#pauseBar #headTrackBtn{font-size:9px;padding:5px 6px}}
-@media(prefers-reduced-motion:reduce){#pauseBar #depthBtn{opacity:.75}}
+/* Window perspective stays behind fighters; optional tracking controls removed. */
 </style></head>
 <body>
 <canvas id="game" width="1280" height="720" aria-label="Cursebound side-view versus fighting game"></canvas>
@@ -74,7 +69,7 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 </section>
 <div id="battleUi" hidden>
   <div id="specialGuide" aria-live="polite"></div>
-  <div id="pauseBar"><button id="pauseBtn">Ⅱ PAUSE</button><button id="soundBtn">♪ SOUND ON</button><button id="depthBtn" aria-pressed="true" title="Window perspective: mouse / phone tilt">◇ DEPTH ON</button><button id="headTrackBtn" aria-pressed="false" title="Optional webcam head tracking. Camera stays on this device.">◉ HEAD TRACK</button><button id="rosterBtn">✕ EXIT</button></div>
+  <div id="pauseBar"><button id="pauseBtn">Ⅱ PAUSE</button><button id="soundBtn">♪ SOUND ON</button><button id="rosterBtn">✕ EXIT</button></div>
   <div id="mobileControls" aria-label="Arcade touch controls">
     <div class="left-controls"><div id="joystick" aria-label="Directional arcade stick"><div class="joy-ring"><div class="joy-inner" id="joyKnob"></div></div></div><span>↑ JUMP · BACK BLOCK · →→ DASH</span></div>
     <div class="right-controls"><button data-act="lp" class="round-btn claw"><b>PUNCH</b><small>LIGHT</small></button><button data-act="mp" class="round-btn heavy"><b>MELEE</b><small>PUNCH</small></button><button data-act="hp" class="round-btn spirit"><b>HEAVY</b><small>PUNCH</small></button><button data-act="lk" class="round-btn kick"><b>KICK</b><small>LIGHT</small></button><button data-act="mk" class="round-btn guard"><b>MELEE</b><small>KICK</small></button><button data-act="hk" class="round-btn dash"><b>HEAVY</b><small>KICK</small></button></div>
@@ -418,12 +413,12 @@ function drawSpecialFX(){
 function showSpecialGuide(){const f=fighters[0],sp=f&&SPECIAL_INFO[f.r.id];$('specialGuide').textContent=sp?`${sp.name} ↓↘→+HP · FINISH ↓↘→+HK`:'SPECIAL ↓↘→+HP · FINISH ↓↘→+HK';}
 function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null};}
 function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);}
-function openRoster(){stopWindowHeadTracking();phase='menu';cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
+function openRoster(){phase='menu';cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
 function togglePause(){if(phase==='menu'||phase==='matchover')return;paused=!paused;$('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';clearInput();}
 function clearInput(){keys.clear();for(const f of fighters){for(const k of Object.keys(f.input))f.input[k]=false;}}
 function startNewRound(){for(let i=0;i<2;i++){const f=fighters[i],wins=f.wins;fighters[i]=newFighter(f.r.id,i+1);fighters[i].wins=wins;}clock=90;subframes=0;introTimer=145;phase='intro';cinematic=null;lastFinisher=null;specialProjectiles.length=0;showSpecialGuide();clearInput();}
 function finishRound(){if(phase==='roundover'||phase==='matchover')return;phase='roundover';roundTimer=175;const a=fighters[0],b=fighters[1];let winner=a.health===b.health?null:(a.health>b.health?a:b);if(winner)winner.wins++;champion=winner;blip(winner?380:190,.18);if(!winner){effects.push({type:'text',text:'DRAW',life:75,x:W/2,y:340});} }
-function showResult(){stopWindowHeadTracking();phase='matchover';result.hidden=false;battleUi.hidden=true;const win=fighters[0].wins>fighters[1].wins?fighters[0]:fighters[1];$('resultTitle').textContent=win===fighters[0]?'VICTORY':'DEFEAT';$('resultDetail').textContent=`${win.r.name} CLAIMS THE ARENA · ${fighters[0].wins} — ${fighters[1].wins}`;$('resultKicker').textContent=lastFinisher&&lastFinisher.owner===win.r.name?'REDEMPTION FINISHER · '+lastFinisher.name:'THE CURSE REMAINS';}
+function showResult(){phase='matchover';result.hidden=false;battleUi.hidden=true;const win=fighters[0].wins>fighters[1].wins?fighters[0]:fighters[1];$('resultTitle').textContent=win===fighters[0]?'VICTORY':'DEFEAT';$('resultDetail').textContent=`${win.r.name} CLAIMS THE ARENA · ${fighters[0].wins} — ${fighters[1].wins}`;$('resultKicker').textContent=lastFinisher&&lastFinisher.owner===win.r.name?'REDEMPTION FINISHER · '+lastFinisher.name:'THE CURSE REMAINS';}
 function audioUnlock(){try{if(!snd)snd=new (window.AudioContext||window.webkitAudioContext)();if(snd.state==='suspended')snd.resume().catch(()=>{});}catch(e){}}
 function blip(freq=200,dur=.08,wave='sawtooth',volume=.027){if(muted||!snd||snd.state!=='running')return;try{const o=snd.createOscillator(),g=snd.createGain();o.type=wave;o.frequency.setValueAtTime(freq,snd.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(60,freq*.55),snd.currentTime+dur);g.gain.setValueAtTime(volume,snd.currentTime);g.gain.exponentialRampToValueAtTime(.001,snd.currentTime+dur);o.connect(g).connect(snd.destination);o.start();o.stop(snd.currentTime+dur+.01);}catch(e){}}
 
@@ -561,131 +556,58 @@ function step(){frameNo++;if(paused||phase==='menu'||phase==='matchover')return;
  if(phase==='roundover'){roundTimer--;if(roundTimer<=0){if(fighters[0].wins>=2||fighters[1].wins>=2)showResult();else startNewRound();}}
  updateEffects();}
 
-function drawGame(){ctx.save();ctx.clearRect(0,0,W,H);drawStage();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.55);
+function drawGame(){resizeStageForSharpness();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.save();ctx.clearRect(0,0,W,H);drawStage();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.55);
  for(const f of fighters){drawShadow(f);}for(const f of fighters){drawFighter(f);}drawSpecialFX();drawFinisherFX();drawEffects();ctx.restore();drawHud();if(phase==='finisher')drawFinisherCinema();
  if(phase==='intro'){overlayWords(introTimer>87?'ROUND '+(fighters[0].wins+fighters[1].wins+1):'FIGHT!',introTimer>87?'PROVE YOUR REDEMPTION':'');}
  if(phase==='roundover'){const word=champion?champion===fighters[0]?'ROUND WON':'ROUND LOST':'DRAW';overlayWords(lastFinisher&&champion&&lastFinisher.owner===champion.r.name?'FINISHER!':word,champion?champion.r.name+' PREVAILS':'NEITHER SOUL YIELDS');}
  if(paused){ctx.fillStyle='#05050ab9';ctx.fillRect(0,0,W,H);overlayWords('PAUSED','PRESS P OR TAP RESUME');}}
 
-// CURSEBOUND WINDOW DEPTH: inspired by the author page's "Look Through the Window".
-// Backdrop-only 2.5D parallax: gameplay geometry, fighters and hitboxes do NOT move.
-const windowDepth={
- enabled:true,x:0,y:0,tx:0,ty:0,mode:'idle',lastInput:0,
- baseTilt:null,video:null,detector:null,token:0,lastFaceFrame:-1,lastFaceCheck:0,
- reduced:window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches
-};
+// CURSEBOUND background-window effect: passive, no webcam/head tracking.
+const windowDepth={enabled:true,x:0,y:0,tx:0,ty:0,mode:'idle',lastInput:0,baseTilt:null,
+ reduced:!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)};
 const clampDepth=(n,a,b)=>Math.min(b,Math.max(a,n));
 function depthMove(x,y,source){
- if(!windowDepth.enabled||windowDepth.mode==='camera'||windowDepth.reduced)return;
- windowDepth.tx=clampDepth(x,-1,1);
- windowDepth.ty=clampDepth(y,-1,1);
+ if(windowDepth.reduced||phase==='menu')return;
+ windowDepth.tx=clampDepth(x,-1,1);windowDepth.ty=clampDepth(y,-1,1);
  windowDepth.mode=source;windowDepth.lastInput=performance.now();
 }
 window.addEventListener('pointermove',function(e){
- if(phase==='menu'||!windowDepth.enabled||windowDepth.mode==='camera'||e.pointerType!=='mouse')return;
+ if(phase==='menu'||e.pointerType!=='mouse')return;
  const r=canvas.getBoundingClientRect();
  if(!r.width||!r.height||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return;
  depthMove((e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1,'mouse');
 },{passive:true});
 function onWindowTilt(e){
- if(!windowDepth.enabled||phase==='menu'||windowDepth.mode==='camera'||e.gamma==null||e.beta==null)return;
+ if(phase==='menu'||e.gamma==null||e.beta==null)return;
  if(!windowDepth.baseTilt)windowDepth.baseTilt={g:e.gamma,b:e.beta};
  depthMove((e.gamma-windowDepth.baseTilt.g)/24,(e.beta-windowDepth.baseTilt.b)/26,'tilt');
 }
 if('DeviceOrientationEvent' in window&&typeof window.DeviceOrientationEvent.requestPermission!=='function'){
  window.addEventListener('deviceorientation',onWindowTilt,{passive:true});
 }
-function enableWindowTilt(){
- if(!('DeviceOrientationEvent' in window))return;
- if(typeof window.DeviceOrientationEvent.requestPermission==='function'){
-  window.DeviceOrientationEvent.requestPermission().then(function(s){
-   if(s==='granted')window.addEventListener('deviceorientation',onWindowTilt,{passive:true});
-  }).catch(function(){});
- }
-}
-function stopWindowHeadTracking(){
- windowDepth.token++;
- if(windowDepth.video&&windowDepth.video.srcObject){
-  windowDepth.video.srcObject.getTracks().forEach(function(t){t.stop()});
- }
- windowDepth.video=null;
- if(windowDepth.mode==='camera')windowDepth.mode='idle';
- const b=$('headTrackBtn');
- if(b){b.textContent='◉ HEAD TRACK';b.setAttribute('aria-pressed','false');}
-}
-async function toggleWindowHeadTracking(){
- if(windowDepth.mode==='camera'||windowDepth.video){stopWindowHeadTracking();return;}
- if(!windowDepth.enabled||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
- const b=$('headTrackBtn'),token=++windowDepth.token;
- if(b)b.textContent='◉ STARTING…';
- let video=null;
- try{
-  video=document.createElement('video');video.muted=true;video.playsInline=true;
-  video.srcObject=await navigator.mediaDevices.getUserMedia({
-   video:{facingMode:'user',width:{ideal:320},height:{ideal:240}},audio:false
-  });
-  if(token!==windowDepth.token){video.srcObject.getTracks().forEach(t=>t.stop());return;}
-  await video.play();
-  if(!windowDepth.detector){
-   const vision=await import('../vendor/mediapipe/vision_bundle.mjs');
-   const fileset=await vision.FilesetResolver.forVisionTasks(new URL('../vendor/mediapipe/wasm',document.baseURI).href);
-   const options={baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',delegate:'GPU'},runningMode:'VIDEO',minDetectionConfidence:.5};
-   try{windowDepth.detector=await vision.FaceDetector.createFromOptions(fileset,options);}
-   catch(gpuError){options.baseOptions.delegate='CPU';windowDepth.detector=await vision.FaceDetector.createFromOptions(fileset,options);}
-  }
-  if(token!==windowDepth.token||!windowDepth.enabled||phase==='menu'){
-   video.srcObject.getTracks().forEach(t=>t.stop());
-   if(b)b.textContent='◉ HEAD TRACK';
-   return;
-  }
-  windowDepth.video=video;windowDepth.mode='camera';windowDepth.lastFaceFrame=-1;
-  if(b){b.textContent='◉ TRACKING ON';b.setAttribute('aria-pressed','true');}
- }catch(error){
-  if(video&&video.srcObject)video.srcObject.getTracks().forEach(t=>t.stop());
-  if(token===windowDepth.token){windowDepth.mode='idle';if(b)b.textContent='◉ CAMERA UNAVAILABLE';}
-  // On unsupported devices, manual tilt and the ambient perspective remain usable.
- }
-}
-const windowDepthBtn=$('depthBtn');
-if(windowDepthBtn)windowDepthBtn.addEventListener('click',function(){
- windowDepth.enabled=!windowDepth.enabled;
- windowDepthBtn.setAttribute('aria-pressed',String(windowDepth.enabled));
- windowDepthBtn.textContent=windowDepth.enabled?'◇ DEPTH ON':'◇ DEPTH OFF';
- if(!windowDepth.enabled){stopWindowHeadTracking();windowDepth.tx=0;windowDepth.ty=0;windowDepth.mode='idle';}
- else enableWindowTilt();
-});
-const windowTrackBtn=$('headTrackBtn');
-if(windowTrackBtn)windowTrackBtn.addEventListener('click',toggleWindowHeadTracking);
-window.addEventListener('visibilitychange',function(){if(document.hidden)stopWindowHeadTracking();});
-window.addEventListener('pagehide',stopWindowHeadTracking);
 function updateWindowDepth(){
- if(!windowDepth.enabled||windowDepth.reduced){windowDepth.tx=0;windowDepth.ty=0;}
- else if(windowDepth.mode==='camera'&&windowDepth.video&&windowDepth.detector){
-  const v=windowDepth.video,now=performance.now();
-  if(v.readyState>=2&&v.currentTime!==windowDepth.lastFaceFrame&&now-windowDepth.lastFaceCheck>135){
-   windowDepth.lastFaceFrame=v.currentTime;windowDepth.lastFaceCheck=now;
-   try{
-    const result=windowDepth.detector.detectForVideo(v,now);
-    const face=result.detections&&result.detections[0];
-    if(face){
-     const points=face.keypoints,b=face.boundingBox;
-     let cx,cy;
-     if(points&&points.length>=2){cx=(points[0].x+points[1].x)/2;cy=(points[0].y+points[1].y)/2;}
-     else{cx=(b.originX+b.width/2)/v.videoWidth;cy=(b.originY+b.height/3)/v.videoHeight;}
-     windowDepth.tx=clampDepth((.5-cx)*3,-1,1);
-     windowDepth.ty=clampDepth((.5-cy)*2.5,-1,1);
-     windowDepth.lastInput=now;
-    }
-   }catch(error){}
-  }
- }else if(performance.now()-windowDepth.lastInput>2800&&!windowDepth.reduced){
+ if(windowDepth.reduced){windowDepth.tx=0;windowDepth.ty=0;}
+ else if(performance.now()-windowDepth.lastInput>2800){
   windowDepth.tx=Math.sin(frameNo*.0048)*.30;
   windowDepth.ty=Math.sin(frameNo*.0032)*.18;
  }
- const rate=windowDepth.mode==='camera'?.18:.065;
- windowDepth.x+=(windowDepth.tx-windowDepth.x)*rate;
- windowDepth.y+=(windowDepth.ty-windowDepth.y)*rate;
+ windowDepth.x+=(windowDepth.tx-windowDepth.x)*.065;
+ windowDepth.y+=(windowDepth.ty-windowDepth.y)*.065;
 }
+// DPR-aware, bounded canvas resolution; all gameplay positions remain in 1280x720 coordinates.
+let stageRenderScale=0;
+function resizeStageForSharpness(){
+ const r=canvas.getBoundingClientRect();
+ const scale=Math.min(2,Math.max(1,Math.min(r.width/W,r.height/H)*(window.devicePixelRatio||1)));
+ const pw=Math.round(W*scale),ph=Math.round(H*scale);
+ if(canvas.width===pw&&canvas.height===ph)return;
+ canvas.width=pw;canvas.height=ph;
+ ctx.setTransform(scale,0,0,scale,0,0);
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ stageRenderScale=scale;
+}
+window.addEventListener('resize',resizeStageForSharpness,{passive:true});
+resizeStageForSharpness();
 function drawWindowBackdrop(image){
  updateWindowDepth();
  if(!image||!image.complete||!image.naturalWidth)return;
@@ -837,7 +759,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
  if(f.action&&attackDefs[f.action]&&f.actionTick>=attackDefs[f.action].start-3&&f.actionTick<=attackDefs[f.action].end+1){let a=f.action;ctx.lineCap='round';ctx.globalAlpha*=.5;const power=(a==='hp'||a==='hk')?3:(a==='mp'||a==='mk')?2:1;ctx.strokeStyle=a[0]==='h'?r.col:a[0]==='m'?'#e1d9c7':'#d9aca5';ctx.lineWidth=power*2+3;ctx.beginPath();ctx.arc(w*.36,-h*(a.endsWith('k')?.33:.56),power*13+58,-1.1,1.12);ctx.stroke();}
  ctx.restore();if(f.blockFlash>0){ctx.save();ctx.globalAlpha=f.blockFlash/12*.7;ctx.fillStyle='#e6d9c7';ctx.beginPath();ctx.arc(f.x+f.face*40,f.y-132,19,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawEffects(){for(const s of sparks){ctx.globalAlpha=Math.min(1,s.life/14);ctx.fillStyle=s.col;ctx.fillRect(s.x,s.y,s.size,s.size)}ctx.globalAlpha=1;for(const e of effects){if(e.type==='ring'){ctx.strokeStyle=e.col;ctx.globalAlpha=e.life/13;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,60+(13-e.life)*4,0,7);ctx.stroke();}}ctx.globalAlpha=1;}
-window.CurseboundQA={windowDepth:()=>({enabled:windowDepth.enabled,mode:windowDepth.mode,x:windowDepth.x,y:windowDepth.y,stage,tracking:!!windowDepth.video}),spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
+window.CurseboundQA={windowDepth:()=>({enabled:true,mode:windowDepth.mode,x:windowDepth.x,y:windowDepth.y,stage,renderScale:stageRenderScale}),spriteReport:()=>({originalArtPreserved:true,sourceClippingWarning:'Some original source cells touch the cell edge; unrecoverable cropped details require separate hand-drawn in-betweens.'}),status:()=>({phase,paused,round:Math.max(1,fighters[0]?.wins+fighters[1]?.wins+1),specialProjectiles:specialProjectiles.length,fighters:fighters.map(f=>({name:f.r.name,health:f.health,energy:f.energy,action:f.action,actionTick:f.actionTick,motion:{...f.motion},debuff:f.debuff}))}),startSpecial:(side=0)=>{if(phase==='fight')pressed(side,'super');}};
 function drawHud(){if(fighters.length!==2)return;ctx.save();ctx.font='700 13px system-ui';ctx.textBaseline='middle';const f0=fighters[0],f1=fighters[1];const w=405,barY=44;
  ctx.fillStyle='#04050acb';ctx.fillRect(24,14,510,105);ctx.fillRect(746,14,510,105);
  ctx.strokeStyle='#776353af';ctx.strokeRect(24,14,510,105);ctx.strokeRect(746,14,510,105);
