@@ -333,7 +333,7 @@
       "specialMove": {"name": "OMEN DIVE", "total": 42, "cost": 40, "cast": 13, "type": "maul", "reach": 225},
       "signature": {"name": "OMEN RUSH", "moves": ["lk", "mp", "hp"]},
       "finisher": {"name": "NIGHT TERROR", "caption": "THE OMEN DESCENDS", "color": "#db6768", "type": "maul"},
-      "ko": {"frames": [32, 33, 34, 35], "topple": true},
+      "ko": {"sheet": "characters/ko/mothman_ko.webp", "cols": 6, "rows": 1, "frames": [0, 1, 2, 3, 4, 5]},
       "cutscene": {"sheet": "cutscenes/mothman.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
     },
     {
