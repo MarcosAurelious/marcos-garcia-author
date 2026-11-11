@@ -363,7 +363,7 @@
         "hurt": [88,89,90,91],
         "ko": [92,93,94,95]
       },
-      "jump": {"crouch": 28, "rise": 27, "apex": 26, "fall": 29, "land": 28},
+      "jump": {"sheet": "characters/slender-man/slender_jump.webp", "cols": 5, "rows": 1, "crouch": 0, "rise": 1, "apex": 2, "fall": 3, "land": 4, "art": true},
       "style": {"tempo": 0.89, "reach": 1.2, "power": 0.95, "hurtW": 43, "hurtH": 164, "cancelBonus": 2},
       "specialMove": {"name": "NIGHTMARE REACH", "total": 52, "cost": 40, "cast": 19, "type": "shadow", "reach": 730},
       "signature": {"name": "FACELESS GRASP", "moves": ["lp", "mk", "hp"]},
