@@ -1,6 +1,24 @@
 {
-  "version": "4.1",
+  "version": "4.2",
   "title": "assets/asset_15.webp",
+  "selectScreen": {
+    "art": "assets/character_select_gothic_v42.webp",
+    "glow": "assets/select_glow.webp",
+    "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover).",
+    "glowSize": {"w": 12.022, "h": 34.113},
+    "cards": [
+      {"id": "wolf", "x": 2.811, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 1.316, "glowY": 48.353},
+      {"id": "wendigo", "x": 12.141, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 10.646, "glowY": 48.353},
+      {"id": "yeti", "x": 21.471, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 19.976, "glowY": 48.353},
+      {"id": "chupacabra", "x": 30.921, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 29.426, "glowY": 48.353},
+      {"id": "skinwalker", "x": 40.371, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 38.876, "glowY": 48.353},
+      {"id": "yucca", "x": 49.761, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 48.266, "glowY": 48.353},
+      {"id": "llorona", "x": 59.211, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 57.715, "glowY": 48.353},
+      {"id": "mothman", "x": 68.6, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 67.105, "glowY": 48.353},
+      {"id": "slender", "x": 77.871, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 76.376, "glowY": 48.353},
+      {"id": "occultist", "x": 87.022, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 85.526, "glowY": 48.353}
+    ]
+  },
   "stages": [
     {"name": "Blackwood Forest", "image": "assets/asset_09.webp"},
     {"name": "Starved Woods", "image": "assets/asset_10.webp"},

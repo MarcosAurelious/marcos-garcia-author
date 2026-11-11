@@ -39,6 +39,8 @@ def load():
 
 def referenced(data):
     refs = {data.get('title')} | {s['image'] for s in data['stages']}
+    sel = data.get('selectScreen') or {}
+    refs |= {sel.get('art'), sel.get('glow')}
     for f in data['fighters']:
         refs |= {v for k, v in f['sheets'].items() if isinstance(v, str)}
         if f.get('jump', {}).get('sheet'):
@@ -88,6 +90,14 @@ def check():
                 if size and r and abs((size[0] / c) / (size[1] / r) - 1) > 0.6:
                     warnings.append(f'{fid}: {key} sheet {size} looks unusual for a {c}x{r} grid')
         if 'specialMove' not in f: warnings.append(f'{fid}: no special move')
+    sel = data.get('selectScreen')
+    if sel:
+        for k in ('art', 'glow'):
+            if not (ROOT / sel[k]).exists(): errors.append(f'select screen {k} missing: {sel[k]}')
+        shown = {f['id'] for f in data['fighters'] if not f.get('hidden')}
+        placed = {c['id'] for c in sel['cards']}
+        if shown - placed: errors.append(f'playable fighters with no card on the select art: {sorted(shown - placed)}')
+        if placed - set(ids): errors.append(f'select cards for unknown fighters: {sorted(placed - set(ids))}')
     for s in data['stages']:
         if not (ROOT / s['image']).exists(): errors.append(f'stage image missing: {s["image"]}')
     for m in MOVES:

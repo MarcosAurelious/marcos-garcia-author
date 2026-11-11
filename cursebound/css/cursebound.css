@@ -31,7 +31,7 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 #menu.gothic-ready .menu-buttons .primary{border-color:#d77af1;background:linear-gradient(125deg,#642474,#2b102e)}
 #menu.gothic-ready .hint{margin:0 12px 8px}
 #selectedFighterName{display:none}
-#menu.gothic-ready #selectedFighterName{display:block;position:absolute;top:60%;left:34%;width:32%;z-index:3;pointer-events:none;text-align:center;color:#f4d6fc;text-shadow:0 2px 5px #000,0 0 9px #7d1fb5;font:bold clamp(8px,1.15vw,15px) Georgia;letter-spacing:.12em}
+#menu.gothic-ready #selectedFighterName{display:none;position:absolute;top:60%;left:34%;width:32%;z-index:3;pointer-events:none;text-align:center;color:#f4d6fc;text-shadow:0 2px 5px #000,0 0 9px #7d1fb5;font:bold clamp(8px,1.15vw,15px) Georgia;letter-spacing:.12em}
 @media(max-width:750px) and (orientation:portrait){
 #menu.gothic-ready .menu-inner{padding-top:8px}
 #menu.gothic-ready .menu-bottom{flex-direction:column;gap:9px;padding:14px 10px}
@@ -47,3 +47,14 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 #menu.gothic-ready .menu-controls select{padding:4px}
 #menu.gothic-ready .menu-buttons button{min-height:30px}
 }
+/* v4.2 select screen: buttons sit on the painted cards; the purple frame lights up only on the selected fighter */
+.select-glow{display:none}
+#menu.gothic-ready #roster:has(.art-slot){display:block;left:0;right:0;top:0;bottom:0;height:auto}
+#menu.gothic-ready .fighter-card.art-slot{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border:0;background:transparent;box-shadow:none;border-radius:6px}
+#menu.gothic-ready .fighter-card.art-slot.selected,#menu.gothic-ready .fighter-card.art-slot:hover{border:0;background:transparent;box-shadow:none}
+#menu.gothic-ready .fighter-card.art-slot:focus-visible{outline:2px solid #f3d7ff;outline-offset:-4px}
+#menu.gothic-ready .select-glow{display:block;position:absolute;z-index:1;pointer-events:none;opacity:0;transition:opacity .18s ease;filter:drop-shadow(0 0 6px #b23cff)}
+#menu.gothic-ready .select-glow.hover{opacity:.35}
+#menu.gothic-ready .select-glow.on{opacity:1;animation:cbGlow 2.2s ease-in-out infinite}
+@keyframes cbGlow{0%,100%{filter:drop-shadow(0 0 5px #a62cf0) brightness(1)}50%{filter:drop-shadow(0 0 12px #c95bff) brightness(1.18)}}
+@media (prefers-reduced-motion:reduce){#menu.gothic-ready .select-glow.on{animation:none}}

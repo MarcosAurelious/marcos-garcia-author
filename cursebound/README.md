@@ -13,6 +13,7 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 
 ## Common edits (all in `data/fighters.json`)
 - **Hide or unhide a fighter:** add or remove `"hidden": true`.
+- **Select screen:** `selectScreen.cards` places each clickable card on the artwork (in %). The purple frame `assets/select_glow.webp` lights up only on the selected card.
 - **Faster or stronger fighter:** `stats.speed`, `stats.power`, `stats.weight`.
 - **New jump art:** set `jump.sheet`, `jump.cols`, `jump.rows`, the five frame numbers and `"art": true`.
 - **Move timing or damage:** `moves.lp` … `moves.hk`.

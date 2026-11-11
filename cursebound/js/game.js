@@ -59,8 +59,21 @@ for(const r of roster.filter(r=>!r.hidden)){
      g.drawImage(source,0,0,cw,ch,20,5,180,158);thumb.src=c.toDataURL('image/png');
    };source.src=ASSET_URLS[r.id];
  }
- btn.addEventListener('click',()=>{selected=r.id;grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});selectedFighterName.textContent=r.name;if(opponent===selected){opponent=roster.filter(r=>!r.hidden).find(x=>x.id!==selected).id;$('enemySelect').value=opponent;} stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
+ btn.addEventListener('click',()=>{selected=r.id;markSelected();selectedFighterName.textContent=r.name;if(opponent===selected){opponent=roster.filter(r=>!r.hidden).find(x=>x.id!==selected).id;$('enemySelect').value=opponent;} stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
 }
+// v4.2 select screen: each button sits exactly on its card in the artwork, and only the selected card glows.
+const SEL=DATA.selectScreen,selectGlows={};
+if(SEL){const stageEl=$('selectStage');
+ for(const c of SEL.cards){const btn=grid.querySelector(`[data-id="${c.id}"]`);if(!btn)continue;
+  btn.style.setProperty('--x',c.x+'%');btn.style.setProperty('--y',c.y+'%');btn.style.setProperty('--w',c.w+'%');btn.style.setProperty('--h',c.h+'%');btn.classList.add('art-slot');
+  const glow=document.createElement('img');glow.src=SEL.glow;glow.alt='';glow.className='select-glow';glow.dataset.id=c.id;glow.decoding='async';
+  Object.assign(glow.style,{left:c.glowX+'%',top:c.glowY+'%',width:SEL.glowSize.w+'%',height:SEL.glowSize.h+'%'});
+  stageEl.insertBefore(glow,grid);selectGlows[c.id]=glow;
+  btn.addEventListener('pointerenter',()=>glow.classList.add('hover'));btn.addEventListener('pointerleave',()=>glow.classList.remove('hover'));
+  btn.addEventListener('focus',()=>glow.classList.add('hover'));btn.addEventListener('blur',()=>glow.classList.remove('hover'));}
+}
+function markSelected(){grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
+markSelected();
 for(const r of roster){let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
 $('enemySelect').value=opponent;$('enemySelect').addEventListener('change',e=>opponent=e.target.value);
 for(let i=0;i<DATA.stages.length;i++){let opt=document.createElement('option');opt.value=i;opt.textContent=stageNames[i];$('stageSelect').appendChild(opt);}
