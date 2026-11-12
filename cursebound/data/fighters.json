@@ -1005,11 +1005,11 @@
         "power": 0.98
       },
       "sheets": {
-        "motion": "characters/slender-man/slender_motion_v3.webp",
+        "motion": "characters/slender-man/slender_motion_v4.webp",
         "cols": 8,
         "rows": 12,
         "portrait": "characters/slender-man/slender_portrait.webp",
-        "attack": "characters/slender-man/slender_motion_v3.webp",
+        "attack": "characters/slender-man/slender_motion_v4.webp",
         "special": "characters/slender-man/slender_special.webp",
         "attackGridRows": 12,
         "attackRows": {
@@ -1029,7 +1029,8 @@
         "light": [48, 49, 50, 51],
         "heavy": [64, 65, 66, 67],
         "special": [80, 81, 82, 83],
-        "hurt": [88, 89, 90, 91],
+        "hurt": [17, 18, 19],
+        "guard": [20, 21, 22, 23],
         "ko": [92, 93, 94, 95]
       },
       "jump": {
