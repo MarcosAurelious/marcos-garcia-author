@@ -908,11 +908,11 @@
         "power": 1
       },
       "sheets": {
-        "motion": "characters/mothman/mothman_motion_v53.webp",
+        "motion": "characters/mothman/mothman_motion_v54.webp",
         "cols": 8,
         "rows": 12,
-        "attack": "characters/mothman/mothman_motion_v53.webp",
-        "special": "characters/mothman/mothman_special_v50.webp",
+        "attack": "characters/mothman/mothman_motion_v54.webp",
+        "special": "characters/mothman/mothman_special_v54.webp",
         "attackGridRows": 12,
         "attackRows": {
           "lp": 5,
@@ -957,12 +957,12 @@
         "cancelBonus": 2
       },
       "specialMove": {
-        "name": "OMEN DIVE",
-        "total": 42,
+        "name": "OMEN BLAST",
+        "total": 44,
         "cost": 40,
-        "cast": 13,
-        "type": "maul",
-        "reach": 225
+        "cast": 15,
+        "type": "spray",
+        "reach": 700
       },
       "signature": {
         "name": "OMEN RUSH",
