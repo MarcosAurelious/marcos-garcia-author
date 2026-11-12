@@ -28,6 +28,10 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 - **VS CPU / 2 Players:** single best-of-three match against the opponent picked in the menu.
 - **Practice:** the two hunters are test dummies. No timer, your spirit meter stays full, and both fighters refill after a short pause. Buttons along the bottom swap the dummy, change its stance (stand, guard, jump, fight back) and reset positions. The HUD shows hits and damage for the current and last combo, plus your best.
 
+## Tuning
+
+- **Attack speed:** `attackSpeed` near the bottom of `data/fighters.json` (0.91 = normal attacks take about 10% longer than their listed frames; 1 = original speed). Specials and finishers are not affected.
+
 ## Python helper
 ```
 python tools/cursebound_tool.py check    # catches missing files and frame numbers outside a sheet

@@ -26,6 +26,7 @@ const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){
 const JUMP_POSES=byFighter('jump');
 const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=new Image();im.src=j.sheet;jumpImgs[id]=im;}
 const JUMP_CROUCH_TICKS=5,LAND_TICKS=7;
+const ATTACK_RATE=Math.min(1.5,Math.max(.5,+DATA.attackSpeed||1)); // 0.91 = normal attacks take ~10% longer
 const JUMP=Object.assign({velocity:18.4,gravity:.78,forwardSpeed:6.8},DATA.jump||{});
 // v4.4 knockdown art: per-fighter KO sheets (or frames from the fighter's own sheet)
 const koImgs={};for(const f of FIGHTERS)if(f.ko&&f.ko.sheet){const im=new Image();im.src=f.ko.sheet;koImgs[f.id]=im;}
@@ -146,6 +147,7 @@ $('rosterBtn').onclick=()=>openRoster();$('backRoster').onclick=()=>openRoster()
 $('arcadeBtn').onclick=()=>startArcade();$('practiceBtn').onclick=()=>startPractice();
 $('dummyBtn').onclick=()=>{practice.dummy=practice.dummy==='hunter'?'captain':'hunter';opponent=practice.dummy;practiceReset();updatePracticeBar();blip(260,.06);};
 $('playAsBtn').onclick=()=>{const L=PRACTICE_PICKS(),i=L.indexOf(practicePlayer());practice.player=L[(i+1)%L.length];practiceReset();updatePracticeBar();blip(300,.06);};
+$('practiceToggle').onclick=()=>setPracticePanel(!$('practiceBar').classList.contains('open'));$('practiceClose').onclick=()=>setPracticePanel(false);
 $('stanceBtn').onclick=()=>{practice.stance=(practice.stance+1)%STANCES.length;updatePracticeBar();blip(220,.06);};
 $('resetBtn').onclick=()=>{practiceReset();blip(180,.06);};
 $('pauseBtn').onclick=()=>togglePause();
@@ -374,7 +376,8 @@ function arcadeLabel(){if(!arcade)return'';const n=arcade.ladder.length,i=arcade
 function cpuLevel(){if(mode!=='arcade'||!arcade)return .35;if(arcadeBoss())return arcade.idx===arcade.ladder.length-1?1:.85;return Math.min(.75,.15+.6*arcade.idx/Math.max(1,arcade.ladder.length-3));}
 function startPractice(){practice.player=selected;opponent=practice.dummy;beginMatch('practice');}
 function practiceReset(){if(mode!=='practice'||fighters.length!==2)return;fighters[0]=newFighter(practicePlayer(),1);fighters[1]=newFighter(practice.dummy,2);fighters[0].energy=100;Object.assign(practice,{hits:0,dmg:0,hitAt:-999,meHitAt:-999,lastHits:0,lastDmg:0,best:practice.best||0});specialProjectiles.length=0;showSpecialGuide();}
-function updatePracticeBar(){$('practiceBar').hidden=mode!=='practice'||phase==='menu';$('playAsBtn').textContent='PLAY AS: '+rosterById[practicePlayer()].name.toUpperCase();$('dummyBtn').textContent='DUMMY: '+rosterById[practice.dummy].name.toUpperCase();$('stanceBtn').textContent='STANCE: '+STANCES[practice.stance];}
+function setPracticePanel(open){$('practiceBar').classList.toggle('open',open);if(open&&!paused)togglePause();else if(!open&&paused)togglePause();}
+function updatePracticeBar(){const on=mode==='practice'&&phase!=='menu';$('practiceBar').hidden=!on;$('practiceToggle').hidden=!on;if(!on)$('practiceBar').classList.remove('open');$('playAsBtn').textContent='PLAY AS: '+rosterById[practicePlayer()].name.toUpperCase();$('dummyBtn').textContent='DUMMY: '+rosterById[practice.dummy].name.toUpperCase();$('stanceBtn').textContent='STANCE: '+STANCES[practice.stance];}
 function dummyThink(f,foe){f.input.left=f.input.right=f.input.down=f.input.guard=false;if(f.stun||f.ko)return;const st=STANCES[practice.stance];
  if(st==='GUARD')f.input.guard=true;else if(st==='JUMP'){if(f.grounded&&!f.action&&Math.random()<.035)pressed(1,'jump');}else if(st==='FIGHT BACK')cpuThink(f,foe);}
 function practiceTick(){const me=fighters[0],d=fighters[1],P=practice;me.energy=100;
@@ -388,7 +391,7 @@ function resultPrimary(){if(mode!=='arcade'||!arcade){beginMatch(mode);return;}i
 function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';scene=null;showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);const foe=fighters[1];foe.aiLevel=cpuLevel();if(mode==='arcade'&&arcadeBoss())foe.powerMul=arcade.idx===arcade.ladder.length-1?1.15:1.08;
  if(mode==='practice'){practiceReset();introTimer=110;}
  updatePracticeBar();startScene(buildIntroScene(),()=>{introTimer=155;phase='intro';});}
-function openRoster(){phase='menu';scene=null;setCutsceneUi(false);$('practiceBar').hidden=true;cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
+function openRoster(){phase='menu';scene=null;setCutsceneUi(false);$('practiceBar').hidden=true;$('practiceBar').classList.remove('open');$('practiceToggle').hidden=true;cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
 function togglePause(){if(phase==='menu'||phase==='matchover')return;paused=!paused;$('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';clearInput();}
 function clearInput(){keys.clear();for(const f of fighters){for(const k of Object.keys(f.input))f.input[k]=false;}}
 function startNewRound(){for(let i=0;i<2;i++){const f=fighters[i],wins=f.wins;fighters[i]=newFighter(f.r.id,i+1);fighters[i].wins=wins;}clock=90;subframes=0;introTimer=145;phase='intro';cinematic=null;lastFinisher=null;specialProjectiles.length=0;showSpecialGuide();clearInput();}
@@ -502,7 +505,7 @@ function updateFighter(f,opponent,side){
  // Fighters always turn to face the enemy once they are on the ground and free to act (fixes jump-turn lock).
  if(f.grounded&&!f.action&&!f.stun&&f.dash<=0)faceOpponent(f,opponent);
  const prev=f.x;const edgePad=Math.max(112,Math.min(205,f.r.h*.55));f.x=Math.max(edgePad,Math.min(W-edgePad,f.x+f.vx));const delta=Math.abs(f.x-prev);if(f.grounded&&f.dash<=0&&f.stun<=0&&delta>.01)f.gait+=delta;
- if(f.action){const a=f.action==='super'?SPECIAL_INFO[f.r.id]:attackFor(f,f.action);f.actionTick++;
+ if(f.action){const a=f.action==='super'?SPECIAL_INFO[f.r.id]:attackFor(f,f.action);f.actionTick+=f.action==='super'?1:ATTACK_RATE;
   if(f.action==='super')specialPulse(f,opponent);
   else if(f.actionTick>=a.start&&f.actionTick<=a.end&&!f.hitTargets.has(opponent)&&strikeOverlap(f,opponent,a)){
    const impact=hit(f,opponent,a);
@@ -709,7 +712,7 @@ function drawHud(){if(fighters.length!==2)return;ctx.save();ctx.font='700 13px s
    if(f.signatureTicks>0){ctx.font='bold 21px Georgia';ctx.fillStyle='#f2d5a8';ctx.fillText(f.signatureText+'!',x,225);}
    if(canFinisher(f,other)){ctx.font='bold 16px Georgia';ctx.fillStyle='#f5bc91';ctx.shadowColor='#c74f56';ctx.shadowBlur=7;ctx.fillText('FINISHER READY · ↓↘→+HK',x,164);ctx.shadowBlur=0;}
  }
- if(mode==='practice'){ctx.textAlign='center';ctx.font='bold 15px Georgia';ctx.fillStyle='#e8c9a6';ctx.shadowColor='#000';ctx.shadowBlur=6;const P=practice;ctx.fillText(P.hits?`${P.hits} HITS · ${P.dmg} DAMAGE`:`LAST COMBO ${P.lastHits||0} HITS · ${P.lastDmg||0} DAMAGE · BEST ${P.best||0}`,640,196);ctx.shadowBlur=0;}
+ if(mode==='practice'){ctx.textAlign='center';ctx.font='bold 15px Georgia';ctx.fillStyle='#e8c9a6';ctx.shadowColor='#000';ctx.shadowBlur=6;const P=practice;let py=196;const gr=$('specialGuide').getBoundingClientRect(),cr=canvas.getBoundingClientRect();if(gr.height&&cr.height&&getComputedStyle($('specialGuide')).visibility!=='hidden')py=Math.max(py,(gr.bottom-cr.top)*H/cr.height+20);ctx.fillText(P.hits?`${P.hits} HITS · ${P.dmg} DAMAGE`:`LAST COMBO ${P.lastHits||0} HITS · ${P.lastDmg||0} DAMAGE · BEST ${P.best||0}`,640,py);ctx.shadowBlur=0;}
  ctx.restore();}
 function overlayWords(big,small){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='#000';ctx.shadowBlur=16;ctx.fillStyle='#f6e7d4';ctx.font='bold 70px Georgia';ctx.fillText(big,640,306);ctx.font='bold 14px system-ui';ctx.fillStyle='#d0ab9c';ctx.fillText(small,640,362);ctx.restore();}
 function tick(t){if(!lastFrame)lastFrame=t;acc+=Math.min(80,t-lastFrame);lastFrame=t;let cycles=0;while(acc>=STEP&&cycles++<5){step();acc-=STEP;}if(phase!=='menu')drawGame();requestAnimationFrame(tick)}

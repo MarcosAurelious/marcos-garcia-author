@@ -531,6 +531,7 @@
       "cutscene": {"sheet": "cutscenes/bloodymary.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
     }
   ],
+  "attackSpeed": 0.91,
   "jump": {
     "velocity": 18.4,
     "gravity": 0.78,
