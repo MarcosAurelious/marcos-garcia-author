@@ -1481,11 +1481,11 @@
         "power": 1.04
       },
       "sheets": {
-        "motion": "characters/banshee/banshee_motion_c1.webp",
+        "motion": "characters/banshee/banshee_motion_c1_s1.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "characters/banshee/banshee_portrait.webp",
-        "special": "characters/banshee/banshee_special_c1.webp"
+        "special": "characters/banshee/banshee_special_c1_s1.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3, 4, 5, 6, 7],
@@ -1505,7 +1505,7 @@
         "hk": [25, 26, 27, 28, 30]
       },
       "jump": {
-        "sheet": "characters/banshee/banshee_jump.webp",
+        "sheet": "characters/banshee/banshee_jump_s1.webp",
         "cols": 7,
         "rows": 1,
         "padTop": 100,
@@ -1545,7 +1545,8 @@
         "win": [3, 4, 8],
         "vs": 1,
         "vsFocus": 0.08
-      }
+      },
+      "aura": "#c4102a"
     },
     {
       "id": "lilith",
@@ -1559,11 +1560,11 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/lilith/lilith_motion.webp",
+        "motion": "characters/lilith/lilith_motion_s1.webp",
         "cols": 10,
         "rows": 8,
         "portrait": "characters/lilith/lilith_portrait.webp",
-        "special": "characters/lilith/lilith_special.webp"
+        "special": "characters/lilith/lilith_special_s1.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3, 4, 5, 6, 7],
@@ -1616,7 +1617,8 @@
         "win": [5, 6, 8],
         "vs": 0,
         "vsFocus": 0.25
-      }
+      },
+      "aura": "#d1142c"
     }
   ],
   "attackSpeed": {
