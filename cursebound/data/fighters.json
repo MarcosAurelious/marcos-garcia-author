@@ -908,10 +908,10 @@
         "power": 1
       },
       "sheets": {
-        "motion": "characters/mothman/mothman_motion_v52.webp",
+        "motion": "characters/mothman/mothman_motion_v53.webp",
         "cols": 8,
         "rows": 12,
-        "attack": "characters/mothman/mothman_motion_v52.webp",
+        "attack": "characters/mothman/mothman_motion_v53.webp",
         "special": "characters/mothman/mothman_special_v50.webp",
         "attackGridRows": 12,
         "attackRows": {
