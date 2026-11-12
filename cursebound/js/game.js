@@ -12,7 +12,7 @@ const $=(id)=>document.getElementById(id);
 const keys=new Set();let phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
 const menu=$('menu'),battleUi=$('battleUi'),result=$('result');
 const stageNames=DATA.stages.map(s=>s.name);
-const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,stride:f.stride||null,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
+const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,stride:f.stride||null,specialScale:f.specialScale||1,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
@@ -673,7 +673,7 @@ function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.natur
    const img2=specialImgs[r.id],sw=img2.naturalWidth/4,sh=img2.naturalHeight/2,sp=SPECIAL_INFO[r.id];
    const pose=Math.min(7,Math.floor((f.action==='finisher'?(cinematic?.tick||0)/(cinematic?.total||142):f.actionTick/sp.total)*8));
    const specialW=h*(sw/sh),specialH=h;
-   if(r.id==='mothman')drawApprovedMothmanPose(img2,4,2,pose,h,squat);else drawOriginalPose(img2,4,2,pose,-specialW*.47,-specialH*.94+squat,specialW,specialH,'super',f);
+   if(r.id==='mothman')drawApprovedMothmanPose(img2,4,2,pose,h*(r.specialScale||1),squat);else drawOriginalPose(img2,4,2,pose,-specialW*.47,-specialH*.94+squat,specialW,specialH,'super',f);
  }else if(f.action&&ACTION_ROW[f.action]!==undefined&&attackAtlas?.complete&&attackAtlas.naturalWidth){
    const extended=['mothman','slender'].includes(r.id),row=(r.attackRows&&r.attackRows[f.action]!=null)?r.attackRows[f.action]:ACTION_ROW[f.action]+(extended?6:0),cfg=attackFor(f,f.action);
    const pose=Math.min(7,Math.floor(f.actionTick/cfg.total*8));
