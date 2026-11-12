@@ -12,7 +12,7 @@ const $=(id)=>document.getElementById(id);
 const keys=new Set();let phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
 const menu=$('menu'),battleUi=$('battleUi'),result=$('result');
 const stageNames=DATA.stages.map(s=>s.name);
-const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,aura:f.aura||null,stride:f.stride||null,specialScale:f.specialScale||1,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
+const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,aura:f.aura||null,auraStrength:f.auraStrength??1,stride:f.stride||null,specialScale:f.specialScale||1,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
@@ -664,7 +664,7 @@ function drawApprovedMothmanPose(image,cols,rows,index,height,squat=0){
 
 function drawAfterFighter(f){if(f.blockFlash>0){ctx.save();ctx.globalAlpha=f.blockFlash/12*.7;ctx.fillStyle='#e6d9c7';ctx.beginPath();ctx.arc(f.x+f.face*40,f.y-132,19,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.naturalWidth)return;const frame=currentFrame(f),cellw=img.naturalWidth/r.cols,cellh=img.naturalHeight/r.rows;const h=r.h,w=h*cellw/cellh;
- ctx.save();ctx.translate(f.x,f.y);if(f.face<0)ctx.scale(-1,1);if(f.inv>0&&f.inv%3===0)ctx.globalAlpha=.65;if(r.aura&&!f.ko){const p=.5+.5*Math.sin(frameNo*.07+(f.x*.01));ctx.shadowColor=r.aura;ctx.shadowBlur=14+12*p;}
+ ctx.save();ctx.translate(f.x,f.y);if(f.face<0)ctx.scale(-1,1);if(f.inv>0&&f.inv%3===0)ctx.globalAlpha=.65;if(r.aura&&!f.ko){const p=.5+.5*Math.sin(frameNo*.07+(f.x*.01));ctx.shadowColor=r.aura;ctx.shadowBlur=(14+12*p)*(r.auraStrength??1);}
  // Maintain a consistent foot anchor without redrawing or transforming anatomy.
  if(f.ko)ctx.globalAlpha*=.95;
  const squat=f.crouch?9:0;
