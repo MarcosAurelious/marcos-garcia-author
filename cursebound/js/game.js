@@ -12,7 +12,7 @@ const $=(id)=>document.getElementById(id);
 const keys=new Set();let phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
 const menu=$('menu'),battleUi=$('battleUi'),result=$('result');
 const stageNames=DATA.stages.map(s=>s.name);
-const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
+const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,stride:f.stride||null,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
@@ -579,7 +579,7 @@ function drawStage(){const b=backgrounds[stage];ctx.fillStyle='#071015';ctx.fill
 }
 function drawShadow(f){ctx.save();ctx.fillStyle='rgba(0,0,0,.58)';ctx.beginPath();const radius=Math.max(29,Math.min(72,f.r.h*.19)-(GROUND-f.y)*.09);ctx.ellipse(f.x,GROUND+2,radius,13,0,0,Math.PI*2);ctx.fill();ctx.restore();}
 function currentFrame(f){const r=f.r;if((f.animation==='jump'||f.animation==='land')&&!f.action){const jp=jumpPose(f);if(jp!=null)return jp;}const arr=r[f.animation]||r.idle;if(!arr.length)return 0;
- if(f.animation==='walk'||f.animation==='run'){const stride=f.animation==='run'?10:12;return arr[Math.floor(f.gait/stride)%arr.length];}
+ if(f.animation==='walk'||f.animation==='run'){const cyc=(r.stride&&r.stride[f.animation])||(f.animation==='run'?84:96),stride=Math.max(8,cyc/arr.length);return arr[Math.floor(f.gait/stride)%arr.length];}
  if(f.action==='super'||f.action==='finisher')return r.idle[0];
  if(f.action){const cfg=attackFor(f,f.action);return arr[Math.min(arr.length-1,Math.floor(f.actionTick/cfg.total*arr.length))];}
  if(f.animation==='ko'){const k=f.r.koData,fr=(k&&k.frames)||arr;return fr[Math.min(fr.length-1,Math.floor(f.animTime/8))];}
