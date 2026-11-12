@@ -1033,14 +1033,16 @@
         "ko": [92, 93, 94, 95]
       },
       "jump": {
-        "sheet": "characters/slender-man/slender_jump.webp",
-        "cols": 5,
+        "sheet": "characters/slender-man/slender_jump_v2.webp",
+        "cols": 8,
         "rows": 1,
+        "padTop": 20,
         "crouch": 0,
         "rise": 1,
-        "apex": 2,
-        "fall": 3,
-        "land": 4,
+        "riseFwd": 2,
+        "apex": 3,
+        "fall": 4,
+        "land": 6,
         "art": true
       },
       "style": {
