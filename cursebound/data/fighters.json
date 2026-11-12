@@ -2,7 +2,7 @@
   "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v44.webp",
+    "art": "assets/character_select_gothic_v45.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
     "centerPanel": {
