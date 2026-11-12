@@ -1347,10 +1347,12 @@
       },
       "cutscene": {
         "sheet": "cutscenes/babayaga.webp",
-        "cols": 1,
-        "rows": 1,
-        "intro": [0],
-        "win": [0]
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5],
+        "vs": 1,
+        "vsFocus": 0.3
       }
     },
     {
