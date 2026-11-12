@@ -25,7 +25,7 @@
       "skinwalker": "assets/select_panels/skinwalker.webp",
       "yucca": "assets/select_panels/yucca.webp",
       "llorona": "assets/select_panels/llorona.webp",
-      "mothman": "assets/select_panels/mothman.webp",
+      "mothman": "assets/select_panels/mothman_v2.webp",
       "slender": "assets/select_panels/slender.webp",
       "banshee": "assets/select_panels/banshee.webp",
       "bloodymary": "assets/select_panels/bloodymary.webp",
@@ -921,7 +921,8 @@
           "lk": 7,
           "mk": 10,
           "hk": 9
-        }
+        },
+        "portrait": "characters/mothman/mothman_portrait_v2.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3, 4, 5, 6, 7],
@@ -981,11 +982,14 @@
         "frames": [0, 1, 2, 3, 4, 5]
       },
       "cutscene": {
-        "sheet": "cutscenes/mothman.webp",
+        "sheet": "cutscenes/mothman_v2.webp",
         "cols": 2,
         "rows": 3,
-        "intro": [0, 1, 2],
-        "win": [3, 4, 5]
+        "intro": [0, 2, 1],
+        "win": [4, 3, 5],
+        "vs": 1,
+        "vsFocus": 0.4,
+        "inset": 0
       },
       "specialScale": 1.2941
     },
