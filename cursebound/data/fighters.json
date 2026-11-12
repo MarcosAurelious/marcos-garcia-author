@@ -908,10 +908,10 @@
         "power": 1
       },
       "sheets": {
-        "motion": "characters/mothman/mothman_motion_v50.webp",
+        "motion": "characters/mothman/mothman_motion_v52.webp",
         "cols": 8,
         "rows": 12,
-        "attack": "characters/mothman/mothman_motion_v50.webp",
+        "attack": "characters/mothman/mothman_motion_v52.webp",
         "special": "characters/mothman/mothman_special_v50.webp",
         "attackGridRows": 12,
         "attackRows": {
@@ -935,15 +935,17 @@
         "ko": [35]
       },
       "jump": {
-        "sheet": "characters/mothman/mothman_jump_v50.webp",
-        "cols": 5,
+        "sheet": "characters/mothman/mothman_jump_v52.webp",
+        "cols": 8,
         "rows": 1,
         "padTop": 100,
         "crouch": 0,
         "rise": 1,
-        "apex": 2,
-        "fall": 3,
-        "land": 4,
+        "riseFwd": 2,
+        "apex": 3,
+        "apexFwd": 4,
+        "fall": 5,
+        "land": 6,
         "art": true
       },
       "style": {
