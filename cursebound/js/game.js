@@ -12,7 +12,7 @@ const $=(id)=>document.getElementById(id);
 const keys=new Set();let phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
 const menu=$('menu'),battleUi=$('battleUi'),result=$('result');
 const stageNames=DATA.stages.map(s=>s.name);
-const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
+const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
@@ -137,7 +137,7 @@ function showCenter(id){if(!centerName)return;for(const [pid,im] of Object.entri
  const r=rosterById[id];centerName.firstChild.textContent=r?r.name.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):'';requestAnimationFrame(fitCenterName);if(document.fonts)document.fonts.ready.then(fitCenterName);}
 function markSelected(){showCenter(selected);grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
 markSelected();
-for(const r of roster){let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
+for(const r of roster){if(r.arcadeOnly)continue;let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
 $('enemySelect').value=opponent;$('enemySelect').addEventListener('change',e=>opponent=e.target.value);
 for(let i=0;i<DATA.stages.length;i++){let opt=document.createElement('option');opt.value=i;opt.textContent=stageNames[i];$('stageSelect').appendChild(opt);}
 $('stageSelect').value=0;$('stageSelect').addEventListener('change',e=>stage=Number(e.target.value));
@@ -360,7 +360,7 @@ function drawSpecialFX(){
 function showSpecialGuide(){const f=fighters[0],sp=f&&SPECIAL_INFO[f.r.id];$('specialGuide').textContent=sp?`${sp.name} ↓↘→+HP · FINISH ↓↘→+HK`:'SPECIAL ↓↘→+HP · FINISH ↓↘→+HK';}
 function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null,airTicks:0,landTicks:0};}
 // ---- Arcade ladder (every other fighter, then the two hunters as bosses) and practice with hunter test dummies ----
-const PLAYABLE=roster.filter(r=>!r.hidden).map(r=>r.id),BOSSES=['hunter','captain'];
+const PLAYABLE=roster.filter(r=>!r.hidden).map(r=>r.id),BOSSES=['babayaga','hunter','captain'].filter(id=>rosterById[id]);
 let arcade=null,practice={dummy:'hunter',stance:0};
 const STANCES=['STAND','GUARD','JUMP','FIGHT BACK'];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}

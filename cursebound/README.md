@@ -24,7 +24,7 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 
 ## Game modes
 
-- **Arcade:** fight every other playable fighter in random order (the CPU gets tougher each stage), then the Blackwood Hunter (boss) and the Hunter Captain (final boss, hits 15% harder). Lose and you can continue from the same fight. Full intro cutscenes play on the first fight and the boss fights; other fights go straight to the VS card. Clearing the last fight plays your fighter's victory cutscene.
+- **Arcade:** fight every other playable fighter in random order (the CPU gets tougher each stage), then three bosses: Baba Yaga, the Blackwood Hunter and the Hunter Captain (final boss, hits 15% harder). Baba Yaga is arcade-only (`"arcadeOnly": true` keeps her out of the VS CPU / 2 Players opponent list). Lose and you can continue from the same fight. Full intro cutscenes play on the first fight and the boss fights; other fights go straight to the VS card. Clearing the last fight plays your fighter's victory cutscene.
 - **VS CPU / 2 Players:** single best-of-three match against the opponent picked in the menu.
 - **Practice:** the two hunters are test dummies. No timer, your spirit meter stays full, and both fighters refill after a short pause. Buttons along the bottom swap the dummy, change its stance (stand, guard, jump, fight back) and reset positions. The HUD shows hits and damage for the current and last combo, plus your best.
 

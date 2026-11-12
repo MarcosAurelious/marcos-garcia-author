@@ -465,6 +465,38 @@
       "style": {"tempo": 1.12, "reach": 1.07, "power": 1.09, "hurtW": 51, "hurtH": 161, "cancelBonus": 0},
       "specialMove": {"name": "EXECUTIONER STRIKE", "total": 45, "cost": 40, "cast": 20, "type": "maul", "reach": 210},
       "ko": {"sheet": "characters/ko/captain_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]}
+    },
+    {
+      "id": "babayaga",
+      "name": "BABA YAGA",
+      "epithet": "The Bone Witch",
+      "hidden": true,
+      "arcadeOnly": true,
+      "color": "#c2452f",
+      "stats": {"height": 280, "weight": 1.02, "speed": 4.7, "power": 1.06},
+      "sheets": {"motion": "characters/baba-yaga/babayaga_motion.webp", "cols": 10, "rows": 6, "portrait": "characters/baba-yaga/babayaga_portrait.webp", "special": "characters/baba-yaga/babayaga_special.webp"},
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11],
+        "run": [17,18,19,20],
+        "jump": [32,33,34],
+        "light": [41,42,44,46],
+        "heavy": [42,44,45,46],
+        "special": [28,29,30,31],
+        "hurt": [51,52],
+        "ko": [57],
+        "lp": [47,48,50],
+        "mp": [42,44,46],
+        "hp": [42,43,44,45,46],
+        "lk": [17,18,19],
+        "mk": [12,13,14,15],
+        "hk": [47,48,49,50]
+      },
+      "jump": {"sheet": "characters/baba-yaga/babayaga_jump.webp", "cols": 9, "rows": 1, "padTop": 90, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 6, "land": 7, "art": true},
+      "style": {"tempo": 1, "reach": 1.1, "power": 1.06, "hurtW": 52, "hurtH": 150, "cancelBonus": 1},
+      "specialMove": {"name": "BONE HEX", "total": 49, "cost": 40, "cast": 21, "type": "spirit", "reach": 760},
+      "ko": {"frames": [53, 54, 55, 56, 57]},
+      "cutscene": {"sheet": "cutscenes/babayaga.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
     }
   ],
   "jump": {
