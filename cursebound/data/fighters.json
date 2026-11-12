@@ -322,11 +322,11 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "assets/asset_18.webp",
+        "motion": "assets/asset_18_c1.webp",
         "cols": 6,
         "rows": 4,
         "portrait": "assets/asset_19.webp",
-        "attack": "assets/asset_24.webp",
+        "attack": "assets/asset_24_c1.webp",
         "special": "assets/asset_30.webp"
       },
       "frames": {
@@ -380,7 +380,7 @@
         "type": "maul"
       },
       "ko": {
-        "sheet": "characters/ko/wolf_ko.webp",
+        "sheet": "characters/ko/wolf_ko_c1.webp",
         "cols": 4,
         "rows": 1,
         "frames": [0, 1, 2, 3]
@@ -391,6 +391,10 @@
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5]
+      },
+      "stride": {
+        "walk": 176,
+        "run": 160
       }
     },
     {
@@ -461,7 +465,7 @@
         "type": "drain"
       },
       "ko": {
-        "sheet": "characters/ko/wendigo_ko.webp",
+        "sheet": "characters/ko/wendigo_ko_c1.webp",
         "cols": 4,
         "rows": 1,
         "frames": [0, 1, 2, 3]
@@ -472,6 +476,10 @@
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5]
+      },
+      "stride": {
+        "walk": 240,
+        "run": 200
       }
     },
     {
@@ -505,7 +513,7 @@
         "ko": [13, 14, 15]
       },
       "jump": {
-        "sheet": "characters/yucca/yucca_jump.webp",
+        "sheet": "characters/yucca/yucca_jump_c1.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 70,
@@ -565,12 +573,12 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "assets/asset_20_v40.webp",
+        "motion": "assets/asset_20_v40_c1.webp",
         "cols": 4,
         "rows": 4,
         "portrait": "assets/asset_21.webp",
-        "attack": "assets/asset_27_v40.webp",
-        "special": "assets/asset_32.webp"
+        "attack": "assets/asset_27_v40_c1.webp",
+        "special": "assets/asset_32_c1.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3],
@@ -811,7 +819,7 @@
         "cols": 8,
         "rows": 12,
         "portrait": "characters/la-llorona/llorona_portrait_v31.webp",
-        "attack": "characters/la-llorona/llorona_attack_v46.webp",
+        "attack": "characters/la-llorona/llorona_attack_v46_c1.webp",
         "special": "characters/la-llorona/llorona_special_v31.webp",
         "attackGridRows": 6,
         "attackRows": {
@@ -835,7 +843,7 @@
         "ko": [88, 89, 90, 91]
       },
       "jump": {
-        "sheet": "characters/la-llorona/llorona_jump.webp",
+        "sheet": "characters/la-llorona/llorona_jump_c1.webp",
         "cols": 7,
         "rows": 1,
         "crouch": 0,
@@ -882,6 +890,10 @@
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5]
+      },
+      "stride": {
+        "walk": 176,
+        "run": 160
       }
     },
     {
@@ -896,10 +908,10 @@
         "power": 1
       },
       "sheets": {
-        "motion": "characters/mothman/mothman_motion_approved.webp",
+        "motion": "characters/mothman/mothman_motion_approved_c1.webp",
         "cols": 8,
         "rows": 12,
-        "attack": "characters/mothman/mothman_motion_approved.webp",
+        "attack": "characters/mothman/mothman_motion_approved_c1.webp",
         "special": "characters/mothman/mothman_special.webp",
         "attackGridRows": 12,
         "attackRows": {
@@ -1072,12 +1084,12 @@
         "power": 1.04
       },
       "sheets": {
-        "motion": "characters/occultist/occultist_motion_v31.webp",
+        "motion": "characters/occultist/occultist_motion_v31_c1.webp",
         "cols": 8,
         "rows": 12,
         "portrait": "characters/occultist/occultist_portrait_v31.webp",
-        "attack": "characters/occultist/occultist_attack_v46.webp",
-        "special": "characters/occultist/occultist_special_v31.webp",
+        "attack": "characters/occultist/occultist_attack_v46_c1.webp",
+        "special": "characters/occultist/occultist_special_v31_c1.webp",
         "attackGridRows": 6,
         "attackRows": {
           "lp": 0,
@@ -1146,6 +1158,10 @@
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5]
+      },
+      "stride": {
+        "walk": 176,
+        "run": 160
       }
     },
     {
@@ -1229,7 +1245,7 @@
         "power": 1.12
       },
       "sheets": {
-        "motion": "assets/asset_01.webp",
+        "motion": "assets/asset_01_c1.webp",
         "cols": 6,
         "rows": 4,
         "portrait": "assets/asset_02.webp"
@@ -1275,7 +1291,7 @@
         "reach": 210
       },
       "ko": {
-        "sheet": "characters/ko/captain_ko.webp",
+        "sheet": "characters/ko/captain_ko_c1.webp",
         "cols": 4,
         "rows": 1,
         "frames": [0, 1, 2, 3]
@@ -1293,7 +1309,7 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/baba-yaga/babayaga_motion.webp",
+        "motion": "characters/baba-yaga/babayaga_motion_c1.webp",
         "cols": 10,
         "rows": 6,
         "portrait": "characters/baba-yaga/babayaga_portrait.webp",
@@ -1436,6 +1452,10 @@
         "vs": 5,
         "vsFocus": 0.42,
         "inset": 2
+      },
+      "stride": {
+        "walk": 176,
+        "run": 160
       }
     },
     {
@@ -1450,11 +1470,11 @@
         "power": 1.04
       },
       "sheets": {
-        "motion": "characters/banshee/banshee_motion.webp",
+        "motion": "characters/banshee/banshee_motion_c1.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "characters/banshee/banshee_portrait.webp",
-        "special": "characters/banshee/banshee_special.webp"
+        "special": "characters/banshee/banshee_special_c1.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3, 4, 5, 6, 7],
