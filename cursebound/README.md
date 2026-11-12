@@ -30,7 +30,7 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 
 ## Tuning
 
-- **Attack speed:** `attackSpeed` near the bottom of `data/fighters.json` (0.91 = normal attacks take about 10% longer than their listed frames; 1 = original speed). Specials and finishers are not affected.
+- **Attack speed:** `attackSpeed` near the bottom of `data/fighters.json`, one number per button (0.8 = that attack takes 25% longer; 1 = original speed). A single number applies to all six. Specials and finishers are not affected.
 
 ## Python helper
 ```

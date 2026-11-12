@@ -26,7 +26,8 @@ const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){
 const JUMP_POSES=byFighter('jump');
 const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=new Image();im.src=j.sheet;jumpImgs[id]=im;}
 const JUMP_CROUCH_TICKS=5,LAND_TICKS=7;
-const ATTACK_RATE=Math.min(1.5,Math.max(.5,+DATA.attackSpeed||1)); // 0.91 = normal attacks take ~10% longer
+const ATTACK_SPEED=DATA.attackSpeed??1; // per button: 0.8 = that attack takes 25% longer
+const attackRate=m=>{const v=typeof ATTACK_SPEED==='object'?(ATTACK_SPEED[m]??1):ATTACK_SPEED;return Math.min(1.5,Math.max(.4,+v||1));};
 const JUMP=Object.assign({velocity:18.4,gravity:.78,forwardSpeed:6.8},DATA.jump||{});
 // v4.4 knockdown art: per-fighter KO sheets (or frames from the fighter's own sheet)
 const koImgs={};for(const f of FIGHTERS)if(f.ko&&f.ko.sheet){const im=new Image();im.src=f.ko.sheet;koImgs[f.id]=im;}
@@ -505,7 +506,7 @@ function updateFighter(f,opponent,side){
  // Fighters always turn to face the enemy once they are on the ground and free to act (fixes jump-turn lock).
  if(f.grounded&&!f.action&&!f.stun&&f.dash<=0)faceOpponent(f,opponent);
  const prev=f.x;const edgePad=Math.max(112,Math.min(205,f.r.h*.55));f.x=Math.max(edgePad,Math.min(W-edgePad,f.x+f.vx));const delta=Math.abs(f.x-prev);if(f.grounded&&f.dash<=0&&f.stun<=0&&delta>.01)f.gait+=delta;
- if(f.action){const a=f.action==='super'?SPECIAL_INFO[f.r.id]:attackFor(f,f.action);f.actionTick+=f.action==='super'?1:ATTACK_RATE;
+ if(f.action){const a=f.action==='super'?SPECIAL_INFO[f.r.id]:attackFor(f,f.action);f.actionTick+=f.action==='super'?1:attackRate(f.action);
   if(f.action==='super')specialPulse(f,opponent);
   else if(f.actionTick>=a.start&&f.actionTick<=a.end&&!f.hitTargets.has(opponent)&&strikeOverlap(f,opponent,a)){
    const impact=hit(f,opponent,a);
