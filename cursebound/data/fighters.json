@@ -1005,11 +1005,11 @@
         "power": 0.98
       },
       "sheets": {
-        "motion": "characters/slender-man/slender_motion_v2.webp",
+        "motion": "characters/slender-man/slender_motion_v3.webp",
         "cols": 8,
         "rows": 12,
         "portrait": "characters/slender-man/slender_portrait.webp",
-        "attack": "characters/slender-man/slender_motion_v2.webp",
+        "attack": "characters/slender-man/slender_motion_v3.webp",
         "special": "characters/slender-man/slender_special.webp",
         "attackGridRows": 12,
         "attackRows": {
