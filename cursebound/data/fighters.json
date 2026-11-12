@@ -529,6 +529,38 @@
       "specialMove": {"name": "MIRROR CURSE", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 660},
       "ko": {"frames": [60, 61, 62, 63, 64]},
       "cutscene": {"sheet": "cutscenes/bloodymary.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
+    },
+    {
+      "id": "banshee",
+      "name": "THE BANSHEE",
+      "epithet": "The Wailing Death",
+      "hidden": true,
+      "arcadeOnly": true,
+      "color": "#a8202a",
+      "stats": {"height": 280, "weight": 0.92, "speed": 5.3, "power": 1.04},
+      "sheets": {"motion": "characters/banshee/banshee_motion.webp", "cols": 8, "rows": 6, "portrait": "characters/banshee/banshee_portrait.webp", "special": "characters/banshee/banshee_special.webp"},
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [19,20,21,22],
+        "jump": [18,20,21],
+        "light": [32,33,39],
+        "heavy": [34,36,37,38],
+        "special": [33,34,40,40],
+        "hurt": [41,42],
+        "ko": [47],
+        "lp": [32,33,39],
+        "mp": [34,35,38],
+        "hp": [34,35,36,37,38],
+        "lk": [24,25,31],
+        "mk": [29,30,31],
+        "hk": [25,26,27,28,30]
+      },
+      "jump": {"sheet": "characters/banshee/banshee_jump.webp", "cols": 7, "rows": 1, "padTop": 100, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 3, "apexFwd": 4, "fall": 5, "land": 6, "art": true},
+      "style": {"tempo": 1.02, "reach": 1.08, "power": 1.04, "hurtW": 50, "hurtH": 150, "cancelBonus": 1},
+      "specialMove": {"name": "BANSHEE WAIL", "total": 48, "cost": 40, "cast": 20, "type": "spirit", "reach": 780},
+      "ko": {"frames": [43, 44, 45, 46, 47]},
+      "cutscene": {"sheet": "cutscenes/banshee.webp", "cols": 3, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 8]}
     }
   ],
   "attackSpeed": {"lp": 0.8, "lk": 0.8, "mp": 0.83, "mk": 0.83, "hp": 0.91, "hk": 0.91},
