@@ -1560,9 +1560,9 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/lilith/lilith_motion_v3.webp",
+        "motion": "characters/lilith/lilith_motion_v4.webp",
         "cols": 10,
-        "rows": 17,
+        "rows": 20,
         "portrait": "characters/lilith/lilith_portrait_v2.webp",
         "special": "characters/lilith/lilith_special_v3.webp"
       },
@@ -1574,8 +1574,10 @@
         "light": [100, 102, 104, 105, 106],
         "heavy": [121, 123, 124, 125, 126],
         "special": [141, 142, 143, 144],
-        "hurt": [52, 53],
-        "ko": [66],
+        "hurt": [180, 181],
+        "guard": [184, 185, 186, 187],
+        "air": [170, 171, 172, 173, 174],
+        "ko": [197],
         "lp": [100, 102, 103, 104, 105, 106, 107],
         "mp": [111, 112, 113, 114, 115, 116],
         "hp": [121, 122, 123, 124, 125, 126, 127],
@@ -1614,7 +1616,7 @@
         "reach": 700
       },
       "ko": {
-        "frames": [62, 63, 64, 65, 66]
+        "frames": [190, 191, 192, 193, 194, 195, 196, 197]
       },
       "cutscene": {
         "sheet": "cutscenes/lilith_v2.webp",

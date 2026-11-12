@@ -519,7 +519,7 @@ function updateFighter(f,opponent,side){
    if(next&&phase==='fight'&&!f.stun)pressed(side,next);
   }
  }
- const anim=f.ko?'ko':f.stun?'hurt':f.action||(!f.grounded?'jump':f.landTicks>0&&!f.guard&&Math.abs(f.vx)<2.5?'land':f.dash>0?'run':f.guard?'guard':f.crouch?'idle':Math.abs(f.vx)>(f.animation==='run'?2.85:3.6)?'run':Math.abs(f.vx)>.44?'walk':'idle');
+ const anim=f.ko?'ko':f.stun?(f.blockFlash>0&&f.r.guard?'guard':'hurt'):f.action||(!f.grounded?'jump':f.landTicks>0&&!f.guard&&Math.abs(f.vx)<2.5?'land':f.dash>0?'run':f.guard?'guard':f.crouch?'idle':Math.abs(f.vx)>(f.animation==='run'?2.85:3.6)?'run':Math.abs(f.vx)>.44?'walk':'idle');
  if(anim!==f.animation){f.animation=anim;f.animTime=0;}else f.animTime++;
 }
 // Pushbox: keep bodies apart without shoving anyone through the arena walls.
@@ -581,6 +581,8 @@ function drawShadow(f){ctx.save();ctx.fillStyle='rgba(0,0,0,.58)';ctx.beginPath(
 function currentFrame(f){const r=f.r;if((f.animation==='jump'||f.animation==='land')&&!f.action){const jp=jumpPose(f);if(jp!=null)return jp;}const arr=r[f.animation]||r.idle;if(!arr.length)return 0;
  if(f.animation==='walk'||f.animation==='run'){const cyc=(r.stride&&r.stride[f.animation])||(f.animation==='run'?84:96),stride=Math.max(8,cyc/arr.length);return arr[Math.floor(f.gait/stride)%arr.length];}
  if(f.action==='super'||f.action==='finisher')return r.idle[0];
+ if(f.action&&!f.grounded&&r.air&&r.air.length){const cfg=attackFor(f,f.action),a=r.air;return a[Math.min(a.length-1,Math.floor(f.actionTick/cfg.total*a.length))];}
+ if(f.animation==='guard'&&r.guard)return arr[Math.min(arr.length-1,Math.floor(f.animTime/3))];
  if(f.action){const cfg=attackFor(f,f.action);return arr[Math.min(arr.length-1,Math.floor(f.actionTick/cfg.total*arr.length))];}
  if(f.animation==='ko'){const k=f.r.koData,fr=(k&&k.frames)||arr;return fr[Math.min(fr.length-1,Math.floor(f.animTime/8))];}
  let rate=f.animation==='idle'?14:f.animation==='hurt'?4:f.animation==='jump'?7:8;return arr[Math.floor(f.animTime/rate)%arr.length];}
