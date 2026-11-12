@@ -145,6 +145,7 @@ $('fightCpu').onclick=()=>beginMatch('cpu');$('fightLocal').onclick=()=>beginMat
 $('rosterBtn').onclick=()=>openRoster();$('backRoster').onclick=()=>openRoster();$('rematch').onclick=()=>resultPrimary();
 $('arcadeBtn').onclick=()=>startArcade();$('practiceBtn').onclick=()=>startPractice();
 $('dummyBtn').onclick=()=>{practice.dummy=practice.dummy==='hunter'?'captain':'hunter';opponent=practice.dummy;practiceReset();updatePracticeBar();blip(260,.06);};
+$('playAsBtn').onclick=()=>{const L=PRACTICE_PICKS(),i=L.indexOf(practicePlayer());practice.player=L[(i+1)%L.length];practiceReset();updatePracticeBar();blip(300,.06);};
 $('stanceBtn').onclick=()=>{practice.stance=(practice.stance+1)%STANCES.length;updatePracticeBar();blip(220,.06);};
 $('resetBtn').onclick=()=>{practiceReset();blip(180,.06);};
 $('pauseBtn').onclick=()=>togglePause();
@@ -361,7 +362,9 @@ function showSpecialGuide(){const f=fighters[0],sp=f&&SPECIAL_INFO[f.r.id];$('sp
 function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null,airTicks:0,landTicks:0};}
 // ---- Arcade ladder (every other fighter, then the two hunters as bosses) and practice with hunter test dummies ----
 const PLAYABLE=roster.filter(r=>!r.hidden).map(r=>r.id),BOSSES=['bloodymary','babayaga','hunter','captain'].filter(id=>rosterById[id]);
-let arcade=null,practice={dummy:'hunter',stance:0};
+let arcade=null,practice={dummy:'hunter',stance:0,player:null};
+const PRACTICE_PICKS=()=>PLAYABLE.concat(BOSSES);
+const practicePlayer=()=>practice.player||selected;
 const STANCES=['STAND','GUARD','JUMP','FIGHT BACK'];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function startArcade(){arcade={ladder:shuffle(PLAYABLE.filter(id=>id!==selected)).concat(BOSSES),idx:0,continues:0,cleared:false,next:false};arcadeFight();}
@@ -369,16 +372,16 @@ function arcadeFight(){opponent=arcade.ladder[arcade.idx];$('stageSelect').value
 function arcadeBoss(){return !!arcade&&BOSSES.includes(arcade.ladder[arcade.idx]);}
 function arcadeLabel(){if(!arcade)return'';const n=arcade.ladder.length,i=arcade.idx;return i===n-1?'FINAL BOSS':arcadeBoss()?'BOSS · STAGE '+(i+1)+' OF '+n:'STAGE '+(i+1)+' OF '+n;}
 function cpuLevel(){if(mode!=='arcade'||!arcade)return .35;if(arcadeBoss())return arcade.idx===arcade.ladder.length-1?1:.85;return Math.min(.75,.15+.6*arcade.idx/Math.max(1,arcade.ladder.length-3));}
-function startPractice(){opponent=practice.dummy;beginMatch('practice');}
-function practiceReset(){if(mode!=='practice'||fighters.length!==2)return;fighters[0]=newFighter(selected,1);fighters[1]=newFighter(practice.dummy,2);fighters[0].energy=100;Object.assign(practice,{hits:0,dmg:0,hitAt:-999,meHitAt:-999,lastHits:0,lastDmg:0,best:practice.best||0});specialProjectiles.length=0;showSpecialGuide();}
-function updatePracticeBar(){$('practiceBar').hidden=mode!=='practice'||phase==='menu';$('dummyBtn').textContent='DUMMY: '+rosterById[practice.dummy].name.toUpperCase();$('stanceBtn').textContent='STANCE: '+STANCES[practice.stance];}
+function startPractice(){practice.player=selected;opponent=practice.dummy;beginMatch('practice');}
+function practiceReset(){if(mode!=='practice'||fighters.length!==2)return;fighters[0]=newFighter(practicePlayer(),1);fighters[1]=newFighter(practice.dummy,2);fighters[0].energy=100;Object.assign(practice,{hits:0,dmg:0,hitAt:-999,meHitAt:-999,lastHits:0,lastDmg:0,best:practice.best||0});specialProjectiles.length=0;showSpecialGuide();}
+function updatePracticeBar(){$('practiceBar').hidden=mode!=='practice'||phase==='menu';$('playAsBtn').textContent='PLAY AS: '+rosterById[practicePlayer()].name.toUpperCase();$('dummyBtn').textContent='DUMMY: '+rosterById[practice.dummy].name.toUpperCase();$('stanceBtn').textContent='STANCE: '+STANCES[practice.stance];}
 function dummyThink(f,foe){f.input.left=f.input.right=f.input.down=f.input.guard=false;if(f.stun||f.ko)return;const st=STANCES[practice.stance];
  if(st==='GUARD')f.input.guard=true;else if(st==='JUMP'){if(f.grounded&&!f.action&&Math.random()<.035)pressed(1,'jump');}else if(st==='FIGHT BACK')cpuThink(f,foe);}
 function practiceTick(){const me=fighters[0],d=fighters[1],P=practice;me.energy=100;
  if(P.hits&&frameNo-P.hitAt>50){P.lastHits=P.hits;P.lastDmg=P.dmg;P.best=Math.max(P.best||0,P.dmg);P.hits=0;P.dmg=0;}
  if(d.ko&&frameNo-P.hitAt>80){const x=d.x;fighters[1]=newFighter(P.dummy,2);fighters[1].x=x;faceOpponent(fighters[1],me);}
  else if(!d.ko&&d.health<100&&frameNo-P.hitAt>90)d.health=Math.min(100,d.health+2);
- if(me.ko&&frameNo-P.meHitAt>80){const x=me.x;fighters[0]=newFighter(selected,1);fighters[0].x=x;fighters[0].energy=100;}
+ if(me.ko&&frameNo-P.meHitAt>80){const x=me.x;fighters[0]=newFighter(practicePlayer(),1);fighters[0].x=x;fighters[0].energy=100;}
  else if(!me.ko&&me.health<100&&frameNo-P.meHitAt>90)me.health=Math.min(100,me.health+2);}
 function practiceHit(attacker,defender,damage){if(mode!=='practice')return;if(defender===fighters[1]){if(frameNo-practice.hitAt>50){practice.hits=0;practice.dmg=0;}practice.hits++;practice.dmg+=damage;practice.hitAt=frameNo;}else practice.meHitAt=frameNo;}
 function resultPrimary(){if(mode!=='arcade'||!arcade){beginMatch(mode);return;}if(arcade.cleared){startArcade();return;}if(arcade.next){arcade.idx++;arcade.next=false;}else arcade.continues++;arcadeFight();}
