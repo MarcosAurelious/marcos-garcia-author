@@ -1346,7 +1346,7 @@
         "frames": [53, 54, 55, 56, 57]
       },
       "cutscene": {
-        "sheet": "cutscenes/babayaga.webp",
+        "sheet": "cutscenes/babayaga_v2.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
@@ -1424,7 +1424,7 @@
         "frames": [60, 61, 62, 63, 64]
       },
       "cutscene": {
-        "sheet": "cutscenes/bloodymary.webp",
+        "sheet": "cutscenes/bloodymary_v2.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
