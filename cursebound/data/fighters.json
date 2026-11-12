@@ -1584,11 +1584,17 @@
         "hk": [131, 132, 133, 134, 135, 136]
       },
       "jump": {
-        "crouch": 166,
-        "rise": 155,
-        "apex": 156,
-        "fall": 156,
-        "land": 166,
+        "sheet": "characters/lilith/lilith_jump_v1.webp",
+        "cols": 8,
+        "rows": 1,
+        "padTop": 20,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 3,
+        "apexFwd": 4,
+        "fall": 5,
+        "land": 6,
         "art": true
       },
       "style": {
