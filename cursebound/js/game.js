@@ -48,7 +48,7 @@ function shotReady(s){if(s.kind==='vs')return true;const im=cutImgs[s.id];return
 function stepScene(){const s=scene.shots[scene.idx];if(!shotReady(s)&&scene.wait++<CUT_WAIT)return;const im=cutImgs[s.id];
  if(s.kind!=='vs'&&(!im||!im.naturalWidth)){scene.idx++;scene.t=0;}else{scene.t++;scene.age++;if(scene.t>=s.len){scene.idx++;scene.t=0;scene.wait=0;}}
  if(scene.idx>=scene.shots.length)endScene();else if(scene.t===0){const n=scene.shots[scene.idx];blip(n.kind==='vs'?120:(n.kind==='win'&&n.i===n.n-1?420:180),n.kind==='vs'?.22:.06,'triangle',.03);}}
-function panelRect(id,panel){const c=CUTSCENES[id],im=cutImgs[id],pw=im.naturalWidth/c.cols,ph=im.naturalHeight/c.rows;return{x:(panel%c.cols)*pw,y:Math.floor(panel/c.cols)*ph,w:pw,h:ph};}
+function panelRect(id,panel){const c=CUTSCENES[id],im=cutImgs[id],pw=im.naturalWidth/c.cols,ph=im.naturalHeight/c.rows,g=(c.cols*c.rows>1)?(c.inset??4):0;return{x:(panel%c.cols)*pw+g,y:Math.floor(panel/c.cols)*ph+g,w:pw-2*g,h:ph-2*g};}
 function drawPanel(id,panel,dx,dy,dw,dh,zoom=1,panX=.5,panY=.5){const r=panelRect(id,panel);const da=dw/dh,sa=r.w/r.h;let sw=r.w,sh=r.h;if(sa>da)sw=r.h*da;else sh=r.w/da;sw/=zoom;sh/=zoom;ctx.drawImage(cutImgs[id],r.x+(r.w-sw)*panX,r.y+(r.h-sh)*panY,sw,sh,dx,dy,dw,dh);}
 function sceneFont(px,weight=600){return `${weight} ${px}px "Cormorant Garamond", Georgia, serif`;}
 function sceneText(text,x,y,px,color,align='center',glow='#000',weight=600){ctx.save();ctx.textAlign=align;ctx.textBaseline='middle';ctx.font=sceneFont(px,weight);if('letterSpacing' in ctx)ctx.letterSpacing=Math.round(px*.08)+'px';ctx.shadowColor=glow;ctx.shadowBlur=18;ctx.fillStyle=color;ctx.fillText(text,x,y);ctx.shadowBlur=0;ctx.restore();}
@@ -56,9 +56,10 @@ function drawScene(){const s=scene.shots[scene.idx];ctx.save();ctx.fillStyle='#0
  if(s&&s.kind==='vs')drawVsCard(s);else if(s&&cutImgs[s.id]&&cutImgs[s.id].naturalWidth)drawStoryShot(s);
  ctx.globalAlpha=.55+.25*Math.sin(frameNo*.08);ctx.fillStyle='#cdb7a6';ctx.font='600 13px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText('PRESS ANY BUTTON TO SKIP',W-28,H-24);ctx.restore();}
 function drawStoryShot(s){const t=scene.t,k=t/s.len,last=s.kind==='win'&&s.i===s.n-1;const c=CUTSCENES[s.id],r=panelRect(s.id,s.panel);
- const dh=Math.min(s.kind==='win'?H-190:H-120,Math.round(W*r.h/r.w)),dy=Math.round((H-dh)/2)-(s.kind==='win'?18:0);
+ const maxH=s.kind==='win'?H-190:H-120,sa=r.w/r.h;let dw=W,dh=Math.round(W/sa);if(dh>maxH){dh=maxH;dw=Math.round(dh*sa);}const dx=Math.round((W-dw)/2),dy=Math.round((H-dh)/2)-(s.kind==='win'?18:0);
  const fade=Math.min(1,t/CUT_FADE,last?1:(s.len-t)/CUT_FADE);ctx.globalAlpha=Math.max(0,fade);
- const zoom=1.03+.09*(last?Math.min(1,k*1.4):k),dir=s.i%2?k:1-k;drawPanel(s.id,s.panel,0,dy,W,dh,zoom,.25+.5*dir,.5);
+ const zoom=1+.05*(last?Math.min(1,k*1.4):k),dir=s.i%2?k:1-k;drawPanel(s.id,s.panel,dx,dy,dw,dh,zoom,.35+.3*dir,.4);
+ if(dw<W){ctx.save();ctx.globalAlpha=1;const eg=(x0,x1,a0,a1)=>{const g2=ctx.createLinearGradient(x0,0,x1,0);g2.addColorStop(0,`rgba(0,0,0,${a0})`);g2.addColorStop(1,`rgba(0,0,0,${a1})`);ctx.fillStyle=g2;ctx.fillRect(Math.min(x0,x1),dy,Math.abs(x1-x0),dh);};eg(dx,dx+40,1,0);eg(dx+dw-40,dx+dw,0,1);ctx.fillStyle='#000';ctx.fillRect(0,dy,dx,dh);ctx.fillRect(dx+dw,dy,W-dx-dw,dh);ctx.restore();ctx.globalAlpha=Math.max(0,fade);}
  const g=ctx.createLinearGradient(0,dy+dh-150,0,dy+dh);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.82)');ctx.fillStyle=g;ctx.fillRect(0,dy+dh-150,W,150);
  ctx.globalAlpha=1;ctx.fillStyle='#000';ctx.fillRect(0,0,W,dy);ctx.fillRect(0,dy+dh,W,H-dy-dh);
  ctx.strokeStyle='rgba(205,170,140,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,dy-1);ctx.lineTo(W,dy-1);ctx.moveTo(0,dy+dh+1);ctx.lineTo(W,dy+dh+1);ctx.stroke();
@@ -68,7 +69,7 @@ function drawStoryShot(s){const t=scene.t,k=t/s.len,last=s.kind==='win'&&s.i===s
  ctx.globalAlpha=1;}
 function drawVsCard(s){const t=scene.t,k=Math.min(1,t/14),half=H/2;const [a,b]=fighters;const slide=(1-k)*W*.35;
  const drawHalf=(f,y,dx)=>{ctx.save();ctx.beginPath();ctx.rect(0,y,W,half);ctx.clip();const c=CUTSCENES[f.r.id],im=cutImgs[f.r.id];
-  if(c&&im&&im.naturalWidth)drawPanel(f.r.id,c.intro[0],dx,y,W,half,1.02+.05*(t/s.len),.5,.42);else{ctx.fillStyle='#0b0b10';ctx.fillRect(0,y,W,half);const g=ctx.createLinearGradient(0,y,W,y+half);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,f.r.col||'#3a1d22');ctx.globalAlpha=.35;ctx.fillStyle=g;ctx.fillRect(0,y,W,half);ctx.globalAlpha=1;const pi=portraitImg(f.r.id);if(pi&&pi.complete&&pi.naturalWidth){const ph=half*1.05,pw=ph*pi.naturalWidth/pi.naturalHeight,px=y===0?W*.62:W*.12;ctx.drawImage(pi,px+dx,y+half-ph+8,pw,ph);}}
+  if(c&&im&&im.naturalWidth){const pr=panelRect(f.r.id,c.vs??c.intro[0]),py=c.vsFocus??(pr.w/pr.h<2.2?.28:.42);drawPanel(f.r.id,c.vs??c.intro[0],dx,y,W,half,1.02+.03*(t/s.len),.5,py);}else{ctx.fillStyle='#0b0b10';ctx.fillRect(0,y,W,half);const g=ctx.createLinearGradient(0,y,W,y+half);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,f.r.col||'#3a1d22');ctx.globalAlpha=.35;ctx.fillStyle=g;ctx.fillRect(0,y,W,half);ctx.globalAlpha=1;const pi=portraitImg(f.r.id);if(pi&&pi.complete&&pi.naturalWidth){const ph=half*1.05,pw=ph*pi.naturalWidth/pi.naturalHeight,px=y===0?W*.62:W*.12;ctx.drawImage(pi,px+dx,y+half-ph+8,pw,ph);}}
   ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(0,y,W,half);ctx.restore();};
  drawHalf(a,0,-slide);drawHalf(b,half,slide);
  ctx.fillStyle='#000';ctx.beginPath();ctx.moveTo(0,half-10);ctx.lineTo(W,half-34);ctx.lineTo(W,half+10);ctx.lineTo(0,half+34);ctx.closePath();ctx.fill();
