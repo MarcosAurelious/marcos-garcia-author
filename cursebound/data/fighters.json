@@ -497,6 +497,38 @@
       "specialMove": {"name": "BONE HEX", "total": 49, "cost": 40, "cast": 21, "type": "spirit", "reach": 760},
       "ko": {"frames": [53, 54, 55, 56, 57]},
       "cutscene": {"sheet": "cutscenes/babayaga.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
+    },
+    {
+      "id": "bloodymary",
+      "name": "BLOODY MARY",
+      "epithet": "The Mirror Bride",
+      "hidden": true,
+      "arcadeOnly": true,
+      "color": "#b3262f",
+      "stats": {"height": 280, "weight": 0.94, "speed": 5.2, "power": 1.03},
+      "sheets": {"motion": "characters/bloody-mary/bloodymary_motion.webp", "cols": 10, "rows": 7, "portrait": "characters/bloody-mary/bloodymary_portrait.webp", "special": "characters/bloody-mary/bloodymary_special.webp"},
+      "frames": {
+        "idle": [0,1,2,3,4,5,6,7],
+        "walk": [8,9,10,11,12,13,14,15],
+        "run": [16,17,18,19,20,21,22,23],
+        "jump": [32,33,34],
+        "light": [47,48,49,50],
+        "heavy": [43,45,46,50],
+        "special": [53,54,55,56],
+        "hurt": [58,59],
+        "ko": [64],
+        "lp": [47,48,50],
+        "mp": [42,45,46],
+        "hp": [43,44,45,46,50],
+        "lk": [24,25,26],
+        "mk": [42,43,44],
+        "hk": [44,45,46,49]
+      },
+      "jump": {"sheet": "characters/bloody-mary/bloodymary_jump.webp", "cols": 9, "rows": 1, "padTop": 90, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 6, "land": 7, "art": true},
+      "style": {"tempo": 1.05, "reach": 1.08, "power": 1.03, "hurtW": 48, "hurtH": 155, "cancelBonus": 1},
+      "specialMove": {"name": "MIRROR CURSE", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 660},
+      "ko": {"frames": [60, 61, 62, 63, 64]},
+      "cutscene": {"sheet": "cutscenes/bloodymary.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
     }
   ],
   "jump": {
