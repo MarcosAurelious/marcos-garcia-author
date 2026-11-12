@@ -123,6 +123,8 @@ if(SEL){const stageEl=$('selectStage');
   stageEl.insertBefore(glow,grid);selectGlows[c.id]=glow;
   btn.addEventListener('pointerenter',()=>glow.classList.add('hover'));btn.addEventListener('pointerleave',()=>glow.classList.remove('hover'));
   btn.addEventListener('focus',()=>glow.classList.add('hover'));btn.addEventListener('blur',()=>glow.classList.remove('hover'));}
+ for(const m of SEL.menuButtons||[]){const t=$(m.target);if(!t)continue;const b=document.createElement('button');b.type='button';b.className='art-menu-btn';b.setAttribute('aria-label',t.textContent.trim());
+  for(const k of['x','y','w','h'])b.style.setProperty('--'+k,m[k]+'%');b.addEventListener('click',()=>t.click());stageEl.appendChild(b);}
 }
 // v4.3 center portrait + name banner follow the selected fighter
 const centerPanels={};let centerName=null;
@@ -364,7 +366,7 @@ function drawSpecialFX(){
 function showSpecialGuide(){const f=fighters[0],sp=f&&SPECIAL_INFO[f.r.id];$('specialGuide').textContent=sp?`${sp.name} ↓↘→+HP · FINISH ↓↘→+HK`:'SPECIAL ↓↘→+HP · FINISH ↓↘→+HK';}
 function newFighter(character,side){return {r:rosterById[character],x:side===1?345:935,y:GROUND,vx:0,vy:0,face:side===1?1:-1,health:100,energy:60,wins:0,grounded:true,guard:false,crouch:false,animation:'idle',animFrame:0,animTime:0,gait:0,action:null,actionTick:0,bufferAttack:null,bufferTicks:0,confirmed:false,chainLinks:0,hitTargets:new Set(),stun:0,dash:0,dashCD:0,inv:0,combo:0,comboTimer:0,blockFlash:0,ko:false,aiClock:0,aiChoice:'idle',input:{left:false,right:false,up:false,down:false,guard:false},motion:{downAt:-1e6,forwardAt:-1e6},debuff:'',debuffTicks:0,routeIndex:0,signatureText:'',signatureTicks:0,signaturePending:null,airTicks:0,landTicks:0};}
 // ---- Arcade ladder (every other fighter, then the two hunters as bosses) and practice with hunter test dummies ----
-const PLAYABLE=roster.filter(r=>!r.hidden).map(r=>r.id),BOSSES=['lilith','banshee','bloodymary','babayaga','hunter','captain'].filter(id=>rosterById[id]);
+const PLAYABLE=roster.filter(r=>!r.hidden).map(r=>r.id),BOSSES=['hunter','captain'].filter(id=>rosterById[id]);
 let arcade=null,practice={dummy:'hunter',stance:0,player:null};
 const PRACTICE_PICKS=()=>PLAYABLE.concat(BOSSES);
 const practicePlayer=()=>practice.player||selected;

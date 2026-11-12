@@ -1,12 +1,22 @@
 {
-  "version": "4.5",
+  "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v43.webp",
+    "art": "assets/character_select_gothic_v44.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
-    "centerPanel": {"x": 38.278, "y": 18.704, "w": 24.88, "h": 32.094},
-    "nameBanner": {"x": 43.541, "y": 47.396, "w": 13.158, "h": 4.676},
+    "centerPanel": {
+      "x": 39.809,
+      "y": 18.534,
+      "w": 21.099,
+      "h": 27.586
+    },
+    "nameBanner": {
+      "x": 43.392,
+      "y": 44.397,
+      "w": 14.331,
+      "h": 5.316
+    },
     "panels": {
       "wolf": "assets/select_panels/wolf.webp",
       "wendigo": "assets/select_panels/wendigo.webp",
@@ -16,43 +26,257 @@
       "yucca": "assets/select_panels/yucca.webp",
       "llorona": "assets/select_panels/llorona.webp",
       "mothman": "assets/select_panels/mothman.webp",
-      "slender": "assets/select_panels/slender.webp"
+      "slender": "assets/select_panels/slender.webp",
+      "banshee": "assets/select_panels/banshee.webp",
+      "bloodymary": "assets/select_panels/bloodymary.webp",
+      "lilith": "assets/select_panels/lilith.webp",
+      "babayaga": "assets/select_panels/babayaga.webp"
     },
-    "glowSize": {"w": 12.022, "h": 34.113},
+    "glowSize": {
+      "w": 8.691,
+      "h": 27.805
+    },
+    "menuButtons": [{"target": "arcadeBtn", "x": 15.446, "y": 90.948, "w": 16.561, "h": 7.471}, {"target": "fightCpu", "x": 33.121, "y": 90.948, "w": 16.561, "h": 7.471}, {"target": "fightLocal", "x": 50.717, "y": 90.948, "w": 16.561, "h": 7.471}, {"target": "practiceBtn", "x": 68.232, "y": 90.948, "w": 16.72, "h": 7.471}],
     "cards": [
-      {"id": "wolf", "x": 2.811, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 1.316, "glowY": 48.353},
-      {"id": "wendigo", "x": 12.141, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 10.646, "glowY": 48.353},
-      {"id": "yeti", "x": 21.471, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 19.976, "glowY": 48.353},
-      {"id": "chupacabra", "x": 30.921, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 29.426, "glowY": 48.353},
-      {"id": "skinwalker", "x": 40.371, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 38.876, "glowY": 48.353},
-      {"id": "yucca", "x": 49.761, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 48.266, "glowY": 48.353},
-      {"id": "llorona", "x": 59.211, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 57.715, "glowY": 48.353},
-      {"id": "mothman", "x": 68.6, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 67.105, "glowY": 48.353},
-      {"id": "slender", "x": 77.871, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 76.376, "glowY": 48.353},
-      {"id": "occultist", "x": 87.022, "y": 52.71, "w": 9.211, "h": 28.905, "glowX": 85.526, "glowY": 48.353}
+      {
+        "id": "wolf",
+        "x": 1.433,
+        "y": 55.172,
+        "w": 7.086,
+        "h": 23.563,
+        "glowX": 0.353,
+        "glowY": 51.621
+      },
+      {
+        "id": "wendigo",
+        "x": 8.838,
+        "y": 55.172,
+        "w": 6.369,
+        "h": 23.563,
+        "glowX": 7.866,
+        "glowY": 51.621
+      },
+      {
+        "id": "yeti",
+        "x": 15.525,
+        "y": 55.172,
+        "w": 6.608,
+        "h": 23.563,
+        "glowX": 14.518,
+        "glowY": 51.621
+      },
+      {
+        "id": "chupacabra",
+        "x": 22.452,
+        "y": 55.172,
+        "w": 6.688,
+        "h": 23.563,
+        "glowX": 21.432,
+        "glowY": 51.621
+      },
+      {
+        "id": "skinwalker",
+        "x": 29.459,
+        "y": 55.172,
+        "w": 7.006,
+        "h": 23.563,
+        "glowX": 28.39,
+        "glowY": 51.621
+      },
+      {
+        "id": "yucca",
+        "x": 36.783,
+        "y": 55.172,
+        "w": 6.688,
+        "h": 23.563,
+        "glowX": 35.764,
+        "glowY": 51.621
+      },
+      {
+        "id": "llorona",
+        "x": 43.79,
+        "y": 55.172,
+        "w": 6.608,
+        "h": 23.563,
+        "glowX": 42.782,
+        "glowY": 51.621
+      },
+      {
+        "id": "mothman",
+        "x": 50.717,
+        "y": 55.172,
+        "w": 6.369,
+        "h": 23.563,
+        "glowX": 49.745,
+        "glowY": 51.621
+      },
+      {
+        "id": "slender",
+        "x": 57.404,
+        "y": 55.172,
+        "w": 6.768,
+        "h": 23.563,
+        "glowX": 56.372,
+        "glowY": 51.621
+      },
+      {
+        "id": "occultist",
+        "x": 64.49,
+        "y": 55.172,
+        "w": 6.847,
+        "h": 23.563,
+        "glowX": 63.446,
+        "glowY": 51.621
+      },
+      {
+        "id": "banshee",
+        "x": 71.656,
+        "y": 55.172,
+        "w": 6.529,
+        "h": 23.563,
+        "glowX": 70.66,
+        "glowY": 51.621
+      },
+      {
+        "id": "bloodymary",
+        "x": 78.503,
+        "y": 55.172,
+        "w": 6.608,
+        "h": 23.563,
+        "glowX": 77.495,
+        "glowY": 51.621
+      },
+      {
+        "id": "lilith",
+        "x": 85.43,
+        "y": 55.172,
+        "w": 6.449,
+        "h": 23.563,
+        "glowX": 84.446,
+        "glowY": 51.621
+      },
+      {
+        "id": "babayaga",
+        "x": 92.197,
+        "y": 55.172,
+        "w": 6.608,
+        "h": 23.563,
+        "glowX": 91.19,
+        "glowY": 51.621
+      }
     ]
   },
   "stages": [
-    {"name": "Blackwood Forest", "image": "assets/asset_09.webp"},
-    {"name": "Starved Woods", "image": "assets/asset_10.webp"},
-    {"name": "Forgotten Desert", "image": "assets/asset_11.webp"},
-    {"name": "Frozen Crown", "image": "assets/asset_12.webp"},
-    {"name": "Shattered Veil", "image": "assets/asset_13.webp"},
-    {"name": "Crimson Valley", "image": "assets/asset_14.webp"}
+    {
+      "name": "Blackwood Forest",
+      "image": "assets/asset_09.webp"
+    },
+    {
+      "name": "Starved Woods",
+      "image": "assets/asset_10.webp"
+    },
+    {
+      "name": "Forgotten Desert",
+      "image": "assets/asset_11.webp"
+    },
+    {
+      "name": "Frozen Crown",
+      "image": "assets/asset_12.webp"
+    },
+    {
+      "name": "Shattered Veil",
+      "image": "assets/asset_13.webp"
+    },
+    {
+      "name": "Crimson Valley",
+      "image": "assets/asset_14.webp"
+    }
   ],
   "moves": {
-    "lp": {"start": 4, "end": 7, "total": 15, "damage": 5, "reach": 178, "push": 3, "energy": 6, "cost": 0, "shake": 3, "stun": 9, "category": "punch"},
-    "mp": {"start": 7, "end": 11, "total": 24, "damage": 9, "reach": 189, "push": 7, "energy": 8, "cost": 0, "shake": 5, "stun": 14, "category": "punch"},
-    "hp": {"start": 12, "end": 17, "total": 35, "damage": 16, "reach": 168, "push": 14, "energy": 10, "cost": 0, "shake": 10, "stun": 19, "category": "punch"},
-    "lk": {"start": 6, "end": 9, "total": 19, "damage": 6, "reach": 187, "push": 4, "energy": 7, "cost": 0, "shake": 4, "stun": 10, "category": "kick"},
-    "mk": {"start": 9, "end": 14, "total": 28, "damage": 11, "reach": 187, "push": 9, "energy": 9, "cost": 0, "shake": 7, "stun": 15, "category": "kick"},
-    "hk": {"start": 14, "end": 19, "total": 38, "damage": 17, "reach": 206, "push": 17, "energy": 12, "cost": 0, "shake": 12, "stun": 21, "category": "kick"}
+    "lp": {
+      "start": 4,
+      "end": 7,
+      "total": 15,
+      "damage": 5,
+      "reach": 178,
+      "push": 3,
+      "energy": 6,
+      "cost": 0,
+      "shake": 3,
+      "stun": 9,
+      "category": "punch"
+    },
+    "mp": {
+      "start": 7,
+      "end": 11,
+      "total": 24,
+      "damage": 9,
+      "reach": 189,
+      "push": 7,
+      "energy": 8,
+      "cost": 0,
+      "shake": 5,
+      "stun": 14,
+      "category": "punch"
+    },
+    "hp": {
+      "start": 12,
+      "end": 17,
+      "total": 35,
+      "damage": 16,
+      "reach": 168,
+      "push": 14,
+      "energy": 10,
+      "cost": 0,
+      "shake": 10,
+      "stun": 19,
+      "category": "punch"
+    },
+    "lk": {
+      "start": 6,
+      "end": 9,
+      "total": 19,
+      "damage": 6,
+      "reach": 187,
+      "push": 4,
+      "energy": 7,
+      "cost": 0,
+      "shake": 4,
+      "stun": 10,
+      "category": "kick"
+    },
+    "mk": {
+      "start": 9,
+      "end": 14,
+      "total": 28,
+      "damage": 11,
+      "reach": 187,
+      "push": 9,
+      "energy": 9,
+      "cost": 0,
+      "shake": 7,
+      "stun": 15,
+      "category": "kick"
+    },
+    "hk": {
+      "start": 14,
+      "end": 19,
+      "total": 38,
+      "damage": 17,
+      "reach": 206,
+      "push": 17,
+      "energy": 12,
+      "cost": 0,
+      "shake": 12,
+      "stun": 21,
+      "category": "kick"
+    }
   },
   "comboRoutes": {
-    "lp": ["mp","hp","lk","mk","super"],
-    "mp": ["hp","mk","hk","super"],
-    "lk": ["mk","hk","mp","super"],
-    "mk": ["hk","hp","super"],
+    "lp": ["mp", "hp", "lk", "mk", "super"],
+    "mp": ["hp", "mk", "hk", "super"],
+    "lk": ["mk", "hk", "mp", "super"],
+    "mk": ["hk", "hp", "super"],
     "hp": ["super"],
     "hk": ["super"]
   },
@@ -62,7 +286,12 @@
       "name": "WEREWOLF",
       "epithet": "The Lament",
       "color": "#c45b55",
-      "stats": {"height": 258, "weight": 1.08, "speed": 5.25, "power": 1.06},
+      "stats": {
+        "height": 258,
+        "weight": 1.08,
+        "speed": 5.25,
+        "power": 1.06
+      },
       "sheets": {
         "motion": "assets/asset_18.webp",
         "cols": 6,
@@ -72,14 +301,14 @@
         "special": "assets/asset_30.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7,8,9,10,11],
-        "run": [10,11,12,13,14,15,16,17],
-        "jump": [14,15,16],
-        "light": [18,19,20,21,22],
-        "heavy": [13,14,15,16,17],
-        "special": [19,20,21,22,23],
-        "hurt": [19,20],
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7, 8, 9, 10, 11],
+        "run": [10, 11, 12, 13, 14, 15, 16, 17],
+        "jump": [14, 15, 16],
+        "light": [18, 19, 20, 21, 22],
+        "heavy": [13, 14, 15, 16, 17],
+        "special": [19, 20, 21, 22, 23],
+        "hurt": [19, 20],
         "ko": [23]
       },
       "jump": {
@@ -95,19 +324,57 @@
         "land": 4,
         "art": true
       },
-      "style": {"tempo": 0.95, "reach": 1.02, "power": 1, "hurtW": 46, "hurtH": 146, "cancelBonus": 1},
-      "specialMove": {"name": "MAUL ATTACK", "total": 39, "cost": 40, "cast": 14, "type": "maul", "reach": 204},
-      "signature": {"name": "RAVAGER CHAIN", "moves": ["lp", "mp", "hp"]},
-      "finisher": {"name": "LAST HUNT", "caption": "THE CURSE UNLEASHED", "color": "#cb746b", "type": "maul"},
-      "ko": {"sheet": "characters/ko/wolf_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]},
-      "cutscene": {"sheet": "cutscenes/wolf.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "style": {
+        "tempo": 0.95,
+        "reach": 1.02,
+        "power": 1,
+        "hurtW": 46,
+        "hurtH": 146,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "MAUL ATTACK",
+        "total": 39,
+        "cost": 40,
+        "cast": 14,
+        "type": "maul",
+        "reach": 204
+      },
+      "signature": {
+        "name": "RAVAGER CHAIN",
+        "moves": ["lp", "mp", "hp"]
+      },
+      "finisher": {
+        "name": "LAST HUNT",
+        "caption": "THE CURSE UNLEASHED",
+        "color": "#cb746b",
+        "type": "maul"
+      },
+      "ko": {
+        "sheet": "characters/ko/wolf_ko.webp",
+        "cols": 4,
+        "rows": 1,
+        "frames": [0, 1, 2, 3]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/wolf.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "wendigo",
       "name": "WENDIGO",
       "epithet": "The Hunger",
       "color": "#9bbed0",
-      "stats": {"height": 292, "weight": 0.86, "speed": 5.75, "power": 0.96},
+      "stats": {
+        "height": 292,
+        "weight": 0.86,
+        "speed": 5.75,
+        "power": 0.96
+      },
       "sheets": {
         "motion": "assets/asset_16_v40.webp",
         "cols": 8,
@@ -117,30 +384,78 @@
         "special": "assets/asset_31.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23,24,25,26,27],
-        "jump": [22,23,24,25],
-        "light": [25,26,27,28,29],
-        "heavy": [26,27,28,29,30],
-        "special": [27,28,29,30,31],
-        "hurt": [28,30],
+        "idle": [0, 1, 2, 3],
+        "walk": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+        "jump": [22, 23, 24, 25],
+        "light": [25, 26, 27, 28, 29],
+        "heavy": [26, 27, 28, 29, 30],
+        "special": [27, 28, 29, 30, 31],
+        "hurt": [28, 30],
         "ko": [31]
       },
-      "jump": {"sheet": "characters/wendigo/wendigo_jump.webp", "cols": 5, "rows": 1, "crouch": 0, "rise": 1, "apex": 2, "fall": 3, "land": 4, "art": true},
-      "style": {"tempo": 0.96, "reach": 1.14, "power": 0.96, "hurtW": 42, "hurtH": 155, "cancelBonus": 2},
-      "specialMove": {"name": "SOUL STEALER", "total": 56, "cost": 40, "cast": 20, "type": "drain", "reach": 330},
-      "signature": {"name": "HUNGER SPIRAL", "moves": ["lk", "mp", "hk"]},
-      "finisher": {"name": "HUNGER’S END", "caption": "THE LOST SOULS CALL", "color": "#b9d5db", "type": "drain"},
-      "ko": {"sheet": "characters/ko/wendigo_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]},
-      "cutscene": {"sheet": "cutscenes/wendigo.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/wendigo/wendigo_jump.webp",
+        "cols": 5,
+        "rows": 1,
+        "crouch": 0,
+        "rise": 1,
+        "apex": 2,
+        "fall": 3,
+        "land": 4,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.96,
+        "reach": 1.14,
+        "power": 0.96,
+        "hurtW": 42,
+        "hurtH": 155,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "SOUL STEALER",
+        "total": 56,
+        "cost": 40,
+        "cast": 20,
+        "type": "drain",
+        "reach": 330
+      },
+      "signature": {
+        "name": "HUNGER SPIRAL",
+        "moves": ["lk", "mp", "hk"]
+      },
+      "finisher": {
+        "name": "HUNGER’S END",
+        "caption": "THE LOST SOULS CALL",
+        "color": "#b9d5db",
+        "type": "drain"
+      },
+      "ko": {
+        "sheet": "characters/ko/wendigo_ko.webp",
+        "cols": 4,
+        "rows": 1,
+        "frames": [0, 1, 2, 3]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/wendigo.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "yucca",
       "name": "YUCCA MAN",
       "epithet": "The Rootbound",
       "color": "#c2a66b",
-      "stats": {"height": 280, "weight": 1, "speed": 4.8, "power": 1.05},
+      "stats": {
+        "height": 280,
+        "weight": 1,
+        "speed": 4.8,
+        "power": 1.05
+      },
       "sheets": {
         "motion": "assets/asset_22_v40.webp",
         "cols": 4,
@@ -150,30 +465,76 @@
         "special": "assets/asset_35.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7],
-        "run": [6,7,8,9],
-        "jump": [8,9,10],
-        "light": [9,10,11],
-        "heavy": [11,12,13],
-        "special": [10,11,12,13],
-        "hurt": [13,14],
-        "ko": [13,14,15]
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7],
+        "run": [6, 7, 8, 9],
+        "jump": [8, 9, 10],
+        "light": [9, 10, 11],
+        "heavy": [11, 12, 13],
+        "special": [10, 11, 12, 13],
+        "hurt": [13, 14],
+        "ko": [13, 14, 15]
       },
-      "jump": {"sheet": "characters/yucca/yucca_jump.webp", "cols": 8, "rows": 1, "padTop": 70, "crouch": 2, "rise": 3, "apex": 4, "fall": 5, "land": 7, "art": true},
-      "style": {"tempo": 1.11, "reach": 1.13, "power": 1.01, "hurtW": 49, "hurtH": 158, "cancelBonus": 0},
-      "specialMove": {"name": "VINE ATTACK", "total": 53, "cost": 40, "cast": 23, "type": "vine", "reach": 635},
-      "signature": {"name": "ROOTBREAKER", "moves": ["lp", "mk", "hp"]},
-      "finisher": {"name": "ROOT OF REDEMPTION", "caption": "THE EARTH REMEMBERS", "color": "#aac17c", "type": "vine"},
-      "ko": {"frames": [13, 14, 15]},
-      "cutscene": {"sheet": "cutscenes/yucca.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/yucca/yucca_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "padTop": 70,
+        "crouch": 2,
+        "rise": 3,
+        "apex": 4,
+        "fall": 5,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 1.11,
+        "reach": 1.13,
+        "power": 1.01,
+        "hurtW": 49,
+        "hurtH": 158,
+        "cancelBonus": 0
+      },
+      "specialMove": {
+        "name": "VINE ATTACK",
+        "total": 53,
+        "cost": 40,
+        "cast": 23,
+        "type": "vine",
+        "reach": 635
+      },
+      "signature": {
+        "name": "ROOTBREAKER",
+        "moves": ["lp", "mk", "hp"]
+      },
+      "finisher": {
+        "name": "ROOT OF REDEMPTION",
+        "caption": "THE EARTH REMEMBERS",
+        "color": "#aac17c",
+        "type": "vine"
+      },
+      "ko": {
+        "frames": [13, 14, 15]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/yucca.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "yeti",
       "name": "YETI",
       "epithet": "The Exile",
       "color": "#a8d3e1",
-      "stats": {"height": 300, "weight": 1.24, "speed": 4.4, "power": 1.15},
+      "stats": {
+        "height": 300,
+        "weight": 1.24,
+        "speed": 4.4,
+        "power": 1.15
+      },
       "sheets": {
         "motion": "assets/asset_20_v40.webp",
         "cols": 4,
@@ -183,30 +544,77 @@
         "special": "assets/asset_32.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7],
-        "run": [5,6,7,8],
-        "jump": [9,10,11],
-        "light": [8,9,10,11],
-        "heavy": [9,10,11,12],
-        "special": [10,11,12,13],
-        "hurt": [13,14],
-        "ko": [13,14,15]
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7],
+        "run": [5, 6, 7, 8],
+        "jump": [9, 10, 11],
+        "light": [8, 9, 10, 11],
+        "heavy": [9, 10, 11, 12],
+        "special": [10, 11, 12, 13],
+        "hurt": [13, 14],
+        "ko": [13, 14, 15]
       },
-      "jump": {"sheet": "characters/yeti/yeti_jump.webp", "cols": 8, "rows": 1, "padTop": 60, "crouch": 1, "rise": 2, "apex": 4, "apexFwd": 3, "fall": 5, "land": 7, "art": true},
-      "style": {"tempo": 1.15, "reach": 1.08, "power": 1.08, "hurtW": 55, "hurtH": 166, "cancelBonus": 0},
-      "specialMove": {"name": "YELLOW SNOWBALL", "total": 51, "cost": 40, "cast": 25, "type": "snow", "reach": 900},
-      "signature": {"name": "AVALANCHE COMBO", "moves": ["mp", "hp", "hk"]},
-      "finisher": {"name": "FROSTFALL", "caption": "WINTER CLAIMS THE ARENA", "color": "#d6eaf1", "type": "snow"},
-      "ko": {"frames": [13, 14, 15]},
-      "cutscene": {"sheet": "cutscenes/yeti.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/yeti/yeti_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "padTop": 60,
+        "crouch": 1,
+        "rise": 2,
+        "apex": 4,
+        "apexFwd": 3,
+        "fall": 5,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 1.15,
+        "reach": 1.08,
+        "power": 1.08,
+        "hurtW": 55,
+        "hurtH": 166,
+        "cancelBonus": 0
+      },
+      "specialMove": {
+        "name": "YELLOW SNOWBALL",
+        "total": 51,
+        "cost": 40,
+        "cast": 25,
+        "type": "snow",
+        "reach": 900
+      },
+      "signature": {
+        "name": "AVALANCHE COMBO",
+        "moves": ["mp", "hp", "hk"]
+      },
+      "finisher": {
+        "name": "FROSTFALL",
+        "caption": "WINTER CLAIMS THE ARENA",
+        "color": "#d6eaf1",
+        "type": "snow"
+      },
+      "ko": {
+        "frames": [13, 14, 15]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/yeti.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "skinwalker",
       "name": "SKINWALKER",
       "epithet": "The Unmasked",
       "color": "#c47a78",
-      "stats": {"height": 272, "weight": 0.89, "speed": 5.7, "power": 0.98},
+      "stats": {
+        "height": 272,
+        "weight": 0.89,
+        "speed": 5.7,
+        "power": 0.98
+      },
       "sheets": {
         "motion": "assets/asset_07_v40.webp",
         "cols": 4,
@@ -216,30 +624,76 @@
         "special": "assets/asset_34.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7],
-        "run": [5,6,7,8],
-        "jump": [9,10,11],
-        "light": [8,9,10,11],
-        "heavy": [9,10,11,12],
-        "special": [9,10,11,12],
-        "hurt": [13,14],
-        "ko": [13,14,15]
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7],
+        "run": [5, 6, 7, 8],
+        "jump": [9, 10, 11],
+        "light": [8, 9, 10, 11],
+        "heavy": [9, 10, 11, 12],
+        "special": [9, 10, 11, 12],
+        "hurt": [13, 14],
+        "ko": [13, 14, 15]
       },
-      "jump": {"sheet": "characters/skinwalker/skinwalker_jump.webp", "cols": 8, "rows": 1, "crouch": 1, "rise": 2, "riseFwd": 3, "apex": 4, "fall": 5, "land": 7, "art": true},
-      "style": {"tempo": 0.9, "reach": 1.1, "power": 0.94, "hurtW": 44, "hurtH": 150, "cancelBonus": 2},
-      "specialMove": {"name": "SPIRIT ATTACK", "total": 50, "cost": 40, "cast": 23, "type": "spirit", "reach": 940},
-      "signature": {"name": "PHANTOM DANCE", "moves": ["lk", "mp", "mk", "hk"]},
-      "finisher": {"name": "VEIL BREAKER", "caption": "THE SPIRITS ANSWER", "color": "#c7a4c9", "type": "spirit"},
-      "ko": {"frames": [13, 14, 15]},
-      "cutscene": {"sheet": "cutscenes/skinwalker.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/skinwalker/skinwalker_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "crouch": 1,
+        "rise": 2,
+        "riseFwd": 3,
+        "apex": 4,
+        "fall": 5,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.9,
+        "reach": 1.1,
+        "power": 0.94,
+        "hurtW": 44,
+        "hurtH": 150,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "SPIRIT ATTACK",
+        "total": 50,
+        "cost": 40,
+        "cast": 23,
+        "type": "spirit",
+        "reach": 940
+      },
+      "signature": {
+        "name": "PHANTOM DANCE",
+        "moves": ["lk", "mp", "mk", "hk"]
+      },
+      "finisher": {
+        "name": "VEIL BREAKER",
+        "caption": "THE SPIRITS ANSWER",
+        "color": "#c7a4c9",
+        "type": "spirit"
+      },
+      "ko": {
+        "frames": [13, 14, 15]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/skinwalker.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "chupacabra",
       "name": "CHUPACABRA",
       "epithet": "The Feral",
       "color": "#da6d66",
-      "stats": {"height": 236, "weight": 0.78, "speed": 6.15, "power": 0.9},
+      "stats": {
+        "height": 236,
+        "weight": 0.78,
+        "speed": 6.15,
+        "power": 0.9
+      },
       "sheets": {
         "motion": "assets/asset_03_v40.webp",
         "cols": 4,
@@ -249,30 +703,76 @@
         "special": "assets/asset_33.webp"
       },
       "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7],
-        "run": [6,7,8,9],
-        "jump": [8,9,10],
-        "light": [9,10,11],
-        "heavy": [10,11,12],
-        "special": [9,10,11,12],
-        "hurt": [13,14],
-        "ko": [13,14,15]
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7],
+        "run": [6, 7, 8, 9],
+        "jump": [8, 9, 10],
+        "light": [9, 10, 11],
+        "heavy": [10, 11, 12],
+        "special": [9, 10, 11, 12],
+        "hurt": [13, 14],
+        "ko": [13, 14, 15]
       },
-      "jump": {"sheet": "characters/chupacabra/chupacabra_jump.webp", "cols": 8, "rows": 1, "padTop": 40, "crouch": 1, "rise": 2, "apex": 3, "fall": 4, "land": 7, "art": true},
-      "style": {"tempo": 0.84, "reach": 0.95, "power": 0.91, "hurtW": 41, "hurtH": 107, "cancelBonus": 2},
-      "specialMove": {"name": "BLOOD SPRAY", "total": 41, "cost": 40, "cast": 16, "type": "spray", "reach": 620},
-      "signature": {"name": "FERAL RUSH", "moves": ["lp", "lk", "mp", "hk"]},
-      "finisher": {"name": "CRIMSON ECLIPSE", "caption": "THE NIGHT STRIKES BACK", "color": "#ce526a", "type": "spray"},
-      "ko": {"frames": [13, 14, 15]},
-      "cutscene": {"sheet": "cutscenes/chupacabra.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/chupacabra/chupacabra_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "padTop": 40,
+        "crouch": 1,
+        "rise": 2,
+        "apex": 3,
+        "fall": 4,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.84,
+        "reach": 0.95,
+        "power": 0.91,
+        "hurtW": 41,
+        "hurtH": 107,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "BLOOD SPRAY",
+        "total": 41,
+        "cost": 40,
+        "cast": 16,
+        "type": "spray",
+        "reach": 620
+      },
+      "signature": {
+        "name": "FERAL RUSH",
+        "moves": ["lp", "lk", "mp", "hk"]
+      },
+      "finisher": {
+        "name": "CRIMSON ECLIPSE",
+        "caption": "THE NIGHT STRIKES BACK",
+        "color": "#ce526a",
+        "type": "spray"
+      },
+      "ko": {
+        "frames": [13, 14, 15]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/chupacabra.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "llorona",
       "name": "LA LLORONA",
       "epithet": "The Weeping Mother",
       "color": "#8ad2e9",
-      "stats": {"height": 264, "weight": 0.84, "speed": 5.2, "power": 0.95},
+      "stats": {
+        "height": 264,
+        "weight": 0.84,
+        "speed": 5.2,
+        "power": 0.95
+      },
       "sheets": {
         "motion": "characters/la-llorona/llorona_motion_v31.webp",
         "cols": 8,
@@ -281,33 +781,87 @@
         "attack": "characters/la-llorona/llorona_attack_v46.webp",
         "special": "characters/la-llorona/llorona_special_v31.webp",
         "attackGridRows": 6,
-        "attackRows": {"lp": 0, "mp": 1, "hp": 2, "lk": 3, "mk": 4, "hk": 5}
+        "attackRows": {
+          "lp": 0,
+          "mp": 1,
+          "hp": 2,
+          "lk": 3,
+          "mk": 4,
+          "hk": 5
+        }
       },
       "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23],
-        "jump": [24,25,26,27,28,29,30,31],
-        "light": [48,49,50,51],
-        "heavy": [64,65,66,67],
-        "special": [48,49,50,51],
-        "hurt": [32,33,34,35],
-        "ko": [88,89,90,91]
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "jump": [24, 25, 26, 27, 28, 29, 30, 31],
+        "light": [48, 49, 50, 51],
+        "heavy": [64, 65, 66, 67],
+        "special": [48, 49, 50, 51],
+        "hurt": [32, 33, 34, 35],
+        "ko": [88, 89, 90, 91]
       },
-      "jump": {"sheet": "characters/la-llorona/llorona_jump.webp", "cols": 7, "rows": 1, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 3, "apexFwd": 4, "fall": 5, "land": 6, "art": true},
-      "style": {"tempo": 0.92, "reach": 1.08, "power": 0.94, "hurtW": 43, "hurtH": 150, "cancelBonus": 2},
-      "specialMove": {"name": "WAILING FLOOD", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 650},
-      "signature": {"name": "WEEPING CHAIN", "moves": ["lp", "mp", "hk"]},
-      "finisher": {"name": "LOST SOULS", "caption": "THE WATER REMEMBERS", "color": "#86cfe7", "type": "spray"},
-      "ko": {"frames": [88, 89, 90, 91]},
-      "cutscene": {"sheet": "cutscenes/llorona.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/la-llorona/llorona_jump.webp",
+        "cols": 7,
+        "rows": 1,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 3,
+        "apexFwd": 4,
+        "fall": 5,
+        "land": 6,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.92,
+        "reach": 1.08,
+        "power": 0.94,
+        "hurtW": 43,
+        "hurtH": 150,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "WAILING FLOOD",
+        "total": 46,
+        "cost": 40,
+        "cast": 19,
+        "type": "spray",
+        "reach": 650
+      },
+      "signature": {
+        "name": "WEEPING CHAIN",
+        "moves": ["lp", "mp", "hk"]
+      },
+      "finisher": {
+        "name": "LOST SOULS",
+        "caption": "THE WATER REMEMBERS",
+        "color": "#86cfe7",
+        "type": "spray"
+      },
+      "ko": {
+        "frames": [88, 89, 90, 91]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/llorona.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "mothman",
       "name": "MOTHMAN",
       "epithet": "The Omen",
       "color": "#d36a61",
-      "stats": {"height": 280, "weight": 0.93, "speed": 5.85, "power": 1},
+      "stats": {
+        "height": 280,
+        "weight": 0.93,
+        "speed": 5.85,
+        "power": 1
+      },
       "sheets": {
         "motion": "characters/mothman/mothman_motion_approved.webp",
         "cols": 8,
@@ -315,33 +869,85 @@
         "attack": "characters/mothman/mothman_motion_approved.webp",
         "special": "characters/mothman/mothman_special.webp",
         "attackGridRows": 12,
-        "attackRows": {"lp": 6, "mp": 7, "hp": 8, "lk": 9, "mk": 10, "hk": 11}
+        "attackRows": {
+          "lp": 6,
+          "mp": 7,
+          "hp": 8,
+          "lk": 9,
+          "mk": 10,
+          "hk": 11
+        }
       },
       "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23],
-        "jump": [24,25,26,27,28,29,30,31],
-        "light": [48,49,50,51],
-        "heavy": [64,65,66,67],
-        "special": [48,49,50,51],
-        "hurt": [32,33,34,35],
-        "ko": [32,33,34,35]
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "jump": [24, 25, 26, 27, 28, 29, 30, 31],
+        "light": [48, 49, 50, 51],
+        "heavy": [64, 65, 66, 67],
+        "special": [48, 49, 50, 51],
+        "hurt": [32, 33, 34, 35],
+        "ko": [32, 33, 34, 35]
       },
-      "jump": {"crouch": 24, "rise": 25, "apex": 26, "fall": 27, "land": 30, "art": true},
-      "style": {"tempo": 0.85, "reach": 1.12, "power": 1, "hurtW": 48, "hurtH": 165, "cancelBonus": 2},
-      "specialMove": {"name": "OMEN DIVE", "total": 42, "cost": 40, "cast": 13, "type": "maul", "reach": 225},
-      "signature": {"name": "OMEN RUSH", "moves": ["lk", "mp", "hp"]},
-      "finisher": {"name": "NIGHT TERROR", "caption": "THE OMEN DESCENDS", "color": "#db6768", "type": "maul"},
-      "ko": {"sheet": "characters/ko/mothman_ko.webp", "cols": 6, "rows": 1, "frames": [0, 1, 2, 3, 4, 5]},
-      "cutscene": {"sheet": "cutscenes/mothman.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "crouch": 24,
+        "rise": 25,
+        "apex": 26,
+        "fall": 27,
+        "land": 30,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.85,
+        "reach": 1.12,
+        "power": 1,
+        "hurtW": 48,
+        "hurtH": 165,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "OMEN DIVE",
+        "total": 42,
+        "cost": 40,
+        "cast": 13,
+        "type": "maul",
+        "reach": 225
+      },
+      "signature": {
+        "name": "OMEN RUSH",
+        "moves": ["lk", "mp", "hp"]
+      },
+      "finisher": {
+        "name": "NIGHT TERROR",
+        "caption": "THE OMEN DESCENDS",
+        "color": "#db6768",
+        "type": "maul"
+      },
+      "ko": {
+        "sheet": "characters/ko/mothman_ko.webp",
+        "cols": 6,
+        "rows": 1,
+        "frames": [0, 1, 2, 3, 4, 5]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/mothman.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "slender",
       "name": "SLENDER MAN",
       "epithet": "The Faceless",
       "color": "#ac76c8",
-      "stats": {"height": 292, "weight": 0.83, "speed": 5.65, "power": 0.98},
+      "stats": {
+        "height": 292,
+        "weight": 0.83,
+        "speed": 5.65,
+        "power": 0.98
+      },
       "sheets": {
         "motion": "characters/slender-man/slender_motion.webp",
         "cols": 8,
@@ -350,33 +956,88 @@
         "attack": "characters/slender-man/slender_motion.webp",
         "special": "characters/slender-man/slender_special.webp",
         "attackGridRows": 12,
-        "attackRows": {"lp": 6, "mp": 7, "hp": 8, "lk": 9, "mk": 10, "hk": 11}
+        "attackRows": {
+          "lp": 6,
+          "mp": 7,
+          "hp": 8,
+          "lk": 9,
+          "mk": 10,
+          "hk": 11
+        }
       },
       "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23],
-        "jump": [24,25,26,27,28,29,30,31],
-        "light": [48,49,50,51],
-        "heavy": [64,65,66,67],
-        "special": [80,81,82,83],
-        "hurt": [88,89,90,91],
-        "ko": [92,93,94,95]
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "jump": [24, 25, 26, 27, 28, 29, 30, 31],
+        "light": [48, 49, 50, 51],
+        "heavy": [64, 65, 66, 67],
+        "special": [80, 81, 82, 83],
+        "hurt": [88, 89, 90, 91],
+        "ko": [92, 93, 94, 95]
       },
-      "jump": {"sheet": "characters/slender-man/slender_jump.webp", "cols": 5, "rows": 1, "crouch": 0, "rise": 1, "apex": 2, "fall": 3, "land": 4, "art": true},
-      "style": {"tempo": 0.89, "reach": 1.2, "power": 0.95, "hurtW": 43, "hurtH": 164, "cancelBonus": 2},
-      "specialMove": {"name": "NIGHTMARE REACH", "total": 52, "cost": 40, "cast": 19, "type": "shadow", "reach": 730},
-      "signature": {"name": "FACELESS GRASP", "moves": ["lp", "mk", "hp"]},
-      "finisher": {"name": "THE EMPTY", "caption": "THE VOID ANSWERS", "color": "#b985e4", "type": "shadow"},
-      "ko": {"sheet": "characters/ko/slender_ko.webp", "cols": 6, "rows": 1, "frames": [0, 1, 2, 3, 4, 5]},
-      "cutscene": {"sheet": "cutscenes/slender.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/slender-man/slender_jump.webp",
+        "cols": 5,
+        "rows": 1,
+        "crouch": 0,
+        "rise": 1,
+        "apex": 2,
+        "fall": 3,
+        "land": 4,
+        "art": true
+      },
+      "style": {
+        "tempo": 0.89,
+        "reach": 1.2,
+        "power": 0.95,
+        "hurtW": 43,
+        "hurtH": 164,
+        "cancelBonus": 2
+      },
+      "specialMove": {
+        "name": "NIGHTMARE REACH",
+        "total": 52,
+        "cost": 40,
+        "cast": 19,
+        "type": "shadow",
+        "reach": 730
+      },
+      "signature": {
+        "name": "FACELESS GRASP",
+        "moves": ["lp", "mk", "hp"]
+      },
+      "finisher": {
+        "name": "THE EMPTY",
+        "caption": "THE VOID ANSWERS",
+        "color": "#b985e4",
+        "type": "shadow"
+      },
+      "ko": {
+        "sheet": "characters/ko/slender_ko.webp",
+        "cols": 6,
+        "rows": 1,
+        "frames": [0, 1, 2, 3, 4, 5]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/slender.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "occultist",
       "name": "OCCULTIST",
       "epithet": "The Profane Scholar",
       "color": "#ab63d5",
-      "stats": {"height": 283, "weight": 0.91, "speed": 5, "power": 1.04},
+      "stats": {
+        "height": 283,
+        "weight": 0.91,
+        "speed": 5,
+        "power": 1.04
+      },
       "sheets": {
         "motion": "characters/occultist/occultist_motion_v31.webp",
         "cols": 8,
@@ -385,26 +1046,74 @@
         "attack": "characters/occultist/occultist_attack_v46.webp",
         "special": "characters/occultist/occultist_special_v31.webp",
         "attackGridRows": 6,
-        "attackRows": {"lp": 0, "mp": 1, "hp": 2, "lk": 3, "mk": 4, "hk": 5}
+        "attackRows": {
+          "lp": 0,
+          "mp": 1,
+          "hp": 2,
+          "lk": 3,
+          "mk": 4,
+          "hk": 5
+        }
       },
       "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23],
-        "jump": [24,25,26,27,28,29,30,31],
-        "light": [48,49,50,51],
-        "heavy": [64,65,66,67],
-        "special": [64,65,66,67],
-        "hurt": [32,33,34,35],
-        "ko": [88,89,90,91]
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "jump": [24, 25, 26, 27, 28, 29, 30, 31],
+        "light": [48, 49, 50, 51],
+        "heavy": [64, 65, 66, 67],
+        "special": [64, 65, 66, 67],
+        "hurt": [32, 33, 34, 35],
+        "ko": [88, 89, 90, 91]
       },
-      "jump": {"sheet": "characters/occultist/occultist_jump.webp", "cols": 8, "rows": 1, "crouch": 1, "rise": 2, "riseFwd": 3, "apex": 4, "fall": 5, "land": 6, "art": true},
-      "style": {"tempo": 1.05, "reach": 1.12, "power": 1.04, "hurtW": 45, "hurtH": 158, "cancelBonus": 1},
-      "specialMove": {"name": "OCCULT SIGIL", "total": 49, "cost": 40, "cast": 21, "type": "shadow", "reach": 720},
-      "signature": {"name": "PROFANE RITUAL", "moves": ["lp", "mp", "hp"]},
-      "finisher": {"name": "ABYSSAL RITUAL", "caption": "THE SIGIL OPENS", "color": "#b37bdf", "type": "shadow"},
-      "ko": {"frames": [88, 89, 90, 91]},
-      "cutscene": {"sheet": "cutscenes/occultist.webp", "cols": 2, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 5]}
+      "jump": {
+        "sheet": "characters/occultist/occultist_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "crouch": 1,
+        "rise": 2,
+        "riseFwd": 3,
+        "apex": 4,
+        "fall": 5,
+        "land": 6,
+        "art": true
+      },
+      "style": {
+        "tempo": 1.05,
+        "reach": 1.12,
+        "power": 1.04,
+        "hurtW": 45,
+        "hurtH": 158,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "OCCULT SIGIL",
+        "total": 49,
+        "cost": 40,
+        "cast": 21,
+        "type": "shadow",
+        "reach": 720
+      },
+      "signature": {
+        "name": "PROFANE RITUAL",
+        "moves": ["lp", "mp", "hp"]
+      },
+      "finisher": {
+        "name": "ABYSSAL RITUAL",
+        "caption": "THE SIGIL OPENS",
+        "color": "#b37bdf",
+        "type": "shadow"
+      },
+      "ko": {
+        "frames": [88, 89, 90, 91]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/occultist.webp",
+        "cols": 2,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 5]
+      }
     },
     {
       "id": "hunter",
@@ -412,29 +1121,67 @@
       "epithet": "The Pursuer",
       "hidden": true,
       "color": "#dec5a4",
-      "stats": {"height": 252, "weight": 1, "speed": 4.95, "power": 0.92},
-      "sheets": {"motion": "characters/hunter/hunter_motion.webp", "cols": 6, "rows": 5, "portrait": "assets/asset_06.webp"},
-      "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7,8,9],
-        "run": [10,11,12,13,14,15],
-        "jump": [16,17,18],
-        "light": [20,22,23,20],
-        "heavy": [21,22,23,22],
-        "special": [21,22,23,22],
-        "hurt": [24,25],
-        "ko": [27],
-        "lp": [20,22,20],
-        "mp": [23,22,23],
-        "hp": [21,22,22,20],
-        "lk": [19,14,19],
-        "mk": [16,22,16],
-        "hk": [21,22,23]
+      "stats": {
+        "height": 252,
+        "weight": 1,
+        "speed": 4.95,
+        "power": 0.92
       },
-      "jump": {"sheet": "characters/hunter/hunter_jump.webp", "cols": 8, "rows": 1, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 5, "land": 7, "art": true},
-      "style": {"tempo": 1, "reach": 1, "power": 0.97, "hurtW": 45, "hurtH": 143, "cancelBonus": 0},
-      "specialMove": {"name": "SILVER CHARGE", "total": 41, "cost": 40, "cast": 16, "type": "maul", "reach": 205},
-      "ko": {"frames": [24, 25, 26, 27]}
+      "sheets": {
+        "motion": "characters/hunter/hunter_motion.webp",
+        "cols": 6,
+        "rows": 5,
+        "portrait": "assets/asset_06.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7, 8, 9],
+        "run": [10, 11, 12, 13, 14, 15],
+        "jump": [16, 17, 18],
+        "light": [20, 22, 23, 20],
+        "heavy": [21, 22, 23, 22],
+        "special": [21, 22, 23, 22],
+        "hurt": [24, 25],
+        "ko": [27],
+        "lp": [20, 22, 20],
+        "mp": [23, 22, 23],
+        "hp": [21, 22, 22, 20],
+        "lk": [19, 14, 19],
+        "mk": [16, 22, 16],
+        "hk": [21, 22, 23]
+      },
+      "jump": {
+        "sheet": "characters/hunter/hunter_jump.webp",
+        "cols": 8,
+        "rows": 1,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 4,
+        "apexFwd": 3,
+        "fall": 5,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 1,
+        "reach": 1,
+        "power": 0.97,
+        "hurtW": 45,
+        "hurtH": 143,
+        "cancelBonus": 0
+      },
+      "specialMove": {
+        "name": "SILVER CHARGE",
+        "total": 41,
+        "cost": 40,
+        "cast": 16,
+        "type": "maul",
+        "reach": 205
+      },
+      "ko": {
+        "frames": [24, 25, 26, 27]
+      }
     },
     {
       "id": "captain",
@@ -442,160 +1189,371 @@
       "epithet": "The Executioner",
       "hidden": true,
       "color": "#e4bd88",
-      "stats": {"height": 281, "weight": 1.16, "speed": 4.45, "power": 1.12},
-      "sheets": {"motion": "assets/asset_01.webp", "cols": 6, "rows": 4, "portrait": "assets/asset_02.webp"},
-      "frames": {
-        "idle": [0,1,2,3],
-        "walk": [4,5,6,7,8,9],
-        "run": [10,11,12,13,14,15],
-        "jump": [14,15,16],
-        "light": [18,19,20,21],
-        "heavy": [19,20,21,22],
-        "special": [19,20,21,22],
-        "hurt": [21,22],
-        "ko": [23],
-        "lp": [19,20,19],
-        "mp": [16,21,22],
-        "hp": [16,17,21,22],
-        "lk": [20,23,20],
-        "mk": [22,20,22],
-        "hk": [17,18,21]
+      "stats": {
+        "height": 281,
+        "weight": 1.16,
+        "speed": 4.45,
+        "power": 1.12
       },
-      "jump": {"crouch": 13, "rise": 17, "apex": 18, "fall": 19, "land": 13},
-      "style": {"tempo": 1.12, "reach": 1.07, "power": 1.09, "hurtW": 51, "hurtH": 161, "cancelBonus": 0},
-      "specialMove": {"name": "EXECUTIONER STRIKE", "total": 45, "cost": 40, "cast": 20, "type": "maul", "reach": 210},
-      "ko": {"sheet": "characters/ko/captain_ko.webp", "cols": 4, "rows": 1, "frames": [0, 1, 2, 3]}
+      "sheets": {
+        "motion": "assets/asset_01.webp",
+        "cols": 6,
+        "rows": 4,
+        "portrait": "assets/asset_02.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3],
+        "walk": [4, 5, 6, 7, 8, 9],
+        "run": [10, 11, 12, 13, 14, 15],
+        "jump": [14, 15, 16],
+        "light": [18, 19, 20, 21],
+        "heavy": [19, 20, 21, 22],
+        "special": [19, 20, 21, 22],
+        "hurt": [21, 22],
+        "ko": [23],
+        "lp": [19, 20, 19],
+        "mp": [16, 21, 22],
+        "hp": [16, 17, 21, 22],
+        "lk": [20, 23, 20],
+        "mk": [22, 20, 22],
+        "hk": [17, 18, 21]
+      },
+      "jump": {
+        "crouch": 13,
+        "rise": 17,
+        "apex": 18,
+        "fall": 19,
+        "land": 13
+      },
+      "style": {
+        "tempo": 1.12,
+        "reach": 1.07,
+        "power": 1.09,
+        "hurtW": 51,
+        "hurtH": 161,
+        "cancelBonus": 0
+      },
+      "specialMove": {
+        "name": "EXECUTIONER STRIKE",
+        "total": 45,
+        "cost": 40,
+        "cast": 20,
+        "type": "maul",
+        "reach": 210
+      },
+      "ko": {
+        "sheet": "characters/ko/captain_ko.webp",
+        "cols": 4,
+        "rows": 1,
+        "frames": [0, 1, 2, 3]
+      }
     },
     {
       "id": "babayaga",
       "name": "BABA YAGA",
       "epithet": "The Bone Witch",
-      "hidden": true,
-      "arcadeOnly": true,
       "color": "#c2452f",
-      "stats": {"height": 280, "weight": 1.02, "speed": 4.7, "power": 1.06},
-      "sheets": {"motion": "characters/baba-yaga/babayaga_motion.webp", "cols": 10, "rows": 6, "portrait": "characters/baba-yaga/babayaga_portrait.webp", "special": "characters/baba-yaga/babayaga_special.webp"},
-      "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11],
-        "run": [17,18,19,20],
-        "jump": [32,33,34],
-        "light": [41,46,48],
-        "heavy": [42,44,45,46],
-        "special": [28,29,30,31],
-        "hurt": [51,52],
-        "ko": [57],
-        "lp": [41,46,48],
-        "mp": [43,44,46],
-        "hp": [42,43,44,45,46,47],
-        "lk": [17,18,19],
-        "mk": [11,12,13,12],
-        "hk": [17,19,45,46,47]
+      "stats": {
+        "height": 280,
+        "weight": 1.02,
+        "speed": 4.7,
+        "power": 1.06
       },
-      "jump": {"sheet": "characters/baba-yaga/babayaga_jump.webp", "cols": 9, "rows": 1, "padTop": 90, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 6, "land": 7, "art": true},
-      "style": {"tempo": 1, "reach": 1.1, "power": 1.06, "hurtW": 52, "hurtH": 150, "cancelBonus": 1},
-      "specialMove": {"name": "BONE HEX", "total": 49, "cost": 40, "cast": 21, "type": "spirit", "reach": 760},
-      "ko": {"frames": [53, 54, 55, 56, 57]},
-      "cutscene": {"sheet": "cutscenes/babayaga.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
+      "sheets": {
+        "motion": "characters/baba-yaga/babayaga_motion.webp",
+        "cols": 10,
+        "rows": 6,
+        "portrait": "characters/baba-yaga/babayaga_portrait.webp",
+        "special": "characters/baba-yaga/babayaga_special.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11],
+        "run": [17, 18, 19, 20],
+        "jump": [32, 33, 34],
+        "light": [41, 46, 48],
+        "heavy": [42, 44, 45, 46],
+        "special": [28, 29, 30, 31],
+        "hurt": [51, 52],
+        "ko": [57],
+        "lp": [41, 46, 48],
+        "mp": [43, 44, 46],
+        "hp": [42, 43, 44, 45, 46, 47],
+        "lk": [17, 18, 19],
+        "mk": [11, 12, 13, 12],
+        "hk": [17, 19, 45, 46, 47]
+      },
+      "jump": {
+        "sheet": "characters/baba-yaga/babayaga_jump.webp",
+        "cols": 9,
+        "rows": 1,
+        "padTop": 90,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 4,
+        "apexFwd": 3,
+        "fall": 6,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 1,
+        "reach": 1.1,
+        "power": 1.06,
+        "hurtW": 52,
+        "hurtH": 150,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "BONE HEX",
+        "total": 49,
+        "cost": 40,
+        "cast": 21,
+        "type": "spirit",
+        "reach": 760
+      },
+      "ko": {
+        "frames": [53, 54, 55, 56, 57]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/babayaga.webp",
+        "cols": 1,
+        "rows": 1,
+        "intro": [0],
+        "win": [0]
+      }
     },
     {
       "id": "bloodymary",
       "name": "BLOODY MARY",
       "epithet": "The Mirror Bride",
-      "hidden": true,
-      "arcadeOnly": true,
       "color": "#b3262f",
-      "stats": {"height": 280, "weight": 0.94, "speed": 5.2, "power": 1.03},
-      "sheets": {"motion": "characters/bloody-mary/bloodymary_motion.webp", "cols": 10, "rows": 7, "portrait": "characters/bloody-mary/bloodymary_portrait.webp", "special": "characters/bloody-mary/bloodymary_special.webp"},
-      "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [16,17,18,19,20,21,22,23],
-        "jump": [32,33,34],
-        "light": [47,48,49,50],
-        "heavy": [43,45,46,50],
-        "special": [53,54,55,56],
-        "hurt": [58,59],
-        "ko": [64],
-        "lp": [47,48,50],
-        "mp": [42,45,46],
-        "hp": [43,44,45,46,50],
-        "lk": [24,25,26],
-        "mk": [42,43,44],
-        "hk": [44,45,46,49]
+      "stats": {
+        "height": 280,
+        "weight": 0.94,
+        "speed": 5.2,
+        "power": 1.03
       },
-      "jump": {"sheet": "characters/bloody-mary/bloodymary_jump.webp", "cols": 9, "rows": 1, "padTop": 90, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 4, "apexFwd": 3, "fall": 6, "land": 7, "art": true},
-      "style": {"tempo": 1.05, "reach": 1.08, "power": 1.03, "hurtW": 48, "hurtH": 155, "cancelBonus": 1},
-      "specialMove": {"name": "MIRROR CURSE", "total": 46, "cost": 40, "cast": 19, "type": "spray", "reach": 660},
-      "ko": {"frames": [60, 61, 62, 63, 64]},
-      "cutscene": {"sheet": "cutscenes/bloodymary.webp", "cols": 1, "rows": 1, "intro": [0], "win": [0]}
+      "sheets": {
+        "motion": "characters/bloody-mary/bloodymary_motion.webp",
+        "cols": 10,
+        "rows": 7,
+        "portrait": "characters/bloody-mary/bloodymary_portrait.webp",
+        "special": "characters/bloody-mary/bloodymary_special.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "jump": [32, 33, 34],
+        "light": [47, 48, 49, 50],
+        "heavy": [43, 45, 46, 50],
+        "special": [53, 54, 55, 56],
+        "hurt": [58, 59],
+        "ko": [64],
+        "lp": [47, 48, 50],
+        "mp": [42, 45, 46],
+        "hp": [43, 44, 45, 46, 50],
+        "lk": [24, 25, 26],
+        "mk": [42, 43, 44],
+        "hk": [44, 45, 46, 49]
+      },
+      "jump": {
+        "sheet": "characters/bloody-mary/bloodymary_jump.webp",
+        "cols": 9,
+        "rows": 1,
+        "padTop": 90,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 4,
+        "apexFwd": 3,
+        "fall": 6,
+        "land": 7,
+        "art": true
+      },
+      "style": {
+        "tempo": 1.05,
+        "reach": 1.08,
+        "power": 1.03,
+        "hurtW": 48,
+        "hurtH": 155,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "MIRROR CURSE",
+        "total": 46,
+        "cost": 40,
+        "cast": 19,
+        "type": "spray",
+        "reach": 660
+      },
+      "ko": {
+        "frames": [60, 61, 62, 63, 64]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/bloodymary.webp",
+        "cols": 1,
+        "rows": 1,
+        "intro": [0],
+        "win": [0]
+      }
     },
     {
       "id": "banshee",
       "name": "THE BANSHEE",
       "epithet": "The Wailing Death",
-      "hidden": true,
-      "arcadeOnly": true,
       "color": "#a8202a",
-      "stats": {"height": 280, "weight": 0.92, "speed": 5.3, "power": 1.04},
-      "sheets": {"motion": "characters/banshee/banshee_motion.webp", "cols": 8, "rows": 6, "portrait": "characters/banshee/banshee_portrait.webp", "special": "characters/banshee/banshee_special.webp"},
-      "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [8,9,10,11,12,13,14,15],
-        "run": [19,20,21,22],
-        "jump": [18,20,21],
-        "light": [32,33,39],
-        "heavy": [34,36,37,38],
-        "special": [33,34,40,40],
-        "hurt": [41,42],
-        "ko": [47],
-        "lp": [32,33,39],
-        "mp": [34,35,38],
-        "hp": [34,35,36,37,38],
-        "lk": [24,25,31],
-        "mk": [29,30,31],
-        "hk": [25,26,27,28,30]
+      "stats": {
+        "height": 280,
+        "weight": 0.92,
+        "speed": 5.3,
+        "power": 1.04
       },
-      "jump": {"sheet": "characters/banshee/banshee_jump.webp", "cols": 7, "rows": 1, "padTop": 100, "crouch": 0, "rise": 1, "riseFwd": 2, "apex": 3, "apexFwd": 4, "fall": 5, "land": 6, "art": true},
-      "style": {"tempo": 1.02, "reach": 1.08, "power": 1.04, "hurtW": 50, "hurtH": 150, "cancelBonus": 1},
-      "specialMove": {"name": "BANSHEE WAIL", "total": 48, "cost": 40, "cast": 20, "type": "spirit", "reach": 780},
-      "ko": {"frames": [43, 44, 45, 46, 47]},
-      "cutscene": {"sheet": "cutscenes/banshee.webp", "cols": 3, "rows": 3, "intro": [0, 1, 2], "win": [3, 4, 8]}
+      "sheets": {
+        "motion": "characters/banshee/banshee_motion.webp",
+        "cols": 8,
+        "rows": 6,
+        "portrait": "characters/banshee/banshee_portrait.webp",
+        "special": "characters/banshee/banshee_special.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [19, 20, 21, 22],
+        "jump": [18, 20, 21],
+        "light": [32, 33, 39],
+        "heavy": [34, 36, 37, 38],
+        "special": [33, 34, 40, 40],
+        "hurt": [41, 42],
+        "ko": [47],
+        "lp": [32, 33, 39],
+        "mp": [34, 35, 38],
+        "hp": [34, 35, 36, 37, 38],
+        "lk": [24, 25, 31],
+        "mk": [29, 30, 31],
+        "hk": [25, 26, 27, 28, 30]
+      },
+      "jump": {
+        "sheet": "characters/banshee/banshee_jump.webp",
+        "cols": 7,
+        "rows": 1,
+        "padTop": 100,
+        "crouch": 0,
+        "rise": 1,
+        "riseFwd": 2,
+        "apex": 3,
+        "apexFwd": 4,
+        "fall": 5,
+        "land": 6,
+        "art": true
+      },
+      "style": {
+        "tempo": 1.02,
+        "reach": 1.08,
+        "power": 1.04,
+        "hurtW": 50,
+        "hurtH": 150,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "BANSHEE WAIL",
+        "total": 48,
+        "cost": 40,
+        "cast": 20,
+        "type": "spirit",
+        "reach": 780
+      },
+      "ko": {
+        "frames": [43, 44, 45, 46, 47]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/banshee.webp",
+        "cols": 3,
+        "rows": 3,
+        "intro": [0, 1, 2],
+        "win": [3, 4, 8]
+      }
     },
     {
       "id": "lilith",
       "name": "LILITH",
       "epithet": "The Blood Queen",
-      "hidden": true,
-      "arcadeOnly": true,
       "color": "#b8862b",
-      "stats": {"height": 285, "weight": 0.95, "speed": 5.1, "power": 1.06},
-      "sheets": {"motion": "characters/lilith/lilith_motion.webp", "cols": 10, "rows": 8, "portrait": "characters/lilith/lilith_portrait.webp", "special": "characters/lilith/lilith_special.webp"},
-      "frames": {
-        "idle": [0,1,2,3,4,5,6,7],
-        "walk": [9,10,11,12,13,14,15,16],
-        "run": [10,12,14,16],
-        "jump": [28,30,31],
-        "light": [18,19,18],
-        "heavy": [23,24,25,26],
-        "special": [44,46,48,50],
-        "hurt": [52,53],
-        "ko": [66],
-        "lp": [18,19,18],
-        "mp": [20,21,22],
-        "hp": [23,24,25,26],
-        "lk": [35,36,37],
-        "mk": [27,28,29],
-        "hk": [27,28,30,31]
+      "stats": {
+        "height": 285,
+        "weight": 0.95,
+        "speed": 5.1,
+        "power": 1.06
       },
-      "jump": {"crouch": 39, "rise": 28, "apex": 30, "fall": 31, "land": 39},
-      "style": {"tempo": 1.02, "reach": 1.1, "power": 1.06, "hurtW": 46, "hurtH": 155, "cancelBonus": 1},
-      "specialMove": {"name": "BLOOD COVENANT", "total": 48, "cost": 40, "cast": 20, "type": "spray", "reach": 700},
-      "ko": {"frames": [62, 63, 64, 65, 66]},
-      "cutscene": {"sheet": "cutscenes/lilith.webp", "cols": 3, "rows": 3, "intro": [1, 4, 7], "win": [5, 6, 8]}
+      "sheets": {
+        "motion": "characters/lilith/lilith_motion.webp",
+        "cols": 10,
+        "rows": 8,
+        "portrait": "characters/lilith/lilith_portrait.webp",
+        "special": "characters/lilith/lilith_special.webp"
+      },
+      "frames": {
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [9, 10, 11, 12, 13, 14, 15, 16],
+        "run": [10, 12, 14, 16],
+        "jump": [28, 30, 31],
+        "light": [18, 19, 18],
+        "heavy": [23, 24, 25, 26],
+        "special": [44, 46, 48, 50],
+        "hurt": [52, 53],
+        "ko": [66],
+        "lp": [18, 19, 18],
+        "mp": [20, 21, 22],
+        "hp": [23, 24, 25, 26],
+        "lk": [35, 36, 37],
+        "mk": [27, 28, 29],
+        "hk": [27, 28, 30, 31]
+      },
+      "jump": {
+        "crouch": 39,
+        "rise": 28,
+        "apex": 30,
+        "fall": 31,
+        "land": 39
+      },
+      "style": {
+        "tempo": 1.02,
+        "reach": 1.1,
+        "power": 1.06,
+        "hurtW": 46,
+        "hurtH": 155,
+        "cancelBonus": 1
+      },
+      "specialMove": {
+        "name": "BLOOD COVENANT",
+        "total": 48,
+        "cost": 40,
+        "cast": 20,
+        "type": "spray",
+        "reach": 700
+      },
+      "ko": {
+        "frames": [62, 63, 64, 65, 66]
+      },
+      "cutscene": {
+        "sheet": "cutscenes/lilith.webp",
+        "cols": 3,
+        "rows": 3,
+        "intro": [1, 4, 7],
+        "win": [5, 6, 8]
+      }
     }
   ],
-  "attackSpeed": {"lp": 0.8, "lk": 0.8, "mp": 0.83, "mk": 0.83, "hp": 0.91, "hk": 0.91},
+  "attackSpeed": {
+    "lp": 0.8,
+    "lk": 0.8,
+    "mp": 0.83,
+    "mk": 0.83,
+    "hp": 0.91,
+    "hk": 0.91
+  },
   "jump": {
     "velocity": 18.4,
     "gravity": 0.78,
