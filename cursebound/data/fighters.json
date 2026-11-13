@@ -2,7 +2,7 @@
   "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v47.webp",
+    "art": "assets/character_select_gothic_v48.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
     "centerPanel": {
@@ -28,7 +28,7 @@
       "mothman": "assets/select_panels/mothman_v2.webp",
       "slender": "assets/select_panels/slender_v2.webp",
       "banshee": "assets/select_panels/banshee.webp",
-      "bloodymary": "assets/select_panels/bloodymary.webp",
+      "bloodymary": "assets/select_panels/bloodymary_v2.webp",
       "lilith": "assets/select_panels/lilith_v2.webp",
       "babayaga": "assets/select_panels/babayaga.webp"
     },
@@ -1404,40 +1404,42 @@
         "power": 1.03
       },
       "sheets": {
-        "motion": "characters/bloody-mary/bloodymary_motion.webp",
+        "motion": "characters/bloody-mary/bloodymary_motion_v3.webp",
         "cols": 10,
-        "rows": 7,
+        "rows": 18,
         "portrait": "characters/bloody-mary/bloodymary_portrait.webp",
-        "special": "characters/bloody-mary/bloodymary_special.webp"
+        "special": "characters/bloody-mary/bloodymary_special_v2.webp"
       },
       "frames": {
-        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
-        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
-        "run": [16, 17, 18, 19, 20, 21, 22, 23],
+        "idle": [70, 71, 72, 73, 74, 75, 76, 77],
+        "walk": [120, 121, 122, 123, 124, 125, 126, 127],
+        "run": [120, 121, 122, 123, 124, 125, 126, 127],
         "jump": [32, 33, 34],
-        "light": [47, 48, 49, 50],
-        "heavy": [43, 45, 46, 50],
+        "light": [81, 82, 83, 84, 85],
+        "heavy": [91, 92, 93, 94, 95, 96],
         "special": [53, 54, 55, 56],
-        "hurt": [58, 59],
-        "ko": [64],
-        "lp": [47, 48, 50],
-        "mp": [42, 45, 46],
-        "hp": [43, 44, 45, 46, 50],
-        "lk": [24, 25, 26],
-        "mk": [42, 43, 44],
-        "hk": [44, 45, 46, 49]
+        "hurt": [131, 132],
+        "guard": [134, 135, 136, 137],
+        "air": [170, 171],
+        "ko": [167],
+        "lp": [81, 82, 83, 84, 85],
+        "mp": [101, 102, 103, 104, 105],
+        "hp": [91, 92, 93, 94, 95, 96],
+        "lk": [111, 112, 113, 114, 115],
+        "mk": [141, 142, 143, 144, 145, 146],
+        "hk": [151, 152, 153, 154, 155, 156]
       },
       "jump": {
-        "sheet": "characters/bloody-mary/bloodymary_jump.webp",
-        "cols": 9,
+        "sheet": "characters/bloody-mary/bloodymary_jump_v2.webp",
+        "cols": 8,
         "rows": 1,
-        "padTop": 90,
+        "padTop": 30,
         "crouch": 0,
         "rise": 1,
         "riseFwd": 2,
-        "apex": 4,
+        "apex": 3,
         "apexFwd": 3,
-        "fall": 6,
+        "fall": 3,
         "land": 7,
         "art": true
       },
@@ -1458,17 +1460,17 @@
         "reach": 660
       },
       "ko": {
-        "frames": [60, 61, 62, 63, 64]
+        "frames": [160, 161, 162, 163, 164, 165, 166, 167]
       },
       "cutscene": {
-        "sheet": "cutscenes/bloodymary_v2.webp",
+        "sheet": "cutscenes/bloodymary_v3.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5],
-        "vs": 5,
-        "vsFocus": 0.42,
-        "inset": 2
+        "vs": 2,
+        "vsFocus": 0.1,
+        "inset": 0
       },
       "stride": {
         "walk": 176,
