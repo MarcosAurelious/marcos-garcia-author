@@ -16,21 +16,22 @@ const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithe
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
+function loadImg(url){const im=new Image();let tries=0;im.onerror=()=>{if(tries++<3)setTimeout(()=>{im.src=url+(url.includes('?')?'&':'?')+'r='+Date.now();},400*tries);};im.src=url;return im;}
 const ATTACK_URLS=Object.fromEntries(FIGHTERS.filter(f=>f.sheets.attack).map(f=>[f.id,f.sheets.attack]));
-const attackImgs={};for(const [key,url] of Object.entries(ATTACK_URLS)){const im=new Image();im.src=url;attackImgs[key]=im;}
+const attackImgs={};for(const [key,url] of Object.entries(ATTACK_URLS)){const im=loadImg(url);attackImgs[key]=im;}
 const SPECIAL_ASSET_URLS=Object.fromEntries(FIGHTERS.filter(f=>f.sheets.special).map(f=>[f.id,f.sheets.special]));
-const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){const im=new Image();im.src=url;specialImgs[key]=im;}
+const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){const im=loadImg(url);specialImgs[key]=im;}
 
 // v4.0 jump system: crouch (takeoff) -> rise -> apex -> fall -> land.
 // Werewolf and Mothman use dedicated jump art; the others use their closest airborne poses until jump sheets exist.
 const JUMP_POSES=byFighter('jump');
-const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=new Image();im.src=j.sheet;jumpImgs[id]=im;}
+const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=loadImg(j.sheet);jumpImgs[id]=im;}
 const JUMP_CROUCH_TICKS=5,LAND_TICKS=7;
 const ATTACK_SPEED=DATA.attackSpeed??1; // per button: 0.8 = that attack takes 25% longer
 const attackRate=m=>{const v=typeof ATTACK_SPEED==='object'?(ATTACK_SPEED[m]??1):ATTACK_SPEED;return Math.min(1.5,Math.max(.4,+v||1));};
 const JUMP=Object.assign({velocity:18.4,gravity:.78,forwardSpeed:6.8},DATA.jump||{});
 // v4.4 knockdown art: per-fighter KO sheets (or frames from the fighter's own sheet)
-const koImgs={};for(const f of FIGHTERS)if(f.ko&&f.ko.sheet){const im=new Image();im.src=f.ko.sheet;koImgs[f.id]=im;}
+const koImgs={};for(const f of FIGHTERS)if(f.ko&&f.ko.sheet){koImgs[f.id]=loadImg(f.ko.sheet);}
 // ---- Cutscenes: 6-panel comic sheets (2x3). Intro panels play before round 1, win panels after the match. ----
 const CUTSCENES=Object.fromEntries(FIGHTERS.filter(f=>f.cutscene).map(f=>[f.id,f.cutscene]));
 const cutImgs={};let scene=null;
@@ -88,7 +89,7 @@ function jumpPose(f){const j=JUMP_POSES[f.r.id];if(!j)return null;
  return j.fall;}
 function faceOpponent(f,o){if(!o||f.ko)return;const dx=o.x-f.x;if(Math.abs(dx)>6)f.face=dx>0?1:-1;}
 const imgs={},backgrounds=[];
-for(const r of roster){const img=new Image();img.src=ASSET_URLS[r.id];imgs[r.id]=img;}
+for(const r of roster){imgs[r.id]=loadImg(ASSET_URLS[r.id]);}
 for(let i=0;i<DATA.stages.length;i++){const im=new Image();im.src=ASSET_URLS['stage'+i];backgrounds[i]=im;}
 let selected='wolf',opponent='wendigo',stage=0;
 
