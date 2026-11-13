@@ -1102,9 +1102,13 @@ function drawHUD() {
   const pr = Math.min(1, ST.t / ST.dur), bw = 220, bx = W / 2 - bw / 2, by = 28;
   ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(bx, by, bw, 3); ctx.fillStyle = ST.t >= ST.dur ? '#d33a3a' : '#e3b347'; ctx.fillRect(bx, by, bw * pr, 3);
   // lives + rings
+  const pNear = (x0, x1) => P && !P.dead && P.y > H - 95 && P.x > x0 - 40 && P.x < x1 + 40;
+  ctx.save(); if (pNear(0, 22 + Math.min(G.lives, 6) * 26)) ctx.globalAlpha = 0.3;
   for (let i = 0; i < Math.min(G.lives, 6); i++) draw('pv0', 22 + i * 26, H - 20, 0.2);
+  ctx.restore();
   if (!coarse) {
     const bw = 80, x0 = W - SPECIALS.length * (bw + 4) - 10;
+    ctx.save(); if (pNear(x0, W)) ctx.globalAlpha = 0.3;
     ctx.font = '10px "Space Mono", monospace'; ctx.textBaseline = 'middle';
     SPECIALS.forEach((s, i) => {
       const x = x0 + i * (bw + 4), y = H - 30, n = G.sp[s.id], on = n > 0 && !(s.id === 'roll' && G.rollT > 0);
@@ -1112,6 +1116,7 @@ function drawHUD() {
       ctx.textAlign = 'left'; ctx.fillStyle = on ? '#e3b347' : '#6a5e48'; ctx.fillText(s.key + ' ' + s.label, x + 5, y + 11);
       ctx.textAlign = 'right'; ctx.fillStyle = on ? '#f2e5c3' : '#6a5e48'; ctx.fillText('x' + n, x + bw - 5, y + 11);
     });
+    ctx.restore();
   }
   // timed power-ups
   let x = 14; ctx.font = '11px "Space Mono", monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
@@ -1123,12 +1128,12 @@ function drawHUD() {
   ctx.restore();
   // banner
   if (G.banner) {
-    const b = G.banner, a = Math.min(1, b.t * 2, (3.2 - b.t) * 3 + 0.2);
+    const b = G.banner, by = H * 0.27, a = Math.min(1, b.t * 2, (3.2 - b.t) * 3 + 0.2);
     ctx.save(); ctx.globalAlpha = clamp(a, 0, 1);
-    ctx.fillStyle = 'rgba(6,4,10,.55)'; ctx.fillRect(0, H / 2 - 70, W, b.orders ? 150 : 110);
-    centerText(b.title, H / 2 - 42, 14, b.warn ? '#ff5a5a' : '#9a8c74');
-    goldText(b.sub, H / 2 - 4, 40);
-    if (b.orders) centerText(b.orders, H / 2 + 44, 12, '#f2e5c3');
+    ctx.fillStyle = 'rgba(6,4,10,.55)'; ctx.fillRect(0, by - 70, W, b.orders ? 150 : 110);
+    centerText(b.title, by - 42, 14, b.warn ? '#ff5a5a' : '#9a8c74');
+    goldText(b.sub, by - 4, 40);
+    if (b.orders) centerText(b.orders, by + 44, 12, '#f2e5c3');
     ctx.restore();
   }
   toasts.forEach((t, i) => centerText(t.txt, 70 + i * 22, 14, `rgba(255,226,140,${1 - t.t / 1.8})`));
