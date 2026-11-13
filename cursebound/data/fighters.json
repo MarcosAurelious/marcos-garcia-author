@@ -511,7 +511,7 @@
         "power": 1.05
       },
       "sheets": {
-        "motion": "characters/yucca/yucca_motion_v3.webp",
+        "motion": "characters/yucca/yucca_motion_v4.webp",
         "cols": 8,
         "rows": 4,
         "portrait": "assets/asset_23.webp",
@@ -536,10 +536,10 @@
         "air": [29]
       },
       "jump": {
-        "sheet": "characters/yucca/yucca_jump_d1.webp",
+        "sheet": "characters/yucca/yucca_jump_v2.webp",
         "cols": 8,
         "rows": 1,
-        "padTop": 70,
+        "padTop": -77,
         "crouch": 2,
         "rise": 3,
         "apex": 4,
@@ -596,7 +596,7 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v4.webp",
+        "motion": "characters/yeti/yeti_motion_v5.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_21.webp",
@@ -625,7 +625,7 @@
         "sheet": "characters/yeti/yeti_jump.webp",
         "cols": 8,
         "rows": 1,
-        "padTop": 60,
+        "padTop": -87,
         "crouch": 1,
         "rise": 2,
         "apex": 4,
@@ -683,11 +683,11 @@
         "power": 0.98
       },
       "sheets": {
-        "motion": "characters/skinwalker/skinwalker_motion_v2.webp",
+        "motion": "characters/skinwalker/skinwalker_motion_v3.webp",
         "cols": 4,
         "rows": 8,
         "portrait": "assets/asset_08.webp",
-        "special": "characters/skinwalker/skinwalker_special_v2.webp"
+        "special": "characters/skinwalker/skinwalker_special_v3.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3],
@@ -711,6 +711,7 @@
         "sheet": "characters/skinwalker/skinwalker_jump.webp",
         "cols": 8,
         "rows": 1,
+        "padTop": -78,
         "crouch": 1,
         "rise": 2,
         "riseFwd": 3,
@@ -768,11 +769,11 @@
         "power": 0.9
       },
       "sheets": {
-        "motion": "characters/chupacabra/chupacabra_motion_v3.webp",
+        "motion": "characters/chupacabra/chupacabra_motion_v4.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_04.webp",
-        "special": "characters/chupacabra/chupacabra_special_v3.webp"
+        "special": "characters/chupacabra/chupacabra_special_v4.webp"
       },
       "frames": {
         "idle": [16, 17, 18, 19],
@@ -793,10 +794,10 @@
         "air": [30]
       },
       "jump": {
-        "sheet": "characters/chupacabra/chupacabra_jump.webp",
+        "sheet": "characters/chupacabra/chupacabra_jump_v2.webp",
         "cols": 8,
         "rows": 1,
-        "padTop": 40,
+        "padTop": -59,
         "crouch": 1,
         "rise": 2,
         "apex": 3,
