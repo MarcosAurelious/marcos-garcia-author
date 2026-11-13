@@ -416,11 +416,11 @@
         "power": 0.96
       },
       "sheets": {
-        "motion": "characters/wendigo/wendigo_motion_v2.webp",
+        "motion": "characters/wendigo/wendigo_motion_v3.webp",
         "cols": 8,
         "rows": 10,
         "portrait": "assets/asset_17.webp",
-        "special": "characters/wendigo/wendigo_special_v2.webp"
+        "special": "characters/wendigo/wendigo_special_v3.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3, 4, 5, 6, 7],
@@ -442,7 +442,7 @@
         "hk": [48, 49, 50, 51]
       },
       "jump": {
-        "sheet": "characters/wendigo/wendigo_jump_v2.webp",
+        "sheet": "characters/wendigo/wendigo_jump_v3.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 40,
@@ -1369,11 +1369,11 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/baba-yaga/babayaga_motion_v3.webp",
+        "motion": "characters/baba-yaga/babayaga_motion_v4.webp",
         "cols": 8,
         "rows": 9,
         "portrait": "characters/baba-yaga/babayaga_portrait.webp",
-        "special": "characters/baba-yaga/babayaga_special_v2.webp"
+        "special": "characters/baba-yaga/babayaga_special_v3.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 1],
@@ -1395,7 +1395,7 @@
         "hk": [48, 49, 50, 51]
       },
       "jump": {
-        "sheet": "characters/baba-yaga/babayaga_jump_v2.webp",
+        "sheet": "characters/baba-yaga/babayaga_jump_v3.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 60,
@@ -1614,11 +1614,11 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/lilith/lilith_motion_v4.webp",
+        "motion": "characters/lilith/lilith_motion_v5.webp",
         "cols": 10,
         "rows": 20,
         "portrait": "characters/lilith/lilith_portrait_v2.webp",
-        "special": "characters/lilith/lilith_special_v3.webp"
+        "special": "characters/lilith/lilith_special_v4.webp"
       },
       "frames": {
         "idle": [80, 81, 82, 83, 84, 85, 86, 87],
@@ -1640,7 +1640,7 @@
         "hk": [131, 132, 133, 134, 135, 136]
       },
       "jump": {
-        "sheet": "characters/lilith/lilith_jump_v1.webp",
+        "sheet": "characters/lilith/lilith_jump_v2.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 20,
