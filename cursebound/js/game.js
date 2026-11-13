@@ -721,8 +721,17 @@ function drawHud(){if(fighters.length!==2)return;ctx.save();ctx.font='700 13px s
  if(mode==='practice'){ctx.textAlign='center';ctx.font='bold 15px Georgia';ctx.fillStyle='#e8c9a6';ctx.shadowColor='#000';ctx.shadowBlur=6;const P=practice;let py=196;const gr=$('specialGuide').getBoundingClientRect(),cr=canvas.getBoundingClientRect();if(gr.height&&cr.height&&getComputedStyle($('specialGuide')).visibility!=='hidden')py=Math.max(py,(gr.bottom-cr.top)*H/cr.height+20);ctx.fillText(P.hits?`${P.hits} HITS · ${P.dmg} DAMAGE`:`LAST COMBO ${P.lastHits||0} HITS · ${P.lastDmg||0} DAMAGE · BEST ${P.best||0}`,640,py);ctx.shadowBlur=0;}
  ctx.restore();}
 function overlayWords(big,small){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='#000';ctx.shadowBlur=16;ctx.fillStyle='#f6e7d4';ctx.font='bold 70px Georgia';ctx.fillText(big,640,306);ctx.font='bold 14px system-ui';ctx.fillStyle='#d0ab9c';ctx.fillText(small,640,362);ctx.restore();}
-function tick(t){if(!lastFrame)lastFrame=t;acc+=Math.min(80,t-lastFrame);lastFrame=t;let cycles=0;while(acc>=STEP&&cycles++<5){step();acc-=STEP;}if(phase!=='menu')drawGame();requestAnimationFrame(tick)}
+// Music: theme on the select menu, Bone and String for story scenes and results, Arena Pulse in the fight.
+const MUSIC={menu:'music/keep_your_name.m4a',story:'music/bone_and_string.m4a',fight:'music/arena_pulse.m4a'},musicEls={},MUSIC_VOL=.45;let musicKey=null,musicRetry=0;
+function musicEl(k){if(!musicEls[k]){const el=new Audio(MUSIC[k]);el.loop=true;el.preload='auto';el.volume=MUSIC_VOL;musicEls[k]=el;}return musicEls[k];}
+function syncMusic(){let want=null;if(!muted&&!document.hidden){if(phase==='menu')want='menu';else if(phase==='cutscene'||phase==='matchover')want='story';else want='fight';}
+ if(musicKey&&musicKey!==want){musicEls[musicKey].pause();musicKey=null;}
+ if(musicKey){musicEls[musicKey].volume=paused?MUSIC_VOL*.35:MUSIC_VOL;}
+ if(want&&!musicKey&&performance.now()>=musicRetry){const el=musicEl(want);musicKey=want;if(want!=='menu'&&el.ended)el.currentTime=0;const p=el.play();if(p&&p.catch)p.catch(()=>{if(musicKey===want)musicKey=null;musicRetry=performance.now()+(snd?300:1200);});}}
+for(const ev of ['keydown','pointerdown','touchstart'])window.addEventListener(ev,()=>{musicRetry=0;audioUnlock();},{passive:true});
+function tick(t){if(!lastFrame)lastFrame=t;acc+=Math.min(80,t-lastFrame);lastFrame=t;let cycles=0;while(acc>=STEP&&cycles++<5){step();acc-=STEP;}if(phase!=='menu')drawGame();try{syncMusic();}catch(e){}requestAnimationFrame(tick)}
 window.__curseboundDebug={
+ music:()=>({phase,muted,key:musicKey,playing:Object.entries(musicEls).filter(([k,e])=>!e.paused).map(([k])=>k)}),
  state:()=>({phase,mode,clock,paused,stage,projectiles:specialProjectiles.length,finisher:cinematic?.id||null,lastFinisher:lastFinisher?.name||null,
   fighters:fighters.map(f=>({name:f.r.name,x:Math.round(f.x),health:f.health,energy:f.energy,wins:f.wins,animation:f.animation,action:f.action,tick:f.actionTick,confirmed:f.confirmed,chainLinks:f.chainLinks,routeIndex:f.routeIndex,signatureText:f.signatureText,signatureTicks:f.signatureTicks,dash:f.dash,stun:f.stun,guard:f.guard}))}),
  press:(side,act)=>pressed(side,act),direction:(side,dir,held)=>direction(side,dir,held),start:()=>beginMatch('cpu'),
