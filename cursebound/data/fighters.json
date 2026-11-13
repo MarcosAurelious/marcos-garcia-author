@@ -1336,40 +1336,42 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/baba-yaga/babayaga_motion_c1.webp",
-        "cols": 10,
-        "rows": 6,
+        "motion": "characters/baba-yaga/babayaga_motion_v2.webp",
+        "cols": 8,
+        "rows": 9,
         "portrait": "characters/baba-yaga/babayaga_portrait.webp",
-        "special": "characters/baba-yaga/babayaga_special.webp"
+        "special": "characters/baba-yaga/babayaga_special_v2.webp"
       },
       "frames": {
-        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
-        "walk": [8, 9, 10, 11],
-        "run": [17, 18, 19, 20],
-        "jump": [32, 33, 34],
-        "light": [41, 46, 48],
-        "heavy": [42, 44, 45, 46],
-        "special": [28, 29, 30, 31],
-        "hurt": [51, 52],
-        "ko": [57],
-        "lp": [41, 46, 48],
-        "mp": [43, 44, 46],
-        "hp": [42, 43, 44, 45, 46, 47],
-        "lk": [17, 18, 19],
-        "mk": [11, 12, 13, 12],
-        "hk": [17, 19, 45, 46, 47]
+        "idle": [0, 1, 2, 1],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [8, 9, 10, 11, 12, 13, 14, 15],
+        "jump": [25, 26],
+        "light": [16, 17],
+        "heavy": [25, 26, 27, 28, 29, 30],
+        "special": [18, 19, 20],
+        "hurt": [57, 58, 59],
+        "guard": [61, 62, 63],
+        "air": [27, 28],
+        "ko": [68],
+        "lp": [16, 17],
+        "mp": [18, 19, 20],
+        "hp": [25, 26, 27, 28, 29, 30],
+        "lk": [32, 33, 34, 35],
+        "mk": [40, 41, 42, 43],
+        "hk": [48, 49, 50, 51]
       },
       "jump": {
-        "sheet": "characters/baba-yaga/babayaga_jump.webp",
-        "cols": 9,
+        "sheet": "characters/baba-yaga/babayaga_jump_v2.webp",
+        "cols": 8,
         "rows": 1,
-        "padTop": 90,
+        "padTop": 60,
         "crouch": 0,
         "rise": 1,
         "riseFwd": 2,
-        "apex": 4,
-        "apexFwd": 3,
-        "fall": 6,
+        "apex": 3,
+        "apexFwd": 4,
+        "fall": 5,
         "land": 7,
         "art": true
       },
@@ -1390,7 +1392,7 @@
         "reach": 760
       },
       "ko": {
-        "frames": [53, 54, 55, 56, 57]
+        "frames": [64, 65, 66, 67, 68]
       },
       "cutscene": {
         "sheet": "cutscenes/babayaga_v2.webp",
