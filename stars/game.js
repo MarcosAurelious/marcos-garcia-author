@@ -7,7 +7,7 @@ const C = document.getElementById('game');
 const ctx = C.getContext('2d');
 const IMG = {};
 let loadedCount = 0, assetTotal = Object.keys(ASSETS).length;
-for (const k in ASSETS) { const im = new Image(); im.onload = () => { loadedCount++; }; im.src = ASSETS[k]; IMG[k] = im; }
+for (const k in ASSETS) { const im = new Image(); im.onload = () => { loadedCount++; }; im.src = ASSETS[k] + '?v=6'; IMG[k] = im; }
 
 // ---------- utils ----------
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -1063,7 +1063,7 @@ function drawFx() {
     else if (f.k === 'spawn') draw('spawn' + Math.min(2, Math.floor(f.t / 0.17)), f.x, f.y, f.sc, 0, 1, true);
     else if (f.k === 'emp') { const rad = f.t / 0.9 * 900; ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (const [r, w, a] of [[rad, 10, 0.5], [rad * 0.85, 4, 0.7], [rad * 0.6, 2, 0.4]]) { ctx.strokeStyle = `rgba(120,200,255,${a * (1 - f.t / 0.9)})`; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, 7); ctx.stroke(); } ctx.restore(); }
     else if (f.k === 'ring') { const rad = f.t / 0.7 * 300; draw('ring3', f.x, f.y, rad * 2 / 99, f.t * 2, 1 - f.t / 0.7, true); }
-    else if (f.k === 'wreck') draw(f.t < 0.3 ? (view() === 'side' ? 'psa4' : 'pvhit') : (view() === 'side' ? 'psa4' : 'pvwreck'), f.x, f.y + f.t * 30, view() === 'side' ? 0.55 : 0.52, f.t * 0.6, Math.max(0, 1 - f.t / 1.2));
+    else if (f.k === 'wreck') draw(f.t < 0.3 ? (view() === 'side' ? 'psa0' : 'pvhit') : (view() === 'side' ? 'psa4' : 'pvwreck'), f.x, f.y + f.t * 30, view() === 'side' ? 0.55 : 0.52, f.t * 0.6, Math.max(0, 1 - f.t / 1.2));
     else if (f.k === 'text') { ctx.font = '12px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.fillStyle = `rgba(255,226,140,${1 - f.t / 0.9})`; ctx.fillText(f.txt, f.x, f.y - f.t * 30); }
   }
 }
