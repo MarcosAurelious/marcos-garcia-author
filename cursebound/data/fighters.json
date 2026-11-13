@@ -18,20 +18,20 @@
       "h": 5.316
     },
     "panels": {
-      "wolf": "assets/select_panels/wolf_n1.webp",
+      "wolf": "assets/select_panels/wolf_k1.webp",
       "wendigo": "assets/select_panels/wendigo_a1.webp",
-      "yeti": "assets/select_panels/yeti_n2.webp",
-      "chupacabra": "assets/select_panels/chupacabra_n2.webp",
-      "skinwalker": "assets/select_panels/skinwalker_n1.webp",
-      "yucca": "assets/select_panels/yucca_n2.webp",
-      "llorona": "assets/select_panels/llorona_n1.webp",
+      "yeti": "assets/select_panels/yeti_k1.webp",
+      "chupacabra": "assets/select_panels/chupacabra_k1.webp",
+      "skinwalker": "assets/select_panels/skinwalker_k1.webp",
+      "yucca": "assets/select_panels/yucca_k1.webp",
+      "llorona": "assets/select_panels/llorona_k1.webp",
       "mothman": "assets/select_panels/mothman_a1.webp",
       "slender": "assets/select_panels/slender_a1.webp",
-      "banshee": "assets/select_panels/banshee_n1.webp",
+      "banshee": "assets/select_panels/banshee_k1.webp",
       "bloodymary": "assets/select_panels/bloodymary_a1.webp",
       "lilith": "assets/select_panels/lilith_a1.webp",
       "babayaga": "assets/select_panels/babayaga_a1.webp",
-      "occultist": "assets/select_panels/occultist_n1.webp"
+      "occultist": "assets/select_panels/occultist_k1.webp"
     },
     "glowSize": {
       "w": 8.691,
