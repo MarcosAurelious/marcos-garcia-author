@@ -2,7 +2,7 @@
   "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v49.webp",
+    "art": "assets/character_select_gothic_v50.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
     "centerPanel": {
@@ -30,7 +30,7 @@
       "banshee": "assets/select_panels/banshee.webp",
       "bloodymary": "assets/select_panels/bloodymary_v2.webp",
       "lilith": "assets/select_panels/lilith_v2.webp",
-      "babayaga": "assets/select_panels/babayaga.webp"
+      "babayaga": "assets/select_panels/babayaga_v2.webp"
     },
     "glowSize": {
       "w": 8.691,
@@ -1395,7 +1395,7 @@
         "frames": [64, 65, 66, 67, 68, 69, 70, 71]
       },
       "cutscene": {
-        "sheet": "cutscenes/babayaga_v2.webp",
+        "sheet": "cutscenes/babayaga_v3.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
