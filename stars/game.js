@@ -926,7 +926,7 @@ function advanceFromScreen() {
   } else { G.state = 'title'; ST = null; }
 }
 // ---------- cutscenes: one anime cutscene before each level ----------
-const CUTS = [1, 2, 3, 4, 5, 6, 7, 8].map(n => 'cut/level' + n + (n === 5 ? '_v2' : '') + '.mp4');
+const CUTS = [1, 2, 3, 4, 5, 6, 7, 8].map(n => 'cut/level' + n + (n === 5 || n === 8 ? '_v2' : '') + '.mp4');
 const cutWrap = document.getElementById('cutWrap'), cutVid = document.getElementById('cutVid');
 let cutDone = null, cutGuard = 0;
 function placeCut() {
