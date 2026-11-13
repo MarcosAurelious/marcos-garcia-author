@@ -769,7 +769,7 @@
         "power": 0.9
       },
       "sheets": {
-        "motion": "characters/chupacabra/chupacabra_motion_v4.webp",
+        "motion": "characters/chupacabra/chupacabra_motion_v5.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_04.webp",
@@ -993,7 +993,7 @@
         "art": true
       },
       "style": {
-        "tempo": 0.85,
+        "tempo": 1.1,
         "reach": 1.12,
         "power": 1,
         "hurtW": 48,
