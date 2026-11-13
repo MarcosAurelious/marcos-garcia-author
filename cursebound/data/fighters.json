@@ -596,9 +596,9 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v8.webp",
+        "motion": "characters/yeti/yeti_motion_v9.webp",
         "cols": 8,
-        "rows": 8,
+        "rows": 12,
         "portrait": "assets/asset_21.webp",
         "special": "assets/asset_32_c1.webp"
       },
@@ -607,19 +607,19 @@
         "walk": [52, 53, 54, 55],
         "run": [52, 53, 54, 55],
         "jump": [9, 10, 11],
-        "light": [62],
-        "heavy": [61, 62, 63],
+        "light": [65, 66, 67],
+        "heavy": [73, 74, 77, 78],
         "special": [10, 11, 12, 13],
         "hurt": [56, 57],
         "ko": [59],
-        "lp": [60, 62],
-        "mp": [60, 61, 62],
-        "hp": [61, 62, 63],
-        "lk": [31],
-        "mk": [30, 34],
-        "hk": [33, 35],
+        "lp": [65, 66, 67],
+        "mp": [69, 70, 71],
+        "hp": [73, 74, 77, 78],
+        "lk": [82, 83, 84, 89],
+        "mk": [84, 85, 86, 89],
+        "hk": [85, 86, 87, 88, 90],
         "guard": [60],
-        "air": [35]
+        "air": [87]
       },
       "jump": {
         "sheet": "characters/yeti/yeti_jump.webp",
