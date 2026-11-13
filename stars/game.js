@@ -7,7 +7,7 @@ const C = document.getElementById('game');
 const ctx = C.getContext('2d');
 const IMG = {};
 let loadedCount = 0, assetTotal = Object.keys(ASSETS).length;
-for (const k in ASSETS) { const im = new Image(); im.onload = () => { loadedCount++; }; im.src = ASSETS[k] + '?v=6'; IMG[k] = im; }
+for (const k in ASSETS) { const im = new Image(); im.onload = () => { loadedCount++; }; im.src = ASSETS[k] + '?v=7'; IMG[k] = im; }
 
 // ---------- utils ----------
 const rnd = (a, b) => a + Math.random() * (b - a);
