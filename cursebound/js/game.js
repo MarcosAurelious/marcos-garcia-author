@@ -550,7 +550,7 @@ function hit(attacker,defender,a){
   defender.blockFlash=12;defender.stun=3;defender.vx=attacker.face*2.1;shake=2;
  }
  hitFreeze=guarded?2:4;
- spawnHit(defender.x,defender.y-116,guarded?'#d7c8b6':attacker.r.col,guarded?5:11);
+ {const hw=(styleOf(defender).hurtW||48);const fx=defender.x-attacker.face*hw*.9;spawnHit(fx,defender.y-116,guarded?'#d7c8b6':attacker.r.col,guarded?5:11);}
  blip(guarded?480:140,guarded?.055:.11,guarded?'triangle':'sawtooth',guarded?.016:.065);
  if(defender.health<=0){defender.ko=true;defender.action=null;defender.animation='ko';defender.animTime=0;defender.stun=28;shake=18;defender.vx=attacker.face*5.5;defender.vy=Math.min(defender.vy,-7);defender.grounded=false;hitFreeze=Math.max(hitFreeze,14);}
  return {landed:true,guarded,damage};
