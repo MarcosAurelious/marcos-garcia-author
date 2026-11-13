@@ -1111,12 +1111,12 @@
         "power": 1.04
       },
       "sheets": {
-        "motion": "characters/occultist/occultist_motion_v31_c1.webp",
+        "motion": "characters/occultist/occultist_motion_v31_c2.webp",
         "cols": 8,
         "rows": 12,
         "portrait": "characters/occultist/occultist_portrait_v31.webp",
-        "attack": "characters/occultist/occultist_attack_v46_c1.webp",
-        "special": "characters/occultist/occultist_special_v31_c1.webp",
+        "attack": "characters/occultist/occultist_attack_v46_c2.webp",
+        "special": "characters/occultist/occultist_special_v31_c2.webp",
         "attackGridRows": 6,
         "attackRows": {
           "lp": 0,
