@@ -1201,11 +1201,27 @@ function drawTitle() {
 
 // ---------- loop ----------
 let last = performance.now();
+// ---------- music ----------
+for (const ev of ['keydown', 'pointerdown', 'touchstart']) window.addEventListener(ev, () => { try { initAudio(); } catch (e) {} }, { passive: true });
+const MUSIC = { menu: 'music/galaxy_defender.m4a', a: 'music/galaxy_defender_2.m4a', b: 'music/galaxy_defender.m4a' }, musicEls = {}, MUSIC_VOL = 0.42;
+let musicKey = null;
+function musicEl(k) { if (!musicEls[k]) { const el = new Audio(MUSIC[k]); el.loop = true; el.preload = 'auto'; el.volume = MUSIC_VOL; musicEls[k] = el; } return musicEls[k]; }
+function syncMusic() {
+  let want = null;
+  if (AC && !muted && !document.hidden) {
+    if (G.state === 'title' || G.state === 'over' || G.state === 'victory') want = 'menu';
+    else if ((G.state === 'play' && !G.paused) || G.state === 'promo' || G.state === 'interlude') want = (lvl() % 2 === 0) ? 'a' : 'b';
+  }
+  const src = want && MUSIC[want];
+  if (musicKey && (!want || MUSIC[musicKey] !== src)) { const el = musicEls[musicKey]; if (el) el.pause(); musicKey = null; }
+  if (want && !musicKey) { const el = musicEl(want); musicKey = want; const p = el.play(); if (p && p.catch) p.catch(() => { musicKey = null; }); }
+}
 function frame(now) {
   const dt = Math.min(0.033, (now - last) / 1000); last = now;
   if (G.state === 'loading' && loadedCount >= assetTotal) G.state = 'title';
   if (hit.m) { muted = !muted; lsSet('legio_mute', muted ? '1' : '0'); cutVid.muted = muted; }
   try { update(dt); render(dt); } catch (err) { console.error(err); }
+  try { syncMusic(); } catch (err) {}
   for (const k in hit) hit[k] = false;
   const playing = G.state === 'play' && !G.paused; if (document.body.classList.contains('playing') !== playing) document.body.classList.toggle('playing', playing);
   if (coarse) {
