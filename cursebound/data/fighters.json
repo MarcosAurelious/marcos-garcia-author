@@ -595,7 +595,7 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v2.webp",
+        "motion": "characters/yeti/yeti_motion_v3.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_21.webp",
