@@ -1417,11 +1417,11 @@
         "power": 1.03
       },
       "sheets": {
-        "motion": "characters/bloody-mary/bloodymary_motion_v4.webp",
+        "motion": "characters/bloody-mary/bloodymary_motion_v5.webp",
         "cols": 10,
         "rows": 18,
         "portrait": "characters/bloody-mary/bloodymary_portrait.webp",
-        "special": "characters/bloody-mary/bloodymary_special_v3.webp"
+        "special": "characters/bloody-mary/bloodymary_special_v4.webp"
       },
       "frames": {
         "idle": [70, 71, 72, 73, 74, 75, 76, 77],
@@ -1443,7 +1443,7 @@
         "hk": [151, 152, 153, 154, 155, 156]
       },
       "jump": {
-        "sheet": "characters/bloody-mary/bloodymary_jump_v3.webp",
+        "sheet": "characters/bloody-mary/bloodymary_jump_v4.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 30,
