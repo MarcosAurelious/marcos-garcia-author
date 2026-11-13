@@ -596,14 +596,14 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v5.webp",
+        "motion": "characters/yeti/yeti_motion_v6.webp",
         "cols": 8,
-        "rows": 6,
+        "rows": 7,
         "portrait": "assets/asset_21.webp",
         "special": "assets/asset_32_c1.webp"
       },
       "frames": {
-        "idle": [16, 17, 19, 20],
+        "idle": [48, 49, 50, 51],
         "walk": [4, 5, 6, 7],
         "run": [5, 6, 7, 8],
         "jump": [9, 10, 11],
