@@ -666,7 +666,7 @@ function drawApprovedMothmanPose(image,cols,rows,index,height,squat=0){
 
 function drawAfterFighter(f){if(f.blockFlash>0){ctx.save();ctx.globalAlpha=f.blockFlash/12*.7;ctx.fillStyle='#e6d9c7';ctx.beginPath();ctx.arc(f.x+f.face*40,f.y-132,19,0,Math.PI*2);ctx.fill();ctx.restore();}}
 function drawFighter(f){const r=f.r,img=imgs[r.id];if(!img?.complete||!img.naturalWidth)return;const frame=currentFrame(f),cellw=img.naturalWidth/r.cols,cellh=img.naturalHeight/r.rows;const h=r.h,w=h*cellw/cellh;
- ctx.save();ctx.translate(f.x,f.y);if(f.face<0)ctx.scale(-1,1);if(f.inv>0&&f.inv%3===0)ctx.globalAlpha=.65;if(r.aura&&!f.ko){const p=.5+.5*Math.sin(frameNo*.07+(f.x*.01));ctx.shadowColor=r.aura;ctx.shadowBlur=(14+12*p)*(r.auraStrength??1);}
+ ctx.save();ctx.translate(f.x,f.y);if(f.face<0)ctx.scale(-1,1);if(f.inv>0&&f.inv%3===0)ctx.globalAlpha=.65;if(r.id==='mothman'&&f.action&&!f.ko){ctx.shadowColor='#ffc83a';ctx.shadowBlur=22;}else if(r.aura&&!f.ko){const p=.5+.5*Math.sin(frameNo*.07+(f.x*.01));ctx.shadowColor=r.aura;ctx.shadowBlur=(14+12*p)*(r.auraStrength??1);}
  // Maintain a consistent foot anchor without redrawing or transforming anatomy.
  if(f.ko)ctx.globalAlpha*=.95;
  const squat=f.crouch?9:0;
