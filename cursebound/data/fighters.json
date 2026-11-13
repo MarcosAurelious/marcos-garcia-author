@@ -596,22 +596,22 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v6.webp",
+        "motion": "characters/yeti/yeti_motion_v7.webp",
         "cols": 8,
-        "rows": 7,
+        "rows": 8,
         "portrait": "assets/asset_21.webp",
         "special": "assets/asset_32_c1.webp"
       },
       "frames": {
         "idle": [48, 49, 50, 51],
-        "walk": [4, 5, 6, 7],
-        "run": [5, 6, 7, 8],
+        "walk": [52, 53, 54, 55],
+        "run": [52, 53, 54, 55],
         "jump": [9, 10, 11],
         "light": [22],
         "heavy": [26, 27, 29],
         "special": [10, 11, 12, 13],
-        "hurt": [13, 14],
-        "ko": [13, 14, 15],
+        "hurt": [56, 57],
+        "ko": [59],
         "lp": [21, 22],
         "mp": [22, 23],
         "hp": [26, 27, 29],
@@ -661,7 +661,7 @@
         "type": "snow"
       },
       "ko": {
-        "frames": [13, 14, 15]
+        "frames": [56, 57, 58, 59]
       },
       "cutscene": {
         "sheet": "cutscenes/yeti.webp",
