@@ -474,15 +474,15 @@ function cpuThink(f,foe){
   const ranged=sp&&sp.type!=='maul';
   if(sp&&f.energy>=sp.cost&&abs<sp.reach&&Math.random()<(ranged?.12:.09)*(.6+L*1.15)&&!f.action){
     pressed(1,'super');
-  }else if(abs<200&&Math.random()<.34+.4*L){
-    const attack=abs>151?(Math.random()<.55?'lk':'mk'):['lp','mp','hp','lk','mk','hk'][Math.floor(Math.random()*6)];
+  }else if(abs<170&&Math.random()<.34+.4*L){
+    const attack=abs>132?(Math.random()<.55?'lk':'mk'):['lp','mp','hp','lk','mk','hk'][Math.floor(Math.random()*6)];
     pressed(1,attack);
   }else if(abs<430&&Math.random()<.11)pressed(1,'jump');
  }
  const threat=foe.action==='super'?(SPECIAL_INFO[foe.r.id]?.cast||20):(attackFor(foe,foe.action)?.start||12);
  if(foe.action&&abs<230&&foe.actionTick<threat+3&&Math.random()<.12+.34*(f.aiLevel??.35))f.aiChoice='guard';
  if(f.aiChoice==='guard'&&abs<224){f.input.guard=true;return;}
- if(abs>144||f.aiChoice==='back'){
+ if(abs>124||f.aiChoice==='back'){
   const travel=f.aiChoice==='back'?-desired:desired;
   f.input.right=travel>0;f.input.left=travel<0;
  }else if(!f.action&&f.aiClock<=4&&Math.random()<.12)pressed(1,Math.random()<.5?'lp':'lk');
