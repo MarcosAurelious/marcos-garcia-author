@@ -510,23 +510,29 @@
         "power": 1.05
       },
       "sheets": {
-        "motion": "characters/yucca/yucca_motion_d1.webp",
-        "cols": 4,
+        "motion": "characters/yucca/yucca_motion_v2.webp",
+        "cols": 8,
         "rows": 4,
         "portrait": "assets/asset_23.webp",
-        "attack": "characters/yucca/yucca_attack_d1.webp",
         "special": "characters/yucca/yucca_special_d1.webp"
       },
       "frames": {
-        "idle": [0, 1, 2, 3],
+        "idle": [16, 18],
         "walk": [4, 5, 6, 7],
         "run": [6, 7, 8, 9],
         "jump": [8, 9, 10],
-        "light": [9, 10, 11],
-        "heavy": [11, 12, 13],
+        "light": [17],
+        "heavy": [21, 22],
         "special": [10, 11, 12, 13],
         "hurt": [13, 14],
-        "ko": [13, 14, 15]
+        "ko": [13, 14, 15],
+        "lp": [17],
+        "mp": [19],
+        "hp": [21, 22],
+        "lk": [25],
+        "mk": [27],
+        "hk": [28, 29],
+        "air": [29]
       },
       "jump": {
         "sheet": "characters/yucca/yucca_jump_d1.webp",
@@ -589,23 +595,30 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "assets/asset_20_v40_c1.webp",
-        "cols": 4,
-        "rows": 4,
+        "motion": "characters/yeti/yeti_motion_v2.webp",
+        "cols": 8,
+        "rows": 6,
         "portrait": "assets/asset_21.webp",
-        "attack": "assets/asset_27_v40_c1.webp",
         "special": "assets/asset_32_c1.webp"
       },
       "frames": {
-        "idle": [0, 1, 2, 3],
+        "idle": [16, 17, 19, 20],
         "walk": [4, 5, 6, 7],
         "run": [5, 6, 7, 8],
         "jump": [9, 10, 11],
-        "light": [8, 9, 10, 11],
-        "heavy": [9, 10, 11, 12],
+        "light": [22],
+        "heavy": [26, 27, 29],
         "special": [10, 11, 12, 13],
         "hurt": [13, 14],
-        "ko": [13, 14, 15]
+        "ko": [13, 14, 15],
+        "lp": [21, 22],
+        "mp": [22, 23],
+        "hp": [26, 27, 29],
+        "lk": [31],
+        "mk": [30, 34],
+        "hk": [33, 35],
+        "guard": [24, 25],
+        "air": [35]
       },
       "jump": {
         "sheet": "characters/yeti/yeti_jump.webp",
