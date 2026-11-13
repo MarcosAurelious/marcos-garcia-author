@@ -504,12 +504,12 @@
         "power": 1.05
       },
       "sheets": {
-        "motion": "assets/asset_22_v40.webp",
+        "motion": "characters/yucca/yucca_motion_d1.webp",
         "cols": 4,
         "rows": 4,
         "portrait": "assets/asset_23.webp",
-        "attack": "assets/asset_26_v40.webp",
-        "special": "assets/asset_35.webp"
+        "attack": "characters/yucca/yucca_attack_d1.webp",
+        "special": "characters/yucca/yucca_special_d1.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3],
@@ -523,7 +523,7 @@
         "ko": [13, 14, 15]
       },
       "jump": {
-        "sheet": "characters/yucca/yucca_jump_c1.webp",
+        "sheet": "characters/yucca/yucca_jump_d1.webp",
         "cols": 8,
         "rows": 1,
         "padTop": 70,
