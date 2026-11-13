@@ -1336,7 +1336,7 @@
         "power": 1.06
       },
       "sheets": {
-        "motion": "characters/baba-yaga/babayaga_motion_v2.webp",
+        "motion": "characters/baba-yaga/babayaga_motion_v3.webp",
         "cols": 8,
         "rows": 9,
         "portrait": "characters/baba-yaga/babayaga_portrait.webp",
@@ -1353,9 +1353,9 @@
         "hurt": [57, 58, 59],
         "guard": [61, 62, 63],
         "air": [27, 28],
-        "ko": [68],
+        "ko": [71],
         "lp": [16, 17],
-        "mp": [18, 19, 20],
+        "mp": [17, 18, 19, 20, 21, 22],
         "hp": [25, 26, 27, 28, 29, 30],
         "lk": [32, 33, 34, 35],
         "mk": [40, 41, 42, 43],
@@ -1392,7 +1392,7 @@
         "reach": 760
       },
       "ko": {
-        "frames": [64, 65, 66, 67, 68]
+        "frames": [64, 65, 66, 67, 68, 69, 70, 71]
       },
       "cutscene": {
         "sheet": "cutscenes/babayaga_v2.webp",
