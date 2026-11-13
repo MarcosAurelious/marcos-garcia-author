@@ -484,13 +484,13 @@
         "frames": [64, 65, 66, 67, 68, 69, 70, 71]
       },
       "cutscene": {
-        "sheet": "cutscenes/wendigo_v2.webp",
+        "sheet": "cutscenes/wendigo_v3.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
         "win": [3, 4, 5],
-        "vs": 3,
-        "vsFocus": 0.2,
+        "vs": 0,
+        "vsFocus": 0.3,
         "inset": 0
       },
       "stride": {
