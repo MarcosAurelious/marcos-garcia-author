@@ -2,7 +2,7 @@
   "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v48.webp",
+    "art": "assets/character_select_gothic_v49.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
     "centerPanel": {
@@ -19,7 +19,7 @@
     },
     "panels": {
       "wolf": "assets/select_panels/wolf.webp",
-      "wendigo": "assets/select_panels/wendigo.webp",
+      "wendigo": "assets/select_panels/wendigo_v2.webp",
       "yeti": "assets/select_panels/yeti.webp",
       "chupacabra": "assets/select_panels/chupacabra.webp",
       "skinwalker": "assets/select_panels/skinwalker.webp",
@@ -401,7 +401,7 @@
       "id": "wendigo",
       "name": "WENDIGO",
       "epithet": "The Hunger",
-      "color": "#9bbed0",
+      "color": "#c0283a",
       "stats": {
         "height": 292,
         "weight": 0.86,
@@ -409,33 +409,43 @@
         "power": 0.96
       },
       "sheets": {
-        "motion": "assets/asset_16_v40.webp",
+        "motion": "characters/wendigo/wendigo_motion_v2.webp",
         "cols": 8,
-        "rows": 4,
+        "rows": 10,
         "portrait": "assets/asset_17.webp",
-        "attack": "assets/asset_25.webp",
-        "special": "assets/asset_31.webp"
+        "special": "characters/wendigo/wendigo_special_v2.webp"
       },
       "frames": {
-        "idle": [0, 1, 2, 3],
-        "walk": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        "run": [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
-        "jump": [22, 23, 24, 25],
-        "light": [25, 26, 27, 28, 29],
-        "heavy": [26, 27, 28, 29, 30],
-        "special": [27, 28, 29, 30, 31],
-        "hurt": [28, 30],
-        "ko": [31]
+        "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+        "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+        "run": [8, 9, 10, 11, 12, 13, 14, 15],
+        "jump": [72],
+        "light": [17, 18, 19, 21],
+        "heavy": [25, 26, 27, 28, 29, 30],
+        "special": [17, 18, 19, 20],
+        "hurt": [57, 58],
+        "guard": [61, 62, 63],
+        "air": [72],
+        "ko": [71],
+        "lp": [17, 18, 19, 21],
+        "mp": [17, 18, 19, 20, 21, 22],
+        "hp": [25, 26, 27, 28, 29, 30],
+        "lk": [40, 41, 42, 43],
+        "mk": [33, 34, 35, 36, 37, 38],
+        "hk": [48, 49, 50, 51]
       },
       "jump": {
-        "sheet": "characters/wendigo/wendigo_jump.webp",
-        "cols": 5,
+        "sheet": "characters/wendigo/wendigo_jump_v2.webp",
+        "cols": 8,
         "rows": 1,
+        "padTop": 40,
         "crouch": 0,
-        "rise": 1,
-        "apex": 2,
-        "fall": 3,
-        "land": 4,
+        "rise": 2,
+        "riseFwd": 2,
+        "apex": 3,
+        "apexFwd": 3,
+        "fall": 4,
+        "land": 6,
         "art": true
       },
       "style": {
@@ -461,21 +471,21 @@
       "finisher": {
         "name": "HUNGER’S END",
         "caption": "THE LOST SOULS CALL",
-        "color": "#b9d5db",
+        "color": "#d43a4a",
         "type": "drain"
       },
       "ko": {
-        "sheet": "characters/ko/wendigo_ko_c1.webp",
-        "cols": 4,
-        "rows": 1,
-        "frames": [0, 1, 2, 3]
+        "frames": [64, 65, 66, 67, 68, 69, 70, 71]
       },
       "cutscene": {
-        "sheet": "cutscenes/wendigo.webp",
+        "sheet": "cutscenes/wendigo_v2.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
-        "win": [3, 4, 5]
+        "win": [3, 4, 5],
+        "vs": 3,
+        "vsFocus": 0.2,
+        "inset": 0
       },
       "stride": {
         "walk": 240,

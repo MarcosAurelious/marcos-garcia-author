@@ -358,7 +358,7 @@ function drawSpecialFX(){
   if(f.debuffTicks>0&&f.health>0){ctx.save();ctx.globalAlpha=.47+.17*Math.sin(frameNo*.22);ctx.strokeStyle=f.debuff==='BOUND'?'#a2bf6b':f.debuff==='SHADOWBOUND'?'#ab6cde':f.debuff==='DAZED'?'#ce6b7c':'#e3f1ff';ctx.lineWidth=3;for(let j=0;j<3;j++){ctx.beginPath();ctx.ellipse(f.x,f.y-40-j*40,43+8*Math.sin(frameNo*.09+j),12,Math.sin(frameNo*.06+j)*.3,0,7);ctx.stroke();}ctx.restore();}
   if(f.action==='super'&&f.r.id==='wendigo'&&f.actionTick>=17&&f.actionTick<41){
    const o=fighters.find(q=>q!==f);if(!o||Math.abs(f.x-o.x)>435)continue;
-   ctx.save();ctx.strokeStyle='rgba(200,230,226,.65)';ctx.shadowBlur=14;ctx.shadowColor='#d8f6f2';ctx.lineWidth=4;
+   ctx.save();ctx.strokeStyle='rgba(214,40,58,.7)';ctx.shadowBlur=14;ctx.shadowColor='#ff3048';ctx.lineWidth=4;
    for(let j=0;j<3;j++){const dy=j*13;ctx.beginPath();ctx.moveTo(o.x,o.y-155+dy);ctx.bezierCurveTo(o.x+f.face*80,o.y-210-dy,f.x-f.face*90,f.y-175+dy,f.x+f.face*33,f.y-198);ctx.stroke();}
    ctx.restore();
   }
