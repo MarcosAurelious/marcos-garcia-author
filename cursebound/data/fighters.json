@@ -20,10 +20,10 @@
     "panels": {
       "wolf": "assets/select_panels/wolf_n1.webp",
       "wendigo": "assets/select_panels/wendigo_a1.webp",
-      "yeti": "assets/select_panels/yeti_n1.webp",
-      "chupacabra": "assets/select_panels/chupacabra_n1.webp",
+      "yeti": "assets/select_panels/yeti_n2.webp",
+      "chupacabra": "assets/select_panels/chupacabra_n2.webp",
       "skinwalker": "assets/select_panels/skinwalker_n1.webp",
-      "yucca": "assets/select_panels/yucca_n1.webp",
+      "yucca": "assets/select_panels/yucca_n2.webp",
       "llorona": "assets/select_panels/llorona_n1.webp",
       "mothman": "assets/select_panels/mothman_a1.webp",
       "slender": "assets/select_panels/slender_a1.webp",
@@ -511,7 +511,7 @@
         "power": 1.05
       },
       "sheets": {
-        "motion": "characters/yucca/yucca_motion_v2.webp",
+        "motion": "characters/yucca/yucca_motion_v3.webp",
         "cols": 8,
         "rows": 4,
         "portrait": "assets/asset_23.webp",
@@ -596,7 +596,7 @@
         "power": 1.15
       },
       "sheets": {
-        "motion": "characters/yeti/yeti_motion_v3.webp",
+        "motion": "characters/yeti/yeti_motion_v4.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_21.webp",
@@ -687,7 +687,7 @@
         "cols": 4,
         "rows": 8,
         "portrait": "assets/asset_08.webp",
-        "special": "assets/asset_34.webp"
+        "special": "characters/skinwalker/skinwalker_special_v2.webp"
       },
       "frames": {
         "idle": [0, 1, 2, 3],
@@ -768,11 +768,11 @@
         "power": 0.9
       },
       "sheets": {
-        "motion": "characters/chupacabra/chupacabra_motion_v2.webp",
+        "motion": "characters/chupacabra/chupacabra_motion_v3.webp",
         "cols": 8,
         "rows": 6,
         "portrait": "assets/asset_04.webp",
-        "special": "characters/chupacabra/chupacabra_special_v2.webp"
+        "special": "characters/chupacabra/chupacabra_special_v3.webp"
       },
       "frames": {
         "idle": [16, 17, 18, 19],
