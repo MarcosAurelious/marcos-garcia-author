@@ -2,7 +2,7 @@
   "version": "4.9",
   "title": "assets/asset_15.webp",
   "selectScreen": {
-    "art": "assets/character_select_gothic_v46.webp",
+    "art": "assets/character_select_gothic_v47.webp",
     "glow": "assets/select_glow.webp",
     "note": "Positions are % of the select artwork. Each card's glow appears only when that fighter is selected (dimmer on hover). The center portrait swaps to panels[id]; a fighter with no panel (the Occultist) shows the portrait painted in the art.",
     "centerPanel": {
@@ -26,7 +26,7 @@
       "yucca": "assets/select_panels/yucca.webp",
       "llorona": "assets/select_panels/llorona.webp",
       "mothman": "assets/select_panels/mothman_v2.webp",
-      "slender": "assets/select_panels/slender.webp",
+      "slender": "assets/select_panels/slender_v2.webp",
       "banshee": "assets/select_panels/banshee.webp",
       "bloodymary": "assets/select_panels/bloodymary.webp",
       "lilith": "assets/select_panels/lilith_v2.webp",
@@ -1005,12 +1005,12 @@
         "power": 0.98
       },
       "sheets": {
-        "motion": "characters/slender-man/slender_motion_v4.webp",
+        "motion": "characters/slender-man/slender_motion_v5.webp",
         "cols": 8,
         "rows": 12,
         "portrait": "characters/slender-man/slender_portrait.webp",
-        "attack": "characters/slender-man/slender_motion_v4.webp",
-        "special": "characters/slender-man/slender_special.webp",
+        "attack": "characters/slender-man/slender_motion_v5.webp",
+        "special": "characters/slender-man/slender_special_v2.webp",
         "attackGridRows": 12,
         "attackRows": {
           "lp": 6,
@@ -1073,17 +1073,20 @@
         "type": "shadow"
       },
       "ko": {
-        "sheet": "characters/ko/slender_ko.webp",
-        "cols": 6,
+        "sheet": "characters/ko/slender_ko_v2.webp",
+        "cols": 16,
         "rows": 1,
-        "frames": [0, 1, 2, 3, 4, 5]
+        "frames": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
       },
       "cutscene": {
-        "sheet": "cutscenes/slender.webp",
+        "sheet": "cutscenes/slender_v2.webp",
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
-        "win": [3, 4, 5]
+        "win": [3, 4, 5],
+        "vs": 2,
+        "vsFocus": 0.45,
+        "inset": 0
       }
     },
     {
