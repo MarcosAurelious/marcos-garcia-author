@@ -18,19 +18,19 @@
       "h": 5.316
     },
     "panels": {
-      "wolf": "assets/select_panels/wolf.webp",
-      "wendigo": "assets/select_panels/wendigo_v2.webp",
-      "yeti": "assets/select_panels/yeti.webp",
-      "chupacabra": "assets/select_panels/chupacabra.webp",
-      "skinwalker": "assets/select_panels/skinwalker.webp",
-      "yucca": "assets/select_panels/yucca.webp",
-      "llorona": "assets/select_panels/llorona.webp",
-      "mothman": "assets/select_panels/mothman_v2.webp",
-      "slender": "assets/select_panels/slender_v2.webp",
-      "banshee": "assets/select_panels/banshee.webp",
-      "bloodymary": "assets/select_panels/bloodymary_v2.webp",
-      "lilith": "assets/select_panels/lilith_v2.webp",
-      "babayaga": "assets/select_panels/babayaga_v2.webp"
+      "wolf": "assets/select_panels/wolf_a1.webp",
+      "wendigo": "assets/select_panels/wendigo_a1.webp",
+      "yeti": "assets/select_panels/yeti_a1.webp",
+      "chupacabra": "assets/select_panels/chupacabra_a1.webp",
+      "skinwalker": "assets/select_panels/skinwalker_a1.webp",
+      "yucca": "assets/select_panels/yucca_a1.webp",
+      "llorona": "assets/select_panels/llorona_a1.webp",
+      "mothman": "assets/select_panels/mothman_a1.webp",
+      "slender": "assets/select_panels/slender_a1.webp",
+      "banshee": "assets/select_panels/banshee_a1.webp",
+      "bloodymary": "assets/select_panels/bloodymary_a1.webp",
+      "lilith": "assets/select_panels/lilith_a1.webp",
+      "babayaga": "assets/select_panels/babayaga_a1.webp"
     },
     "glowSize": {
       "w": 8.691,
