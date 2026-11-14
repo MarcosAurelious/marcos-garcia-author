@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
 <title>CURSEBOUND — Gothic Character Select</title>
 <link rel="preload" href="data/fighters.json" as="fetch" crossorigin>
-<link rel="stylesheet" href="css/cursebound.css?v=20261114n">
+<link rel="stylesheet" href="css/cursebound.css?v=20261114p">
 </head>
 <body>
 <canvas id="game" width="1280" height="720" aria-label="Cursebound side-view versus fighting game"></canvas>
@@ -30,7 +30,7 @@
     <div class="right-controls"><button data-act="lp" class="round-btn claw"><b>PUNCH</b><small>LIGHT</small></button><button data-act="mp" class="round-btn heavy"><b>MELEE</b><small>PUNCH</small></button><button data-act="hp" class="round-btn spirit"><b>HEAVY</b><small>PUNCH</small></button><button data-act="lk" class="round-btn kick"><b>KICK</b><small>LIGHT</small></button><button data-act="mk" class="round-btn guard"><b>MELEE</b><small>KICK</small></button><button data-act="hk" class="round-btn dash"><b>HEAVY</b><small>KICK</small></button></div>
   </div>
 </div>
-<div id="result" hidden><div class="result-panel"><div id="resultKicker">FIGHT COMPLETE</div><h2 id="resultTitle">VICTORY</h2><p id="resultDetail"></p><div class="result-buttons"><button class="primary" id="rematch">REMATCH</button><button id="backRoster">CHANGE FIGHTERS</button></div></div></div>
-<script src="js/game.js?v=20261114n" defer></script>
+<div id="result" hidden><div class="result-panel"><div class="victory-card"><canvas id="victoryArt" width="960" height="400" aria-hidden="true"></canvas><div class="victory-text"><div id="resultKicker">FIGHT COMPLETE</div><h2 id="resultTitle">VICTORY</h2><div id="victoryWins">WINS</div></div></div><p id="resultDetail"></p><div class="result-buttons"><button class="primary" id="rematch">REMATCH</button><button id="backRoster">CHANGE FIGHTERS</button></div></div></div>
+<script src="js/game.js?v=20261114p" defer></script>
 </body>
 </html>

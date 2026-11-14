@@ -115,3 +115,22 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 @media (prefers-reduced-motion:reduce){#menu.gothic-ready #pickPrompt,.art-menu-btn.active{animation:none}}
 @media(max-height:520px) and (orientation:landscape){#menu.gothic-ready .menu-inner{max-width:min(100vw,calc(100dvh * 1.8));padding-bottom:0}}
 @media(max-width:950px){#menu.gothic-ready #arenaPick{top:87.3%;height:3.3%}#menu.gothic-ready #arenaPick label{display:none}#menu.gothic-ready #arenaPick select{font-size:1.55cqw;padding-right:1.8cqw;background-size:1cqw auto}}
+
+/* v5.1 victory card replaces the plain result box */
+#result{background:radial-gradient(ellipse at center,#14060bcc,#020307f0 70%);backdrop-filter:blur(3px)}
+#result .result-panel{max-width:none;width:min(92vw,880px,calc((100dvh - 140px) * 2.2));min-width:0;padding:0;background:none;border:0;box-shadow:none;animation:cbCardIn .45s cubic-bezier(.2,.8,.2,1)}
+.victory-card{position:relative;overflow:hidden;border:2px solid #9a6a3e;border-radius:6px;box-shadow:0 0 0 1px #2a1208,0 0 0 5px #120709,0 0 0 6px #6b3f22,0 18px 60px #000,0 0 50px #8e1a2a66;background:#0a0709}
+.victory-card::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 40%,rgba(8,3,6,.55) 66%,rgba(6,2,4,.94)),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55));box-shadow:inset 0 0 40px #000}
+#victoryArt{display:block;width:100%;height:auto;max-height:calc(100dvh - 150px);object-fit:cover}
+#victoryArt.drift{animation:cbDrift 9s ease-out forwards}
+.victory-text{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:0 4% 3.2%;text-align:left}
+.result-panel .victory-text #resultKicker{font:600 clamp(10px,1.4vw,13px) system-ui;letter-spacing:.3em;color:#e7b9a6;text-shadow:0 1px 4px #000}
+.result-panel .victory-text h2{margin:.05em 0 0;font:600 clamp(30px,6.4vw,68px)/1 'Cormorant Garamond','Trajan Pro',Georgia,serif;font-variant:small-caps;letter-spacing:.04em;color:#f6dcb2;text-shadow:0 3px 6px #000,0 0 22px #b1233299}
+#victoryWins{font:700 clamp(12px,2vw,20px) Georgia;letter-spacing:.45em;color:#ff7a62;text-shadow:0 0 12px #c2202a,0 2px 4px #000;margin-top:.2em}
+#result .result-panel p{margin:12px 0 0;font:600 14px system-ui;letter-spacing:.14em;color:#d8c4b4;text-align:center}
+#result .result-panel p:empty{display:none}
+#result .result-buttons{margin-top:14px}
+@keyframes cbCardIn{from{opacity:0;transform:scale(.94) translateY(12px)}}
+@keyframes cbDrift{from{transform:scale(1.06)}to{transform:scale(1)}}
+@media(max-height:520px){#result .result-panel{width:min(92vw,calc((100dvh - 96px) * 2.3))}#result .result-buttons{margin-top:8px}#result .result-panel p{margin-top:6px;font-size:12px}#result .result-buttons button{padding:9px 14px}}
+@media (prefers-reduced-motion:reduce){#result .result-panel,#victoryArt.drift{animation:none}}

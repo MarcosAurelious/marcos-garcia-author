@@ -1,5 +1,5 @@
 {
-  "version": "5.0",
+  "version": "5.1",
   "title": "assets/asset_15.webp",
   "selectScreen": {
     "art": "assets/character_select_gothic_v51.webp",
@@ -581,7 +581,8 @@
         "cols": 2,
         "rows": 3,
         "intro": [0, 1, 2],
-        "win": [3, 4, 5]
+        "win": [3, 4, 5],
+        "victory": 4
       }
     },
     {
@@ -1129,7 +1130,8 @@
         "win": [3, 4, 5],
         "vs": 2,
         "vsFocus": 0.45,
-        "inset": 0
+        "inset": 0,
+        "victoryFocus": 0.2
       }
     },
     {
