@@ -9,29 +9,31 @@ const byFighter=(key)=>Object.fromEntries(FIGHTERS.filter(f=>f[key]!=null).map(f
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});
 const W=1280,H=720,GROUND=568,FPS=60,STEP=1000/FPS;
 const $=(id)=>document.getElementById(id);
-const keys=new Set();let phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
+const keys=new Set();let loadHold=false,phase='menu',mode='cpu',match=null,fighters=[],effects=[],sparks=[],shake=0,hitFreeze=0,clock=90,subframes=0,frameNo=0,introTimer=0,roundTimer=0,champion=null,muted=false,snd=null,paused=false,lastFrame=0,acc=0;
 const menu=$('menu'),battleUi=$('battleUi'),result=$('result');
 const stageNames=DATA.stages.map(s=>s.name);
 const roster=FIGHTERS.map(f=>Object.assign({id:f.id,name:f.name,epithet:f.epithet,hidden:!!f.hidden,aura:f.aura||null,auraStrength:f.auraStrength??1,stride:f.stride||null,specialScale:f.specialScale||1,arcadeOnly:!!f.arcadeOnly,cols:f.sheets.cols,rows:f.sheets.rows,h:f.stats.height,weight:f.stats.weight,speed:f.stats.speed,power:f.stats.power,col:f.color,attackRows:f.sheets.attackRows||null,attackGridRows:f.sheets.attackGridRows||null,koData:f.ko||null},f.frames));
 const rosterById=Object.fromEntries(roster.map(x=>[x.id,x]));
 const ASSET_URLS=Object.assign({title:DATA.title},...DATA.stages.map((s,i)=>({['stage'+i]:s.image})),...FIGHTERS.map(f=>Object.assign({[f.id]:f.sheets.motion},f.sheets.portrait?{[f.id+'_portrait']:f.sheets.portrait}:{})));
 const ACTION_ROW={lp:0,mp:1,hp:2,lk:3,mk:4,hk:5};
+// v5.3 load on demand: a sheet starts downloading the first time it is asked for, instead of all ~48 MB up front
+const lazyImgs=urls=>new Proxy({},{get(t,k){if(!(k in t)&&urls[k])t[k]=loadImg(urls[k]);return t[k];}});
 function loadImg(url){const im=new Image();let tries=0;im.onerror=()=>{if(tries++<3)setTimeout(()=>{im.src=url+(url.includes('?')?'&':'?')+'r='+Date.now();},400*tries);};im.src=url;return im;}
 const ATTACK_URLS=Object.fromEntries(FIGHTERS.filter(f=>f.sheets.attack).map(f=>[f.id,f.sheets.attack]));
-const attackImgs={};for(const [key,url] of Object.entries(ATTACK_URLS)){const im=loadImg(url);attackImgs[key]=im;}
+const attackImgs=lazyImgs(ATTACK_URLS);
 const SPECIAL_ASSET_URLS=Object.fromEntries(FIGHTERS.filter(f=>f.sheets.special).map(f=>[f.id,f.sheets.special]));
-const specialImgs={};for(const [key,url] of Object.entries(SPECIAL_ASSET_URLS)){const im=loadImg(url);specialImgs[key]=im;}
+const specialImgs=lazyImgs(SPECIAL_ASSET_URLS);
 
 // v4.0 jump system: crouch (takeoff) -> rise -> apex -> fall -> land.
 // Werewolf and Mothman use dedicated jump art; the others use their closest airborne poses until jump sheets exist.
 const JUMP_POSES=byFighter('jump');
-const jumpImgs={};for(const [id,j] of Object.entries(JUMP_POSES))if(j.sheet){const im=loadImg(j.sheet);jumpImgs[id]=im;}
+const jumpImgs=lazyImgs(Object.fromEntries(Object.entries(JUMP_POSES).filter(([id,j])=>j.sheet).map(([id,j])=>[id,j.sheet])));
 const JUMP_CROUCH_TICKS=5,LAND_TICKS=7;
 const ATTACK_SPEED=DATA.attackSpeed??1; // per button: 0.8 = that attack takes 25% longer
 const attackRate=m=>{const v=typeof ATTACK_SPEED==='object'?(ATTACK_SPEED[m]??1):ATTACK_SPEED;return Math.min(1.5,Math.max(.4,+v||1));};
 const JUMP=Object.assign({velocity:18.4,gravity:.78,forwardSpeed:6.8},DATA.jump||{});
 // v4.4 knockdown art: per-fighter KO sheets (or frames from the fighter's own sheet)
-const koImgs={};for(const f of FIGHTERS)if(f.ko&&f.ko.sheet){koImgs[f.id]=loadImg(f.ko.sheet);}
+const koImgs=lazyImgs(Object.fromEntries(FIGHTERS.filter(f=>f.ko&&f.ko.sheet).map(f=>[f.id,f.ko.sheet])));
 // ---- Cutscenes: 6-panel comic sheets (2x3). Intro panels play before round 1, win panels after the match. ----
 const CUTSCENES=Object.fromEntries(FIGHTERS.filter(f=>f.cutscene).map(f=>[f.id,f.cutscene]));
 const cutImgs={};let scene=null;
@@ -88,9 +90,12 @@ function jumpPose(f){const j=JUMP_POSES[f.r.id];if(!j)return null;
  if(f.vy<5)return fwd&&j.apexFwd!=null?j.apexFwd:j.apex;
  return j.fall;}
 function faceOpponent(f,o){if(!o||f.ko)return;const dx=o.x-f.x;if(Math.abs(dx)>6)f.face=dx>0?1:-1;}
-const imgs={},backgrounds=[];
-for(const r of roster){imgs[r.id]=loadImg(ASSET_URLS[r.id]);}
-for(let i=0;i<DATA.stages.length;i++){const im=new Image();im.src=ASSET_URLS['stage'+i];backgrounds[i]=im;}
+const imgs=lazyImgs(Object.fromEntries(roster.map(r=>[r.id,ASSET_URLS[r.id]]))),backgrounds=lazyImgs(Object.fromEntries(DATA.stages.map((st,i)=>[i,ASSET_URLS['stage'+i]])));
+// Everything one fighter needs in a fight. needed = must be in before the round starts; the rest loads behind it.
+function fighterSheets(id){return{needed:[imgs[id],attackImgs[id]].filter(Boolean),extra:[specialImgs[id],jumpImgs[id],koImgs[id]].filter(Boolean)};}
+function warmFighter(id){if(rosterById[id])fighterSheets(id);}
+const imgDone=im=>im.complete&&im.naturalWidth>0;
+function matchLoad(){const need=[backgrounds[stage]];for(const f of fighters)need.push(...fighterSheets(f.r.id).needed);const done=need.filter(imgDone).length;return{done,total:need.length,ready:done===need.length};}
 let selected='wolf',opponent='wendigo',stage=0;
 
 // Menu is built from the user's approved original character artwork.
@@ -105,7 +110,7 @@ const selectedFighterName=$('selectedFighterName');
 for(const r of roster.filter(r=>!r.hidden)){
  const btn=document.createElement('button');btn.className='fighter-card'+(r.id===selected?' selected':'');btn.dataset.id=r.id;btn.setAttribute('aria-label','Select '+r.name);btn.setAttribute('aria-pressed',String(r.id===selected));
  btn.innerHTML=`<img src="${ASSET_URLS[r.id+'_portrait']||ASSET_URLS[r.id]}" alt="${r.name} original character sprite"><span>${r.name}</span><em>${r.epithet}</em>`;
- if(r.id==='mothman'){
+ if(r.id==='mothman'&&!r.portrait&&!ASSET_URLS[r.id+'_portrait']){
    const thumb=btn.querySelector('img'),source=new Image();
    source.onload=()=>{
      const c=document.createElement('canvas');c.width=220;c.height=170;
@@ -113,7 +118,7 @@ for(const r of roster.filter(r=>!r.hidden)){
      g.drawImage(source,0,0,cw,ch,20,5,180,158);thumb.src=c.toDataURL('image/png');
    };source.src=ASSET_URLS[r.id];
  }
- btn.addEventListener('click',()=>{if(pickMode){pickOpponent(r.id);return;}selected=r.id;markSelected();selectedFighterName.textContent=r.name;stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
+ btn.addEventListener('click',()=>{if(pickMode){pickOpponent(r.id);return;}selected=r.id;warmFighter(r.id);markSelected();selectedFighterName.textContent=r.name;stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
 }
 // v4.2 select screen: each button sits exactly on its card in the artwork, and only the selected card glows.
 const SEL=DATA.selectScreen,selectGlows={};
@@ -142,7 +147,7 @@ function fitCenterName(){if(!centerName)return;const sp=centerName.firstChild;sp
 function showCenter(id){if(!centerName)return;for(const [pid,im] of Object.entries(centerPanels))im.classList.toggle('on',pid===id);
  const r=rosterById[id];centerName.firstChild.textContent=r?r.name.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):'';requestAnimationFrame(fitCenterName);if(document.fonts)document.fonts.ready.then(fitCenterName);}
 function markSelected(){showCenter(selected);grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
-markSelected();
+markSelected();warmFighter(selected);
 for(let i=0;i<DATA.stages.length;i++){let opt=document.createElement('option');opt.value=i;opt.textContent=stageNames[i];$('stageSelect').appendChild(opt);}
 $('stageSelect').value=0;$('stageSelect').addEventListener('change',e=>stage=Number(e.target.value));
 // v5.0 VS CPU / 2 Players: the banner asks for an opponent and the next card tapped starts the fight
@@ -153,7 +158,7 @@ function setPick(m){pickMode=m;clearTimeout(pickTimer);menu.classList.toggle('pi
  grid.querySelectorAll('.fighter-card.foe').forEach(x=>x.classList.remove('foe'));for(const g of Object.values(selectGlows))g.classList.remove('foe');}
 function startPick(m){if(pickMode===m){setPick(null);blip(220,.05);return;}setPick(m);blip(300,.06);}
 function pickOpponent(id){if(pickTimer)return;if(id===selected){setPick(null);blip(220,.05);return;}
- opponent=id;grid.querySelector(`[data-id="${id}"]`)?.classList.add('foe');selectGlows[id]?.classList.add('foe');blip(520,.07);
+ opponent=id;warmFighter(id);grid.querySelector(`[data-id="${id}"]`)?.classList.add('foe');selectGlows[id]?.classList.add('foe');blip(520,.07);
  const m=pickMode;pickTimer=setTimeout(()=>{pickTimer=0;setPick(null);beginMatch(m);},420);}
 $('fightCpu').onclick=()=>startPick('cpu');$('fightLocal').onclick=()=>startPick('local');
 $('rosterBtn').onclick=()=>openRoster();$('backRoster').onclick=()=>openRoster();$('rematch').onclick=()=>resultPrimary();
@@ -405,7 +410,7 @@ function practiceTick(){const me=fighters[0],d=fighters[1],P=practice;me.energy=
  else if(!me.ko&&me.health<100&&frameNo-P.meHitAt>90)me.health=Math.min(100,me.health+2);}
 function practiceHit(attacker,defender,damage){if(mode!=='practice')return;if(defender===fighters[1]){if(frameNo-practice.hitAt>50){practice.hits=0;practice.dmg=0;}practice.hits++;practice.dmg+=damage;practice.hitAt=frameNo;}else practice.meHitAt=frameNo;}
 function resultPrimary(){if(mode!=='arcade'||!arcade){beginMatch(mode);return;}if(arcade.cleared){startArcade();return;}if(arcade.next){arcade.idx++;arcade.next=false;}else arcade.continues++;arcadeFight();}
-function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';cutImg(selected);cutImg(opponent);portraitImg(selected);portraitImg(opponent);fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';scene=null;showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);const foe=fighters[1];foe.aiLevel=cpuLevel();if(mode==='arcade'&&arcadeBoss())foe.powerMul=arcade.idx===arcade.ladder.length-1?1.15:1.08;
+function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';warmFighter(selected);warmFighter(opponent);cutImg(selected);cutImg(opponent);portraitImg(selected);portraitImg(opponent);fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';scene=null;showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);const foe=fighters[1];foe.aiLevel=cpuLevel();if(mode==='arcade'&&arcadeBoss())foe.powerMul=arcade.idx===arcade.ladder.length-1?1.15:1.08;
  if(mode==='practice'){practiceReset();introTimer=110;}
  updatePracticeBar();startScene(buildIntroScene(),()=>{introTimer=155;phase='intro';});}
 function openRoster(){setPick(null);phase='menu';scene=null;setCutsceneUi(false);$('practiceBar').hidden=true;$('practiceBar').classList.remove('open');$('practiceToggle').hidden=true;cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
@@ -425,7 +430,7 @@ function drawVictoryCard(id){const cv=$('victoryArt'),g=cv.getContext('2d'),c=CU
 function showResult(){phase='matchover';result.hidden=false;battleUi.hidden=true;const win=fighters[0].wins>fighters[1].wins?fighters[0]:fighters[1];drawVictoryCard(win.r.id);$('victoryWins').textContent=win.wins>1&&fighters[0].wins!==fighters[1].wins?`WINS ${Math.max(fighters[0].wins,fighters[1].wins)} — ${Math.min(fighters[0].wins,fighters[1].wins)}`:'WINS';const vn=win.r.name;$('rematch').textContent='REMATCH';$('backRoster').textContent='CHANGE FIGHTERS';
  if(mode==='arcade'&&arcade){const won=win===fighters[0],n=arcade.ladder.length,last=arcade.idx>=n-1;$('backRoster').textContent='QUIT';
   if(won&&last){arcade.cleared=true;$('resultKicker').textContent='THE HUNT IS OVER · ARCADE CLEAR';$('resultTitle').textContent=vn;$('resultDetail').textContent=`DEFEATED ALL ${n} · CONTINUES USED: ${arcade.continues}`;$('rematch').textContent='PLAY AGAIN';}
-  else if(won){arcade.next=true;const nx=arcade.ladder[arcade.idx+1],boss=BOSSES.includes(nx);$('resultKicker').textContent=`STAGE ${arcade.idx+1} OF ${n} CLEARED`;$('resultTitle').textContent=vn;$('resultDetail').textContent=`NEXT: ${rosterById[nx].name.toUpperCase()}${arcade.idx+1===n-1?' · FINAL BOSS':boss?' · BOSS':''}`;$('rematch').textContent='NEXT FIGHT ▶';}
+  else if(won){arcade.next=true;const nx=arcade.ladder[arcade.idx+1],boss=BOSSES.includes(nx);warmFighter(nx);cutImg(nx);$('resultKicker').textContent=`STAGE ${arcade.idx+1} OF ${n} CLEARED`;$('resultTitle').textContent=vn;$('resultDetail').textContent=`NEXT: ${rosterById[nx].name.toUpperCase()}${arcade.idx+1===n-1?' · FINAL BOSS':boss?' · BOSS':''}`;$('rematch').textContent='NEXT FIGHT ▶';}
   else{arcade.next=false;$('resultKicker').textContent='DEFEAT · CONTINUE?';$('resultTitle').textContent=vn;$('resultDetail').textContent=`STOPPED YOU AT ${arcadeLabel()}`;$('rematch').textContent='CONTINUE';}
   return;}$('resultTitle').textContent=vn;$('resultDetail').textContent='';$('resultKicker').textContent=(mode==='local'?(win===fighters[0]?'PLAYER 1':'PLAYER 2'):(win===fighters[0]?'VICTORY':'DEFEAT'))+(lastFinisher&&lastFinisher.owner===win.r.name?' · REDEMPTION FINISHER: '+lastFinisher.name:'');}
 function audioUnlock(){try{if(!snd)snd=new (window.AudioContext||window.webkitAudioContext)();if(snd.state==='suspended')snd.resume().catch(()=>{});}catch(e){}}
@@ -586,6 +591,7 @@ function step(){frameNo++;if(paused||phase==='menu'||phase==='matchover')return;
  if(phase==='cutscene'){if(scene)stepScene();else phase='intro';return;}
  if(phase==='finisher'){stepFinisher();updateEffects();return;}
  if(hitFreeze>0){hitFreeze--;updateEffects();return;}
+ if((phase==='intro'||phase==='fight')&&frameNo<36000&&!matchLoad().ready){loadHold=true;return;}loadHold=false;
  if(phase==='intro'){introTimer--;if(introTimer<=0)phase='fight';}
  if(phase==='fight'){if(mode==='cpu'||mode==='arcade')cpuThink(fighters[1],fighters[0]);else if(mode==='practice')dummyThink(fighters[1],fighters[0]);let f0=fighters[0],f1=fighters[1];updateFighter(f0,f1,0);updateFighter(f1,f0,1);updateSpecials();const dist=Math.abs(f0.x-f1.x);const minDist=Math.min(185,Math.max(155,(f0.r.h+f1.r.h)*.31));const lift=f=>GROUND-f.y,over=(a,b)=>lift(a)>b.r.h*.42;if(dist<minDist&&!over(f0,f1)&&!over(f1,f0))separate(f0,f1,minDist);if(mode==='practice')practiceTick();else{if(++subframes>=60){subframes=0;clock=Math.max(0,clock-1);}if(clock===0||fighters.some(f=>f.health<=0))finishRound();}}
  if(phase==='roundover'){for(const f of fighters){f.input.left=f.input.right=f.input.down=f.input.guard=false;}updateFighter(fighters[0],fighters[1],0);updateFighter(fighters[1],fighters[0],1);roundTimer--;if(roundTimer<=0){if(fighters[0].wins>=2||fighters[1].wins>=2){const w=fighters[0].wins>=2?fighters[0]:fighters[1];if(mode==='arcade'){const finalWin=w===fighters[0]&&arcade.idx>=arcade.ladder.length-1;if(finalWin||w===fighters[1])startScene(buildWinScene(w),showResult);else showResult();}else startScene(buildWinScene(w),showResult);}else startNewRound();}}
@@ -593,7 +599,8 @@ function step(){frameNo++;if(paused||phase==='menu'||phase==='matchover')return;
 
 function drawGame(){if(phase==='cutscene'&&scene){drawScene();if(paused){ctx.fillStyle='#05050ab9';ctx.fillRect(0,0,W,H);}return;}ctx.save();ctx.clearRect(0,0,W,H);drawStage();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.55);
  for(const f of fighters){drawShadow(f);}for(const f of fighters){drawFighter(f);}drawSpecialFX();drawFinisherFX();drawEffects();ctx.restore();drawHud();if(phase==='finisher')drawFinisherCinema();
- if(phase==='intro'){if(mode==='practice')overlayWords(introTimer>50?'PRACTICE':'FIGHT!',introTimer>50?'TEST DUMMY · '+fighters[1].r.name.toUpperCase():'');else overlayWords(introTimer>87?'ROUND '+(fighters[0].wins+fighters[1].wins+1):'FIGHT!',introTimer>87?(mode==='arcade'?arcadeLabel():'PROVE YOUR REDEMPTION'):'');}
+ if(loadHold&&!paused){const L=matchLoad();ctx.fillStyle='#05050acc';ctx.fillRect(0,0,W,H);overlayWords('SUMMONING',`LOADING FIGHTERS · ${L.done} OF ${L.total}`);ctx.fillStyle='#2a111b';ctx.fillRect(490,392,300,6);ctx.fillStyle='#d35c58';ctx.fillRect(490,392,300*L.done/L.total,6);}
+ else if(phase==='intro'){if(mode==='practice')overlayWords(introTimer>50?'PRACTICE':'FIGHT!',introTimer>50?'TEST DUMMY · '+fighters[1].r.name.toUpperCase():'');else overlayWords(introTimer>87?'ROUND '+(fighters[0].wins+fighters[1].wins+1):'FIGHT!',introTimer>87?(mode==='arcade'?arcadeLabel():'PROVE YOUR REDEMPTION'):'');}
  if(phase==='roundover'){const word=champion?champion===fighters[0]?'ROUND WON':'ROUND LOST':'DRAW';overlayWords(lastFinisher&&champion&&lastFinisher.owner===champion.r.name?'FINISHER!':word,champion?champion.r.name+' PREVAILS':'NEITHER SOUL YIELDS');}
  if(paused){ctx.fillStyle='#05050ab9';ctx.fillRect(0,0,W,H);}}
 function drawStage(){const b=backgrounds[stage];ctx.fillStyle='#071015';ctx.fillRect(0,0,W,H);if(b.complete&&b.naturalWidth){ctx.drawImage(b,0,0,W,H);}const sh=ctx.createLinearGradient(0,0,0,H);sh.addColorStop(0,'rgba(0,0,0,.10)');sh.addColorStop(.58,'rgba(5,7,12,.03)');sh.addColorStop(.80,'rgba(1,3,6,.12)');sh.addColorStop(1,'rgba(0,0,0,.68)');ctx.fillStyle=sh;ctx.fillRect(0,0,W,H);
