@@ -91,3 +91,27 @@ h1{color:#ece3d8;text-shadow:0 4px 5px #000,0 0 22px #750a28,0 0 39px #551044}
 @media(pointer:coarse) and (orientation:portrait){#pauseBar{top:max(10px,env(safe-area-inset-top));bottom:auto}}
 .art-menu-btn{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border:0;padding:0;background:transparent;cursor:pointer;border-radius:8px;z-index:4;transition:box-shadow .15s,background .15s}
 .art-menu-btn:hover,.art-menu-btn:focus-visible{background:rgba(255,200,120,.08);box-shadow:0 0 18px 2px rgba(255,150,60,.55)}
+
+/* v5.0 select screen: no bottom strip; arena picker under the SELECT YOUR FIGHTER banner; opponent pick step */
+#arenaPick{display:flex;align-items:center;justify-content:center;gap:10px;margin:10px auto;font:12px Georgia;letter-spacing:.14em;color:#c9a98a}
+#arenaPick select{font:14px Georgia;padding:6px 10px;color:#f1e3cf;background:#140d12;border:1px solid #8a5a3c;border-radius:4px}
+#pickPrompt{text-align:center;margin:8px auto;font:bold 15px Georgia;letter-spacing:.3em;color:#ff9a8a}
+#pickPrompt[hidden]{display:none}
+.fighter-card.foe{border-color:#ff4a3a!important;box-shadow:0 0 16px #e0261b!important}
+#menu.gothic-ready .menu-bottom{display:none}
+#menu.gothic-ready #arenaPick{position:absolute;z-index:5;left:50%;top:87.5%;height:3%;transform:translateX(-50%);margin:0;gap:.6cqw;padding:0 .9cqw;font-size:.72cqw;letter-spacing:.2em;color:#c9a184;background:linear-gradient(#1a0f12f0,#0c0709f0);border:1px solid #8d5b37;border-radius:.4cqw;box-shadow:0 0 .8cqw #000,inset 0 0 .5cqw #5a1d2a}
+#menu.gothic-ready #arenaPick label{cursor:pointer;white-space:nowrap}
+#menu.gothic-ready #arenaPick select{height:100%;padding:0 1.3cqw 0 .3cqw;font:600 1cqw 'Cormorant Garamond','Trajan Pro',Georgia,serif;font-variant:small-caps;letter-spacing:.05em;color:#f1e3cf;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23d9b08a'/%3E%3C/svg%3E") right .2cqw center/.65cqw auto no-repeat;border:0;border-radius:0;-webkit-appearance:none;appearance:none;cursor:pointer;outline:none}
+#menu.gothic-ready #arenaPick:hover,#menu.gothic-ready #arenaPick:focus-within{border-color:#d77af1;box-shadow:0 0 1cqw #a626d8,inset 0 0 .5cqw #5a1d2a}
+#arenaPick option{background:#140d12;color:#f1e3cf}
+@media(pointer:coarse){#menu.gothic-ready #arenaPick::before{content:'';position:absolute;inset:-60% -4%}}
+#menu.gothic-ready #pickPrompt{position:absolute;z-index:4;left:32%;top:83.2%;width:36%;height:3.4%;margin:0;display:flex;align-items:center;justify-content:center;pointer-events:none;background:#120a09;animation:cbPick 1.4s ease-in-out infinite}
+#menu.gothic-ready #pickPrompt[hidden]{display:none}
+#menu.gothic-ready #pickPrompt span{font:600 1.55cqw 'Cormorant Garamond','Trajan Pro',Georgia,serif;letter-spacing:.32em;color:#ffd9c9;text-shadow:0 0 .6cqw #e0261b;white-space:nowrap}
+@keyframes cbPick{50%{box-shadow:inset 0 0 .9cqw #a3151b}}
+#menu.gothic-ready.picking .select-glow.hover,#menu.gothic-ready .select-glow.foe{filter:hue-rotate(75deg) saturate(1.6) drop-shadow(0 0 6px #ff2a1a)}
+#menu.gothic-ready .select-glow.foe{opacity:1}
+.art-menu-btn.active{background:rgba(255,120,90,.1);box-shadow:0 0 20px 3px rgba(255,70,50,.7);animation:cbPick 1.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#menu.gothic-ready #pickPrompt,.art-menu-btn.active{animation:none}}
+@media(max-height:520px) and (orientation:landscape){#menu.gothic-ready .menu-inner{max-width:min(100vw,calc(100dvh * 1.8));padding-bottom:0}}
+@media(max-width:950px){#menu.gothic-ready #arenaPick{top:87.3%;height:3.3%}#menu.gothic-ready #arenaPick label{display:none}#menu.gothic-ready #arenaPick select{font-size:1.55cqw;padding-right:1.8cqw;background-size:1cqw auto}}

@@ -113,7 +113,7 @@ for(const r of roster.filter(r=>!r.hidden)){
      g.drawImage(source,0,0,cw,ch,20,5,180,158);thumb.src=c.toDataURL('image/png');
    };source.src=ASSET_URLS[r.id];
  }
- btn.addEventListener('click',()=>{selected=r.id;markSelected();selectedFighterName.textContent=r.name;if(opponent===selected){opponent=roster.filter(r=>!r.hidden).find(x=>x.id!==selected).id;$('enemySelect').value=opponent;} stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
+ btn.addEventListener('click',()=>{if(pickMode){pickOpponent(r.id);return;}selected=r.id;markSelected();selectedFighterName.textContent=r.name;stage=roster.findIndex(x=>x.id===selected)%6;$('stageSelect').value=stage;blip(380,0.055);});grid.appendChild(btn);
 }
 // v4.2 select screen: each button sits exactly on its card in the artwork, and only the selected card glows.
 const SEL=DATA.selectScreen,selectGlows={};
@@ -126,7 +126,7 @@ if(SEL){const stageEl=$('selectStage');
   btn.addEventListener('pointerenter',()=>glow.classList.add('hover'));btn.addEventListener('pointerleave',()=>glow.classList.remove('hover'));
   btn.addEventListener('focus',()=>glow.classList.add('hover'));btn.addEventListener('blur',()=>glow.classList.remove('hover'));}
  for(const m of SEL.menuButtons||[]){const t=$(m.target);if(!t)continue;const b=document.createElement('button');b.type='button';b.className='art-menu-btn';b.setAttribute('aria-label',t.textContent.trim());
-  for(const k of['x','y','w','h'])b.style.setProperty('--'+k,m[k]+'%');b.addEventListener('click',()=>t.click());stageEl.appendChild(b);}
+  for(const k of['x','y','w','h'])b.style.setProperty('--'+k,m[k]+'%');b.dataset.target=m.target;b.addEventListener('click',()=>t.click());stageEl.appendChild(b);}
 }
 // v4.3 center portrait + name banner follow the selected fighter
 const centerPanels={};let centerName=null;
@@ -143,13 +143,21 @@ function showCenter(id){if(!centerName)return;for(const [pid,im] of Object.entri
  const r=rosterById[id];centerName.firstChild.textContent=r?r.name.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):'';requestAnimationFrame(fitCenterName);if(document.fonts)document.fonts.ready.then(fitCenterName);}
 function markSelected(){showCenter(selected);grid.querySelectorAll('.fighter-card').forEach(x=>{const active=x.dataset.id===selected;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active));});for(const [id,g] of Object.entries(selectGlows))g.classList.toggle('on',id===selected);}
 markSelected();
-for(const r of roster){if(r.arcadeOnly)continue;let opt=document.createElement('option');opt.value=r.id;opt.textContent=r.name;$('enemySelect').appendChild(opt);}
-$('enemySelect').value=opponent;$('enemySelect').addEventListener('change',e=>opponent=e.target.value);
 for(let i=0;i<DATA.stages.length;i++){let opt=document.createElement('option');opt.value=i;opt.textContent=stageNames[i];$('stageSelect').appendChild(opt);}
 $('stageSelect').value=0;$('stageSelect').addEventListener('change',e=>stage=Number(e.target.value));
-$('fightCpu').onclick=()=>beginMatch('cpu');$('fightLocal').onclick=()=>beginMatch('local');
+// v5.0 VS CPU / 2 Players: the banner asks for an opponent and the next card tapped starts the fight
+let pickMode=null,pickTimer=0;
+const PICK_TEXT={cpu:'CHOOSE YOUR OPPONENT',local:'PLAYER 2 · CHOOSE'};
+function setPick(m){pickMode=m;clearTimeout(pickTimer);menu.classList.toggle('picking',!!m);const pp=$('pickPrompt');pp.hidden=!m;if(m)pp.firstChild.textContent=PICK_TEXT[m];
+ document.querySelectorAll('.art-menu-btn').forEach(b=>b.classList.toggle('active',!!m&&b.dataset.target===(m==='cpu'?'fightCpu':'fightLocal')));
+ grid.querySelectorAll('.fighter-card.foe').forEach(x=>x.classList.remove('foe'));for(const g of Object.values(selectGlows))g.classList.remove('foe');}
+function startPick(m){if(pickMode===m){setPick(null);blip(220,.05);return;}setPick(m);blip(300,.06);}
+function pickOpponent(id){if(pickTimer)return;if(id===selected){setPick(null);blip(220,.05);return;}
+ opponent=id;grid.querySelector(`[data-id="${id}"]`)?.classList.add('foe');selectGlows[id]?.classList.add('foe');blip(520,.07);
+ const m=pickMode;pickTimer=setTimeout(()=>{pickTimer=0;setPick(null);beginMatch(m);},420);}
+$('fightCpu').onclick=()=>startPick('cpu');$('fightLocal').onclick=()=>startPick('local');
 $('rosterBtn').onclick=()=>openRoster();$('backRoster').onclick=()=>openRoster();$('rematch').onclick=()=>resultPrimary();
-$('arcadeBtn').onclick=()=>startArcade();$('practiceBtn').onclick=()=>startPractice();
+$('arcadeBtn').onclick=()=>{setPick(null);startArcade();};$('practiceBtn').onclick=()=>{setPick(null);startPractice();};
 $('dummyBtn').onclick=()=>{practice.dummy=practice.dummy==='hunter'?'captain':'hunter';opponent=practice.dummy;practiceReset();updatePracticeBar();blip(260,.06);};
 $('playAsBtn').onclick=()=>{const L=PRACTICE_PICKS(),i=L.indexOf(practicePlayer());practice.player=L[(i+1)%L.length];practiceReset();updatePracticeBar();blip(300,.06);};
 $('practiceToggle').onclick=()=>setPracticePanel(!$('practiceBar').classList.contains('open'));$('practiceClose').onclick=()=>setPracticePanel(false);
@@ -396,7 +404,7 @@ function resultPrimary(){if(mode!=='arcade'||!arcade){beginMatch(mode);return;}i
 function beginMatch(newMode){mode=newMode;selected=selected||'wolf';opponent=opponent||'wendigo';fighters=[newFighter(selected,1),newFighter(opponent,2)];stage=Number($('stageSelect').value)||0;clock=90;subframes=0;frameNo=0;effects.length=0;sparks.length=0;specialProjectiles.length=0;cinematic=null;lastFinisher=null;shake=0;hitFreeze=0;paused=false;champion=null;roundTimer=0;introTimer=155;phase='intro';scene=null;showSpecialGuide();result.hidden=true;menu.hidden=true;battleUi.hidden=false;$('pauseBtn').textContent='Ⅱ PAUSE';clearInput();audioUnlock();blip(150,.14);const foe=fighters[1];foe.aiLevel=cpuLevel();if(mode==='arcade'&&arcadeBoss())foe.powerMul=arcade.idx===arcade.ladder.length-1?1.15:1.08;
  if(mode==='practice'){practiceReset();introTimer=110;}
  updatePracticeBar();startScene(buildIntroScene(),()=>{introTimer=155;phase='intro';});}
-function openRoster(){phase='menu';scene=null;setCutsceneUi(false);$('practiceBar').hidden=true;$('practiceBar').classList.remove('open');$('practiceToggle').hidden=true;cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
+function openRoster(){setPick(null);phase='menu';scene=null;setCutsceneUi(false);$('practiceBar').hidden=true;$('practiceBar').classList.remove('open');$('practiceToggle').hidden=true;cinematic=null;lastFinisher=null;paused=false;result.hidden=true;menu.hidden=false;battleUi.hidden=true;specialProjectiles.length=0;clearInput();}
 function togglePause(){if(phase==='menu'||phase==='matchover')return;paused=!paused;$('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';clearInput();}
 function clearInput(){keys.clear();for(const f of fighters){for(const k of Object.keys(f.input))f.input[k]=false;}}
 function startNewRound(){for(let i=0;i<2;i++){const f=fighters[i],wins=f.wins;fighters[i]=newFighter(f.r.id,i+1);fighters[i].wins=wins;}clock=90;subframes=0;introTimer=145;phase='intro';cinematic=null;lastFinisher=null;specialProjectiles.length=0;showSpecialGuide();clearInput();}
@@ -447,7 +455,7 @@ function pressed(side,action){
  beginAttack(f,action,false);
 }
 const controlsHeld={};
-window.addEventListener('keydown',e=>{if(e.code==='Escape'||e.code==='KeyP'){e.preventDefault();if(!e.repeat)togglePause();return;}if(phase==='cutscene'&&!paused){e.preventDefault();if(!e.repeat)skipScene();return;}const map=KEYMAP[e.code];if(!map)return;e.preventDefault();if(e.repeat||keys.has(e.code))return;keys.add(e.code);if(phase==='menu')return;const [side,act]=map;if(side===1&&mode!=='local')return;if(['left','right','up','down','guard'].includes(act)){direction(side,act,true);if(act==='up')pressed(side,'jump');}else pressed(side,act);});
+window.addEventListener('keydown',e=>{if(e.code==='Escape'&&phase==='menu'&&pickMode){e.preventDefault();setPick(null);return;}if(e.code==='Escape'||e.code==='KeyP'){e.preventDefault();if(!e.repeat)togglePause();return;}if(phase==='cutscene'&&!paused){e.preventDefault();if(!e.repeat)skipScene();return;}const map=KEYMAP[e.code];if(!map)return;e.preventDefault();if(e.repeat||keys.has(e.code))return;keys.add(e.code);if(phase==='menu')return;const [side,act]=map;if(side===1&&mode!=='local')return;if(['left','right','up','down','guard'].includes(act)){direction(side,act,true);if(act==='up')pressed(side,'jump');}else pressed(side,act);});
 window.addEventListener('keyup',e=>{const map=KEYMAP[e.code];if(!map)return;e.preventDefault();keys.delete(e.code);const [side,act]=map;if(['left','right','up','down','guard'].includes(act))direction(side,act,false);});
 window.addEventListener('blur',()=>{clearInput();if(phase==='fight')togglePause();});
 ['contextmenu','selectstart','dragstart'].forEach(x=>document.addEventListener(x,e=>e.preventDefault()));

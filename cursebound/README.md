@@ -24,8 +24,8 @@ Browser fighting game. No build step: GitHub Pages serves these files as they ar
 
 ## Game modes
 
-- **Arcade:** fight every other playable fighter in random order (the CPU gets tougher each stage), then two bosses: the Blackwood Hunter and the Hunter Captain (final boss, hits 15% harder). `"arcadeOnly": true` keeps a hidden fighter out of the VS CPU / 2 Players opponent list. Lose and you can continue from the same fight. Full intro cutscenes play on the first fight and the boss fights; other fights go straight to the VS card. Clearing the last fight plays your fighter's victory cutscene.
-- **VS CPU / 2 Players:** single best-of-three match against the opponent picked in the menu.
+- **Arcade:** fight every other playable fighter in random order (the CPU gets tougher each stage), then two bosses: the Blackwood Hunter and the Hunter Captain (final boss, hits 15% harder). `"arcadeOnly": true` keeps a hidden fighter from being picked as a VS CPU / 2 Players opponent. Lose and you can continue from the same fight. Full intro cutscenes play on the first fight and the boss fights; other fights go straight to the VS card. Clearing the last fight plays your fighter's victory cutscene.
+- **VS CPU / 2 Players:** single best-of-three match. Tap VS CPU or 2 Players and the banner changes to CHOOSE YOUR OPPONENT; the next card tapped starts the fight (tap your own card, the same button again, or Esc to cancel). The arena picker sits under the SELECT YOUR FIGHTER banner.
 - **Practice:** the two hunters are test dummies. No timer, your spirit meter stays full, and both fighters refill after a short pause. Buttons along the bottom swap the dummy, change its stance (stand, guard, jump, fight back) and reset positions. The HUD shows hits and damage for the current and last combo, plus your best.
 
 ## Tuning
