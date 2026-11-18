@@ -662,7 +662,8 @@
 
   /* ---------- cut-scenes: painted panels for intros, supers, K.O.s, taunts and the result ---------- */
   const SC = window.AF_SCENES || {};
-  const SCENE_IMGS = new Map();
+  const SCENE_IMGS = new Map(), SCENE_AR = new Map();
+  for (const k of Object.values(SC)) for (const list of Object.values(k)) for (const [f, w, h] of list) SCENE_AR.set(f, w / h);
   const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file; SCENE_IMGS.set(file, im); } return im; };
   // one random panel of a kind; wide strips are kept for the banner moments, squarer panels preferred for the VS screen and result
   function scenePick(id, kind, shape) {
@@ -680,12 +681,14 @@
   const cineEl = () => $('#cine');
   function cineClear() { const c = cineEl(); if (c) { c.replaceChildren(); c.className = 'cine'; } }
   function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file; i.alt = ''; i.className = cls || ''; return i; }
+  // for the tall VS and result slots: a wide strip shows whole over a blurred, zoomed copy of itself instead of a heavy crop
+  function slotImg(file) { if ((SCENE_AR.get(file) || 1) < 1.8) return cineImg(file); const w = document.createElement('div'); w.className = 'slot-wide'; w.append(cineImg(file, 'sw-bg'), cineImg(file, 'sw-fg')); return w; }
   // VS screen before round 1 (the game waits while it plays; a tap or key skips it)
   function cineVS() {
     const S = G.scenes, c = cineEl(); if (!c || !S || (!S[0] && !S[1])) return false;
     cineClear(); c.classList.add('vs', 'on');
     G.p.forEach((f, i) => { const side = document.createElement('div'); side.className = 'vs-side vs-' + (i ? 'r' : 'l');
-      const file = S[i] && S[i].intro; if (file) side.append(cineImg(file)); else side.append(portrait(f.ch));
+      const file = S[i] && S[i].intro; if (file) side.append(slotImg(file)); else side.append(portrait(f.ch));
       const nm = document.createElement('p'); nm.className = 'vs-name'; nm.textContent = f.ch.name; side.append(nm); c.append(side); });
     const vs = document.createElement('div'); vs.className = 'vs-mark'; vs.textContent = 'VS'; c.append(vs);
     G.cine = { t: 0, dur: calm ? 1.6 : 2.8, kind: 'vs' }; return true;
@@ -1530,7 +1533,7 @@
   function showResult(champ) {
     const r = $('#result'); r.hidden = false; cineClear();
     { const box = $('#res-scenes'), lose = G.p[1 - champ.side], sw = G.scenes && G.scenes[champ.side], sl = G.scenes && G.scenes[lose.side]; box.replaceChildren();
-      [[sw && sw.victory, 'win', champ], [sl && sl.defeat, 'lose', lose]].forEach(([file, cls, f]) => { const fig = document.createElement('figure'); fig.className = 'rs-' + cls; if (file) fig.append(cineImg(file)); else fig.append(portrait(f.ch)); const cap = document.createElement('figcaption'); cap.textContent = cls === 'win' ? 'Victory' : 'Defeat'; fig.append(cap); box.append(fig); });
+      [[sw && sw.victory, 'win', champ], [sl && sl.defeat, 'lose', lose]].forEach(([file, cls, f]) => { const fig = document.createElement('figure'); fig.className = 'rs-' + cls; if (file) fig.append(slotImg(file)); else fig.append(portrait(f.ch)); const cap = document.createElement('figcaption'); cap.textContent = cls === 'win' ? 'Victory' : 'Defeat'; fig.append(cap); box.append(fig); });
       box.hidden = !(sw || sl); }
     $('#res-k').textContent = champ.cpu ? 'Defeat' : (G.p[1].cpu ? 'Victory' : `Player ${champ.side + 1} wins`);
     $('#res-name').textContent = champ.ch.name; $('#res-quote').textContent = '“' + champ.ch.quote + '”';

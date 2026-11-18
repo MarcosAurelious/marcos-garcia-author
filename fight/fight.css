@@ -257,3 +257,8 @@ body.touchy .touch { display: flex; }
 .cine.taunt .strip-band.card, .cine.super .strip-band.card { top: 52%; height: 84%; }
 @keyframes card-l { from { transform: translate(-130%, -50%) rotate(-8deg); } }
 @keyframes card-r { from { transform: translate(130%, -50%) rotate(8deg); } }
+
+.slot-wide { position: absolute; inset: 0; overflow: hidden; background: #0a0705; }
+.slot-wide .sw-bg { position: absolute; inset: -8%; width: 116%; height: 116%; object-fit: cover; filter: blur(14px) brightness(.55) saturate(1.2); }
+.slot-wide .sw-fg { position: absolute; left: 0; right: 0; top: 50%; width: 100%; height: auto !important; transform: translateY(-58%); object-fit: contain; box-shadow: 0 0 0 2px rgba(233,185,86,.7), 0 8px 30px #000; }
+.vs-l .slot-wide .sw-fg { width: 86%; } .vs-r .slot-wide .sw-fg { left: 14%; width: 86%; }
