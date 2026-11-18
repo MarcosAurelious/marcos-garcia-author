@@ -58,19 +58,21 @@ function init() {
     return t;
   };
 
-  /* ---------- the picture: "The Arrival" from ANUNNAKI, cut into depth layers ----------
+  /* ---------- the picture: a solarpunk garden city, cut into six depth layers ----------
      Each layer is a cut-out of the same painting placed at its own distance
      behind the glass. They are sized so that, from straight ahead, they line
      up into the original picture; move and the near layers slide past the far ones. */
-  const PIC_ASPECT = 1536 / 1024;   // the painting is landscape, 3:2
-  const PIC_CENTER_Y = 0.48;     // which height of the painting sits in the middle of the window
-  const MAX_EYE_X = 0.27;        // how far the eye may roam, as a share of the window width
-  const MAX_EYE_Y = 0.2;
+  const PIC_ASPECT = 1448 / 1086;   // the painting is 4:3
+  const PIC_CENTER_Y = 0.5;     // which height of the painting sits in the middle of the window
+  const MAX_EYE_X = 0.22;        // how far the eye may roam, as a share of the window width
+  const MAX_EYE_Y = 0.18;
   const layers = [
-    { src: "window/arrival-back.webp?v=4",  depth: 0.80, opaque: true },   // sky, giant planet, beam
-    { src: "window/arrival-ship.webp?v=4",  depth: 0.58, float: 0.010 },   // the mothership
-    { src: "window/arrival-city.webp?v=4",  depth: 0.42 },                 // the city and river
-    { src: "window/arrival-front.webp?v=4", depth: 0.17 },                 // the watchers and the wall
+    { src: "window/solar-sky.webp?v=2",    depth: 0.90, opaque: true },   // sky, sun, clouds, far mountains
+    { src: "window/solar-craft.webp?v=2",  depth: 0.72, float: 0.008 },   // the airships and drones
+    { src: "window/solar-city.webp?v=2",   depth: 0.56 },                 // the towers, valley and river
+    { src: "window/solar-mid.webp?v=2",    depth: 0.43 },                 // the train, domes and walkway
+    { src: "window/solar-towers.webp?v=2", depth: 0.36 },                 // the big towers at each side
+    { src: "window/solar-garden.webp?v=2", depth: 0.24 },                 // the garden and the people in it
   ].map((L, i) => {
     const mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
@@ -319,7 +321,7 @@ function init() {
     applyOffAxis();
 
     if (!reduceMotion) {
-      for (const L of layers) if (L.float) L.mesh.position.y = L.baseY + Math.sin(t * 0.6) * L.float;   // the ship hovers
+      for (const L of layers) if (L.float) L.mesh.position.y = L.baseY + Math.sin(t * 0.6) * L.float;   // the airships hover
       for (let i = 0; i < DUST; i++) {
         const k = i * 3 + 1;
         dustPos[k] += 0.00025 + dustSeed[i] * 0.0004;
