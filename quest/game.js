@@ -1224,7 +1224,10 @@
     b.x = clamp(b.x, b.minX, (L.w - 4) * T);
   }
 
-  function camYTarget() { const top = 44 * HS / ZOOM, extra = Math.max(0, VHZ - ROWS * T - top), lo = -top - extra; return clamp(P.y + P.h - VHZ * 0.74, lo, Math.max(lo, ROWS * T - VHZ)); }
+  // the view stops one row below the walking surface (row 12), so the floor shows as a single row of blocks
+  // except when the touch buttons sit on top of the game (phones held sideways): keep the full floor under them
+  const viewBottom = () => (document.body.classList.contains('touchy') && innerWidth > innerHeight ? ROWS : 13) * T;
+  function camYTarget() { const VIEW_B = viewBottom(), top = 44 * HS / ZOOM, extra = Math.max(0, VHZ - VIEW_B - top), lo = -top - extra; return clamp(P.y + P.h - VHZ * 0.74, lo, Math.max(lo, VIEW_B - VHZ)); }
   function updateSpears(dt) {
     L.pspears.forEach((sp) => {
       sp.vy += 260 * dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.life -= dt;
