@@ -5,17 +5,39 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self'; media-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#efe6cf">
+  <meta name="theme-color" content="#1a0d08">
   <title>The Aurelious Quest · A Marcus Aurelius Adventure by Marcos Garcia</title>
   <meta name="description" content="A side-scrolling adventure drawn in the style of Marcos Garcia's Stoic books. Marcus Aurelius runs, leaps and fights soldiers, eagles and electric fields to recover the lost scrolls of the Meditations.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="game.css?v=24">
+  <link rel="stylesheet" href="game.css?v=25">
 </head>
 <body>
 <main class="stage">
 
+  <!-- START SCREEN -->
+  <section class="splash" id="s-splash" aria-labelledby="splash-title">
+    <picture class="splash-art">
+      <source media="(max-width: 700px)" srcset="img/key-art-sm.webp">
+      <img src="img/key-art.webp" alt="A Roman legionary with a lightning sword and SPQR shield charges Anubis across a burning battlefield at sunset" width="1672" height="941">
+    </picture>
+    <div class="splash-shade" aria-hidden="true"></div>
+    <div class="splash-logo">
+      <p class="splash-pre">Marcus Aurelius'</p>
+      <h1 id="splash-title">The Aurelious Quest</h1>
+      <p class="splash-sub">Recover the lost scrolls of the <i>Meditations</i></p>
+    </div>
+    <div class="splash-menu">
+      <button class="splash-play" id="splash-play" type="button"><span aria-hidden="true">▶</span> PLAY</button>
+      <div class="splash-row">
+        <button class="splash-link" id="splash-guide" type="button">Chapters &amp; how to play</button>
+        <a class="splash-link" href="../#apps">← Author page</a>
+      </div>
+      <p class="splash-note">Flashing lights and screen shake. Turn on <b>Calm mode</b> in the ⚙ settings.</p>
+    </div>
+  </section>
+
   <!-- TITLE PAGE -->
-  <section class="screen screen-title" id="s-title">
+  <section class="screen screen-title" id="s-title" hidden>
     <div class="page">
       <p class="eyebrow">A side-scrolling adventure by Marcos Garcia</p>
       <p class="pre">Marcus Aurelius'</p>
@@ -126,6 +148,6 @@
   </section>
 
 </main>
-<script src="game.js?v=43"></script>
+<script src="game.js?v=44"></script>
 </body>
 </html>

@@ -661,7 +661,7 @@
   function newRun(start) {
     const xp0 = START_XP[start || 0] || 0, st0 = stageFor(xp0);
     S = { level: start || 0, coins: 0, kills: 0, deaths: 0, scrolls: new Set(), maxHp: heartsFor(st0), mode: 'play', score: 0, time: 0, spears: 0, killStreak: 0, spearTip: false, xp: xp0, stage: st0, evoPending: 0 };
-    $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
+    $('#s-splash').hidden = true; document.body.classList.remove('on-splash'); $('#s-title').hidden = true; $('#s-final').hidden = true; $('#s-game').hidden = false;
     window.scrollTo({ top: 0 });
     loadLevel(start || 0, true);
   }
@@ -1756,7 +1756,13 @@
   gear.addEventListener('click', () => { SFX.ensure(); openSettings(panel.hidden); });
   $('#set-close').addEventListener('click', () => openSettings(false));
   // title screen theme: Acta Non Verba starts on the first tap (browsers block sound until then)
-  document.addEventListener('pointerdown', () => { if (!$('#s-title').hidden) { SFX.ensure(); MUSIC.play('acta'); } });
+  document.addEventListener('pointerdown', () => { if (!$('#s-title').hidden || !$('#s-splash').hidden) { SFX.ensure(); MUSIC.play('acta'); } });
+  // start screen: PLAY opens Chapter I (or your furthest chapter), the guide shows the parchment title page
+  document.body.classList.add('on-splash');
+  function leaveSplash() { $('#s-splash').hidden = true; document.body.classList.remove('on-splash'); }
+  $('#splash-play').addEventListener('click', () => { SFX.ensure(); MUSIC.play('acta'); leaveSplash(); newRun(Math.min(LEVELS.length - 1, store.get('aq-unlocked') || 0)); });
+  $('#splash-guide').addEventListener('click', () => { SFX.ensure(); MUSIC.play('acta'); leaveSplash(); $('#s-title').hidden = false; showChapters(); showBest(); window.scrollTo({ top: 0 }); });
+  $('#splash-play').focus({ preventScroll: true });
   $('#set-quit').addEventListener('click', () => { openSettings(false); MUSIC.play('acta'); S.mode = 'done'; $('#s-game').hidden = true; $('#s-title').hidden = false; showChapters(); showBest(); window.scrollTo({ top: 0 }); });
   function togglePause() {
     if (S.mode === 'play') overlay('Paused', 'Breathe', '“Receive without arrogance; let go without struggle.” Take a moment, then continue.', 'Resume', null);
