@@ -262,3 +262,6 @@ body.touchy .touch { display: flex; }
 .slot-wide .sw-bg { position: absolute; inset: -8%; width: 116%; height: 116%; object-fit: cover; filter: blur(14px) brightness(.55) saturate(1.2); }
 .slot-wide .sw-fg { position: absolute; left: 0; right: 0; top: 50%; width: 100%; height: auto !important; transform: translateY(-58%); object-fit: contain; box-shadow: 0 0 0 2px rgba(233,185,86,.7), 0 8px 30px #000; }
 .vs-l .slot-wide .sw-fg { width: 86%; } .vs-r .slot-wide .sw-fg { left: 14%; width: 86%; }
+/* the right-hand fighter is mirrored on the VS screen so both face each other */
+.vs-r > img, .vs-r > canvas, .vs-r .slot-wide img { transform: scaleX(-1); }
+.vs-r .slot-wide .sw-fg { transform: translateY(-58%) scaleX(-1); left: 14%; }
