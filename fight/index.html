@@ -9,11 +9,20 @@
   <title>Roman Arena: Gods of the Machine · A Fighting Game by Marcos Garcia</title>
   <meta name="description" content="A one-on-one arena fighting game: Marcus Aurelius, the Roman Automaton, the Black Knight, Anubis and more battle with lightning, spears and fire. Free, in your browser.">
   <link rel="stylesheet" href="../fonts.css">
-  <link rel="stylesheet" href="fight.css?v=14">
+  <link rel="stylesheet" href="fight.css?v=15">
 </head>
 <body>
 <main class="stage">
   <section id="s-select" class="select">
+    <div class="art-sel" id="art-sel">
+      <div class="art-back" aria-hidden="true"></div>
+      <div class="art-stage" id="art-stage">
+        <picture><source media="(max-width: 900px)" srcset="select-art-sm.webp"><img class="art-img" src="select-art.webp" alt="" width="1672" height="941"></picture>
+      </div>
+      <a class="art-corner art-home" href="../#apps">← Author page</a>
+      <div class="art-corner art-tools"><button type="button" id="art-clear">Clear picks</button><button type="button" id="art-help" aria-expanded="false" aria-controls="art-help-panel">How to play</button></div>
+      <div class="art-help" id="art-help-panel" role="dialog" aria-label="How to play" hidden><div class="art-help-card" id="art-help-body"></div></div>
+    </div>
     <header class="sel-head">
       <p class="eyebrow">From the world of The Aurelious Quest</p>
       <h1>Roman Arena</h1>
@@ -75,6 +84,6 @@
 <script src="supers/super-data.js?v=9"></script>
 <script src="bg-fx.js?v=1"></script>
 <script src="special-fx.js?v=58"></script>
-<script src="game.js?v=66"></script>
+<script src="game.js?v=67"></script>
 </body>
 </html>

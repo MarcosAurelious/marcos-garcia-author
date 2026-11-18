@@ -1379,6 +1379,7 @@
     document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     document.querySelectorAll('[data-level]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.level === level)));
     $('#levels').hidden = mode === '2p' || mode === 'training'; $('#stage-row').hidden = mode === 'arcade';
+    artSync();
   }
   function choose(i) { SFX.ensure(); SFX.coin(); if (!G) MUSIC.play('acta'); if (mode === 'arcade') { chosen = [i, null]; syncSelect(); return; } if (chosen[0] === null) chosen[0] = i; else if (chosen[1] === null) chosen[1] = i; else { chosen = [i, null]; } syncSelect(); }
   document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode; store.set('af-mode', mode); chosen[1] = null; syncSelect(); }));
@@ -1389,6 +1390,78 @@
     const cur = store.get('af-stage'); sel.value = cur && LOCAL_BG.includes(cur) ? cur : 'random';
     sel.addEventListener('change', () => store.set('af-stage', sel.value === 'random' ? null : sel.value));
   })();
+  /* ---------- painted select screen: the key art fills the window and its painted controls work ---------- */
+  // every spot below is in pixels of select-art.webp (1672 x 941)
+  const ART = { w: 1672, h: 941, safe: [80, 8, 1530, 918], built: false, hover: null };
+  const ART_MODES = { arcade: [330, 182, 478, 226], cpu: [482, 182, 680, 226], '2p': [684, 182, 834, 226], training: [838, 182, 986, 226] };
+  const ART_LEVELS = { 1: [1012, 182, 1122, 226], 2: [1126, 182, 1236, 226], 3: [1240, 182, 1352, 226] };
+  const ART_CARDS = [385, 552, 713, 875, 1037, 1199, 1360].map((x) => [x, 345, x + 153, 573])
+    .concat([[408, 575], [584, 753], [762, 932], [945, 1112], [1123, 1295], [1305, 1477]].map(([a, b]) => [a, 587, b, 800]));
+  const ART_SPOTS = { stage: [730, 241, 1035, 272], banner: [612, 291, 1098, 325], fight: [706, 828, 1010, 906], plate: [92, 690, 352, 812], frame: [128, 500, 318, 662] };
+  function artBox(el, [x0, y0, x1, y1]) { Object.assign(el.style, { left: x0 / ART.w * 100 + '%', top: y0 / ART.h * 100 + '%', width: (x1 - x0) / ART.w * 100 + '%', height: (y1 - y0) / ART.h * 100 + '%' }); return el; }
+  function artEl(tag, cls, box, parent = $('#art-stage')) { const e = document.createElement(tag); e.className = cls; if (tag === 'button') e.type = 'button'; artBox(e, box); parent.append(e); return e; }
+  function artLayout() {
+    const st = $('#art-stage'); if (!st) return;
+    const vw = innerWidth, vh = innerHeight, [sx0, sy0, sx1, sy1] = ART.safe;
+    // as large as the window (no empty edges), but never so large that the buttons or cards are cut off
+    const k = Math.min(Math.max(vw / ART.w, vh / ART.h), vw / (sx1 - sx0), vh / (sy1 - sy0)), w = ART.w * k, h = ART.h * k;
+    let x = vw / 2 - (sx0 + sx1) / 2 * k, y = vh / 2 - (sy0 + sy1) / 2 * k;
+    x = w >= vw ? Math.min(0, Math.max(vw - w, x)) : (vw - w) / 2; y = h >= vh ? Math.min(0, Math.max(vh - h, y)) : (vh - h) / 2;
+    Object.assign(st.style, { width: w + 'px', height: h + 'px', left: x + 'px', top: y + 'px' });
+  }
+  function buildArt() {
+    if (!$('#art-stage')) return;
+    for (const [m, box] of Object.entries(ART_MODES)) { const b = artEl('button', 'hot hot-mode', box); b.dataset.artMode = m; b.textContent = document.querySelector(`[data-mode="${m}"]`).textContent; b.addEventListener('click', () => { SFX.ensure(); document.querySelector(`[data-mode="${m}"]`).click(); }); }
+    for (const [l, box] of Object.entries(ART_LEVELS)) { const b = artEl('button', 'hot hot-mode', box); b.dataset.artLevel = l; b.textContent = document.querySelector(`[data-level="${l}"]`).textContent; b.addEventListener('click', () => { SFX.ensure(); document.querySelector(`[data-level="${l}"]`).click(); }); }
+    const sel = artEl('select', 'hot-stage', ART_SPOTS.stage); sel.id = 'art-stage-pick'; sel.setAttribute('aria-label', 'Stage');
+    for (const o of $('#stage-pick').options) sel.append(new Option(o.textContent, o.value));
+    sel.addEventListener('change', () => { const src = $('#stage-pick'); src.value = sel.value; src.dispatchEvent(new Event('change')); });
+    const ban = artEl('div', 'art-banner', ART_SPOTS.banner); ban.setAttribute('aria-live', 'polite'); ban.append(document.createElement('span'));
+    ART_CARDS.forEach((box, i) => { const c = ROSTER[i]; if (!c) return; const b = artEl('button', 'hot hot-card', box); b.dataset.i = i; b.setAttribute('aria-label', `${c.name}, ${c.title}`);
+      b.addEventListener('click', () => choose(i)); b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { ART.hover = i; artPlate(); } }); b.addEventListener('pointerleave', () => { if (ART.hover === i) { ART.hover = null; artPlate(); } });
+      b.addEventListener('focus', () => { ART.hover = i; artPlate(); }); b.addEventListener('blur', () => { if (ART.hover === i) { ART.hover = null; artPlate(); } }); });
+    const fr = artEl('div', 'art-frame', ART_SPOTS.frame); fr.setAttribute('aria-hidden', 'true');
+    const pl = artEl('div', 'art-plate', ART_SPOTS.plate); pl.innerHTML = '<b></b><i></i>';
+    const go = artEl('button', 'hot hot-fight', ART_SPOTS.fight); go.textContent = 'Fight!'; go.addEventListener('click', () => { if (!$('#fight').disabled) $('#fight').click(); });
+    $('#art-clear').addEventListener('click', () => $('#sel-reset').click());
+    const help = $('#art-help-panel'), hb = $('#art-help-body');
+    hb.append(Object.assign(document.createElement('p'), { className: 'art-help-h', textContent: 'How to play' }), $('.howto').cloneNode(true), $('.safety').cloneNode(true));
+    const close = Object.assign(document.createElement('button'), { type: 'button', className: 'btn gold', textContent: 'Got it' }); hb.append(close);
+    const setHelp = (on) => { help.hidden = !on; $('#art-help').setAttribute('aria-expanded', String(on)); if (on) close.focus(); };
+    $('#art-help').addEventListener('click', () => setHelp(help.hidden)); close.addEventListener('click', () => setHelp(false));
+    help.addEventListener('click', (e) => { if (e.target === help) setHelp(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !help.hidden) setHelp(false); });
+    addEventListener('resize', artLayout); addEventListener('orientationchange', () => setTimeout(artLayout, 200));
+    ART.built = true; artLayout(); artSync();
+  }
+  function artPlate() {
+    if (!ART.built) return;
+    const i = ART.hover ?? chosen[0] ?? 0, c = ROSTER[i], fr = $('.art-frame');
+    $('.art-plate b').textContent = c.name; $('.art-plate i').textContent = c.special.name + (PASSIVE[c.id] ? ' · ' + PASSIVE[c.id][0] : '');
+    // Marcus is the painted hero on the left; anyone else appears in a gilded frame, cut from their own card
+    if (i === 0) { fr.classList.remove('on'); return; }
+    const [x0, y0, x1] = ART_CARDS[i], [fx0, fy0, fx1, fy1] = ART_SPOTS.frame, sw = x1 - x0 - 14, sh = sw * (fy1 - fy0) / (fx1 - fx0), sx = x0 + 7, sy = y0 + 6;
+    Object.assign(fr.style, { backgroundSize: ART.w / sw * 100 + '% auto', backgroundPosition: `${sx / (ART.w - sw) * 100}% ${sy / (ART.h - sh) * 100}%` });
+    fr.classList.add('on');
+  }
+  function artSync() {
+    if (!ART.built) return;
+    document.querySelectorAll('[data-art-mode]').forEach((b) => { const on = b.dataset.artMode === mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    const noLevel = mode === '2p' || mode === 'training';
+    document.querySelectorAll('[data-art-level]').forEach((b) => { const on = +b.dataset.artLevel === level; b.classList.toggle('on', on && !noLevel); b.classList.toggle('off', noLevel); b.disabled = noLevel; b.setAttribute('aria-pressed', String(on)); });
+    const ap = $('#art-stage-pick'); ap.value = $('#stage-pick').value; ap.disabled = mode === 'arcade'; ap.classList.toggle('off', mode === 'arcade');
+    if (mode === 'arcade') ap.title = 'Arcade picks its own six stages';
+    document.querySelectorAll('.hot-card').forEach((b) => { const i = +b.dataset.i; b.classList.toggle('p1', chosen[0] === i); b.classList.toggle('p2', chosen[1] === i); b.dataset.tag = chosen[0] === i ? (mode === '2p' ? 'P1' : 'YOU') : chosen[1] === i ? (mode === '2p' ? 'P2' : mode === 'training' ? 'DUMMY' : 'CPU') : ''; b.setAttribute('aria-pressed', String(chosen[0] === i || chosen[1] === i)); });
+    const n = (i) => ROSTER[i].name.toUpperCase();
+    const txt = chosen[0] === null ? (mode === 'arcade' ? 'Arcade: choose your champion' : mode === 'training' ? 'Training: choose your fighter' : 'Player 1: choose your fighter')
+      : mode === 'arcade' ? `${n(chosen[0])} · ready for the arcade`
+      : chosen[1] === null ? (mode === '2p' ? 'Player 2: choose your fighter' : mode === 'training' ? 'Choose a sparring dummy' : 'Choose your opponent')
+      : `${n(chosen[0])}  vs  ${n(chosen[1])}`;
+    const sp = $('.art-banner span'); sp.textContent = txt; sp.parentElement.style.setProperty('--len', Math.max(24, txt.length));
+    const go = $('.hot-fight'); go.disabled = $('#fight').disabled; go.classList.toggle('ready', !go.disabled);
+    artPlate();
+  }
+  buildArt();
   $('#sel-reset').addEventListener('click', () => { chosen = [null, null]; syncSelect(); });
   $('#fight').addEventListener('click', () => {
     SFX.ensure(); let p2 = chosen[1]; if (p2 === null) { do { p2 = Math.floor(Math.random() * ROSTER.length); } while (p2 === chosen[0]); }
