@@ -248,3 +248,12 @@ body.touchy .touch { display: flex; }
 .res-scenes figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 0; font: 700 .72rem var(--mono, monospace); letter-spacing: .2em; text-transform: uppercase; color: #ffe2a0; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
 @media (max-height: 520px) { .res-scenes figure { width: min(40%, 150px); } }
 @media (prefers-reduced-motion: reduce) { .vs-l, .vs-r, .vs-mark, .cine.strip .strip-band { animation: none; } }
+
+.strip-band.card { left: auto; right: auto; top: 50%; height: 82%; aspect-ratio: var(--ar, 1.15); transform: translateY(-50%) rotate(-2deg); border: 3px solid #e9b956; }
+.cine.from-l .strip-band.card { left: 6%; animation: card-l .35s cubic-bezier(.2,.8,.2,1) both; }
+.cine.from-r .strip-band.card { right: 6%; animation: card-r .35s cubic-bezier(.2,.8,.2,1) both; }
+.strip-band.card img { transform: none; object-position: center; }
+.cine.damage .strip-band.card { height: 62%; top: 40%; }
+.cine.taunt .strip-band.card, .cine.super .strip-band.card { top: 52%; height: 84%; }
+@keyframes card-l { from { transform: translate(-130%, -50%) rotate(-8deg); } }
+@keyframes card-r { from { transform: translate(130%, -50%) rotate(8deg); } }

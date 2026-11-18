@@ -694,7 +694,8 @@
   function cineStrip(file, side, cls, dur, hold) {
     const c = cineEl(); if (!c || !file || !sceneReady(file)) return false;
     cineClear(); c.classList.add('strip', cls, side ? 'from-r' : 'from-l', 'on');
-    const band = document.createElement('div'); band.className = 'strip-band'; band.append(cineImg(file)); c.append(band);
+    const im = SCENE_IMGS.get(file), square = im.naturalWidth / im.naturalHeight < 1.8;   // square panels show whole, as a framed card
+    const band = document.createElement('div'); band.className = 'strip-band' + (square ? ' card' : ''); band.append(cineImg(file)); if (square) band.style.setProperty('--ar', (im.naturalWidth / im.naturalHeight).toFixed(3)); c.append(band);
     if (hold) G.cine = { t: 0, dur, kind: cls }; else { clearTimeout(cineStrip.t); cineStrip.t = setTimeout(() => { if (!G || !G.cine) cineClear(); }, dur * 1000); }
     return true;
   }
