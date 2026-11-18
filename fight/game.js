@@ -659,6 +659,48 @@
   const STAGE_TRACK = ['legion', 'arena', 'stomp', 'riot', 'sack', 'ego'];   // the final fight at the Throne of Hades plays Ego Death
   const STAGES = [['The Field of Mars', 'bg-battlefield'], ['The Grand Colosseum', 'bg-colosseum'], ['The Temple of the Tides', 'bg-sea'], ['The Gorgon\'s Garden', 'bg-gorgon'], ['The Abyssal Gate', 'bg-gate'], ['The Throne of Hades', 'bg-hades']];
   let ARC = null;   // arcade run: { ladder, stage, score, base }
+
+  /* ---------- cut-scenes: painted panels for intros, supers, K.O.s, taunts and the result ---------- */
+  const SC = window.AF_SCENES || {};
+  const SCENE_IMGS = new Map();
+  const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file; SCENE_IMGS.set(file, im); } return im; };
+  // one random panel of a kind; wide strips are kept for the banner moments, squarer panels preferred for the VS screen and result
+  function scenePick(id, kind, shape) {
+    const all = (SC[id] || {})[kind] || []; if (!all.length) return null;
+    const pool = shape === 'tall' ? all.filter((p) => p[1] / p[2] < 1.8) : all;
+    return (pool.length ? pool : all)[Math.floor(Math.random() * (pool.length ? pool : all).length)][0];
+  }
+  // choose this match's panels up front and start loading only those
+  function scenesForMatch() {
+    return G.p.map((f) => { const id = f.ch.id; if (!SC[id]) return null;
+      const s = { intro: scenePick(id, 'intro', 'tall'), victory: scenePick(id, 'victory', 'tall'), defeat: scenePick(id, 'defeat', 'tall'), taunt: [scenePick(id, 'taunt'), scenePick(id, 'taunt')], damage: scenePick(id, 'damage'), super: scenePick(id, 'power') || scenePick(id, 'attack') };
+      Object.values(s).flat().forEach((x) => x && sceneImg(x)); return s; });
+  }
+  const sceneReady = (file) => { const im = file && SCENE_IMGS.get(file); return !!(im && im.complete && im.naturalWidth); };
+  const cineEl = () => $('#cine');
+  function cineClear() { const c = cineEl(); if (c) { c.replaceChildren(); c.className = 'cine'; } }
+  function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file; i.alt = ''; i.className = cls || ''; return i; }
+  // VS screen before round 1 (the game waits while it plays; a tap or key skips it)
+  function cineVS() {
+    const S = G.scenes, c = cineEl(); if (!c || !S || (!S[0] && !S[1])) return false;
+    cineClear(); c.classList.add('vs', 'on');
+    G.p.forEach((f, i) => { const side = document.createElement('div'); side.className = 'vs-side vs-' + (i ? 'r' : 'l');
+      const file = S[i] && S[i].intro; if (file) side.append(cineImg(file)); else side.append(portrait(f.ch));
+      const nm = document.createElement('p'); nm.className = 'vs-name'; nm.textContent = f.ch.name; side.append(nm); c.append(side); });
+    const vs = document.createElement('div'); vs.className = 'vs-mark'; vs.textContent = 'VS'; c.append(vs);
+    G.cine = { t: 0, dur: calm ? 1.6 : 2.8, kind: 'vs' }; return true;
+  }
+  // a painted strip across the screen: supers, K.O. damage and between-round taunts
+  function cineStrip(file, side, cls, dur, hold) {
+    const c = cineEl(); if (!c || !file || !sceneReady(file)) return false;
+    cineClear(); c.classList.add('strip', cls, side ? 'from-r' : 'from-l', 'on');
+    const band = document.createElement('div'); band.className = 'strip-band'; band.append(cineImg(file)); c.append(band);
+    if (hold) G.cine = { t: 0, dur, kind: cls }; else { clearTimeout(cineStrip.t); cineStrip.t = setTimeout(() => { if (!G || !G.cine) cineClear(); }, dur * 1000); }
+    return true;
+  }
+  function cineEnd() { if (!G || !G.cine) return; const k = G.cine.kind; G.cine = null; cineClear(); if (k === 'taunt') { G.round += 1; startRound(); } }
+  addEventListener('keydown', () => { if (G && G.cine && G.cine.t > 0.35) cineEnd(); });
+  document.addEventListener('pointerdown', (e) => { if (G && G.cine && G.cine.t > 0.35 && e.target.closest && e.target.closest('#arena')) cineEnd(); });
   function newMatch(p1, p2, cpuLevel) {
     [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); if(window.ArenaSpecialFX)window.ArenaSpecialFX.preload(c.id); });
     CZ = 1; CX = VW / 2;
@@ -666,7 +708,9 @@
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
     if (!ARC) { const sp = store.get('af-stage'); const bgN = sp && LOCAL_BG.includes(sp) ? sp : pick(LOCAL_BG); G.bg = BGS[BGN.indexOf(bgN)]; G.stageName = STAGE_NAMES[bgN]; }
     if (ARC) { G.arcade = true; G.stageName = `Stage ${ARC.stage + 1} of 6 · ${STAGES[ARC.stage][0]}`; G.bg = BGS[BGN.indexOf(STAGES[ARC.stage][1])] || G.bg; }
+    G.scenes = scenesForMatch(); cineClear();
     startRound();
+    if (!G.training) cineVS();
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
@@ -686,6 +730,8 @@
     if (kind === 'special') {
       if (G && G.mode === 'play' && !G.cutin) {
         G.cutin = { id: f.ch.id, side: f.side, t: 0, dur: calm ? 0.32 : isSuper ? 0.75 : 0.57, super: !!isSuper };
+        const ss = isSuper && G.scenes && G.scenes[f.side];   // supers show the fighter's painted attack / power-up panel
+        if (ss && ss.super && cineStrip(ss.super, f.side, 'super', calm ? 0.6 : 1.1, false)) { G.cutin.painted = true; G.cutin.dur = calm ? 0.6 : 1.1; }
       }
       f.cool = isSuper ? 0.6 : 1.5; castSound(f, isSuper); if (isSuper) { f.meter = 0; G.stop = 0.35; G.flash = 0.35; G.banner = { text: f.ch.special.name.toUpperCase() + '!', sub: '', t: 0, small: true }; SFX.power(); } else SFX.zap(); }
     else FX.whoosh(kind === 'heavy' || kind === 'hkick');
@@ -741,7 +787,8 @@
     speak(loser.ch, 'ko'); loser.state = 'ko'; loser.t = 0; loser.vx = -loser.face * 380; loser.vy = -520; loser.onGround = false;
     G.mode = 'ko'; G.t = 0; G.stop = 0.22; G.slow = 1.6; G.shake = 0.5; G.flash = 0.25; G.banner = { text: 'K.O.', sub: winner.took ? '' : 'PERFECT!', t: 0, big: true }; FX.ko();
     (G.rings = G.rings || []).push({ x: loser.x, y: loser.y - BODY_H * loser.ch.size * 0.5, t: 0, max: 0.6, r: 220, col: winner.ch.special.col[0] });
-    winner.wins += 1;
+    winner.wins += 1; winner.lastRoundWin = (G.roundSeq = (G.roundSeq || 0) + 1);
+    const ls = G.scenes && G.scenes[loser.side]; if (ls && ls.damage) cineStrip(ls.damage, loser.side, 'damage', calm ? 0.7 : 1.15, false);   // the loser's damage panel flashes during the slow-motion K.O.
   }
   function spark(x, y, cols, n) { const k = reduceMotion ? Math.ceil(n / 3) : n; for (let i = 0; i < k; i++) { const a = Math.random() * Math.PI * 2, v = rand(120, 420); G.fx.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.25, 0.55), c: cols[i % cols.length], r: rand(2, 5) }); } }
 
@@ -919,6 +966,7 @@
   let last = performance.now();
   function update(dt) {
     if (!G || G.pause) return;
+    if (G.cine) { G.cine.t += dt; pressed.clear(); touchPressed.clear(); if (G.cine.t >= G.cine.dur) cineEnd(); return; }
     if (G.cutin) {
       G.cutin.t += dt;
       if (G.cutin.t >= G.cutin.dur) G.cutin = null;
@@ -937,7 +985,8 @@
     if (G.mode === 'ko' && G.t > 2.6) {
       const champ = G.p.find((f) => f.wins >= 2);
       if (champ) { G.mode = 'over'; G.winner = champ; MUSIC.pause(); SFX.win(); setTimeout(() => speak(champ.ch, 'win'), 350); showResult(champ); }
-      else { G.round += 1; startRound(); }
+      else { const rw = G.p.reduce((a, b) => (b.lastRoundWin > a.lastRoundWin ? b : a)), sc = G.scenes && G.scenes[rw.side], tf = sc && sc.taunt[(G.round - 1) % 2];
+        if (!(tf && cineStrip(tf, rw.side, 'taunt', calm ? 1.2 : 1.9, true))) { G.round += 1; startRound(); } }
     }
     pressed.clear(); touchPressed.clear();
   }
@@ -1283,7 +1332,7 @@
     if (G.flash > 0 && !calm) { ctx.fillStyle = `rgba(255,255,255,${G.flash * 0.6})`; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     else if (G.flash > 0) { ctx.fillStyle = 'rgba(10,6,20,0.35)'; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     ctx.restore(); drawHud();
-    if (G.cutin) drawSpecialCutin(G.cutin);
+    if (G.cutin && !G.cutin.painted) drawSpecialCutin(G.cutin);
   }
   function drawSpecialCutin(c) {
     const fighter = G.p[c.side], primary = fighter.ch.special.col[0], secondary = fighter.ch.special.col[1] || '#fff';
@@ -1467,7 +1516,7 @@
     SFX.ensure(); let p2 = chosen[1]; if (p2 === null) { do { p2 = Math.floor(Math.random() * ROSTER.length); } while (p2 === chosen[0]); }
     $('#s-select').hidden = true; $('#s-fight').hidden = false; $('#result').hidden = true; fit();
     ARC = null;
-    if (mode === 'training') { newMatch(ROSTER[chosen[0]], ROSTER[p2], 0); G.training = true; G.p[1].dummy = true; G.p[1].cpu = null; G.stageName = 'Training · ' + G.stageName; window.scrollTo({ top: 0 }); return; }
+    if (mode === 'training') { newMatch(ROSTER[chosen[0]], ROSTER[p2], 0); G.training = true; G.cine = null; cineClear(); G.p[1].dummy = true; G.p[1].cpu = null; G.stageName = 'Training · ' + G.stageName; window.scrollTo({ top: 0 }); return; }
     if (mode === 'arcade') {
       const me = ROSTER[chosen[0]], hades = ROSTER.find((c) => c.id === 'hades'), boss = me === hades ? ROSTER.find((c) => c.id === 'colossus') : hades;
       const pool = ROSTER.filter((c) => c !== me && c !== boss).sort(() => Math.random() - 0.5).slice(0, 5);
@@ -1478,7 +1527,10 @@
   });
   const arcLevel = () => Math.min(3.4, ARC.base - 0.5 + ARC.stage * 0.3);
   function showResult(champ) {
-    const r = $('#result'); r.hidden = false;
+    const r = $('#result'); r.hidden = false; cineClear();
+    { const box = $('#res-scenes'), lose = G.p[1 - champ.side], sw = G.scenes && G.scenes[champ.side], sl = G.scenes && G.scenes[lose.side]; box.replaceChildren();
+      [[sw && sw.victory, 'win', champ], [sl && sl.defeat, 'lose', lose]].forEach(([file, cls, f]) => { const fig = document.createElement('figure'); fig.className = 'rs-' + cls; if (file) fig.append(cineImg(file)); else fig.append(portrait(f.ch)); const cap = document.createElement('figcaption'); cap.textContent = cls === 'win' ? 'Victory' : 'Defeat'; fig.append(cap); box.append(fig); });
+      box.hidden = !(sw || sl); }
     $('#res-k').textContent = champ.cpu ? 'Defeat' : (G.p[1].cpu ? 'Victory' : `Player ${champ.side + 1} wins`);
     $('#res-name').textContent = champ.ch.name; $('#res-quote').textContent = '“' + champ.ch.quote + '”';
     if (!champ.cpu && G.p[1].cpu) { const s = (store.get('af-streak') || 0) + 1; store.set('af-streak', s); $('#res-streak').textContent = `Win streak: ${s}`; } else if (G.p[1].cpu) { store.set('af-streak', 0); $('#res-streak').textContent = 'Win streak reset. Breathe, and go again.'; } else $('#res-streak').textContent = '';
