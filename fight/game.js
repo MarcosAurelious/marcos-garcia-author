@@ -429,27 +429,13 @@
   const FIGHTIMG = img('fighters.webp');
   // Hades' hand-painted 4 x 4 attack atlas (each source cell 192 x 176).
   // The visible character stays foot-anchored during the full attack cycle.
-  const HADESIMG = img('hades-sprites-aligned.png');
+  // Hades: 66 hand-painted poses (v2: stance/walk/trident slam, jump, punch, trident punch, kicks), all scaled to one height. Each frame is [x, y, w, h, anchorX, anchorY] with the anchor
+  // at the bottom of his boots, so every pose stands on the arena floor; effects may spill below it.
+  let HADESIMG_ = null; const hadesImg = () => HADESIMG_ || (HADESIMG_ = img('hades-sprites-v2.webp'));   // loaded only when Hades is drawn or picked
+  const HADES_FRAMES = [[0,0,229,265,155,265],[440,0,225,263,151,263],[880,0,237,262,148,262],[1320,0,259,258,145,258],[1760,0,277,263,158,263],[2200,0,321,265,139,265],[2640,0,309,262,140,262],[3080,0,305,257,151,257],[0,360,254,259,140,259],[440,360,236,298,126,298],[880,360,272,291,150,291],[1320,360,295,277,141,277],[1760,360,250,246,129,246],[2200,360,241,236,127,236],[2640,360,274,302,122,302],[3080,360,246,240,149,240],[0,720,239,252,157,252],[440,720,228,263,150,263],[880,720,293,266,177,266],[1320,720,295,277,184,277],[1760,720,318,286,200,281],[2200,720,296,273,183,268],[2640,720,305,244,190,238],[3080,720,320,269,207,264],[0,1080,322,296,210,296],[440,1080,305,263,182,263],[880,1080,203,265,125,263],[1320,1080,200,265,125,263],[1760,1080,194,262,123,261],[2200,1080,182,262,122,261],[2640,1080,209,262,124,260],[3080,1080,226,261,114,260],[0,1440,229,260,99,259],[440,1440,224,259,85,259],[880,1440,228,262,80,261],[1320,1440,229,263,95,261],[1760,1440,229,263,101,262],[2200,1440,230,264,108,262],[2640,1440,173,264,103,262],[3080,1440,181,265,112,263],[0,1800,196,265,118,263],[440,1800,202,265,125,263],[880,1800,245,264,152,263],[1320,1800,239,264,138,263],[1760,1800,213,264,135,262],[2200,1800,228,263,137,262],[2640,1800,336,263,144,262],[3080,1800,354,263,128,262],[0,2160,294,263,132,262],[440,2160,247,263,146,262],[880,2160,218,266,131,264],[1320,2160,210,263,122,261],[1760,2160,214,263,125,261],[2200,2160,218,259,123,258],[2640,2160,236,258,110,256],[3080,2160,234,258,115,257],[0,2520,227,263,126,261],[440,2520,220,264,132,262],[880,2520,236,268,161,265],[1320,2520,247,263,163,260],[1760,2520,263,262,173,260],[2200,2520,275,261,168,259],[2640,2520,363,258,174,256],[3080,2520,371,257,181,255],[0,2880,325,258,176,256],[440,2880,245,264,168,261],[880,2880,288,228,147,228],[1320,2880,291,229,136,228],[1760,2880,331,277,145,276],[2200,2880,376,283,163,282],[2640,2880,402,286,174,284],[3080,2880,427,280,159,279],[0,3240,421,266,163,265],[440,3240,316,264,167,263]];
+  const HADES_KEYS = {"idle":[0,17,16,17],"walk":[1,2,1,0],"jump":[21,23],"light":[50,51,52,53,54,55,56,57],"heavy":[58,59,60,61,62,63,64,65],"lkick":[26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41],"hkick":[42,43,44,45,46,47,48,49],"special":[66,67,68,69,70,71,72,73],"hurt":[2,2],"victory":[9,10,11,13]};
   const HADES_ATLAS = {hades16:{}};
-  const HADES_KEYS = {
-    idle:[0,10,11,0],walk:[1,2,3,2],jump:[2,3],
-    light:[3,4,5,3],heavy:[4,5,6,7],lkick:[8,9,12,13],
-    hkick:[8,9,13,14],special:[12,13,14,15],
-    hurt:[9,10],ko:[9,10,11],victory:[0,10,11,0]
-  };
-  // Pixel-measured opaque bounds: Hades' 16 painted poses have different
-  // transparent margins and different foot baselines. Use each actual outline
-  // instead of drawing every pose from an identical 192 x 176 rectangle.
-  const HADES_VISIBLE_BOUNDS = [[13,44,178,204],[16,43,176,204],[17,43,174,204],[20,44,171,204],[13,49,178,204],[4,50,187,204],[5,46,186,204],[2,40,189,204],[10,49,182,204],[13,57,179,204],[18,69,174,204],[16,59,175,204],[13,25,178,204],[13,21,179,204],[4,26,187,204],[1,25,190,204]];
-  for (const [move,frames] of Object.entries(HADES_KEYS)) {
-    HADES_ATLAS.hades16[move] = frames.map(n => {
-      const [left,top,right,bottom] = HADES_VISIBLE_BOUNDS[n];
-      const x = Math.max(0,left-3), y = Math.max(0,top-3);
-      const r = Math.min(192,right+3), b = Math.min(220,bottom+3);
-      const w = r-x, h = b-y;
-      return [(n%4)*192+x,Math.floor(n/4)*220+y,w,h,w/2,h];
-    });
-  }
+  for (const [move,frames] of Object.entries(HADES_KEYS)) HADES_ATLAS.hades16[move] = frames.map((n) => HADES_FRAMES[n]);
 
   const AATLAS = {"a_mars":{"light":[[176,430,188,192,109,192],[176,229,219,198,111,198],[0,625,241,177,119,177],[770,430,224,180,111,180]],"heavy":[[755,229,176,193,107,193],[0,430,174,193,105,193],[366,430,199,190,117,190],[567,430,201,190,129,190]],"lkick":[[461,0,154,200,85,200],[803,0,162,199,93,199],[0,229,174,199,105,199],[617,0,184,200,107,200]],"hkick":[[583,229,170,197,101,197],[247,0,212,203,109,203],[0,0,245,227,125,227],[397,229,184,198,111,198]],"idle":[[461,0,154,200,85,200],[583,229,170,197,101,197]],"walk":[[803,0,162,199,93,199],[0,229,174,199,105,199],[617,0,184,200,107,200],[0,229,174,199,105,199]],"jump":[[0,430,174,193,105,193]],"hurt":[[755,229,176,193,107,193]],"special":[[247,0,212,203,109,203],[0,0,245,227,125,227]],"victory":[[0,0,245,227,125,227]]},"a_marcus":{"light":[[838,427,185,201,102,201],[408,427,184,202,100,202],[594,427,242,202,120,202],[684,632,184,199,96,199]],"heavy":[[0,427,193,203,108,203],[485,218,209,204,128,204],[618,1036,258,185,82,185],[0,1036,192,196,104,196]],"lkick":[[173,632,167,200,88,200],[342,632,161,200,72,200],[195,427,211,203,78,203],[696,218,158,204,80,204]],"hkick":[[593,0,187,209,92,209],[228,0,177,212,84,212],[0,218,265,207,92,207],[407,0,184,211,98,211]],"idle":[[505,632,177,200,96,200],[0,835,165,199,92,199],[510,835,168,197,100,197],[431,1036,185,194,108,194]],"walk":[[680,835,164,197,94,197],[167,835,168,198,102,198],[337,835,171,198,96,198],[0,632,171,201,94,201]],"jump":[[167,835,168,198,102,198],[0,632,171,201,94,201]],"hurt":[[0,1234,191,179,94,179]],"ko":[[193,1234,187,159,96,159],[382,1234,217,121,108,121],[601,1234,227,80,113,80]],"special":[[267,218,216,207,106,207],[194,1036,235,196,150,196]],"victory":[[0,0,226,216,96,216]]},"a_colossus":{"light":[[0,410,172,196,106,196],[597,410,173,191,106,191],[0,608,209,187,102,187],[772,410,169,189,98,189]],"heavy":[[165,208,186,199,120,199],[788,0,200,201,128,201],[174,410,241,194,112,194],[417,410,178,193,106,193]],"lkick":[[0,208,163,200,96,200],[353,208,161,199,100,199],[516,208,199,199,86,199],[717,208,149,198,86,198]],"hkick":[[176,0,179,204,100,204],[0,0,174,206,114,206],[357,0,251,204,92,204],[610,0,176,204,106,204]]},"a_medusa":{"light":[[785,420,169,199,98,199],[0,624,186,198,102,198],[188,624,222,198,88,198],[619,420,164,200,90,200]],"heavy":[[0,214,189,204,98,204],[162,420,217,201,98,201],[191,214,246,204,100,204],[439,214,180,204,94,204]],"lkick":[[848,214,156,203,90,203],[621,214,225,204,92,204],[381,420,236,201,98,201],[0,420,160,202,96,202]],"hkick":[[240,0,193,209,90,209],[0,0,238,212,92,212],[615,0,246,207,86,207],[435,0,178,209,108,209]]},"a_minotaur":{"light":[[668,213,161,196,81,196],[831,213,185,196,85,196],[0,416,203,196,83,196],[428,416,160,195,81,195]],"heavy":[[0,614,184,192,87,192],[205,416,221,196,91,196],[590,416,252,193,91,193],[507,213,159,199,79,199]],"lkick":[[149,213,149,200,73,200],[742,0,146,201,73,201],[300,213,205,200,67,200],[0,213,147,201,75,201]],"hkick":[[426,0,150,207,77,207],[256,0,168,208,97,208],[0,0,254,211,75,211],[578,0,162,204,83,204]]},"a_vulcan":{"light":[[715,433,168,198,79,198],[327,433,179,199,85,199],[0,635,220,198,83,198],[222,635,168,198,79,198]],"heavy":[[0,220,203,211,93,211],[608,0,221,212,97,212],[723,220,257,202,99,202],[380,220,184,203,91,203]],"lkick":[[0,433,164,200,77,200],[566,220,155,203,75,203],[508,433,205,199,77,199],[166,433,159,200,71,200]],"hkick":[[435,0,171,214,83,214],[0,0,174,218,83,218],[176,0,257,218,77,218],[205,220,173,210,81,210]]},"a_chiron":{"light":[[547,220,163,200,86,200],[0,430,167,198,90,198],[670,430,234,197,94,197],[169,430,158,198,86,198]],"heavy":[[367,220,178,205,98,205],[265,0,199,210,102,210],[466,0,259,209,108,209],[329,430,175,198,96,198]],"lkick":[[506,430,162,198,92,198],[0,630,160,197,68,197],[162,630,229,196,74,196],[712,220,148,199,88,199]],"hkick":[[0,220,178,208,96,208],[180,220,185,208,72,208],[0,0,263,218,72,218],[727,0,162,209,88,209]]},"a_diana":{"light":[[177,216,152,200,77,200],[483,216,164,199,91,199],[649,216,216,199,87,199],[331,216,150,200,77,200]],"heavy":[[699,0,163,201,87,201],[0,216,175,201,103,201],[0,419,250,197,113,197],[854,419,161,193,87,193]],"lkick":[[252,419,136,195,77,195],[390,419,131,195,69,195],[523,419,202,195,75,195],[727,419,125,194,69,194]],"hkick":[[247,0,152,204,85,204],[401,0,155,204,73,204],[0,0,245,214,79,214],[558,0,139,204,81,204]]},"a_cerberus":{"light":[[574,0,248,200,111,200],[469,427,249,191,113,191],[284,815,243,181,111,181],[724,225,234,194,111,194]],"heavy":[[720,427,228,191,111,191],[0,622,225,191,111,191],[227,622,309,191,111,191],[538,622,244,191,111,191]],"lkick":[[486,225,236,195,111,195],[232,427,235,192,107,192],[0,815,282,191,109,191],[0,427,230,193,111,193]],"hkick":[[0,225,239,200,111,200],[308,0,264,201,109,201],[0,0,306,223,181,223],[241,225,243,197,107,197]]},"a_pegasus":{"light":[[213,438,212,200,111,200],[419,231,206,203,115,203],[0,641,251,196,113,196],[627,231,205,201,105,201]],"heavy":[[427,438,211,199,111,199],[486,0,221,212,117,212],[709,0,310,212,115,212],[0,438,211,201,111,201]],"lkick":[[726,641,210,186,109,186],[640,438,212,198,111,198],[253,641,254,196,125,196],[509,641,215,191,111,191]],"hkick":[[0,231,210,205,109,205],[286,0,198,215,115,215],[0,0,284,229,143,229],[212,231,205,205,105,205]]},"a_helios":{"light":[[461,410,166,200,84,188],[629,410,198,200,94,187],[0,614,218,200,86,187],[220,614,174,200,84,187]],"heavy":[[0,0,208,203,110,190],[210,0,218,203,110,190],[179,205,240,202,102,189],[421,205,171,202,84,189]],"lkick":[[594,205,160,202,84,189],[430,0,187,203,84,189],[619,0,217,203,86,197],[838,0,155,203,82,190]],"hkick":[[756,205,172,202,88,188],[0,410,223,202,110,186],[225,410,234,202,94,197],[0,205,177,203,84,189]]},"a_neptune":{"light":[[681,621,222,200,110,200],[232,621,222,202,110,202],[456,621,223,202,110,202],[0,621,230,203,110,203]],"heavy":[[746,208,229,204,112,204],[742,0,234,205,112,205],[0,415,250,204,106,204],[252,415,260,204,102,204]],"lkick":[[0,0,231,206,102,206],[514,415,247,204,104,204],[233,0,248,206,114,206],[483,0,257,206,106,206]],"hkick":[[0,208,244,205,114,205],[763,415,244,204,124,204],[246,208,246,205,120,205],[494,208,250,205,126,205]]},"a_hades":{"light":[[201,0,204,204,116,204],[467,409,206,196,106,196],[675,409,230,195,108,195],[430,610,201,182,110,182]],"heavy":[[0,0,199,205,118,205],[643,0,193,201,110,201],[210,207,227,199,114,199],[407,0,234,204,106,204]],"lkick":[[0,610,216,187,92,187],[218,610,210,182,96,182],[218,610,210,182,96,182],[633,610,197,169,108,169]],"hkick":[[439,207,210,199,116,199],[651,207,210,199,114,199],[0,409,227,199,136,199],[229,409,236,199,156,199]]}};   // 4-phase attack frames: wind-up, wind-up, strike, return
   const ATKIMG = {}; const atkImg = (set) => ATKIMG[set] || (ATKIMG[set] = img('atk/' + set.slice(2) + '.webp'));   // one small file per fighter, loaded on demand
@@ -469,7 +455,7 @@
     MARS_ATTACK_IMAGES[set]=img('attacks/mars_'+action+'.png');
   }
   const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS, HADES_ATLAS);
-  const imgFor = (set) => (set === 'hades16' ? HADESIMG : null) || MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  const imgFor = (set) => (set === 'hades16' ? hadesImg() : null) || MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   const PIXEL = new Set(['knight', 'archer', 'commander', 'priestess', 'warrior', 'fx']);
   function frameOf(set, anim, i) { const fr = ALL[set] && ALL[set][anim]; if (!fr) return null; return fr[((Math.floor(i) % fr.length) + fr.length) % fr.length]; }
   function spr(g, set, anim, i, x, y, face = 1, scale = 1, alpha = 1) {
@@ -491,6 +477,7 @@
   const FA = (id) => { const s = 'f_' + id, x = 'a_' + id, a = {}; ['idle', 'walk', 'jump', 'light', 'heavy', 'lkick', 'hkick', 'special', 'hurt', 'ko', 'victory'].forEach((k) => { a[k] = AATLAS[x] && AATLAS[x][k] ? H(x, k) : FATLAS[s] && FATLAS[s][k] ? H(s, k) : null; }); return a; };
   const HADES_ANIMS = {};
   for (const move of Object.keys(HADES_KEYS)) HADES_ANIMS[move] = H('hades16',move);
+  HADES_ANIMS.ko = null;
   const PT = (id) => { const a = { portrait: id }; ['idle', 'walk', 'jump', 'light', 'heavy', 'special', 'hurt', 'victory'].forEach((k) => { a[k] = H('p_' + id, 'idle'); }); a.ko = null; return a; };
   const LG = (id) => { const s = 'g_' + id; return { idle: H(s, 'idle'), walk: H(s, 'walk'), jump: H(s, 'jump'), light: H(s, 'light'), heavy: H(s, 'heavy'), special: H(s, 'special'), hurt: H(s, 'hurt'), ko: null, victory: H(s, 'special') }; };
   const ROSTER = [
@@ -518,7 +505,7 @@
       special: { kind: 'beam', name: 'Supernova Beam', len: 560, col: ['#ffc24b', '#ffffff', '#ffe28a'] }, quote: 'I do not fight. I simply shine.' },
     { id: 'neptune', name: 'Neptune Leviathan', title: 'Abyssal Tide', size: 1.12, speed: 225, hp: 116, anims: FA('neptune'),
       special: { kind: 'wave', name: 'Tsunami Surge', col: ['#27d8ff', '#ffffff', '#1f6bd8'] }, quote: 'The tide always returns. So do I.' },
-    { id: 'hades', name: 'Hades Sentinel', title: 'Keeper of Shadows', size: 1.05, speed: 235, hp: 105, anims: HADES_ANIMS,
+    { id: 'hades', name: 'Hades Sentinel', title: 'Keeper of Shadows', size: 1.0, speed: 235, hp: 105, anims: HADES_ANIMS,
       special: { kind: 'proj', name: 'Void Seal', set: 'fx2', a: 'hades', sc: 1.1, speed: 420, col: ['#a46bff', '#ffffff', '#5a2d82'] }, quote: 'Everyone comes to my kingdom eventually.' },
   ];
   // a passive power for every fighter (from Roman Arena V8, plus five new ones)
@@ -706,7 +693,7 @@
   addEventListener('keydown', () => { if (G && G.cine && G.cine.t > 0.35) cineEnd(); });
   document.addEventListener('pointerdown', (e) => { if (G && G.cine && G.cine.t > 0.35 && e.target.closest && e.target.closest('#arena')) cineEnd(); });
   function newMatch(p1, p2, cpuLevel) {
-    [p1, p2].forEach((c) => { if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); if(window.ArenaSpecialFX)window.ArenaSpecialFX.preload(c.id); });
+    [p1, p2].forEach((c) => { if (c.id === 'hades') hadesImg(); if (AATLAS['a_' + c.id]) atkImg('a_' + c.id); if (CUTIN_ATLAS[c.id]) cutinImg(c.id); if(window.ArenaSpecialFX)window.ArenaSpecialFX.preload(c.id); });
     CZ = 1; CX = VW / 2;
     G = { mode: 'intro', p: [makeFighter(p1, 0), makeFighter(p2, 1)], round: 1, timer: 60, t: 0, msg: null, shots: [], fx: [], beams: [], waves: [], shake: 0, stop: 0, slow: 0, bg: BGS[BGN.indexOf(pick(LOCAL_BG))], cpuLevel, banner: null, pause: false };
     if (cpuLevel) G.p[1].cpu = { level: cpuLevel, think: 0, plan: null };
@@ -1071,7 +1058,7 @@
     // their images decode successfully. Any missing asset falls back to v47 art.
     const generatedSet = 'g_' + f.ch.id;
     const generatedAnimations = GENERATED[generatedSet];
-    if (ENABLE_GENERATED_GAMEPLAY && generatedAnimations && generatedAnimations[k]) {
+    if (ENABLE_GENERATED_GAMEPLAY && f.ch.id !== 'hades' && generatedAnimations && generatedAnimations[k]) {   // Hades draws from his own hand-painted v2 sheet
       const generatedImage = generatedImg(generatedSet);
       if (generatedImage.complete && generatedImage.naturalWidth > 0) {
         const frames = generatedAnimations[k], count = frames.length;
@@ -1114,6 +1101,8 @@
       const keys = [0, m.start / total, (m.start + m.act) / total, 1];
       const sampled = Math.min(phases - 1, Math.floor(phase * phases));
       phase = (sampled + 0.5) / phases;
+      // Hades' v2 sheets are full painted sequences (8-16 frames): play every frame across the move
+      if (h.set === 'hades16') { const p = clamp(f.t / total, 0, 0.9999); return { h, idx: list[Math.min(list.length - 1, Math.floor(p * list.length))], mix: 0 }; }
       if (list.length >= 4) {
         const segment = phase < keys[1] ? 0 : phase < keys[2] ? 1 : 2;
         const lo = keys[segment], hi = keys[segment + 1];
@@ -1140,7 +1129,7 @@
   }
   const FLIPIMG = {}, SUPIMG = {};
   function drawFighter(f) {
-    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'hades16' ? 0.96 : 1);
+    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : 1);
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
@@ -1172,7 +1161,7 @@
     const status = f.petrified > 0 ? 'grayscale(1) brightness(.83) contrast(1.3)' : f.poison > 0 ? 'hue-rotate(250deg) saturate(1.6)' : f.burn > 0 ? 'sepia(0.5) saturate(2.2) hue-rotate(-20deg) brightness(1.1)' : f.slowT > 0 ? 'saturate(0.4) brightness(0.9)' : '';
     if (status && (f.petrified > 0 || !(f.flash > 0))) ctx.filter = status;
     const strideBob = 0; // no second bounce: feet stay aligned to FLOOR
-    const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0) - (h.set === 'hades16' ? 20 : 0);
+    const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
     let visualX = f.x + lx;
     if (h.set === 'hades16' && CAM) {
       const frame = frameOf(h.set,h.a,idx);
