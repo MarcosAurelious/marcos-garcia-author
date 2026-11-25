@@ -548,7 +548,7 @@
     if (r !== RES || cv.width !== Math.round(SW * r) || cv.height !== Math.round(SH * r)) { RES = r; cv.width = Math.round(SW * r); cv.height = Math.round(SH * r); }
   }
   addEventListener('resize', fit);
-  if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touchy');
+  if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('touchy'); // phones & tablets only, not touchscreen laptops
 
   /* ================= input ================= */
   const KEYS = {

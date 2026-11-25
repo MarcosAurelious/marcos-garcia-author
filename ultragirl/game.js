@@ -969,11 +969,13 @@ const joy={on:false,mag:1};
  jz.addEventListener('pointerup',end);jz.addEventListener('pointercancel',end);jz.addEventListener('lostpointercapture',end)})();
 $('menuBtn').addEventListener('click',()=>{const hd=document.querySelector('.header'),open=hd.classList.toggle('open');$('menuBtn').textContent=open?'✕':'☰';if(open&&mode==='playing')togglePause();releaseControls()});
 window.addEventListener('resize',fitStage);window.addEventListener('orientationchange',()=>setTimeout(fitStage,200));try{new ResizeObserver(fitStage).observe($('stage'))}catch(e){}fitStage();
-/* on-screen control buttons: shown on every device (toggle in the header); left side can be the joystick or arrow buttons */
+/* on-screen control buttons: on by default for phones/tablets, off by default on desktops/laptops (mouse or trackpad);
+   the header toggle still turns them on or off, remembered separately for each kind of device */
 (function(){const B=document.body,get=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+ const desk=matchMedia('(hover:hover) and (pointer:fine)').matches,KEY=desk?'ug3_btn_desk':'ug3_btn',DEF=desk?'0':'1';
  const bt=$('btnToggle');const apply=()=>{const off=B.classList.contains('nobtn');bt.textContent=off?'🎮 Buttons Off':'🎮 Buttons On';releaseControls()};
- if(get('ug3_btn','1')==='0')B.classList.add('nobtn');apply();
- bt.addEventListener('click',()=>{B.classList.toggle('nobtn');put('ug3_btn',B.classList.contains('nobtn')?'0':'1');apply();bt.blur()});
+ if(get(KEY,DEF)==='0')B.classList.add('nobtn');apply();
+ bt.addEventListener('click',()=>{B.classList.toggle('nobtn');put(KEY,B.classList.contains('nobtn')?'0':'1');apply();bt.blur()});
 })();
 /* controller art: D-pad zones (slide your thumb between directions; down = shield, or fly down in flight), PAUSE and OPTIONS */
 for(const [id,src] of [['cpadL',UI_IMG.dpad],['cabrL',UI_IMG.abr],['consoleP',UI_IMG.console],['cmidL',UI_IMG.console]]){const el=$(id);if(el)el.style.backgroundImage=`url(${src})`}
