@@ -634,7 +634,7 @@
     const up = (e) => { e.preventDefault(); b.classList.remove('on'); press(k, false); };
     b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
   });
-  if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touchy');
+  if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('touchy'); // phones & tablets only, not touchscreen laptops
 
   /* ================= Marcus evolution: experience and upgrades ================= */
   const STAGES = [
