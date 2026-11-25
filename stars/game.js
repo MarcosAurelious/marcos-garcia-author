@@ -611,9 +611,9 @@ function playerHit() {
 // ---------- update ----------
 function update(dt) {
   G.t += dt;
-  if (G.state === 'title') { if (hit.e || hit.f) { newGame(); } return; }
+  if (G.state === 'title') { if (hit.e || hit.f || hit.p) { newGame(); } return; }
   if (G.state === 'cut') { G.stateT += dt; if ((hit.e || hit.f || hit.p) && G.stateT > 0.4) endCutscene(); return; }
-  if (G.state === 'promo' || G.state === 'interlude' || G.state === 'over' || G.state === 'victory') { G.stateT += dt; if ((hit.e || hit.f) && G.stateT > 1.2) advanceFromScreen(); return; }
+  if (G.state === 'promo' || G.state === 'interlude' || G.state === 'over' || G.state === 'victory') { G.stateT += dt; if ((hit.e || hit.f || hit.p) && G.stateT > 1.2) advanceFromScreen(); return; }
   if (G.state !== 'play') return;
   if (hit.p) G.paused = !G.paused;
   if (G.paused) { if (hit.e) G.paused = false; return; }
