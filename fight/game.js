@@ -516,7 +516,8 @@
     pegasus: ['Tailwind', 'fastest fighter in the arena'], diana: ['Hunter\'s Eye', '1 in 5 hits is a critical'], neptune: ['Undertow', 'heavy kicks drag the foe in'],
     marcus: ['Stoic Will', 'super meter fills 25% faster'],
   };
-  const BODY_H = 190;   // every fighter is scaled so the standing pose is about this tall (times size)
+  const FS = 0.82;   // fighter size: sprites, hitboxes, reach and spacing all shrink together so the fight plays the same, just smaller on screen
+  const BODY_H = Math.round(190 * FS);   // every fighter is scaled so the standing pose is about this tall (times size)
   // health re-tuned for the faster fighting speed from ~22,000 computer-vs-computer matches so every fighter wins about half the time
   const BALANCE = {"marcus":1.13,"mars":1.02,"colossus":0.8,"medusa":0.99,"minotaur":0.84,"vulcan":0.77,"chiron":1.07,"diana":1.16,"cerberus":1.04,"pegasus":1.23,"helios":0.93,"neptune":1.01,"hades":0.95};
   ROSTER.forEach((c) => { c.hp = Math.round(c.hp * 1.6 * (BALANCE[c.id] || 1)); const f = frameOf(c.anims.idle.set, c.anims.idle.a, 0); c.scale = BODY_H * c.size / f[3]; });
@@ -711,7 +712,7 @@
     SFX.boss();
   }
   const opp = (f) => G.p[1 - f.side];
-  function hurtbox(f) { const w = 62 * f.ch.size, h = BODY_H * f.ch.size * (f.crouch ? 0.52 : 0.92); return { x: f.x - w / 2, y: f.y - h, w, h }; }
+  function hurtbox(f) { const w = 62 * FS * f.ch.size, h = BODY_H * f.ch.size * (f.crouch ? 0.52 : 0.92); return { x: f.x - w / 2, y: f.y - h, w, h }; }
   const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
   function startMove(f, kind, isSuper) {
@@ -817,7 +818,7 @@
           dashHit(f);
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
       } else if (inAct && !f.hit) {
-        const reach = m.reach * f.ch.size, hb = m.low ? { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.55, w: reach, h: BODY_H * f.ch.size * 0.55 } : { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
+        const reach = m.reach * f.ch.size * FS, hb = m.low ? { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.55, w: reach, h: BODY_H * f.ch.size * 0.55 } : { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
         if (overlap(hb, hurtbox(o)) && o.state !== 'ko') { f.hit = true; damage(f, o, Math.round(m.dmg * (f.ch.id === 'automaton' ? 1.15 : 1)), m.stun, m.push, f.x + f.face * reach * 0.75); }
       }
       if (f.t >= total && (f.onGround || f.move !== 'special')) { if(f.ch.id==='pegasus')f.y=FLOOR;f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
@@ -844,7 +845,7 @@
     if (f.state === 'walk' && f.onGround) f.strideTravel = (f.strideTravel || 0) + Math.abs(f.x - priorX);
   }
   function separate() {   // fighters push each other apart instead of overlapping
-    const [a, b] = G.p, min = 88 * (a.ch.size + b.ch.size) / 2;
+    const [a, b] = G.p, min = 88 * FS * (a.ch.size + b.ch.size) / 2;
     if ((!a.onGround && a.vy < 0) || (!b.onGround && b.vy < 0)) return;   // rising jumpers pass over
     if (Math.abs(a.y - b.y) < 120 && Math.abs(a.x - b.x) < min) { const mid = (a.x + b.x) / 2, s = Math.sign(a.x - b.x) || (a.side ? 1 : -1); a.x = clamp(mid + s * min / 2, 50, VW - 50); b.x = clamp(mid - s * min / 2, 50, VW - 50); if (Math.abs(a.x - b.x) < min) (a.x <= 50 || a.x >= VW - 50 ? b : a).x += s * (min - Math.abs(a.x - b.x)) * (a.x <= 50 || a.x >= VW - 50 ? -1 : 1); }
   }
@@ -877,7 +878,7 @@
     else if(sp.kind==='wave')G.waves.push({owner:f.side,x:f.x+f.face*60,vx:f.face*470,dmg:power,life:1.6,col:sp.col,delay:0,kind:id});
     else if(sp.kind==='dash'){f.dashDmg=Math.round(15*mul);f.dashHit=false;}
   }
-  function dashHit(f) { const o = opp(f); const reach = 120 * f.ch.size;   // the rush hits in front of the charger: a centred box never touched anyone, since fighters are kept apart
+  function dashHit(f) { const o = opp(f); const reach = 120 * f.ch.size * FS;   // the rush hits in front of the charger: a centred box never touched anyone, since fighters are kept apart
     if (!f.dashHit && overlap({ x: f.face > 0 ? f.x - 30 : f.x - reach, y: f.y - BODY_H * f.ch.size, w: reach + 30, h: BODY_H * f.ch.size }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
   function updateAttacks(dt) {
     G.shots.forEach(shot=>{
@@ -919,7 +920,7 @@
 
   /* ================= the computer opponent ================= */
   function cpuInput(f, dt) {
-    const o = opp(f), c = f.cpu, lvl = c.level, dx = o.x - f.x, dist = Math.abs(dx), fwd = Math.sign(dx) || f.face;
+    const o = opp(f), c = f.cpu, lvl = c.level, dx = o.x - f.x, dist = Math.abs(dx) / FS, fwd = Math.sign(dx) || f.face;
     const inp = { left: false, right: false, up: false, down: false, light: false, heavy: false, lkick: false, hkick: false, special: false, super: false, breaker: false };
     if (f.state === 'hurt' && f.meter >= 40 && f.combo !== -1 && opp(f).combo >= 2 && Math.random() < 0.05 * lvl) inp.breaker = true;
     if (f.state === 'attack' && f.hit && Math.random() < 0.25 * lvl) inp[pick(['heavy', 'hkick', 'lkick'])] = true;
@@ -1131,11 +1132,12 @@
   function drawFighter(f) {
     const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : 1);
     // shadow on the floor
-    ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * FS * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
     if (f.ch.anims.portrait) { drawPortrait(f, h, sc); ctx.restore(); drawFx(f); return; }
     if (f.state === 'ko' && !f.ch.anims.ko) { const k = clamp(f.t / 0.5, 0, 1); ctx.translate(f.x, f.y); ctx.rotate(-f.face * k * 1.45); ctx.translate(-f.x, -f.y - k * 14); }
     if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
+    else { ctx.shadowColor = 'rgba(8,4,2,0.9)'; ctx.shadowBlur = 2.5 * RES; }   // thin dark rim so every fighter reads cleanly against the backdrop
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.8)';
     else if (f.state === 'block') ctx.filter = 'brightness(1.15) saturate(0.6)';
     // startup / active / recovery: lean back, lunge in, ease out (on top of the drawn pose)
@@ -1216,7 +1218,7 @@
     drawStatus(f);
     if (AATLAS['a_' + f.ch.id]) return;   // these fighters draw their own swooshes
     if (f.state === 'attack' && f.move !== 'special' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
-      const reach = MOVES[f.move].reach * f.ch.size; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
+      const reach = MOVES[f.move].reach * f.ch.size * FS; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
       const kick = f.move === 'lkick' || f.move === 'hkick'; spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * (kick ? 0.3 : 0.55), f.face, f.move === 'heavy' || f.move === 'hkick' ? 2.3 : 1.6); ctx.restore(); }
   }
   // portraits are single drawings: the pose comes from leaning, lunging, squashing and recoiling them
@@ -1241,6 +1243,7 @@
     else if (f.state === 'ko') { const k = clamp(f.t / 0.55, 0, 1); rot = -1.4 * k; dy = -k * 18; }
     if (G.mode === 'over' && f === G.winner) { sy = 1 + Math.abs(Math.sin(t * 4)) * 0.04; dy -= Math.abs(Math.sin(t * 4)) * 8; }
     if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
+    else { ctx.shadowColor = 'rgba(8,4,2,0.9)'; ctx.shadowBlur = 2.5 * RES; }   // thin dark rim so every fighter reads cleanly against the backdrop
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.9)';
     else if (f.state === 'hurt') ctx.filter = 'sepia(0.6) saturate(2.5) hue-rotate(-25deg)';
     else if (f.state === 'block') ctx.filter = 'brightness(1.15) saturate(0.7)';
@@ -1314,7 +1317,7 @@
     if (!G) { ctx.fillStyle = '#120c08'; ctx.fillRect(0, 0, SW, SH); return; }
     ctx.save(); if (G.shake > 0 && !calm) ctx.translate(rand(-8, 8) * G.shake * 2, rand(-8, 8) * G.shake * 2);
     {   // fighting-game camera: zooms in when the fighters close in, pulls back as they separate, always keeps both in view
-      const [p, q] = G.p, mid = (p.x + q.x) / 2, want = clamp(BASE.w / (Math.abs(p.x - q.x) + (PORTRAIT ? 300 : 360)), 1, PORTRAIT ? 1.5 : 1.3);
+      const [p, q] = G.p, mid = (p.x + q.x) / 2, want = clamp(BASE.w / (Math.abs(p.x - q.x) + (PORTRAIT ? 300 : 360)), 1, PORTRAIT ? 1.3 : 1.15);   // gentler zoom so the fighters stay compact and sharp
       // ...and never crops a jumping fighter: keep the highest head about 95 units below the top (room for the HUD)
       const head = Math.min(p.y - BODY_H * p.ch.size * 1.1, q.y - BODY_H * q.ch.size * 1.1), fit = Math.max(1, BASE.h / Math.max(1, VH - head + 95));
       const goal = Math.min(want, fit); CZ += (goal - CZ) * (goal < CZ ? 0.3 : 0.06); const Wv = BASE.w / CZ, Hv = BASE.h / CZ; CX += (clamp(mid, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2) - CX) * 0.12;
