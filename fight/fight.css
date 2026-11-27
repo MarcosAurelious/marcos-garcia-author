@@ -42,7 +42,7 @@ kbd { font: 700 .75rem var(--mono); border: 1px solid var(--gold); padding: 0 .3
 .gear { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); z-index: 3; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--gold); background: rgba(18,12,8,.75); color: var(--ink); font-size: 1.3rem; cursor: pointer; display: grid; place-items: center; padding: 0; }
 .gear { top: auto; bottom: 8px; transform: none; }
 .menu, .result { position: absolute; inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center; background: rgba(8,5,3,.6); }
-.menu { flex-direction: column; gap: 8px; } .menu .btn { min-width: 240px; }
+.menu { flex-direction: column; gap: 8px; background: rgba(10,6,4,.85); } .menu .btn { min-width: 240px; font-size: 16px; }
 .set-h { font: 700 .9rem var(--mono); letter-spacing: .35em; color: var(--gold); margin: 0 0 4px; text-transform: uppercase; }
 .res-card { background: var(--panel); border: 1px solid var(--gold); outline: 1px solid #4a3620; outline-offset: -7px; padding: clamp(14px, 3vw, 30px); text-align: center; max-width: 560px; }
 .res-k { font: 700 .8rem var(--mono); letter-spacing: .35em; text-transform: uppercase; color: var(--gold); margin: 0; }

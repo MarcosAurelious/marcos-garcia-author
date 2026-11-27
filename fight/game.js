@@ -483,7 +483,7 @@
   function spr(g, set, anim, i, x, y, face = 1, scale = 1, alpha = 1) {
     const f = frameOf(set, anim, i); const im = imgFor(set); if (!f || !im.complete || !im.naturalWidth) return;
     const [sx, sy, w, h, ax, ay] = f;
-    g.save(); if (alpha !== 1) g.globalAlpha *= alpha; g.imageSmoothingEnabled = !!XSETS[set]; g.imageSmoothingQuality = 'high'; // all fighter keyframes stay crisp; no smudged interpolation
+    g.save(); if (alpha !== 1) g.globalAlpha *= alpha; g.imageSmoothingEnabled = !PIXEL.has(set); g.imageSmoothingQuality = 'high'; // painted art is scaled smoothly; only true pixel art stays nearest-neighbour
     g.translate(Math.round(x), Math.round(y)); if (face < 0) g.scale(-1, 1);
     g.drawImage(im, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); g.restore();
   }
@@ -567,7 +567,7 @@
       BASE = { minX: X0, w: PW, h: Hv }; SH = Math.round(Hv * VW / PW); WALL_L = X0 + 50; WALL_R = X0 + PW - 50;
     }
     cv.style.aspectRatio = `${SW} / ${SH}`;
-    const r = clamp(Math.ceil(w * (devicePixelRatio || 1) / SW * 4) / 4, 1, 2.5);
+    const r = Math.max(1, Math.min(clamp(Math.ceil(w * (devicePixelRatio || 1) / SW * 4) / 4, 1, 4), Math.sqrt(8.3e6 / (SW * SH))));   // full device sharpness, capped near 4K pixel count
     if (r !== RES || cv.width !== Math.round(SW * r) || cv.height !== Math.round(SH * r)) { RES = r; cv.width = Math.round(SW * r); cv.height = Math.round(SH * r); }
   }
   addEventListener('resize', fit);
@@ -1446,7 +1446,7 @@
     ctx.save();
     if (f.ch.anims.portrait) { drawPortrait(f, h, sc); ctx.restore(); drawFx(f); return; }
     if (f.state === 'ko' && !f.ch.anims.ko && !XSETS[h.set]) { const k = clamp(f.t / 0.5, 0, 1); ctx.translate(f.x, f.y); ctx.rotate(-f.face * k * 1.45); ctx.translate(-f.x, -f.y - k * 14); }
-    if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
+    if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = (10 + (calm ? 0 : Math.sin(G.t * 14) * 3)) * RES; }
     else { ctx.shadowColor = 'rgba(8,4,2,0.9)'; ctx.shadowBlur = 2.5 * RES; }   // thin dark rim so every fighter reads cleanly against the backdrop
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.8)';
     else if (f.state === 'block') ctx.filter = 'brightness(1.15) saturate(0.6)';
@@ -1489,7 +1489,7 @@
       const m = MOVES.special, n = SU.frames.length, R = SU.release, t = f.t;
       const i = t < m.start ? Math.floor(clamp(t / m.start, 0, 0.999) * R) : Math.min(n - 1, R + Math.floor(clamp((t - m.start) / (m.act + m.rec), 0, 0.999) * (n - R)));
       const [sx, sy, w, h, ax, ay] = SU.frames[i];
-      ctx.translate(Math.round(visualX), Math.round(fy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = false;
+      ctx.translate(Math.round(visualX), Math.round(fy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
       const ss = f.ch.scale; ctx.drawImage(SUI, sx, sy, w, h, -ax * ss, -ay * ss, w * ss, h * ss); ctx.restore();
       drawFx(f); return;
     }
@@ -1497,7 +1497,7 @@
     if (f.state === 'jump' && f.flip && FL && FLI.complete && FLI.naturalWidth && !XFLIP[h.set]) {   // hand-drawn somersault frames, anchored on the body centre
       const T = 2 * 1180 / 2860, frames = FL[f.flip > 0 ? 'front' : 'back'], n = frames.length, i = Math.min(n - 1, Math.floor(clamp((f.jt || 0) / T, 0, 0.999) * n));
       const [sx, sy, w, h, ax, ay] = frames[i], cyy = fy - FL.dy * sc;
-      ctx.translate(Math.round(visualX), Math.round(cyy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = false;
+      ctx.translate(Math.round(visualX), Math.round(cyy)); if (f.face < 0) ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(FLI, sx, sy, w, h, -ax * sc, -ay * sc, w * sc, h * sc); ctx.restore();
       if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawCharge(ctx,f,G.t);
       drawFx(f); return;
@@ -1553,7 +1553,7 @@
     else if (f.state === 'block') { rot = -0.05; sx = 0.96; }
     else if (f.state === 'ko') { const k = clamp(f.t / 0.55, 0, 1); rot = -1.4 * k; dy = -k * 18; }
     if (G.mode === 'over' && f === G.winner) { sy = 1 + Math.abs(Math.sin(t * 4)) * 0.04; dy -= Math.abs(Math.sin(t * 4)) * 8; }
-    if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
+    if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = (10 + (calm ? 0 : Math.sin(G.t * 14) * 3)) * RES; }
     else { ctx.shadowColor = 'rgba(8,4,2,0.9)'; ctx.shadowBlur = 2.5 * RES; }   // thin dark rim so every fighter reads cleanly against the backdrop
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.9)';
     else if (f.state === 'hurt') ctx.filter = 'sepia(0.6) saturate(2.5) hue-rotate(-25deg)';
@@ -1579,9 +1579,10 @@
     G.beams.forEach(b=>{if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawBeam(ctx,b,G.t);});
     G.waves.forEach(w=>{if(window.ArenaSpecialFX)window.ArenaSpecialFX.drawWave(ctx,w,G.t,FLOOR);
       else if(w.delay<=0)spr(ctx,'bfx','burst',0,w.x,FLOOR-30,Math.sign(w.vx),1);});
-    (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
+    (G.rings || []).forEach((r) => { const k = r.t / r.max; ctx.save(); ctx.globalAlpha = (1 - k) * (calm ? 0.4 : 0.85); ctx.strokeStyle = r.col; ctx.lineWidth = 10 * (1 - k) + 2; ctx.shadowColor = r.col; ctx.shadowBlur = 12 * RES; ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (0.25 + k), 0, 7); ctx.stroke(); ctx.restore(); });
     (G.texts || []).forEach((t) => { const m = ctx.getTransform(), ty = m.d ? Math.max(t.y, (150 * (ctx.canvas.height / 540) - m.f) / m.d) : t.y; t = Object.assign({}, t, { y: ty });   // keep callouts below the HUD on screen, whatever the camera zoom
-      ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = '24px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
+      const cssPer = m.a / Math.max(0.01, cv.width / (cv.clientWidth || cv.width)), fsz = Math.max(24, 15 / Math.max(0.05, cssPer));   // never smaller than ~15 CSS px
+      ctx.save(); ctx.globalAlpha = clamp(t.t * 2, 0, 1); ctx.font = fsz.toFixed(1) + 'px "Metal Mania", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(t.text, t.x, t.y); ctx.fillStyle = t.col; ctx.fillText(t.text, t.x, t.y); ctx.restore(); });
     G.fx.forEach((p) => { ctx.globalAlpha = clamp(p.life * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.r, p.r); }); ctx.globalAlpha = 1;
   }
   function bar(x, y, w, h, frac, col, right) { ctx.fillStyle = 'rgba(20,12,6,0.85)'; ctx.fillRect(x - 3, y - 3, w + 6, h + 6); ctx.fillStyle = '#3a1410'; ctx.fillRect(x, y, w, h); const fw = w * clamp(frac, 0, 1); ctx.fillStyle = col; ctx.fillRect(right ? x + w - fw : x, y, fw, h); ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); }
@@ -1601,24 +1602,25 @@
     // timer
     ctx.textAlign = 'center'; ctx.font = '50px "Bebas Neue", Impact, sans-serif'; ctx.lineWidth = 6; ctx.strokeText(String(Math.ceil(G.timer)), HW / 2, 38); ctx.fillStyle = G.timer < 10 ? '#ff7a59' : '#f3ead2'; ctx.fillText(String(Math.ceil(G.timer)), HW / 2, 38);
     if (G.comboMsg && G.comboMsg.t > 0) { ctx.save(); ctx.globalAlpha = clamp(G.comboMsg.t * 2, 0, 1); ctx.font = '34px "Metal Mania", Impact, sans-serif'; ctx.textAlign = G.comboMsg.side ? 'right' : 'left'; const x = G.comboMsg.side ? HW - 30 : 30;
-      ctx.lineWidth = 6; const cy = G.training && !G.comboMsg.side ? 372 : 130; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.restore(); }
+      ctx.lineWidth = 6; const cy = G.training && !G.comboMsg.side ? 96 + (G.tpH || 300) + 40 : 130; ctx.strokeText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.fillStyle = '#ffd27a'; ctx.fillText(G.comboMsg.n + ' HIT COMBO!', x, cy); ctx.restore(); }
     if (G.training) { ctx.save();
       {   // fade the move list to see-through while player 1 stands behind it
         const me0 = G.p[0], k = CAM ? CAM.s / HS : 1, x0 = CAM ? CAM.x0 : 0, t0 = CAM ? CAM.top : 0, half = BODY_H * me0.ch.size * 0.35;
         const L = (me0.x - half - x0) * k, R = (me0.x + half - x0) * k, T = (me0.y - BODY_H * me0.ch.size * 1.1 - t0) * k, Bm = (me0.y - t0) * k;
-        const behind = L < 318 && R > 18 && T < 346 && Bm > 96; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.22 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
-      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw'], colossus: ['▶ ▶ + I / HK  Storm Beam'], medusa: ['▶ ▶ + I / HK  Serpent Strike'], chiron: ['▶ ▶ + I / HK  Stampede'], helios: ['▶ ▶ + I / HK  Solar Cannon'], minotaur: ['▶ ▶ + I / HK  Labyrinth Roar'], vulcan: ['▶ ▶ + I / HK  Hammer Throw'], diana: ['▼ ▶ + K / HP  Stag Arrow', '▶ ▶ + I / HK  Hunter\'s Slide'], cerberus: ['▶ ▶ + I / HK  Hellfire Pounce'], pegasus: ['▶ ▶ + I / HK  Thunder Breath'], neptune: ['▶ ▶ + I / HK  Leviathan Lunge'], hades: ['▶ ▶ + I / HK  Hellfire Spear'] }[G.p[0].ch.id] || [];
+        const bw = G.tpW || 320, bh = G.tpH || 300, behind = L < 18 + bw && R > 18 && T < 96 + bh - 30 && Bm > 140; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.72 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
+      ctx.fillStyle = 'rgba(12,8,5,0.88)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw'], colossus: ['▶ ▶ + I / HK  Storm Beam'], medusa: ['▶ ▶ + I / HK  Serpent Strike'], chiron: ['▶ ▶ + I / HK  Stampede'], helios: ['▶ ▶ + I / HK  Solar Cannon'], minotaur: ['▶ ▶ + I / HK  Labyrinth Roar'], vulcan: ['▶ ▶ + I / HK  Hammer Throw'], diana: ['▼ ▶ + K / HP  Stag Arrow', '▶ ▶ + I / HK  Hunter\'s Slide'], cerberus: ['▶ ▶ + I / HK  Hellfire Pounce'], pegasus: ['▶ ▶ + I / HK  Thunder Breath'], neptune: ['▶ ▶ + I / HK  Leviathan Lunge'], hades: ['▶ ▶ + I / HK  Hellfire Spear'] }[G.p[0].ch.id] || [];
       extra.push('Hold K + I  Power Up (fills super, heals)'); const boxH = 250 + extra.length * 21;
-      ctx.fillRect(18, 96, 300, boxH); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, boxH);
+      const me = G.p[0], pas = PASSIVE[me.ch.id];
+      const lines = ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'Q / ★  super: ' + me.ch.special.name, 'W + ◀/▶  flip over or back', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → super'].concat(extra).concat(['Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')]);
+      ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; const boxW = Math.max(300, Math.max(...lines.map((l) => ctx.measureText(l).width)) + 28); G.tpW = boxW; G.tpH = boxH;   // the box grows to fit its longest line
+      ctx.fillRect(18, 96, boxW, boxH); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, boxW, boxH);
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
-      const me = G.p[0], pas = PASSIVE[me.ch.id];
-      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'Q / ★  super: ' + me.ch.special.name + ' (meter always full here)', 'W + ◀/▶  flip over or back', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → super'].concat(extra).concat(['Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')])
-        .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
+      lines.forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
       if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316 + extra.length * 21); }
       ctx.restore(); }
-    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (PORTRAIT ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
-    if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
+    if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (PORTRAIT ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (PORTRAIT ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
+    if (G.banner && !G.pause) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
       const sc = Math.min(1, t * 5) * (bn.big ? 1.25 : bn.small ? 0.6 : 1); const showSub = bn.sub && t > 0.9;
       ctx.translate(HW / 2, (PORTRAIT ? SH / HS * 0.4 : 230)); ctx.scale(sc, sc); ctx.font = '100px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 10; ctx.strokeStyle = '#120c08';
       const txt = showSub ? bn.sub : bn.text; ctx.strokeText(txt, 0, 0); const gr = ctx.createLinearGradient(0, -40, 0, 40); gr.addColorStop(0, '#fff6d8'); gr.addColorStop(1, '#e7a227'); ctx.fillStyle = gr; ctx.fillText(txt, 0, 0); ctx.restore(); }
