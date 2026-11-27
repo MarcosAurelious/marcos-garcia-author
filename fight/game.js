@@ -612,11 +612,11 @@
     st.addEventListener('pointermove', (e) => { if (e.pointerId === pid) setDir(e.clientX - cx, e.clientY - cy); });
     st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end); st.addEventListener('lostpointercapture', end);
   })();
-  const BUF = { p1: {}, p2: {} }, BUFFERED = ['light', 'heavy', 'lkick', 'hkick', 'special', 'super'];   // a press made a moment early (during an attack) still comes out
+  const BUF = { p1: {}, p2: {} }, BUFFERED = ['light', 'heavy', 'lkick', 'hkick', 'special', 'super', 'up'];   // a press made a moment early (during an attack) still comes out
   function humanInput(slot) {
     const K = KEYS[slot], now = performance.now(), h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), raw = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
     const p = (n) => { if (!BUFFERED.includes(n)) return raw(n); if (raw(n)) BUF[slot][n] = now; return now - (BUF[slot][n] || -1e9) < 160; };
-    return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), hkH: h('hkick'), hpH: h('heavy'), special: p('special'), super: p('super'), breaker: p('breaker') };
+    return { lP: raw('left'), rP: raw('right'), left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), hkH: h('hkick'), hpH: h('heavy'), special: p('special'), super: p('super'), breaker: p('breaker') };
   }
 
   /* ================= fighters ================= */
@@ -756,7 +756,7 @@
 
   function startMove(f, kind, isSuper) {
     if (!f.cpu) BUF[f.side ? 'p2' : 'p1'] = {};
-    const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.stompT = null; f.hit = false; f.superOn = !!isSuper; f.fired = false; f.catchT = null; f.pwEnd = null;
+    const m = MOVES[kind]; f.ffT = -9; f.puQ = false; f.state = 'attack'; f.move = kind; f.t = 0; f.stompT = null; f.hit = false; f.superOn = !!isSuper; f.fired = false; f.catchT = null; f.pwEnd = null;
     speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.3 ? 'jab' : '');
     if (kind === 'special') {
       if (G && G.mode === 'play' && !G.cutin) {
@@ -843,14 +843,15 @@
     if (f.shield) updateShield(f, dt);
     if (f.ch.id === 'diana') {   // Stag Arrow input: down, then forward (a quarter circle), then heavy punch
       if (inp.down) f.dnT = G.t;
-      if ((f.face > 0 ? inp.right : inp.left) && G.t - (f.dnT ?? -9) < 0.35) f.qcfT = G.t;
+      const fpress = f.cpu ? false : (f.face > 0 ? inp.rP : inp.lP); if (fpress && G.t - (f.dnT ?? -9) < 0.22) { f.qcfT = G.t; f.dnT = -9; }
     }
     if (f.ch.id === 'marcus' || f.ch.id === 'mars' || f.ch.id === 'colossus' || f.ch.id === 'medusa' || f.ch.id === 'chiron' || f.ch.id === 'helios' || f.ch.id === 'minotaur' || f.ch.id === 'vulcan' || f.ch.id === 'diana' || f.ch.id === 'cerberus' || f.ch.id === 'pegasus' || f.ch.id === 'neptune' || f.ch.id === 'hades') {   // Shield Charge / Shield Throw input: tap forward twice, then heavy kick
       const fw = f.face > 0 ? inp.right : inp.left;
-      if (fw && !f.fwdHeld) { if (G.t - (f.fwdTap ?? -9) < 0.3) f.ffT = G.t; f.fwdTap = G.t; }
+      const fp = f.cpu ? (fw && !f.fwdHeld) : (f.face > 0 ? inp.rP : inp.lP) || (fw && !f.fwdHeld);   // count real key presses, so quick taps are never missed
+      if (fp) { if (G.t - (f.fwdTap ?? -9) < 0.3) f.ffT = G.t; f.fwdTap = G.t; }
       f.fwdHeld = fw;
     }
-    if (f.state === 'attack' && (f.move === 'heavy' || f.move === 'hkick') && f.t < 0.12 && f.onGround && inp.hkH && inp.hpH) startMove(f, 'powerup');   // HP and HK pressed a frame apart still count as together
+    if (f.state === 'attack' && (f.move === 'heavy' || f.move === 'hkick') && f.onGround && inp.hkH && inp.hpH) { if (f.t < MOVES[f.move].start) startMove(f, 'powerup'); else f.puQ = true; }   // late second button: power up as soon as the swing ends   // HP and HK pressed a frame apart still count as together
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
     if (f.state === 'ko') { /* fall */ }
@@ -933,35 +934,37 @@
         const reach = m.reach * f.ch.size * FS, hb = m.low ? { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.55, w: reach, h: BODY_H * f.ch.size * 0.55 } : { x: f.face > 0 ? f.x : f.x - reach, y: f.y - BODY_H * f.ch.size * 0.85, w: reach, h: BODY_H * f.ch.size * 0.6 };
         if (overlap(hb, hurtbox(o)) && o.state !== 'ko') { f.hit = true; damage(f, o, Math.round(m.dmg * (f.ch.id === 'automaton' ? 1.15 : 1)), m.stun, m.push, f.x + f.face * reach * 0.75); }
       }
-      if (f.t >= total && (f.onGround || f.move !== 'special')) { if(f.ch.id==='pegasus')f.y=FLOOR;f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
+      if (f.t >= total && f.puQ && f.onGround && inp.hkH && inp.hpH) startMove(f, 'powerup');
+      else if (f.t >= total && (f.onGround || f.move !== 'special')) { if(f.ch.id==='pegasus')f.y=FLOOR;f.state = f.onGround ? 'idle' : 'jump'; f.move = null; f.fired = false; f.superOn = false; }
     }
     if (canAct && G.mode === 'play') {
       if (f.onGround) f.face = toward;
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
-      else if (inp.hkick && f.ch.id === 'marcus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'charge'); SFX.zap(); }
-      else if (inp.heavy && !inp.hkick && f.ch.id === 'diana' && f.onGround && G.t - (f.qcfT ?? -9) < 0.4) { f.qcfT = -9; startMove(f, 'volley'); }
-      else if (inp.hkick && inp.heavy && f.onGround) startMove(f, 'powerup');   // every fighter: hold heavy punch + heavy kick
-      else if (inp.hkick && f.ch.id === 'hades' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'hspear'); }
-      else if (inp.hkick && f.ch.id === 'neptune' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'surge'); FX.whoosh(true); }
-      else if (inp.hkick && f.ch.id === 'pegasus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'pbolt'); SFX.zap(); }
-      else if (inp.hkick && f.ch.id === 'cerberus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'pounce'); FX.whoosh(true); }
-      else if (inp.hkick && f.ch.id === 'diana' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'hslide'); FX.whoosh(true); }
-      else if (inp.hkick && f.ch.id === 'minotaur' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'roar'); SFX.power(); }
-      else if (inp.hkick && f.ch.id === 'helios' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'cannon'); SFX.zap(); }
-      else if (inp.hkick && f.ch.id === 'chiron' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'gallop'); SFX.zap(); }
-      else if (inp.hkick && f.ch.id === 'medusa' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'serpent'); }
-      else if (inp.hkick && f.ch.id === 'colossus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'zap'); SFX.zap(); }
-      else if (inp.hkick && (f.ch.id === 'mars' || f.ch.id === 'vulcan') && f.onGround && !f.shield && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'sthrow'); }
+      else if (f.onGround && ((inp.hkick && inp.heavy) || (inp.hkick && inp.hpH) || (inp.heavy && inp.hkH))) startMove(f, 'powerup');   // every fighter: hold heavy punch + heavy kick (either order)
+      else if (inp.hkick && f.ch.id === 'marcus' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'charge'); SFX.zap(); }
+      else if (inp.heavy && !inp.hkick && f.ch.id === 'diana' && f.onGround && G.t - (f.qcfT ?? -9) < 0.25) { f.qcfT = -9; startMove(f, 'volley'); }
+      else if (inp.hkick && f.ch.id === 'hades' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'hspear'); }
+      else if (inp.hkick && f.ch.id === 'neptune' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'surge'); FX.whoosh(true); }
+      else if (inp.hkick && f.ch.id === 'pegasus' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'pbolt'); SFX.zap(); }
+      else if (inp.hkick && f.ch.id === 'cerberus' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'pounce'); FX.whoosh(true); }
+      else if (inp.hkick && f.ch.id === 'diana' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'hslide'); FX.whoosh(true); }
+      else if (inp.hkick && f.ch.id === 'minotaur' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'roar'); SFX.power(); }
+      else if (inp.hkick && f.ch.id === 'helios' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'cannon'); SFX.zap(); }
+      else if (inp.hkick && f.ch.id === 'chiron' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'gallop'); SFX.zap(); }
+      else if (inp.hkick && f.ch.id === 'medusa' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'serpent'); }
+      else if (inp.hkick && f.ch.id === 'colossus' && f.onGround && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'zap'); SFX.zap(); }
+      else if (inp.hkick && (f.ch.id === 'mars' || f.ch.id === 'vulcan') && f.onGround && !f.shield && G.t - (f.ffT ?? -9) < 0.35) { f.ffT = -9; startMove(f, 'sthrow'); }
       else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.light) { startMove(f, 'light'); if (!f.onGround) f.airAttacked = true; }
       else if (f.onGround) {
-        if (inp.up) { const d = inp.right ? 1 : inp.left ? -1 : 0; f.vy = -1180; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = d * Math.max(430, f.ch.speed * 1.75); f.jt = 0; f.flip = d ? (d === f.face ? 1 : -1) : 0; SFX.jump(); }   // high arc: a forward jump carries clean over the opponent
+        if (inp.up) { const d = inp.right ? 1 : inp.left ? -1 : 0; if (!f.cpu) BUF[f.side ? 'p2' : 'p1'].up = -1e9; f.vy = -1180; f.onGround = false; f.state = 'jump'; f.airAttacked = false; f.vx = d * Math.max(430, f.ch.speed * 1.75); f.jt = 0; f.flip = d ? (d === f.face ? 1 : -1) : 0; SFX.jump(); }   // high arc: a forward jump carries clean over the opponent
         else if (f.crouch) { f.vx = 0; f.state = 'idle'; }
         else { const d = (inp.right ? 1 : 0) - (inp.left ? 1 : 0); f.vx = d * f.ch.speed * 1.42 * (f.holdBack ? 0.7 : 1) * (f.slowT > 0 ? 0.55 : 1) * (f.ch.id === 'pegasus' ? 1.12 : 1); f.state = d ? 'walk' : 'idle'; }
       }
     }
+    if (f.state === 'jump' && (f.jt || 0) < 0.06 && f.vx === 0 && !f.airAttacked) { const d = inp.right ? 1 : inp.left ? -1 : 0; if (d) { f.vx = d * Math.max(430, f.ch.speed * 1.75); f.flip = d === f.face ? 1 : -1; } }   // a direction pressed a frame or two after jump still steers it
     if (f.state === 'jump') f.jt = (f.jt || 0) + dt; else f.flip = 0;   // an air attack cancels the flip
     // physics
     if (!f.onGround) { f.vy += 2860 * dt; f.y += f.vy * dt; if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; f.onGround = true; if (f.state === 'jump') { f.state = 'idle'; f.landAt = G.t; } if (f.state === 'attack' && f.move !== 'special') { f.state = 'idle'; f.move = null; } if (f.state === 'ko') { G.shake = 0.3; spark(f.x, FLOOR, ['#c9b48c', '#8a6a4a'], 14); } } }
