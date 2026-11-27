@@ -140,7 +140,7 @@ function drawWave(ctx,w,now,floor){
  ctx.restore();
 }
 function drawCharge(ctx,f,now){
- const id=f.ch.id;const valid=['mars','colossus','minotaur','pegasus'];if(!valid.includes(id))return;
+ const id=f.ch.id;const valid=['mars','colossus','minotaur'];if(!valid.includes(id))return;
  if(f.move!=='special'||f.state!=='attack')return;
  ctx.save();ctx.globalCompositeOperation='lighter';
  if(id==='pegasus'){draw(ctx,id,f.x+f.face*55,f.y-140,140,145,now,f.face);}
