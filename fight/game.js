@@ -454,17 +454,20 @@
     MARS_ATTACK_ATLAS[set]={frames:Array.from({length:8},(_,i)=>[320*i,0,320,320,160,305])};
     MARS_ATTACK_IMAGES[set]=img('attacks/mars_'+action+'.png');
   }
-  // Marcus: hand-painted walk (8), jump (8) and Shield Charge (16) poses. Stored at 1.5x the 200px standard and drawn at 1/1.5 so they stay sharp.
-  const MARCUS_X = {'marcus-x': {"walk":[[0,626,261,298,128,298],[0,320,255,304,131,305],[1699,0,272,305,146,305],[585,0,257,314,133,315],[1136,0,291,311,136,311],[1429,0,268,306,131,306],[1356,320,277,299,145,299],[257,320,264,302,137,302]],"jump":[[1203,626,268,287,124,287],[286,926,275,279,123,279],[844,0,290,312,125,312],[289,0,294,316,126,316],[554,626,292,295,123,295],[0,0,287,318,126,318],[563,926,290,273,136,273],[523,320,281,302,126,302]],"charge":[[1635,320,275,299,141,299],[855,926,301,271,147,271],[1296,1214,287,252,141,253],[1585,1214,327,248,155,248],[318,1214,328,256,144,258],[648,1214,329,256,146,258],[1455,926,344,264,154,266],[1473,626,355,287,155,287],[848,626,353,290,153,290],[979,1214,315,255,146,259],[0,1214,316,263,152,265],[1158,926,295,269,144,274],[0,926,284,286,137,289],[263,626,289,298,142,299],[1084,320,270,300,134,300],[806,320,276,301,142,301]]}};
-  let MXIMG_ = null; const marcusXImg = () => MXIMG_ || (MXIMG_ = img('attacks/marcus_extra.webp?v=1'));   // loaded only when Marcus fights
-  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS, HADES_ATLAS, MARCUS_X);
-  const imgFor = (set) => (set === 'hades16' ? hadesImg() : set === 'marcus-x' ? marcusXImg() : null) || MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
+  // Hand-painted extra sheets (walk, jump, specials...). Stored at 1.5x the 200px standard and drawn at 1/1.5 so they stay sharp; each loads only when its fighter fights.
+  const XSETS = { 'marcus-x': 'attacks/marcus_extra.webp?v=1', 'mars-x': 'attacks/mars_extra.webp?v=1' };
+  const XATL = { 'marcus-x': {"walk":[[0,626,261,298,128,298],[0,320,255,304,131,305],[1699,0,272,305,146,305],[585,0,257,314,133,315],[1136,0,291,311,136,311],[1429,0,268,306,131,306],[1356,320,277,299,145,299],[257,320,264,302,137,302]],"jump":[[1203,626,268,287,124,287],[286,926,275,279,123,279],[844,0,290,312,125,312],[289,0,294,316,126,316],[554,626,292,295,123,295],[0,0,287,318,126,318],[563,926,290,273,136,273],[523,320,281,302,126,302]],"charge":[[1635,320,275,299,141,299],[855,926,301,271,147,271],[1296,1214,287,252,141,253],[1585,1214,327,248,155,248],[318,1214,328,256,144,258],[648,1214,329,256,146,258],[1455,926,344,264,154,266],[1473,626,355,287,155,287],[848,626,353,290,153,290],[979,1214,315,255,146,259],[0,1214,316,263,152,265],[1158,926,295,269,144,274],[0,926,284,286,137,289],[263,626,289,298,142,299],[1084,320,270,300,134,300],[806,320,276,301,142,301]]},
+    'mars-x': {"power":[[0,921,263,297,155,297],[306,317,350,301,187,296],[1443,0,364,302,197,296],[1047,0,394,306,210,300],[0,0,447,315,227,303],[1218,317,372,300,196,300],[603,620,350,299,185,299],[1205,620,294,298,180,297]],"hurt":[[449,0,306,311,178,310],[0,317,304,301,179,301],[896,1220,299,289,176,289],[0,2083,347,255,194,255],[349,2083,343,230,185,210],[694,2083,384,183,213,183],[1080,2083,430,145,225,145],[1512,2083,453,112,232,113]],"jump":[[1604,1802,287,260,147,260],[264,1220,297,290,172,290],[1501,1220,290,288,152,288],[886,317,330,300,188,299],[219,620,382,299,179,299],[265,921,320,296,184,296],[1292,1802,310,264,183,263],[757,0,288,310,170,310]],"walk":[[1809,0,197,301,118,298],[658,317,226,300,145,298],[955,620,248,298,165,299],[587,921,327,293,194,298],[1501,620,279,297,186,297],[1782,620,250,297,153,297],[1592,317,248,299,151,297],[0,620,217,299,124,297]],"throw":[[0,1802,244,279,142,278],[966,1802,324,268,220,267],[246,1802,377,279,252,279],[625,1802,339,274,271,275],[1592,1513,323,282,193,286],[1197,1220,302,289,70,289],[1440,921,261,291,114,291],[916,921,237,292,144,292]],"catch":[[367,1513,313,285,175,284],[1283,1513,307,284,190,284],[682,1513,599,285,355,285],[0,1513,365,287,177,286],[563,1220,331,290,161,290],[1155,921,283,292,166,292],[1703,921,277,291,163,291],[0,1220,262,291,159,291]],"proj":[[0,2340,249,81,179,40]]} };
+  const XIMG = {}; const xImg = (set) => XIMG[set] || (XIMG[set] = img(XSETS[set]));
+  const XSET_OF = { marcus: 'marcus-x', mars: 'mars-x' };
+  const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS, HADES_ATLAS, XATL);
+  const imgFor = (set) => (set === 'hades16' ? hadesImg() : XSETS[set] ? xImg(set) : null) || MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   const PIXEL = new Set(['knight', 'archer', 'commander', 'priestess', 'warrior', 'fx']);
   function frameOf(set, anim, i) { const fr = ALL[set] && ALL[set][anim]; if (!fr) return null; return fr[((Math.floor(i) % fr.length) + fr.length) % fr.length]; }
   function spr(g, set, anim, i, x, y, face = 1, scale = 1, alpha = 1) {
     const f = frameOf(set, anim, i); const im = imgFor(set); if (!f || !im.complete || !im.naturalWidth) return;
     const [sx, sy, w, h, ax, ay] = f;
-    g.save(); if (alpha !== 1) g.globalAlpha *= alpha; g.imageSmoothingEnabled = set === 'marcus-x'; g.imageSmoothingQuality = 'high'; // all fighter keyframes stay crisp; no smudged interpolation
+    g.save(); if (alpha !== 1) g.globalAlpha *= alpha; g.imageSmoothingEnabled = !!XSETS[set]; g.imageSmoothingQuality = 'high'; // all fighter keyframes stay crisp; no smudged interpolation
     g.translate(Math.round(x), Math.round(y)); if (face < 0) g.scale(-1, 1);
     g.drawImage(im, sx, sy, w, h, -ax * scale, -ay * scale, w * scale, h * scale); g.restore();
   }
@@ -597,7 +600,7 @@
   function humanInput(slot) {
     const K = KEYS[slot], now = performance.now(), h = (n) => K[n].some((c) => held.has(c)) || (slot === 'p1' && touchHeld.has(n)), raw = (n) => K[n].some((c) => pressed.has(c)) || (slot === 'p1' && touchPressed.has(n));
     const p = (n) => { if (!BUFFERED.includes(n)) return raw(n); if (raw(n)) BUF[slot][n] = now; return now - (BUF[slot][n] || -1e9) < 160; };
-    return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), special: p('special'), super: p('super'), breaker: p('breaker') };
+    return { left: h('left'), right: h('right'), up: p('up'), down: h('down'), light: p('light'), heavy: p('heavy'), lkick: p('lkick'), hkick: p('hkick'), hkH: h('hkick'), hpH: h('heavy'), special: p('special'), super: p('super'), breaker: p('breaker') };
   }
 
   /* ================= fighters ================= */
@@ -607,6 +610,8 @@
     lkick: { start: 0.055, act: 0.08, rec: 0.10, reach: 132, dmg: 6, stun: 0.23, push: 170, meter: 7, low: true },
     hkick: { start: 0.135, act: 0.10, rec: 0.19, reach: 160, dmg: 12, stun: 0.38, push: 360, meter: 11, low: true },
     special: { start: 0.15, act: 0.10, rec: 0.23, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
+    sthrow: { start: 0.2, act: 0.05, rec: 30, reach: 0, dmg: 9, stun: 0.32, push: 260, meter: 8 },   // Mars's Shield Throw (ends when he catches it)
+    powerup: { start: 0, act: 0, rec: 30, reach: 0, dmg: 0, stun: 0, push: 0, meter: 0 },   // Mars's Power Up (ends when released)
     charge: { start: 0.12, act: 0.40, rec: 0.30, reach: 0, dmg: 14, stun: 0.5, push: 420, meter: 9 },   // Marcus's Shield Charge: forward, forward + heavy kick
   };
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
@@ -710,7 +715,7 @@
     MUSIC.play(ARC ? STAGE_TRACK[ARC.stage] : G.bg === BGS[BGN.indexOf('bg-hades')] ? 'ego' : pick(PUNK));
   }
   function startRound() {
-    G.cutin = null; G.rings = []; G.p.forEach((f, i) => Object.assign(f, { petrified: 0, petrifyOwner: null, took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
+    G.cutin = null; G.rings = []; G.p.forEach((f, i) => Object.assign(f, { shield: null, petrified: 0, petrifyOwner: null, took: 0, poison: 0, burn: 0, slowT: 0, x: i === 0 ? 300 : 660, y: FLOOR, vx: 0, vy: 0, face: i === 0 ? 1 : -1, hp: f.maxHp, state: 'idle', t: 0, move: null, stun: 0, block: 0, knockdown: false, strideTravel: 0, onGround: true, cool: 0, combo: 0 }));
     G.shots = []; G.fx = []; G.beams = []; G.waves = []; G.timer = 60; G.mode = 'intro'; G.t = 0;
     G.banner = { text: G.round === 3 || (G.p[0].wins === 1 && G.p[1].wins === 1) ? 'FINAL ROUND' : 'ROUND ' + G.round, sub: 'FIGHT!', t: 0 };
     SFX.boss();
@@ -721,7 +726,7 @@
 
   function startMove(f, kind, isSuper) {
     if (!f.cpu) BUF[f.side ? 'p2' : 'p1'] = {};
-    const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper;
+    const m = MOVES[kind]; f.state = 'attack'; f.move = kind; f.t = 0; f.hit = false; f.superOn = !!isSuper; f.fired = false; f.catchT = null; f.pwEnd = null;
     speak(f.ch, isSuper ? 'sup' : kind === 'special' ? 'sp' : (kind === 'heavy' || kind === 'hkick') ? 'atk' : Math.random() < 0.3 ? 'jab' : '');
     if (kind === 'special') {
       if (G && G.mode === 'play' && !G.cutin) {
@@ -805,11 +810,13 @@
       const want = inp.super && f.meter >= 100 ? 'super' : inp.hkick ? 'hkick' : inp.heavy ? 'heavy' : inp.lkick ? 'lkick' : inp.light ? 'light' : null;
       if (want && CHAIN[f.move] && CHAIN[f.move].includes(want === 'super' ? 'special' : want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * (f.ch.id === 'mars' ? 0.2 : 0.5)) { if (want === 'super') startMove(f, 'special', true); else startMove(f, want); }
     }
-    if (f.ch.id === 'marcus') {   // Shield Charge input: tap forward twice, then heavy kick
+    if (f.shield) updateShield(f, dt);
+    if (f.ch.id === 'marcus' || f.ch.id === 'mars') {   // Shield Charge / Shield Throw input: tap forward twice, then heavy kick
       const fw = f.face > 0 ? inp.right : inp.left;
       if (fw && !f.fwdHeld) { if (G.t - (f.fwdTap ?? -9) < 0.3) f.ffT = G.t; f.fwdTap = G.t; }
       f.fwdHeld = fw;
     }
+    if (f.ch.id === 'mars' && f.state === 'attack' && (f.move === 'heavy' || f.move === 'hkick') && f.t < 0.12 && f.onGround && inp.hkH && inp.hpH) startMove(f, 'powerup');   // HP and HK pressed a frame apart still count as together
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
     if (f.state === 'ko') { /* fall */ }
@@ -826,6 +833,15 @@
           if(f.ch.id==='pegasus'&&superPace(f)===1) f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);   // a hand-drawn super leaps on its own
           dashHit(f);
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
+      } else if (f.move === 'sthrow') {   // Shield Throw: the shield flies out, turns back and Mars catches it
+        if (!f.fired && f.t >= m.start) { f.fired = true; f.shield = { x: f.x + f.face * 80 * f.ch.size, y: f.y - BODY_H * f.ch.size * 0.6, vx: f.face * 880, dir: f.face, phase: 'out', travel: 0 }; FX.whoosh(true); }
+        if (f.fired && !f.shield && f.catchT == null) f.catchT = f.t;   // caught (or the shield vanished at a round change)
+        if (f.catchT != null && f.t - f.catchT >= 0.42) { f.state = 'idle'; f.move = null; f.catchT = null; }
+      } else if (f.move === 'powerup') {   // Power Up: hold heavy punch + heavy kick to charge the super meter; let go (or fill it) to burst
+        if (f.pwEnd == null) {
+          if (f.t > 0.25) f.meter = Math.min(100, f.meter + 42 * dt);
+          if ((!(inp.hkH && inp.hpH) && f.t > 0.4) || (f.meter >= 100 && f.t > 0.6) || f.t > 4) { f.pwEnd = f.t; G.shake = Math.max(G.shake, 0.3); spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#ffd27a', '#ffffff', '#ff9a3d'], 24); SFX.power(); }
+        } else if (f.t - f.pwEnd >= 0.5) { f.state = 'idle'; f.move = null; }
       } else if (f.move === 'charge') {   // Shield Charge: a shoulder-down rush that stops dead on impact
         if (inAct && !f.hit) {
           f.vx = f.face * 1150; const o = opp(f), reach = 120 * FS;
@@ -842,6 +858,8 @@
       if (f.onGround) f.face = toward;
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
       else if (inp.hkick && f.ch.id === 'marcus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'charge'); SFX.zap(); }
+      else if (inp.hkick && inp.heavy && f.ch.id === 'mars' && f.onGround) startMove(f, 'powerup');   // hold heavy punch + heavy kick
+      else if (inp.hkick && f.ch.id === 'mars' && f.onGround && !f.shield && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'sthrow'); }
       else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.heavy) { startMove(f, 'heavy'); if (!f.onGround) f.airAttacked = true; }
@@ -893,6 +911,21 @@
     else if(sp.kind==='beam')G.beams.push({owner:f.side,x:f.x+f.face*50,y:top,face:f.face,len:sp.len,t:0,dur:.35,dmg:Math.round(13*mul),hit:false,col:sp.col,kind:id});
     else if(sp.kind==='wave')G.waves.push({owner:f.side,x:f.x+f.face*60,vx:f.face*470,dmg:power,life:1.6,col:sp.col,delay:0,kind:id});
     else if(sp.kind==='dash'){f.dashDmg=Math.round(15*mul);f.dashHit=false;}
+  }
+  function updateShield(f, dt) {   // Mars's thrown shield: out ~470 units, then home back to his hand; it can hit once each way
+    const s = f.shield, o = opp(f);
+    if (s.phase === 'out') { s.x += s.vx * dt; s.travel += Math.abs(s.vx * dt); if (s.travel > 470 || s.x < WALL_L - 30 || s.x > WALL_R + 30) s.phase = 'back'; }
+    else { const tx = f.x + f.face * 40, ty = f.y - BODY_H * f.ch.size * 0.6, dx = tx - s.x, dy = ty - s.y, d = Math.hypot(dx, dy) || 1, step = 1050 * dt;
+      if (d <= Math.max(step, 36)) { f.shield = null; FX.block(); return; }
+      s.x += dx / d * step; s.y += dy / d * step; s.dir = Math.sign(dx) || s.dir; }
+    const key = s.phase === 'out' ? 'hitOut' : 'hitBack';
+    if (!s[key] && o.state !== 'ko' && overlap({ x: s.x - 34, y: s.y - 30, w: 68, h: 60 }, hurtbox(o))) { s[key] = true; damage(f, o, s.phase === 'out' ? 9 : 6, 0.32, 260, s.x); }
+  }
+  function drawShield(f) {
+    const s = f.shield, im = xImg('mars-x'); if (!s || !im.complete || !im.naturalWidth) return;
+    const [sx, sy, w, h, ax, ay] = XATL['mars-x'].proj[0], k = f.ch.scale / 1.5;
+    ctx.save(); ctx.translate(s.x, s.y + (calm ? 0 : Math.sin(G.t * 20) * 3)); ctx.scale(s.dir, 1); if (!calm) ctx.rotate(Math.sin(G.t * 14) * 0.1);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, sx, sy, w, h, -ax * k, -ay * k, w * k, h * k); ctx.restore();
   }
   function dashHit(f) { const o = opp(f); const reach = 120 * f.ch.size * FS;   // the rush hits in front of the charger: a centred box never touched anyone, since fighters are kept apart
     if (!f.dashHit && overlap({ x: f.face > 0 ? f.x - 30 : f.x - reach, y: f.y - BODY_H * f.ch.size, w: reach + 30, h: BODY_H * f.ch.size }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
@@ -968,6 +1001,11 @@
       default: break;
     }
     if (f.ch.id === 'marcus' && f.onGround && f.state !== 'attack' && dist > 200 && dist < 560 && Math.random() < 0.01 * lvl) { f.ffT = G.t; inp.hkick = true; }   // the CPU Marcus uses his Shield Charge too
+    if (f.ch.id === 'mars') {   // the CPU Mars throws his shield from range and powers up when it's safe
+      if (f.state === 'attack' && f.move === 'powerup') inp.hkH = inp.hpH = dist > 280;
+      else if (f.onGround && f.state !== 'attack' && !f.shield && dist > 240 && dist < 620 && Math.random() < 0.009 * lvl) { f.ffT = G.t; inp.hkick = true; inp.heavy = false; }
+      else if (f.onGround && f.state !== 'attack' && dist > 480 && f.meter < 70 && Math.random() < 0.006 * lvl) { inp.hkick = inp.heavy = true; }
+    }
     return inp;
   }
 
@@ -1071,13 +1109,28 @@
         return {h:{set,a:'frames'},idx:Math.min(7,Math.floor(clamp(f.t/total,0,.9999)*8)),mix:0};
       }
     }
-    if (f.ch.id === 'marcus' && k !== 'victory') {   // Marcus's hand-painted walk, jump and Shield Charge (falls back to the older poses until the sheet loads)
-      const xi = marcusXImg(), X = (a, i) => ({ h: { set: 'marcus-x', a }, idx: i, mix: 0 });
+    const XS = XSET_OF[f.ch.id];
+    if (XS && k !== 'victory') {   // hand-painted extra sheets (falls back to the older poses until the sheet loads)
+      const xi = xImg(XS), X = (a, i) => ({ h: { set: XS, a }, idx: i, mix: 0 });
       if (xi.complete && xi.naturalWidth) {
         if (f.state === 'attack' && f.move === 'charge') { const m = MOVES.charge; return X('charge', Math.floor(clamp(f.t / (m.start + m.act + m.rec), 0, 0.9999) * 16)); }
         if (f.state === 'walk') { let i = Math.floor(((((f.strideTravel || 0) / 150) % 1) + 1) % 1 * 8); if (f.vx * f.face < 0) i = 7 - i; return X('walk', i); }
         if (f.state === 'jump') { const p = (f.jt || 0) / 0.82; return X('jump', p < 0.06 ? 1 : p < 0.25 ? 2 : p < 0.45 ? 3 : p < 0.6 ? 4 : 5); }
         if (f.state === 'idle' && G.t - (f.landAt ?? -9) < 0.2) return X('jump', G.t - f.landAt < 0.1 ? 6 : 7);
+        if (XS === 'mars-x') {
+          if (f.state === 'attack' && f.move === 'sthrow') { const m = MOVES.sthrow;
+            if (f.catchT != null) return X('catch', Math.min(7, 2 + Math.floor((f.t - f.catchT) / 0.42 * 6)));
+            if (!f.fired) return X('throw', Math.min(3, Math.floor(f.t / m.start * 4)));
+            const e = f.t - m.start; return e < 0.1 ? X('throw', 4) : e < 0.22 ? X('throw', 5) : X('catch', 0); }   // arm out, waiting for the shield to come home
+          if (f.state === 'attack' && f.move === 'powerup') { if (f.pwEnd == null) return X('power', f.t < 0.12 ? 0 : f.t < 0.25 ? 1 : 2 + (Math.floor(f.t * 10) % 2));
+            const e = f.t - f.pwEnd; return X('power', e < 0.12 ? 4 : e < 0.25 ? 5 : e < 0.38 ? 6 : 7); }
+          if (f.state === 'block') return X('hurt', 0);
+          if (f.state === 'idle') return X('catch', 6 + (Math.floor(f.anim * 1.6) % 2));   // new-style guard stance, gently breathing
+          if (f.state === 'hurt' && !f.knockdown) return X('hurt', [1, 2, 2, 3][Math.floor(clamp(f.t / Math.max(0.15, f.stun), 0, 0.9999) * 4)]);
+          if (f.state === 'hurt') { const p = clamp(f.t / f.stun, 0, 0.9999);   // stagger, fall, lie, get back up
+            return X('hurt', p < 0.14 ? 2 : p < 0.42 ? 4 + Math.min(3, Math.floor((p - 0.14) / 0.28 * 4)) : p < 0.74 ? 7 : p < 0.88 ? [6, 5, 4][Math.min(2, Math.floor((p - 0.74) / 0.14 * 3))] : 3); }
+          if (f.state === 'ko') return X('hurt', f.t < 0.12 ? 2 : f.t < 0.2 ? 3 : Math.min(7, 4 + Math.floor((f.t - 0.2) / 0.1)));
+        }
       }
     }
     // Prefer generated, transparent, foot-aligned animation sheets only after
@@ -1155,12 +1208,12 @@
   }
   const FLIPIMG = {}, SUPIMG = {};
   function drawFighter(f) {
-    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : h.set === 'marcus-x' ? 1 / 1.5 : 1);
+    const { h, idx, next, previous, mix = 0 } = animFor(f), sc = f.ch.scale * (h.set.startsWith('mars-atk-') ? 0.72 : XSETS[h.set] ? 1 / 1.5 : 1);
     // shadow on the floor
     ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 3, 56 * FS * f.ch.size * clamp(1 - (FLOOR - f.y) / 400, 0.4, 1), 9, 0, 0, 7); ctx.fill();
     ctx.save();
     if (f.ch.anims.portrait) { drawPortrait(f, h, sc); ctx.restore(); drawFx(f); return; }
-    if (f.state === 'ko' && !f.ch.anims.ko) { const k = clamp(f.t / 0.5, 0, 1); ctx.translate(f.x, f.y); ctx.rotate(-f.face * k * 1.45); ctx.translate(-f.x, -f.y - k * 14); }
+    if (f.state === 'ko' && !f.ch.anims.ko && !XSETS[h.set]) { const k = clamp(f.t / 0.5, 0, 1); ctx.translate(f.x, f.y); ctx.rotate(-f.face * k * 1.45); ctx.translate(-f.x, -f.y - k * 14); }
     if (f.superOn || f.meter >= 100) { ctx.shadowColor = f.ch.special.col[0]; ctx.shadowBlur = 18 + (calm ? 0 : Math.sin(G.t * 14) * 6); }
     else { ctx.shadowColor = 'rgba(8,4,2,0.9)'; ctx.shadowBlur = 2.5 * RES; }   // thin dark rim so every fighter reads cleanly against the backdrop
     if (f.flash > 0 && !calm) ctx.filter = 'brightness(1.8)';
@@ -1189,6 +1242,7 @@
     if (status && (f.petrified > 0 || !(f.flash > 0))) ctx.filter = status;
     const strideBob = 0; // no second bounce: feet stay aligned to FLOOR
     const fy = f.y + 2 - strideBob - (f.ch.hover && f.state !== 'ko' ? f.ch.hover + Math.sin(f.anim * 3) * 6 : 0);
+    if (XSETS[h.set]) { lx = 0; rot = 0; sq = 1; }   // painted poses already carry their own motion
     let visualX = f.x + lx;
     if (h.set === 'hades16' && CAM) {
       const frame = frameOf(h.set,h.a,idx);
@@ -1321,13 +1375,14 @@
         const me0 = G.p[0], k = CAM ? CAM.s / HS : 1, x0 = CAM ? CAM.x0 : 0, t0 = CAM ? CAM.top : 0, half = BODY_H * me0.ch.size * 0.35;
         const L = (me0.x - half - x0) * k, R = (me0.x + half - x0) * k, T = (me0.y - BODY_H * me0.ch.size * 1.1 - t0) * k, Bm = (me0.y - t0) * k;
         const behind = L < 318 && R > 18 && T < 346 && Bm > 96; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.22 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
-      ctx.fillStyle = 'rgba(12,8,5,0.78)'; ctx.fillRect(18, 96, 300, 271); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, 271);
+      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw', 'Hold K + I  Power Up (fills super)'] }[G.p[0].ch.id] || [], boxH = 250 + extra.length * 21;
+      ctx.fillRect(18, 96, 300, boxH); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, boxH);
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
       const me = G.p[0], pas = PASSIVE[me.ch.id];
-      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'Q / ★  super: ' + me.ch.special.name + ' (meter always full here)', 'W + ◀/▶  flip over or back', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → super'].concat(me.ch.id === 'marcus' ? ['▶ ▶ + I / HK  Shield Charge'] : []).concat(['Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')])
+      ['J / P  punch          K / HP  heavy punch', 'U / K  kick             I / HK  heavy kick', 'Q / ★  super: ' + me.ch.special.name + ' (meter always full here)', 'W + ◀/▶  flip over or back', 'Space / ✦  combo breaker (when hit)', 'S / ▼  crouch · hold back to block', 'Chain: punch → kick → heavy → super'].concat(extra).concat(['Passive: ' + (pas ? pas[0] + ' — ' + pas[1] : '—')])
         .forEach((l, i) => ctx.fillText(l, 30, 132 + i * 21));
-      if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 337); }
+      if (G.tc) { ctx.fillStyle = '#ffd27a'; ctx.font = '21px "Bebas Neue", Impact, sans-serif'; ctx.fillText(`Last combo: ${G.tc.hits} hit${G.tc.hits > 1 ? 's' : ''}, ${Math.round(G.tc.dmg)} damage`, 30, 316 + extra.length * 21); }
       ctx.restore(); }
     if (G.stageName && G.mode === 'intro') { ctx.save(); ctx.textAlign = 'center'; ctx.font = '30px "Metal Mania", Impact, sans-serif'; ctx.lineWidth = 5; ctx.strokeStyle = '#120c08'; ctx.strokeText(G.stageName.toUpperCase(), HW / 2, (PORTRAIT ? SH / HS * 0.4 - 80 : 150)); ctx.fillStyle = '#e7c46a'; ctx.fillText(G.stageName.toUpperCase(), HW / 2, (CAM ? SH / HS * 0.4 - 80 : 150)); ctx.restore(); }
     if (G.banner) { const bn = G.banner, t = bn.t; ctx.save(); ctx.textAlign = 'center';
@@ -1349,7 +1404,7 @@
       CX = clamp(CX, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2);
       CAM = { x0: CX - Wv / 2, s: SW / Wv, top: VH - Hv, w: Wv, h: Hv }; ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top);
     }
-    drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); order.forEach(drawFighter); drawAttacks();
+    drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); order.forEach(drawFighter); drawAttacks(); G.p.forEach(drawShield);
     if (G.flash > 0 && !calm) { ctx.fillStyle = `rgba(255,255,255,${G.flash * 0.6})`; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     else if (G.flash > 0) { ctx.fillStyle = 'rgba(10,6,20,0.35)'; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     ctx.restore(); drawHud();
