@@ -665,7 +665,7 @@
   const SC = window.AF_SCENES || {};
   const SCENE_IMGS = new Map(), SCENE_AR = new Map();
   for (const k of Object.values(SC)) for (const list of Object.values(k)) for (const [f, w, h] of list) SCENE_AR.set(f, w / h);
-  const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file; SCENE_IMGS.set(file, im); } return im; };
+  const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file + '?v=2'; SCENE_IMGS.set(file, im); } return im; };
   // one random panel of a kind; wide strips are kept for the banner moments, squarer panels preferred for the VS screen and result
   function scenePick(id, kind, shape) {
     const all = (SC[id] || {})[kind] || []; if (!all.length) return null;
@@ -681,9 +681,9 @@
   const sceneReady = (file) => { const im = file && SCENE_IMGS.get(file); return !!(im && im.complete && im.naturalWidth); };
   const cineEl = () => $('#cine');
   function cineClear() { const c = cineEl(); if (c) { c.replaceChildren(); c.className = 'cine'; } }
-  function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file; i.alt = ''; i.className = cls || ''; return i; }
+  function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file + '?v=2'; i.alt = ''; i.className = cls || ''; return i; }
   // for the tall VS and result slots: a wide strip shows whole over a blurred, zoomed copy of itself instead of a heavy crop
-  function slotImg(file) { if ((SCENE_AR.get(file) || 1) < 1.8) return cineImg(file); const w = document.createElement('div'); w.className = 'slot-wide'; w.append(cineImg(file, 'sw-bg'), cineImg(file, 'sw-fg')); return w; }
+  function slotImg(file) { const w = document.createElement('div'); w.className = 'slot-wide'; w.append(cineImg(file, 'sw-bg'), cineImg(file, 'sw-fg')); return w; }
   // VS screen before round 1 (the game waits while it plays; a tap or key skips it)
   function cineVS() {
     const S = G.scenes, c = cineEl(); if (!c || !S || (!S[0] && !S[1])) return false;
@@ -698,8 +698,11 @@
   function cineStrip(file, side, cls, dur, hold) {
     const c = cineEl(); if (!c || !file || !sceneReady(file)) return false;
     cineClear(); c.classList.add('strip', cls, side ? 'from-r' : 'from-l', 'on');
-    const im = SCENE_IMGS.get(file), square = im.naturalWidth / im.naturalHeight < 1.8;   // square panels show whole, as a framed card
-    const band = document.createElement('div'); band.className = 'strip-band' + (square ? ' card' : ''); band.append(cineImg(file)); if (square) band.style.setProperty('--ar', (im.naturalWidth / im.naturalHeight).toFixed(3)); c.append(band);
+    // the frame takes the panel's own shape, as large as fits, so nothing is ever cropped
+    const im = SCENE_IMGS.get(file), ar = im.naturalWidth / im.naturalHeight, W = c.clientWidth || 960, H = c.clientHeight || 540, card = ar < 1.8;
+    const h = Math.min(H * (cls === 'damage' ? 0.42 : card ? 0.7 : 0.6), W * (card ? 0.6 : 0.92) / ar), w = h * ar;
+    const cx = card ? (side ? W * 0.94 - w / 2 : W * 0.06 + w / 2) : W / 2, cy = H * (cls === 'damage' ? 0.36 : cls === 'taunt' ? 0.56 : 0.5);   // square cards sit on their fighter's side
+    const band = document.createElement('div'); band.className = 'strip-band'; band.append(cineImg(file)); Object.assign(band.style, { width: w + 'px', height: h + 'px', left: cx + 'px', top: cy + 'px' }); c.append(band);
     if (hold) G.cine = { t: 0, dur, kind: cls }; else { clearTimeout(cineStrip.t); cineStrip.t = setTimeout(() => { if (!G || !G.cine) cineClear(); }, dur * 1000); }
     return true;
   }
