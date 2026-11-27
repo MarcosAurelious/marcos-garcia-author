@@ -1109,7 +1109,7 @@
       if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); bgLife(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
       else { ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); bgLife(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); } }
     const g = ctx.createLinearGradient(0, R.y, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(R.x, R.y, R.w, R.h);
-    ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(R.x, FLOOR, R.w, VH - FLOOR); ctx.fillStyle = '#a8842a'; ctx.fillRect(R.x, FLOOR, R.w, 2);
+    ctx.fillStyle = 'rgba(20,12,6,0.55)'; ctx.fillRect(R.x, FLOOR, R.w, VH - FLOOR);
   }
   // Every fighter keeps its own atlas, center/foot anchors, and attack poses.
   // These profiles create additional displayed motion samples (not new painted art).
