@@ -607,7 +607,7 @@
     lkick: { start: 0.055, act: 0.08, rec: 0.10, reach: 132, dmg: 6, stun: 0.23, push: 170, meter: 7, low: true },
     hkick: { start: 0.135, act: 0.10, rec: 0.19, reach: 160, dmg: 12, stun: 0.38, push: 360, meter: 11, low: true },
     special: { start: 0.15, act: 0.10, rec: 0.23, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
-    charge: { start: 0.12, act: 0.34, rec: 0.30, reach: 0, dmg: 14, stun: 0.5, push: 420, meter: 9 },   // Marcus's Shield Charge: forward, forward + heavy kick
+    charge: { start: 0.12, act: 0.40, rec: 0.30, reach: 0, dmg: 14, stun: 0.5, push: 420, meter: 9 },   // Marcus's Shield Charge: forward, forward + heavy kick
   };
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
   function makeFighter(ch, side) {
@@ -828,7 +828,7 @@
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
       } else if (f.move === 'charge') {   // Shield Charge: a shoulder-down rush that stops dead on impact
         if (inAct && !f.hit) {
-          f.vx = f.face * 950; const o = opp(f), reach = 120 * FS;
+          f.vx = f.face * 1150; const o = opp(f), reach = 120 * FS;
           if (o.state !== 'ko' && overlap({ x: f.face > 0 ? f.x - 30 : f.x - reach, y: f.y - BODY_H, w: reach + 30, h: BODY_H }, hurtbox(o))) {
             f.hit = true; damage(f, o, m.dmg, m.stun, m.push, f.x + f.face * 60); f.vx *= 0.2; G.shake = Math.max(G.shake, 0.22); spark(f.x + f.face * 70, f.y - BODY_H * 0.55, ['#8fe6ff', '#ffffff', '#57b6ff'], 16); }
         } else f.vx *= 0.82;
@@ -967,7 +967,7 @@
       case 'super': inp.super = true; c.plan = 'wait'; break;
       default: break;
     }
-    if (f.ch.id === 'marcus' && f.onGround && f.state !== 'attack' && dist > 200 && dist < 430 && Math.random() < 0.01 * lvl) { f.ffT = G.t; inp.hkick = true; }   // the CPU Marcus uses his Shield Charge too
+    if (f.ch.id === 'marcus' && f.onGround && f.state !== 'attack' && dist > 200 && dist < 560 && Math.random() < 0.01 * lvl) { f.ffT = G.t; inp.hkick = true; }   // the CPU Marcus uses his Shield Charge too
     return inp;
   }
 
