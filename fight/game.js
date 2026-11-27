@@ -688,7 +688,7 @@
   const SC = window.AF_SCENES || {};
   const SCENE_IMGS = new Map(), SCENE_AR = new Map();
   for (const k of Object.values(SC)) for (const list of Object.values(k)) for (const [f, w, h] of list) SCENE_AR.set(f, w / h);
-  const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file + '?v=2'; SCENE_IMGS.set(file, im); } return im; };
+  const sceneImg = (file) => { let im = SCENE_IMGS.get(file); if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'scenes/' + file + '?v=3'; SCENE_IMGS.set(file, im); } return im; };
   // one random panel of a kind; wide strips are kept for the banner moments, squarer panels preferred for the VS screen and result
   function scenePick(id, kind, shape) {
     const all = (SC[id] || {})[kind] || []; if (!all.length) return null;
@@ -698,13 +698,13 @@
   // choose this match's panels up front and start loading only those
   function scenesForMatch() {
     return G.p.map((f) => { const id = f.ch.id; if (!SC[id]) return null;
-      const s = { intro: scenePick(id, 'intro', 'tall'), victory: scenePick(id, 'victory', 'tall'), defeat: scenePick(id, 'defeat', 'tall'), taunt: [scenePick(id, 'taunt'), scenePick(id, 'taunt')], damage: scenePick(id, 'damage'), super: scenePick(id, 'power') || scenePick(id, 'attack') };
+      const s = { intro: scenePick(id, 'intro', 'tall'), victory: scenePick(id, 'victory', 'tall'), defeat: scenePick(id, 'defeat', 'tall'), taunt: (() => { const a = scenePick(id, 'taunt'); let b = a; for (let i = 0; i < 6 && b === a; i++) b = scenePick(id, 'taunt'); return [a, b]; })(), damage: scenePick(id, 'damage'), super: Math.random() < 0.5 ? (scenePick(id, 'attack') || scenePick(id, 'power')) : (scenePick(id, 'power') || scenePick(id, 'attack')) };
       Object.values(s).flat().forEach((x) => x && sceneImg(x)); return s; });
   }
   const sceneReady = (file) => { const im = file && SCENE_IMGS.get(file); return !!(im && im.complete && im.naturalWidth); };
   const cineEl = () => $('#cine');
   function cineClear() { const c = cineEl(); if (c) { c.replaceChildren(); c.className = 'cine'; } }
-  function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file + '?v=2'; i.alt = ''; i.className = cls || ''; return i; }
+  function cineImg(file, cls) { const i = document.createElement('img'); i.src = 'scenes/' + file + '?v=3'; i.alt = ''; i.className = cls || ''; return i; }
   // for the tall VS and result slots: a wide strip shows whole over a blurred, zoomed copy of itself instead of a heavy crop
   function slotImg(file) { const w = document.createElement('div'); w.className = 'slot-wide'; w.append(cineImg(file, 'sw-bg'), cineImg(file, 'sw-fg')); return w; }
   // VS screen before round 1 (the game waits while it plays; a tap or key skips it)
@@ -722,9 +722,9 @@
     const c = cineEl(); if (!c || !file || !sceneReady(file)) return false;
     cineClear(); c.classList.add('strip', cls, side ? 'from-r' : 'from-l', 'on');
     // the frame takes the panel's own shape, as large as fits, so nothing is ever cropped
-    const im = SCENE_IMGS.get(file), ar = im.naturalWidth / im.naturalHeight, W = c.clientWidth || 960, H = c.clientHeight || 540, card = ar < 1.8;
-    const h = Math.min(H * (cls === 'damage' ? 0.42 : card ? 0.7 : 0.6), W * (card ? 0.6 : 0.92) / ar), w = h * ar;
-    const cx = card ? (side ? W * 0.94 - w / 2 : W * 0.06 + w / 2) : W / 2, cy = H * (cls === 'damage' ? 0.36 : cls === 'taunt' ? 0.56 : 0.5);   // square cards sit on their fighter's side
+    const im = SCENE_IMGS.get(file), ar = im.naturalWidth / im.naturalHeight, A = $('#arena'), W = (A && A.clientWidth) || 960, H = (A && A.clientHeight) || 540, card = ar < 1.8;   // measure the arena: the emptied #cine is display:none here
+    const h = Math.min(H * (cls === 'damage' ? 0.42 : card ? 0.62 : 0.56), W * (card ? 0.6 : 0.92) / ar), w = h * ar;
+    const cx = clamp(card ? (side ? W * 0.94 - w / 2 : W * 0.06 + w / 2) : W / 2, w / 2 + 6, W - w / 2 - 6), cy = clamp(H * (cls === 'damage' ? 0.42 : cls === 'taunt' ? 0.56 : 0.55), H * 0.17 + h / 2, H - h / 2 - 6);   // always fully on screen, below the HUD   // square cards sit on their fighter's side
     const band = document.createElement('div'); band.className = 'strip-band'; band.append(cineImg(file)); Object.assign(band.style, { width: w + 'px', height: h + 'px', left: cx + 'px', top: cy + 'px' }); c.append(band);
     if (hold) G.cine = { t: 0, dur, kind: cls }; else { clearTimeout(cineStrip.t); cineStrip.t = setTimeout(() => { if (!G || !G.cine) cineClear(); }, dur * 1000); }
     return true;

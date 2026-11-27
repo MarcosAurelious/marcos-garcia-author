@@ -256,3 +256,12 @@ body.touchy .touch { display: flex; }
 .vs-l .slot-wide .sw-fg { width: 80%; } .vs-r .slot-wide .sw-fg { left: 20%; width: 80%; }   /* clear of the diagonal VS cut */
 /* the right-hand fighter is mirrored on the VS screen so both face each other */
 .vs-r > img, .vs-r > canvas, .vs-r .slot-wide img { transform: scaleX(-1); }
+
+/* phones held upright: stack the VS panels top and bottom so each panel is big enough to see */
+@media (orientation: portrait) {
+  .vs-side { width: 100%; height: 52%; }
+  .vs-l { top: 0; bottom: auto; clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%); }
+  .vs-r { top: auto; bottom: 0; right: 0; clip-path: polygon(0 14%, 100% 0, 100% 100%, 0 100%); }
+  .vs-l .slot-wide .sw-fg, .vs-r .slot-wide .sw-fg { left: 0; width: 100%; }
+  .vs-side .slot-wide .sw-fg { top: 8%; height: 80%; }
+}
