@@ -455,9 +455,13 @@
     MARS_ATTACK_IMAGES[set]=img('attacks/mars_'+action+'.png');
   }
   // Hand-painted extra sheets (walk, jump, specials...). Stored at 1.5x the 200px standard and drawn at 1/1.5 so they stay sharp; each loads only when its fighter fights.
-  const XSETS = { 'marcus-x': 'attacks/marcus_extra.webp?v=1', 'mars-x': 'attacks/mars_extra.webp?v=1' };
+  const XSETS = { 'marcus-x': 'attacks/marcus_extra.webp?v=1', 'mars-x': 'attacks/mars_extra.webp?v=1', 'mars-x2': 'attacks/mars_attacks.webp?v=1', 'marcus-x2': 'attacks/marcus_power.webp?v=1' };
   const XATL = { 'marcus-x': {"walk":[[0,626,261,298,128,298],[0,320,255,304,131,305],[1699,0,272,305,146,305],[585,0,257,314,133,315],[1136,0,291,311,136,311],[1429,0,268,306,131,306],[1356,320,277,299,145,299],[257,320,264,302,137,302]],"jump":[[1203,626,268,287,124,287],[286,926,275,279,123,279],[844,0,290,312,125,312],[289,0,294,316,126,316],[554,626,292,295,123,295],[0,0,287,318,126,318],[563,926,290,273,136,273],[523,320,281,302,126,302]],"charge":[[1635,320,275,299,141,299],[855,926,301,271,147,271],[1296,1214,287,252,141,253],[1585,1214,327,248,155,248],[318,1214,328,256,144,258],[648,1214,329,256,146,258],[1455,926,344,264,154,266],[1473,626,355,287,155,287],[848,626,353,290,153,290],[979,1214,315,255,146,259],[0,1214,316,263,152,265],[1158,926,295,269,144,274],[0,926,284,286,137,289],[263,626,289,298,142,299],[1084,320,270,300,134,300],[806,320,276,301,142,301]]},
     'mars-x': {"power":[[0,921,263,297,155,297],[306,317,350,301,187,296],[1443,0,364,302,197,296],[1047,0,394,306,210,300],[0,0,447,315,227,303],[1218,317,372,300,196,300],[603,620,350,299,185,299],[1205,620,294,298,180,297]],"hurt":[[449,0,306,311,178,310],[0,317,304,301,179,301],[896,1220,299,289,176,289],[0,2083,347,255,194,255],[349,2083,343,230,185,210],[694,2083,384,183,213,183],[1080,2083,430,145,225,145],[1512,2083,453,112,232,113]],"jump":[[1604,1802,287,260,147,260],[264,1220,297,290,172,290],[1501,1220,290,288,152,288],[886,317,330,300,188,299],[219,620,382,299,179,299],[265,921,320,296,184,296],[1292,1802,310,264,183,263],[757,0,288,310,170,310]],"walk":[[1809,0,197,301,118,298],[658,317,226,300,145,298],[955,620,248,298,165,299],[587,921,327,293,194,298],[1501,620,279,297,186,297],[1782,620,250,297,153,297],[1592,317,248,299,151,297],[0,620,217,299,124,297]],"throw":[[0,1802,244,279,142,278],[966,1802,324,268,220,267],[246,1802,377,279,252,279],[625,1802,339,274,271,275],[1592,1513,323,282,193,286],[1197,1220,302,289,70,289],[1440,921,261,291,114,291],[916,921,237,292,144,292]],"catch":[[367,1513,313,285,175,284],[1283,1513,307,284,190,284],[682,1513,599,285,355,285],[0,1513,365,287,177,286],[563,1220,331,290,161,290],[1155,921,283,292,166,292],[1703,921,277,291,163,291],[0,1220,262,291,159,291]],"proj":[[0,2340,249,81,179,40]]} };
+  XATL['mars-x2'] = {"special":[[983,1782,278,240,154,246],[1263,1782,283,240,158,246],[341,1782,319,265,166,259],[0,0,325,325,173,318],[327,0,347,320,172,320],[1553,1506,342,270,169,269],[662,1782,319,247,163,247],[1548,1782,278,239,155,247]],"lkick":[[1326,627,247,291,138,291],[1205,0,237,300,141,300],[1444,0,295,298,159,298],[676,0,225,301,155,301],[692,923,239,290,139,289],[933,923,337,290,172,289],[1272,923,233,290,151,289],[417,1215,254,288,148,287]],"hkick":[[1575,627,300,291,182,293],[444,627,293,294,196,294],[903,0,300,301,177,300],[1202,327,457,295,209,294],[392,327,439,297,193,297],[0,327,390,298,180,298],[833,327,367,297,187,296],[1661,327,303,295,189,296]],"heavy":[[1507,923,297,289,190,289],[0,1506,342,274,179,274],[0,1215,415,289,168,289],[268,923,422,290,178,290],[0,627,442,294,203,294],[1100,1506,451,273,194,272],[964,1215,352,282,174,280],[1008,627,316,292,188,293]],"light":[[739,627,267,292,150,292],[1597,1215,277,277,180,277],[673,1215,289,285,192,285],[0,1782,339,266,191,266],[344,1506,369,273,173,272],[715,1506,383,273,152,272],[1318,1215,277,281,119,280],[0,923,266,290,145,289]]};
+  // which painted frames play in each part of an attack: [startup], [hit window], [recovery]
+  const XATK = { light: [[1, 3], [4, 5], [6, 7]], heavy: [[1, 2], [3, 4, 5], [6, 7]], lkick: [[1], [2, 5], [6, 7]], hkick: [[1, 2], [3, 4], [5, 6, 7]], special: [[0, 1, 2, 3], [4, 5], [6, 7]] };
+  XATL['marcus-x2'] = {"power":[[1557,327,275,300,147,301],[550,635,274,298,150,300],[656,327,289,304,155,300],[319,327,335,305,158,300],[947,327,298,303,146,301],[1247,327,308,303,150,301],[0,327,317,306,155,303],[1686,0,338,312,159,309],[1021,0,329,317,152,308],[689,0,330,321,154,311],[350,0,337,323,154,311],[0,0,348,325,160,312],[1352,0,332,317,150,308],[826,635,311,298,153,297],[0,635,273,300,145,299],[275,635,273,299,146,298]]};
   const XIMG = {}; const xImg = (set) => XIMG[set] || (XIMG[set] = img(XSETS[set]));
   const XSET_OF = { marcus: 'marcus-x', mars: 'mars-x' };
   const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS, HADES_ATLAS, XATL);
@@ -816,7 +820,7 @@
       if (fw && !f.fwdHeld) { if (G.t - (f.fwdTap ?? -9) < 0.3) f.ffT = G.t; f.fwdTap = G.t; }
       f.fwdHeld = fw;
     }
-    if (f.ch.id === 'mars' && f.state === 'attack' && (f.move === 'heavy' || f.move === 'hkick') && f.t < 0.12 && f.onGround && inp.hkH && inp.hpH) startMove(f, 'powerup');   // HP and HK pressed a frame apart still count as together
+    if (f.state === 'attack' && (f.move === 'heavy' || f.move === 'hkick') && f.t < 0.12 && f.onGround && inp.hkH && inp.hpH) startMove(f, 'powerup');   // HP and HK pressed a frame apart still count as together
     f.crouch = f.onGround && inp.down && (f.state === 'idle' || f.state === 'walk' || f.state === 'block');
     const canAct = f.state === 'idle' || f.state === 'walk' || (f.state === 'jump' && !f.airAttacked);
     if (f.state === 'ko') { /* fall */ }
@@ -840,7 +844,8 @@
       } else if (f.move === 'powerup') {   // Power Up: hold heavy punch + heavy kick to charge the super meter; let go (or fill it) to burst
         if (f.pwEnd == null) {
           if (f.t > 0.25) f.meter = Math.min(100, f.meter + 42 * dt);
-          if ((!(inp.hkH && inp.hpH) && f.t > 0.4) || (f.meter >= 100 && f.t > 0.6) || f.t > 4) { f.pwEnd = f.t; G.shake = Math.max(G.shake, 0.3); spark(f.x, f.y - BODY_H * f.ch.size * 0.5, ['#ffd27a', '#ffffff', '#ff9a3d'], 24); SFX.power(); }
+          if (!calm && !hasPowerArt(f) && Math.random() < 0.45) spark(f.x + rand(-45, 45), f.y - rand(0, BODY_H * f.ch.size), f.ch.special.col, 1);
+          if ((!(inp.hkH && inp.hpH) && f.t > 0.4) || (f.meter >= 100 && f.t > 0.6) || f.t > 4) { f.pwEnd = f.t; G.shake = Math.max(G.shake, 0.3); spark(f.x, f.y - BODY_H * f.ch.size * 0.5, f.ch.special.col.concat(['#ffffff']), 24); SFX.power(); }
         } else if (f.t - f.pwEnd >= 0.5) { f.state = 'idle'; f.move = null; }
       } else if (f.move === 'charge') {   // Shield Charge: a shoulder-down rush that stops dead on impact
         if (inAct && !f.hit) {
@@ -858,7 +863,7 @@
       if (f.onGround) f.face = toward;
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
       else if (inp.hkick && f.ch.id === 'marcus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'charge'); SFX.zap(); }
-      else if (inp.hkick && inp.heavy && f.ch.id === 'mars' && f.onGround) startMove(f, 'powerup');   // hold heavy punch + heavy kick
+      else if (inp.hkick && inp.heavy && f.onGround) startMove(f, 'powerup');   // every fighter: hold heavy punch + heavy kick
       else if (inp.hkick && f.ch.id === 'mars' && f.onGround && !f.shield && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'sthrow'); }
       else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
@@ -926,6 +931,18 @@
     const [sx, sy, w, h, ax, ay] = XATL['mars-x'].proj[0], k = f.ch.scale / 1.5;
     ctx.save(); ctx.translate(s.x, s.y + (calm ? 0 : Math.sin(G.t * 20) * 3)); ctx.scale(s.dir, 1); if (!calm) ctx.rotate(Math.sin(G.t * 14) * 0.1);
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, sx, sy, w, h, -ax * k, -ay * k, w * k, h * k); ctx.restore();
+  }
+  function hasPowerArt(f) { return (f.ch.id === 'mars' && !!xImg('mars-x').naturalWidth) || (f.ch.id === 'marcus' && !!xImg('marcus-x2').naturalWidth); }
+  const powering = (f) => f.state === 'attack' && f.move === 'powerup';
+  function drawView(f) { return powering(f) && !hasPowerArt(f) ? Object.assign(Object.create(f), { state: 'idle', move: null }) : f; }   // fighters without power-up art hold their stance inside the aura
+  function drawPowerAura(f) {
+    if (!powering(f) || hasPowerArt(f)) return;
+    const c = f.ch.special.col, H = BODY_H * f.ch.size, cy = f.y - H * 0.5, k = f.pwEnd == null ? Math.min(1, f.t / 0.35) : Math.max(0, 1 - (f.t - f.pwEnd) / 0.5), pulse = calm ? 1 : 1 + Math.sin(G.t * 18) * 0.08, burst = f.pwEnd != null ? 1 + (f.t - f.pwEnd) * 1.6 : 1;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.6 * k;
+    const g = ctx.createRadialGradient(f.x, cy, 8, f.x, cy, H * 0.7 * pulse * burst); g.addColorStop(0, c[1]); g.addColorStop(0.45, c[0]); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(f.x - H * 1.4, cy - H * 1.4, H * 2.8, H * 2.8);
+    ctx.globalAlpha = 0.9 * k; ctx.strokeStyle = c[0]; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(f.x, f.y + 2, 70 * f.ch.size * pulse * burst, 12 * pulse, 0, 0, 7); ctx.stroke();
+    ctx.restore();
   }
   function dashHit(f) { const o = opp(f); const reach = 120 * f.ch.size * FS;   // the rush hits in front of the charger: a centred box never touched anyone, since fighters are kept apart
     if (!f.dashHit && overlap({ x: f.face > 0 ? f.x - 30 : f.x - reach, y: f.y - BODY_H * f.ch.size, w: reach + 30, h: BODY_H * f.ch.size }, hurtbox(o)) && o.state !== 'ko') { f.dashHit = true; damage(f, o, f.dashDmg, 0.5, 420, (f.x + o.x) / 2); } }
@@ -1001,10 +1018,10 @@
       default: break;
     }
     if (f.ch.id === 'marcus' && f.onGround && f.state !== 'attack' && dist > 200 && dist < 560 && Math.random() < 0.01 * lvl) { f.ffT = G.t; inp.hkick = true; }   // the CPU Marcus uses his Shield Charge too
-    if (f.ch.id === 'mars') {   // the CPU Mars throws his shield from range and powers up when it's safe
-      if (f.state === 'attack' && f.move === 'powerup') inp.hkH = inp.hpH = dist > 280;
-      else if (f.onGround && f.state !== 'attack' && !f.shield && dist > 240 && dist < 620 && Math.random() < 0.009 * lvl) { f.ffT = G.t; inp.hkick = true; inp.heavy = false; }
-      else if (f.onGround && f.state !== 'attack' && dist > 480 && f.meter < 70 && Math.random() < 0.006 * lvl) { inp.hkick = inp.heavy = true; }
+    if (f.state === 'attack' && f.move === 'powerup') inp.hkH = inp.hpH = dist > 280;   // every CPU powers up when it's safe
+    else if (f.onGround && f.state !== 'attack' && dist > 480 && f.meter < 70 && Math.random() < 0.006 * lvl) { inp.hkick = inp.heavy = true; }
+    if (f.ch.id === 'mars') {   // the CPU Mars throws his shield from range
+      if (f.onGround && f.state !== 'attack' && !f.shield && dist > 240 && dist < 620 && Math.random() < 0.009 * lvl) { f.ffT = G.t; inp.hkick = true; inp.heavy = false; }
     }
     return inp;
   }
@@ -1102,7 +1119,7 @@
     else if (f.state === 'ko') { k = A.ko ? 'ko' : 'hurt'; frame = Math.min(1, f.t * 1.8) * 0.999; }
     if (G.mode === 'over' && f === G.winner) { k = 'victory'; frame = f.anim * 2; }
     const h = A[k] || A.idle, all = ALL[h.set][h.a], list = h.f || all.map((_, i) => i);
-    if(f.ch.id==='mars' && f.state==='attack' && (f.move==='heavy'||f.move==='hkick')){
+    if(f.ch.id==='mars' && f.state==='attack' && (f.move==='heavy'||f.move==='hkick') && !xImg('mars-x2').naturalWidth){   // older Mars attack sheets, only until the new ones load
       const set='mars-atk-'+f.move, image=MARS_ATTACK_IMAGES[set];
       if(image && image.complete && image.naturalWidth===2560 && image.naturalHeight===320){
         const move=MOVES[f.move], total=move.start+move.act+move.rec;
@@ -1112,12 +1129,24 @@
     const XS = XSET_OF[f.ch.id];
     if (XS && k !== 'victory') {   // hand-painted extra sheets (falls back to the older poses until the sheet loads)
       const xi = xImg(XS), X = (a, i) => ({ h: { set: XS, a }, idx: i, mix: 0 });
+      if (XS === 'marcus-x' && f.state === 'attack' && f.move === 'powerup' && xImg('marcus-x2').naturalWidth) {   // Marcus's painted power-up: build, crackle, settle
+        const P = (i) => ({ h: { set: 'marcus-x2', a: 'power' }, idx: i, mix: 0 }), t = f.t;
+        if (f.pwEnd == null) return P(t < 0.4 ? Math.floor(t / 0.1) : t < 0.8 ? 4 + Math.floor((t - 0.4) / 0.1) : 8 + (Math.floor((t - 0.8) * 10) % 4));
+        const e = f.t - f.pwEnd; return P(e < 0.1 ? 11 : e < 0.2 ? 12 : e < 0.3 ? 13 : e < 0.4 ? 14 : 15);
+      }
+      if (XS === 'marcus-x') xImg('marcus-x2');   // fetch his power-up frames ahead of time
       if (xi.complete && xi.naturalWidth) {
         if (f.state === 'attack' && f.move === 'charge') { const m = MOVES.charge; return X('charge', Math.floor(clamp(f.t / (m.start + m.act + m.rec), 0, 0.9999) * 16)); }
         if (f.state === 'walk') { let i = Math.floor(((((f.strideTravel || 0) / 150) % 1) + 1) % 1 * 8); if (f.vx * f.face < 0) i = 7 - i; return X('walk', i); }
         if (f.state === 'jump') { const p = (f.jt || 0) / 0.82; return X('jump', p < 0.06 ? 1 : p < 0.25 ? 2 : p < 0.45 ? 3 : p < 0.6 ? 4 : 5); }
         if (f.state === 'idle' && G.t - (f.landAt ?? -9) < 0.2) return X('jump', G.t - f.landAt < 0.1 ? 6 : 7);
         if (XS === 'mars-x') {
+          const x2 = xImg('mars-x2');   // Mars's painted punches, kicks and Crimson Cleave
+          if (f.state === 'attack' && XATK[f.move] && x2.complete && x2.naturalWidth) {
+            const m = MOVES[f.move], [a, b, c] = XATK[f.move], act = f.move === 'special' ? 0.22 : m.act, t = f.t, rest = Math.max(0.01, m.act + m.rec - act);
+            const seg = (list, p) => list[Math.min(list.length - 1, Math.floor(clamp(p, 0, 0.9999) * list.length))];
+            return { h: { set: 'mars-x2', a: f.move }, idx: t < m.start ? seg(a, t / m.start) : t < m.start + act ? seg(b, (t - m.start) / act) : seg(c, (t - m.start - act) / rest), mix: 0 };
+          }
           if (f.state === 'attack' && f.move === 'sthrow') { const m = MOVES.sthrow;
             if (f.catchT != null) return X('catch', Math.min(7, 2 + Math.floor((f.t - f.catchT) / 0.42 * 6)));
             if (!f.fired) return X('throw', Math.min(3, Math.floor(f.t / m.start * 4)));
@@ -1252,7 +1281,7 @@
         if (half*2 < CAM.w) visualX = clamp(visualX,CAM.x0+half,CAM.x0+CAM.w-half);
       }
     }
-    const SU = f.state === 'attack' && f.move === 'special' && f.superOn && (window.__ARENA_SUPERS || {})[f.ch.id], SUI = SU && (SUPIMG[f.ch.id] || (SUPIMG[f.ch.id] = img('supers/' + f.ch.id + '.webp')));
+    const SU = f.state === 'attack' && f.move === 'special' && f.superOn && !(f.ch.id === 'mars' && xImg('mars-x2').naturalWidth) && (window.__ARENA_SUPERS || {})[f.ch.id], SUI = SU && (SUPIMG[f.ch.id] || (SUPIMG[f.ch.id] = img('supers/' + f.ch.id + '.webp')));
     if (SU && SUI.complete && SUI.naturalWidth) {   // hand-drawn super: wind-up poses lead into the release frame right as the super fires
       const m = MOVES.special, n = SU.frames.length, R = SU.release, t = f.t;
       const i = t < m.start ? Math.floor(clamp(t / m.start, 0, 0.999) * R) : Math.min(n - 1, R + Math.floor(clamp((t - m.start) / (m.act + m.rec), 0, 0.999) * (n - R)));
@@ -1296,7 +1325,7 @@
   function drawFx(f) {
     drawStatus(f);
     if (AATLAS['a_' + f.ch.id]) return;   // these fighters draw their own swooshes
-    if (f.state === 'attack' && f.move !== 'special' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
+    if (f.state === 'attack' && f.move !== 'special' && f.move !== 'powerup' && f.t >= MOVES[f.move].start && f.t < MOVES[f.move].start + MOVES[f.move].act + 0.05) {
       const reach = MOVES[f.move].reach * f.ch.size * FS; ctx.save(); ctx.globalAlpha = 0.85; ctx.globalCompositeOperation = 'lighter';
       const kick = f.move === 'lkick' || f.move === 'hkick'; spr(ctx, 'fx', 'slash', 0, f.x + f.face * reach * 0.7, f.y - BODY_H * f.ch.size * (kick ? 0.3 : 0.55), f.face, f.move === 'heavy' || f.move === 'hkick' ? 2.3 : 1.6); ctx.restore(); }
   }
@@ -1375,7 +1404,8 @@
         const me0 = G.p[0], k = CAM ? CAM.s / HS : 1, x0 = CAM ? CAM.x0 : 0, t0 = CAM ? CAM.top : 0, half = BODY_H * me0.ch.size * 0.35;
         const L = (me0.x - half - x0) * k, R = (me0.x + half - x0) * k, T = (me0.y - BODY_H * me0.ch.size * 1.1 - t0) * k, Bm = (me0.y - t0) * k;
         const behind = L < 318 && R > 18 && T < 346 && Bm > 96; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.22 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
-      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw', 'Hold K + I  Power Up (fills super)'] }[G.p[0].ch.id] || [], boxH = 250 + extra.length * 21;
+      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw'] }[G.p[0].ch.id] || [];
+      extra.push('Hold K + I  Power Up (fills super)'); const boxH = 250 + extra.length * 21;
       ctx.fillRect(18, 96, 300, boxH); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, boxH);
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
       ctx.font = '600 16px "Cormorant Garamond", Georgia, serif'; ctx.fillStyle = '#f3ead2';
@@ -1404,7 +1434,7 @@
       CX = clamp(CX, BASE.minX + Wv / 2, BASE.minX + BASE.w - Wv / 2);
       CAM = { x0: CX - Wv / 2, s: SW / Wv, top: VH - Hv, w: Wv, h: Hv }; ctx.scale(CAM.s, CAM.s); ctx.translate(-CAM.x0, -CAM.top);
     }
-    drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); order.forEach(drawFighter); drawAttacks(); G.p.forEach(drawShield);
+    drawBg(); const order = G.p.slice().sort((x, y) => (x.state === 'attack') - (y.state === 'attack')); G.p.forEach(drawPowerAura); order.forEach((f) => drawFighter(drawView(f))); drawAttacks(); G.p.forEach(drawShield);
     if (G.flash > 0 && !calm) { ctx.fillStyle = `rgba(255,255,255,${G.flash * 0.6})`; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     else if (G.flash > 0) { ctx.fillStyle = 'rgba(10,6,20,0.35)'; ctx.fillRect(-VW, -VH, VW * 3, VH * 3); }
     ctx.restore(); drawHud();
