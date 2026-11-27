@@ -467,7 +467,7 @@
   }
   const BGN = ['bg-pantheon', 'bg-tesla', 'bg-planets', 'bg-orbs', 'bg-eternity', 'bg-underworld', 'bg-pluto', 'bg-sketch', 'bg-chamber', 'bg-lab', 'bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge', 'bg-chiron', 'bg-diana'];
   const LOCAL_BG = ['bg-battlefield', 'bg-colosseum', 'bg-hades', 'bg-gate', 'bg-sea', 'bg-gorgon', 'bg-labyrinth', 'bg-forge', 'bg-chiron', 'bg-diana'];   // stages painted for the Arena live in fight/, the rest are shared with the Quest
-  const BGS = BGN.map((n) => img((LOCAL_BG.includes(n) ? '' : Q) + n + '.webp'));
+  const BGS = new Proxy([], { get: (t, k) => (typeof k === 'string' && /^\d+$/.test(k) && BGN[k] ? (t[k] || (t[k] = img((LOCAL_BG.includes(BGN[k]) ? '' : Q) + BGN[k] + '.webp?v=2'))) : t[k]) });   // each backdrop downloads only when its stage comes up (they're full resolution now)
 
   /* ================= the roster =================
      each fighter: frames for idle/walk/jump/light/heavy/special/hurt/ko, size, speed, and a special move */
@@ -986,15 +986,14 @@
   /* ================= drawing ================= */
   const BUSY = ['bg-sketch', 'bg-tesla', 'bg-orbs', 'bg-chamber'];
   const bgCache = new Map();
-  function bakedBg(im) {   // a softened, darker copy so the fighters stand out (works on every browser: shrink-and-grow blur)
+  function bakedBg(im) {   // a full-resolution, slightly darkened copy: sharp backdrops, fighters still stand out
     if (bgCache.has(im)) return bgCache.get(im);
     const busy = BUSY.some((n) => im.src.includes(n)), wide = im.naturalWidth / im.naturalHeight > 2.2, W = wide ? Math.round(VH * im.naturalWidth / im.naturalHeight) : Math.round(VW * 1.08), Hh = VH, s = Math.max(W / im.naturalWidth, Hh / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s;
-    const small = document.createElement('canvas'), k = busy ? 0.28 : 0.45; small.width = Math.round(W * k); small.height = Math.round(Hh * k);
-    const sg = small.getContext('2d'); sg.imageSmoothingQuality = 'high'; sg.drawImage(im, (W - w) / 2 * k, (Hh - h) / 2 * k, w * k, h * k);
-    const c = document.createElement('canvas'); c.width = Math.round(W * 1.5); c.height = Math.round(Hh * 1.5); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
-    g.drawImage(small, 0, 0, c.width, c.height); g.fillStyle = busy ? 'rgba(12,8,5,0.5)' : 'rgba(12,8,5,0.3)'; g.fillRect(0, 0, c.width, c.height);
+    const K = clamp(1 / s, 1, 3);   // bake at the art's own resolution (no shrink-and-grow blur)
+    const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(Hh * K); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+    g.drawImage(im, (W - w) / 2 * K, (Hh - h) / 2 * K, w * K, h * K); g.fillStyle = busy ? 'rgba(12,8,5,0.45)' : 'rgba(12,8,5,0.22)'; g.fillRect(0, 0, c.width, c.height);
     const v = g.createRadialGradient(c.width / 2, c.height * 0.62, c.height * 0.15, c.width / 2, c.height * 0.62, c.width * 0.6); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = v; g.fillRect(0, 0, c.width, c.height);
-    c.meta = { W, Hh, w, h }; bgCache.set(im, c); return c;
+    c.meta = { W, Hh, w, h, K }; bgCache.set(im, c); return c;
   }
   function bgLife(c, dx, dy, dw, dh) {   // animated fire, smoke and water on top of the painted stage (bg-fx.js)
     if (!window.ArenaBgFX || !c.meta) return;
@@ -1003,12 +1002,12 @@
     window.ArenaBgFX.draw(ctx, key, toWorld, performance.now() / 1000, calm);
   }
   function drawBg() {
-    const im = G.bg, R = CAM ? { x: CAM.x0, y: CAM.top, w: CAM.w, h: CAM.h } : { x: 0, y: 0, w: VW, h: VH }; ctx.fillStyle = '#120c08'; ctx.fillRect(R.x, R.y, R.w, R.h);
+    const im = G.bg, R = CAM ? { x: CAM.x0, y: CAM.top, w: CAM.w, h: CAM.h } : { x: 0, y: 0, w: VW, h: VH }; ctx.fillStyle = '#120c08'; ctx.fillRect(R.x, R.y, R.w, R.h); ctx.imageSmoothingQuality = 'high';
     if (im.complete && im.naturalWidth && CAM) {   // upright phone: the whole backdrop scaled to the view's height, drifting gently with the fight
-      const c = bakedBg(im), bw = c.width / 1.5, k = Math.max(R.h / VH, R.w / bw), dw = bw * k, dh = VH * k, mid = (G.p[0].x + G.p[1].x) / 2 - (R.x + R.w / 2), room = Math.max(0, (dw - R.w) / 2);
+      const c = bakedBg(im), bw = c.width / c.meta.K, k = Math.max(R.h / VH, R.w / bw), dw = bw * k, dh = VH * k, mid = (G.p[0].x + G.p[1].x) / 2 - (R.x + R.w / 2), room = Math.max(0, (dw - R.w) / 2);
       const dx = R.x + R.w / 2 - dw / 2 - clamp(mid / Math.max(100, R.w / 2 - 50), -1, 1) * room * 0.35, dy = R.y + (R.h - dh) * 0.7;
       ctx.drawImage(c, dx, dy, dw, dh); bgLife(c, dx, dy, dw, dh); }
-    else if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2, bw = c.width / 1.5;
+    else if (im.complete && im.naturalWidth) { const c = bakedBg(im), par = (G.p[0].x + G.p[1].x) / 2 - VW / 2, bw = c.width / c.meta.K;
       if (bw > VW * 1.5) { const extra = bw - VW; G.pan = (G.pan ?? 0) + (clamp(par / 330, -1, 1) * extra / 2 - (G.pan ?? 0)) * 0.06; ctx.drawImage(c, -extra / 2 - G.pan, 0, bw, VH); bgLife(c, -extra / 2 - G.pan, 0, bw, VH); }   // panoramic stage: the camera drifts toward the action
       else { ctx.drawImage(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); bgLife(c, -VW * 0.04 - par * 0.04, 0, VW * 1.08, VH); } }
     const g = ctx.createLinearGradient(0, R.y, 0, VH); g.addColorStop(0, 'rgba(10,6,4,0.35)'); g.addColorStop(0.7, 'rgba(10,6,4,0.15)'); g.addColorStop(1, 'rgba(10,6,4,0.75)'); ctx.fillStyle = g; ctx.fillRect(R.x, R.y, R.w, R.h);
