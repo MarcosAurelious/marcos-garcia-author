@@ -455,15 +455,16 @@
     MARS_ATTACK_IMAGES[set]=img('attacks/mars_'+action+'.png');
   }
   // Hand-painted extra sheets (walk, jump, specials...). Stored at 1.5x the 200px standard and drawn at 1/1.5 so they stay sharp; each loads only when its fighter fights.
-  const XSETS = { 'marcus-x': 'attacks/marcus_extra.webp?v=1', 'mars-x': 'attacks/mars_extra.webp?v=1', 'mars-x2': 'attacks/mars_attacks.webp?v=1', 'marcus-x2': 'attacks/marcus_power.webp?v=1' };
+  const XSETS = { 'marcus-x': 'attacks/marcus_extra.webp?v=1', 'mars-x': 'attacks/mars_extra.webp?v=1', 'mars-x2': 'attacks/mars_attacks.webp?v=1', 'marcus-x2': 'attacks/marcus_power.webp?v=1', 'colossus-x': 'attacks/colossus_extra.webp?v=1' };
   const XATL = { 'marcus-x': {"walk":[[0,626,261,298,128,298],[0,320,255,304,131,305],[1699,0,272,305,146,305],[585,0,257,314,133,315],[1136,0,291,311,136,311],[1429,0,268,306,131,306],[1356,320,277,299,145,299],[257,320,264,302,137,302]],"jump":[[1203,626,268,287,124,287],[286,926,275,279,123,279],[844,0,290,312,125,312],[289,0,294,316,126,316],[554,626,292,295,123,295],[0,0,287,318,126,318],[563,926,290,273,136,273],[523,320,281,302,126,302]],"charge":[[1635,320,275,299,141,299],[855,926,301,271,147,271],[1296,1214,287,252,141,253],[1585,1214,327,248,155,248],[318,1214,328,256,144,258],[648,1214,329,256,146,258],[1455,926,344,264,154,266],[1473,626,355,287,155,287],[848,626,353,290,153,290],[979,1214,315,255,146,259],[0,1214,316,263,152,265],[1158,926,295,269,144,274],[0,926,284,286,137,289],[263,626,289,298,142,299],[1084,320,270,300,134,300],[806,320,276,301,142,301]]},
     'mars-x': {"power":[[0,921,263,297,155,297],[306,317,350,301,187,296],[1443,0,364,302,197,296],[1047,0,394,306,210,300],[0,0,447,315,227,303],[1218,317,372,300,196,300],[603,620,350,299,185,299],[1205,620,294,298,180,297]],"hurt":[[449,0,306,311,178,310],[0,317,304,301,179,301],[896,1220,299,289,176,289],[0,2083,347,255,194,255],[349,2083,343,230,185,210],[694,2083,384,183,213,183],[1080,2083,430,145,225,145],[1512,2083,453,112,232,113]],"jump":[[1604,1802,287,260,147,260],[264,1220,297,290,172,290],[1501,1220,290,288,152,288],[886,317,330,300,188,299],[219,620,382,299,179,299],[265,921,320,296,184,296],[1292,1802,310,264,183,263],[757,0,288,310,170,310]],"walk":[[1809,0,197,301,118,298],[658,317,226,300,145,298],[955,620,248,298,165,299],[587,921,327,293,194,298],[1501,620,279,297,186,297],[1782,620,250,297,153,297],[1592,317,248,299,151,297],[0,620,217,299,124,297]],"throw":[[0,1802,244,279,142,278],[966,1802,324,268,220,267],[246,1802,377,279,252,279],[625,1802,339,274,271,275],[1592,1513,323,282,193,286],[1197,1220,302,289,70,289],[1440,921,261,291,114,291],[916,921,237,292,144,292]],"catch":[[367,1513,313,285,175,284],[1283,1513,307,284,190,284],[682,1513,599,285,355,285],[0,1513,365,287,177,286],[563,1220,331,290,161,290],[1155,921,283,292,166,292],[1703,921,277,291,163,291],[0,1220,262,291,159,291]],"proj":[[0,2340,249,81,179,40]]} };
   XATL['mars-x2'] = {"special":[[983,1782,278,240,154,246],[1263,1782,283,240,158,246],[341,1782,319,265,166,259],[0,0,325,325,173,318],[327,0,347,320,172,320],[1553,1506,342,270,169,269],[662,1782,319,247,163,247],[1548,1782,278,239,155,247]],"lkick":[[1326,627,247,291,138,291],[1205,0,237,300,141,300],[1444,0,295,298,159,298],[676,0,225,301,155,301],[692,923,239,290,139,289],[933,923,337,290,172,289],[1272,923,233,290,151,289],[417,1215,254,288,148,287]],"hkick":[[1575,627,300,291,182,293],[444,627,293,294,196,294],[903,0,300,301,177,300],[1202,327,457,295,209,294],[392,327,439,297,193,297],[0,327,390,298,180,298],[833,327,367,297,187,296],[1661,327,303,295,189,296]],"heavy":[[1507,923,297,289,190,289],[0,1506,342,274,179,274],[0,1215,415,289,168,289],[268,923,422,290,178,290],[0,627,442,294,203,294],[1100,1506,451,273,194,272],[964,1215,352,282,174,280],[1008,627,316,292,188,293]],"light":[[739,627,267,292,150,292],[1597,1215,277,277,180,277],[673,1215,289,285,192,285],[0,1782,339,266,191,266],[344,1506,369,273,173,272],[715,1506,383,273,152,272],[1318,1215,277,281,119,280],[0,923,266,290,145,289]]};
   // which painted frames play in each part of an attack: [startup], [hit window], [recovery]
   const XATK = { light: [[1, 3], [4, 5], [6, 7]], heavy: [[1, 2], [3, 4, 5], [6, 7]], lkick: [[1], [2, 5], [6, 7]], hkick: [[1, 2], [3, 4], [5, 6, 7]], special: [[0, 1, 2, 3], [4, 5], [6, 7]] };
   XATL['marcus-x2'] = {"power":[[1557,327,275,300,147,301],[550,635,274,298,150,300],[656,327,289,304,155,300],[319,327,335,305,158,300],[947,327,298,303,146,301],[1247,327,308,303,150,301],[0,327,317,306,155,303],[1686,0,338,312,159,309],[1021,0,329,317,152,308],[689,0,330,321,154,311],[350,0,337,323,154,311],[0,0,348,325,160,312],[1352,0,332,317,150,308],[826,635,311,298,153,297],[0,635,273,300,145,299],[275,635,273,299,146,298]]};
+  XATL['colossus-x'] = {"power":[[1426,634,261,298,154,298],[586,938,276,293,159,293],[864,938,274,293,151,293],[1672,328,304,302,158,302],[1700,0,313,309,169,299],[1054,0,325,317,166,316],[707,0,345,323,174,322],[0,0,357,326,179,326],[359,0,346,326,177,326],[1381,0,317,315,162,312],[363,328,303,304,158,300],[834,634,296,299,158,287],[1016,328,291,303,154,292],[1140,938,275,293,161,293],[0,938,275,296,163,295],[0,634,274,302,165,302]],"zap":[[276,634,270,301,161,301],[277,938,307,294,165,294],[1417,938,292,291,162,291],[1132,634,292,298,162,298],[668,328,346,303,162,303],[0,328,361,304,170,304],[1309,328,361,302,165,302],[1689,634,352,297,157,297],[0,1236,361,284,139,284],[692,1236,361,283,135,283],[0,1522,361,276,135,276],[1329,1236,361,277,121,277],[363,1236,327,284,153,284],[1711,938,302,286,165,286],[1055,1236,272,282,154,282],[548,634,284,299,167,299]]};
   const XIMG = {}; const xImg = (set) => XIMG[set] || (XIMG[set] = img(XSETS[set]));
-  const XSET_OF = { marcus: 'marcus-x', mars: 'mars-x' };
+  const XSET_OF = { marcus: 'marcus-x', mars: 'mars-x', colossus: 'colossus-x' };
   const ALL = Object.assign({}, ATLAS, EATLAS, XATLAS, MATLAS, FATLAS, AATLAS, GENERATED, MARS_ATTACK_ATLAS, HADES_ATLAS, XATL);
   const imgFor = (set) => (set === 'hades16' ? hadesImg() : XSETS[set] ? xImg(set) : null) || MARS_ATTACK_IMAGES[set] || (GENERATED[set] ? generatedImg(set) : AATLAS[set] ? atkImg(set) : FATLAS[set] ? FIGHTIMG : set === 'boss' || set === 'bfx' ? BOSSIMG : MATLAS[set] ? MARCUSIMG : XATLAS[set] ? ELITEIMG : EATLAS[set] ? ENEMYIMG : SPR);
   const PIXEL = new Set(['knight', 'archer', 'commander', 'priestess', 'warrior', 'fx']);
@@ -616,6 +617,7 @@
     special: { start: 0.15, act: 0.10, rec: 0.23, reach: 0, dmg: 12, stun: 0.44, push: 360, meter: 0 },
     sthrow: { start: 0.2, act: 0.05, rec: 30, reach: 0, dmg: 9, stun: 0.32, push: 260, meter: 8 },   // Mars's Shield Throw (ends when he catches it)
     powerup: { start: 0, act: 0, rec: 30, reach: 0, dmg: 0, stun: 0, push: 0, meter: 0 },   // Mars's Power Up (ends when released)
+    zap: { start: 0.42, act: 0.36, rec: 0.3, reach: 0, dmg: 13, stun: 0.55, push: 380, meter: 10 },   // Colossus's Storm Beam: forward, forward + heavy kick
     charge: { start: 0.12, act: 0.40, rec: 0.30, reach: 0, dmg: 14, stun: 0.5, push: 420, meter: 9 },   // Marcus's Shield Charge: forward, forward + heavy kick
   };
   const CHAIN = { light: ['light', 'lkick', 'heavy', 'hkick', 'special'], lkick: ['heavy', 'hkick', 'special'], heavy: ['hkick', 'special'], hkick: ['special'] };   // cancels after a landed hit
@@ -818,7 +820,7 @@
       if (want && CHAIN[f.move] && CHAIN[f.move].includes(want === 'super' ? 'special' : want) && f.t >= MOVES[f.move].start + MOVES[f.move].act * (f.ch.id === 'mars' ? 0.2 : 0.5)) { if (want === 'super') startMove(f, 'special', true); else startMove(f, want); }
     }
     if (f.shield) updateShield(f, dt);
-    if (f.ch.id === 'marcus' || f.ch.id === 'mars') {   // Shield Charge / Shield Throw input: tap forward twice, then heavy kick
+    if (f.ch.id === 'marcus' || f.ch.id === 'mars' || f.ch.id === 'colossus') {   // Shield Charge / Shield Throw input: tap forward twice, then heavy kick
       const fw = f.face > 0 ? inp.right : inp.left;
       if (fw && !f.fwdHeld) { if (G.t - (f.fwdTap ?? -9) < 0.3) f.ffT = G.t; f.fwdTap = G.t; }
       f.fwdHeld = fw;
@@ -840,6 +842,8 @@
           if(f.ch.id==='pegasus'&&superPace(f)===1) f.y=FLOOR-92*Math.sin(Math.PI*(f.t-m.start)/.22);   // a hand-drawn super leaps on its own
           dashHit(f);
         } else if (sp.kind==='dash'||f.ch.id==='colossus') {f.vx*=.8;if(f.ch.id==='pegasus')f.y=FLOOR;}
+      } else if (f.move === 'zap') {   // Storm Beam: charge a lightning orb, then a beam picks up where the painted lightning leaves his hand
+        if (!f.fired && f.t >= m.start) { f.fired = true; const H = BODY_H * f.ch.size; G.beams.push({ owner: f.side, x: f.x + f.face * H * 0.6, y: f.y - H * 0.55, face: f.face, len: 430, t: 0, dur: m.act, dmg: m.dmg, hit: false, col: f.ch.special.col, kind: 'colossus' }); G.shake = Math.max(G.shake, 0.18); SFX.zap(); }
       } else if (f.move === 'sthrow') {   // Shield Throw: the shield flies out, turns back and Mars catches it
         if (!f.fired && f.t >= m.start) { f.fired = true; f.shield = { x: f.x + f.face * 80 * f.ch.size, y: f.y - BODY_H * f.ch.size * 0.6, vx: f.face * 880, dir: f.face, phase: 'out', travel: 0 }; FX.whoosh(true); }
         if (f.fired && !f.shield && f.catchT == null) f.catchT = f.t;   // caught (or the shield vanished at a round change)
@@ -867,6 +871,7 @@
       if (inp.super && f.meter >= 100 && f.onGround) startMove(f, 'special', true);
       else if (inp.hkick && f.ch.id === 'marcus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'charge'); SFX.zap(); }
       else if (inp.hkick && inp.heavy && f.onGround) startMove(f, 'powerup');   // every fighter: hold heavy punch + heavy kick
+      else if (inp.hkick && f.ch.id === 'colossus' && f.onGround && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'zap'); SFX.zap(); }
       else if (inp.hkick && f.ch.id === 'mars' && f.onGround && !f.shield && G.t - (f.ffT ?? -9) < 0.45) { f.ffT = -9; startMove(f, 'sthrow'); }
       else if (inp.hkick) { startMove(f, 'hkick'); if (!f.onGround) f.airAttacked = true; }
       else if (inp.lkick) { startMove(f, 'lkick'); if (!f.onGround) f.airAttacked = true; }
@@ -935,7 +940,7 @@
     ctx.save(); ctx.translate(s.x, s.y + (calm ? 0 : Math.sin(G.t * 20) * 3)); ctx.scale(s.dir, 1); if (!calm) ctx.rotate(Math.sin(G.t * 14) * 0.1);
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, sx, sy, w, h, -ax * k, -ay * k, w * k, h * k); ctx.restore();
   }
-  function hasPowerArt(f) { return (f.ch.id === 'mars' && !!xImg('mars-x').naturalWidth) || (f.ch.id === 'marcus' && !!xImg('marcus-x2').naturalWidth); }
+  function hasPowerArt(f) { return (f.ch.id === 'colossus' && !!xImg('colossus-x').naturalWidth) || (f.ch.id === 'mars' && !!xImg('mars-x').naturalWidth) || (f.ch.id === 'marcus' && !!xImg('marcus-x2').naturalWidth); }
   const powering = (f) => f.state === 'attack' && f.move === 'powerup';
   function drawView(f) { return powering(f) && !hasPowerArt(f) ? Object.assign(Object.create(f), { state: 'idle', move: null }) : f; }   // fighters without power-up art hold their stance inside the aura
   function drawPowerAura(f) {
@@ -1023,6 +1028,7 @@
     if (f.ch.id === 'marcus' && f.onGround && f.state !== 'attack' && dist > 200 && dist < 560 && Math.random() < 0.01 * lvl) { f.ffT = G.t; inp.hkick = true; }   // the CPU Marcus uses his Shield Charge too
     if (f.state === 'attack' && f.move === 'powerup') inp.hkH = inp.hpH = dist > 280;   // every CPU powers up when it's safe
     else if (f.onGround && f.state !== 'attack' && dist > 480 && f.meter < 70 && Math.random() < 0.006 * lvl) { inp.hkick = inp.heavy = true; }
+    if (f.ch.id === 'colossus' && f.onGround && f.state !== 'attack' && dist > 220 && dist < 520 && Math.random() < 0.008 * lvl) { f.ffT = G.t; inp.hkick = true; inp.heavy = false; }   // the CPU Colossus uses his Storm Beam
     if (f.ch.id === 'mars') {   // the CPU Mars throws his shield from range
       if (f.onGround && f.state !== 'attack' && !f.shield && dist > 240 && dist < 620 && Math.random() < 0.009 * lvl) { f.ffT = G.t; inp.hkick = true; inp.heavy = false; }
     }
@@ -1140,9 +1146,15 @@
       if (XS === 'marcus-x') xImg('marcus-x2');   // fetch his power-up frames ahead of time
       if (xi.complete && xi.naturalWidth) {
         if (f.state === 'attack' && f.move === 'charge') { const m = MOVES.charge; return X('charge', Math.floor(clamp(f.t / (m.start + m.act + m.rec), 0, 0.9999) * 16)); }
-        if (f.state === 'walk') { let i = Math.floor(((((f.strideTravel || 0) / 150) % 1) + 1) % 1 * 8); if (f.vx * f.face < 0) i = 7 - i; return X('walk', i); }
-        if (f.state === 'jump') { const p = (f.jt || 0) / 0.82; return X('jump', p < 0.06 ? 1 : p < 0.25 ? 2 : p < 0.45 ? 3 : p < 0.6 ? 4 : 5); }
-        if (f.state === 'idle' && G.t - (f.landAt ?? -9) < 0.2) return X('jump', G.t - f.landAt < 0.1 ? 6 : 7);
+        const has = (a) => !!XATL[XS][a];
+        if (XS === 'colossus-x') {   // Colossus: Storm Beam and Power Up
+          if (f.state === 'attack' && f.move === 'zap') { const m = MOVES.zap, t = f.t; return X('zap', t < m.start ? Math.floor(t / m.start * 8) : t < m.start + m.act ? 8 + Math.floor((t - m.start) / m.act * 4) : 12 + Math.min(3, Math.floor((t - m.start - m.act) / m.rec * 4))); }
+          if (f.state === 'attack' && f.move === 'powerup') { if (f.pwEnd == null) return X('power', f.t < 0.3 ? Math.floor(f.t / 0.1) : f.t < 0.6 ? 3 + Math.floor((f.t - 0.3) / 0.1) : 6 + (Math.floor((f.t - 0.6) * 10) % 4));
+            return X('power', 10 + Math.min(5, Math.floor((f.t - f.pwEnd) / 0.5 * 6))); }
+        }
+        if (has('walk') && f.state === 'walk') { let i = Math.floor(((((f.strideTravel || 0) / 150) % 1) + 1) % 1 * 8); if (f.vx * f.face < 0) i = 7 - i; return X('walk', i); }
+        if (has('jump') && f.state === 'jump') { const p = (f.jt || 0) / 0.82; return X('jump', p < 0.06 ? 1 : p < 0.25 ? 2 : p < 0.45 ? 3 : p < 0.6 ? 4 : 5); }
+        if (has('jump') && f.state === 'idle' && G.t - (f.landAt ?? -9) < 0.2) return X('jump', G.t - f.landAt < 0.1 ? 6 : 7);
         if (XS === 'mars-x') {
           const x2 = xImg('mars-x2');   // Mars's painted punches, kicks and Crimson Cleave
           if (f.state === 'attack' && XATK[f.move] && x2.complete && x2.naturalWidth) {
@@ -1407,7 +1419,7 @@
         const me0 = G.p[0], k = CAM ? CAM.s / HS : 1, x0 = CAM ? CAM.x0 : 0, t0 = CAM ? CAM.top : 0, half = BODY_H * me0.ch.size * 0.35;
         const L = (me0.x - half - x0) * k, R = (me0.x + half - x0) * k, T = (me0.y - BODY_H * me0.ch.size * 1.1 - t0) * k, Bm = (me0.y - t0) * k;
         const behind = L < 318 && R > 18 && T < 346 && Bm > 96; G.tpA = (G.tpA == null ? 1 : G.tpA) + ((behind ? 0.22 : 1) - (G.tpA == null ? 1 : G.tpA)) * 0.15; ctx.globalAlpha = G.tpA; }
-      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw'] }[G.p[0].ch.id] || [];
+      ctx.fillStyle = 'rgba(12,8,5,0.78)'; const extra = { marcus: ['▶ ▶ + I / HK  Shield Charge'], mars: ['▶ ▶ + I / HK  Shield Throw'], colossus: ['▶ ▶ + I / HK  Storm Beam'] }[G.p[0].ch.id] || [];
       extra.push('Hold K + I  Power Up (fills super)'); const boxH = 250 + extra.length * 21;
       ctx.fillRect(18, 96, 300, boxH); ctx.strokeStyle = '#a8842a'; ctx.strokeRect(18, 96, 300, boxH);
       ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#e7c46a'; ctx.font = '22px "Bebas Neue", Impact, sans-serif'; ctx.fillText('TRAINING · MOVE LIST', 30, 106);
